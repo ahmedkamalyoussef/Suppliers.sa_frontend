@@ -1,0 +1,168 @@
+@import url("https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.5.0/remixicon.min.css");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@font-face {
+  font-family: "Pacifico";
+  src: url("/public/fonts/Pacifico-Regular.ttf") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+.leaflet-tooltip.custom-tooltip {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  margin-top: -10px;
+}
+
+.leaflet-tooltip-top.custom-tooltip::before {
+  border-top-color: white;
+}
+
+/* تحسينات للـ tooltip في الخريطة - حل مشكلة الـ flickering */
+.leaflet-business-tooltip {
+  pointer-events: auto !important;
+  z-index: 1000 !important;
+  transition: opacity 0.2s ease !important;
+  margin-top: -15px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* منع أي تأثيرات hover على الـ tooltip نفسه التي قد تسبب flickering */
+.leaflet-business-tooltip * {
+  pointer-events: auto !important;
+}
+
+.leaflet-business-tooltip .leaflet-btn-view,
+.leaflet-business-tooltip .leaflet-btn-dir {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.leaflet-business-tooltip .leaflet-btn-view:hover,
+.leaflet-business-tooltip .leaflet-btn-dir:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+/* ضمان ثبات الـ tooltip عند hover */
+.leaflet-business-tooltip:hover {
+  pointer-events: auto !important;
+}
+
+/* تحسينات إضافية للعربية */
+.leaflet-business-tooltip[dir="rtl"] {
+  text-align: right;
+  direction: rtl;
+}
+
+/* إزالة السهم الافتراضي للـ tooltip */
+.leaflet-tooltip-top::before,
+.leaflet-tooltip-bottom::before,
+.leaflet-tooltip-left::before,
+.leaflet-tooltip-right::before {
+  display: none !important;
+}
+
+/* تحسينات للأزرار داخل الـ tooltip */
+.leaflet-business-tooltip button {
+  font-family: inherit;
+  font-weight: 600;
+  outline: none;
+}
+
+.leaflet-business-tooltip button:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* تحسينات للخريطة بشكل عام */
+.leaflet-container {
+  font-family: inherit;
+  direction: ltr;
+}
+
+.leaflet-container[dir="rtl"] {
+  direction: rtl;
+}
+
+/* تحسينات للـ marker */
+.custom-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* تحسينات للـ control buttons */
+.reset-control button {
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reset-control button:hover {
+  background: #f0f9ff !important;
+  transform: scale(1.05) !important;
+}
+
+/* تحسينات للـ popup */
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.leaflet-popup-content {
+  margin: 12px 16px;
+  font-family: inherit;
+}
+
+.leaflet-popup-tip {
+  box-shadow: none;
+}
+
+/* تحسينات responsiveness */
+@media (max-width: 768px) {
+  .leaflet-business-tooltip {
+    min-width: 200px !important;
+    max-width: 280px !important;
+  }
+
+  .leaflet-business-tooltip .leaflet-btn-view,
+  .leaflet-business-tooltip .leaflet-btn-dir {
+    padding: 4px 8px !important;
+    font-size: 11px !important;
+  }
+}
+
+/* تحسينات للـ scrollbar في حال وجود محتوى طويل */
+.leaflet-popup-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.leaflet-popup-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.leaflet-popup-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.leaflet-popup-content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Gap بين الـ marker والـ tooltip لمنع الـ flickering */
+.leaflet-tooltip {
+  pointer-events: none;
+}
+
+.leaflet-tooltip .leaflet-business-tooltip-content {
+  pointer-events: auto;
+}

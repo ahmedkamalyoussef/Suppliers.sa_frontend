@@ -1,0 +1,8 @@
+{
+  "/register/page": "app/register/page.js",
+  "/add-business/page": "app/add-business/page.js",
+  "/complete-profile/page": "app/complete-profile/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/forgot-password/page": "app/forgot-password/page.js",
+  "/login/page": "app/login/page.js"
+}
