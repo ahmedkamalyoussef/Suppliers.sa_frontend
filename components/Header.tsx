@@ -22,10 +22,17 @@ export default function Header() {
   const router = useRouter();
 
   const unreadCount = 3;
-  
+
   // Get user data from auth context
   const userName = user?.name || "";
-  const userInitials = userName ? userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : "SU";
+  const userInitials = userName
+    ? userName
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
+    : "SU";
 
   // Track auth state changes
   useEffect(() => {
@@ -507,7 +514,7 @@ export default function Header() {
 
               {/* Show Auth Links for Guest on Mobile */}
               {!isLoading && !isAuthenticated && (
-                <div className="pt-4 border-t border-gray-200 space-y-2">
+                <div className="pt-4 border-t border-gray-200 space-y-4">
                   <Link
                     href="/register"
                     className="block w-full text-center text-gray-700 hover:text-yellow-600 border border-gray-300 font-medium transition-colors py-2 px-3 rounded-lg"

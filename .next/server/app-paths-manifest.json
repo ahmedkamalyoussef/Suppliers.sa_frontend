@@ -1,7 +1,9 @@
 {
-  "/not-found": "app/not-found.js",
-  "/forgot-password/page": "app/forgot-password/page.js",
   "/page": "app/page.js",
-  "/login/page": "app/login/page.js",
-  "/reset-password/page": "app/reset-password/page.js"
+  "/complete-profile/page": "app/complete-profile/page.js",
+  "/forgot-password/page": "app/forgot-password/page.js",
+  "/reset-password/page": "app/reset-password/page.js",
+  "/profile/[id]/page": "app/profile/[id]/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/login/page": "app/login/page.js"
 }
