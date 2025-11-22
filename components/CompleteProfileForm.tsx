@@ -698,6 +698,23 @@ export default function CompleteProfileForm({
     }
   }, [currentStep]);
 
+  // Sync crFile with formData.document
+  useEffect(() => {
+    if (crFile) {
+      console.log("Updating formData.document with crFile:", crFile.name);
+      setFormData(prev => ({
+        ...prev,
+        document: crFile
+      }));
+    } else {
+      console.log("Clearing formData.document");
+      setFormData(prev => ({
+        ...prev,
+        document: null
+      }));
+    }
+  }, [crFile]);
+
   // Function to manually allow submission
   const allowSubmission = () => {
     console.log("Manually allowing submission");
@@ -793,6 +810,8 @@ export default function CompleteProfileForm({
 
   const handleCRFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const file = e.target.files?.[0];
+    console.log("File selected:", file?.name, file?.type, file?.size);
+    
     if (file) {
       const allowedTypes = [
         "image/jpeg",
@@ -801,6 +820,7 @@ export default function CompleteProfileForm({
         "application/pdf",
       ];
       if (!allowedTypes.includes(file.type)) {
+        console.log("Invalid file type:", file.type);
         setErrors((prev) => ({
           ...prev,
           crFile: "Please upload a valid file (JPG, PNG, or PDF)",
@@ -809,6 +829,7 @@ export default function CompleteProfileForm({
       }
 
       if (file.size > 5 * 1024 * 1024) {
+        console.log("File too large:", file.size);
         setErrors((prev) => ({
           ...prev,
           crFile: "File size must be less than 5MB",
@@ -816,6 +837,7 @@ export default function CompleteProfileForm({
         return;
       }
 
+      console.log("Setting crFile:", file.name);
       setCrFile(file);
 
       if (file.type.startsWith("image/")) {
@@ -911,6 +933,21 @@ export default function CompleteProfileForm({
     setSubmitStatus("Saving profile information...");
 
     try {
+      // Upload document first if exists
+      let documentResponse = null;
+      if (formData.document) {
+        console.log("Uploading document separately...");
+        try {
+          documentResponse = await apiService.uploadDocument(formData.document);
+          console.log("Document uploaded successfully:", documentResponse);
+        } catch (uploadError: any) {
+          console.error("Document upload failed:", uploadError);
+          setSubmitStatus(`Document upload failed: ${uploadError.message}`);
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       // Client-side validation for required fields
       if (!formData.businessName || formData.businessName.trim() === "") {
         setSubmitStatus("Business name is required");
@@ -962,7 +999,7 @@ export default function CompleteProfileForm({
         }
       }
 
-      // Prepare profile data (with document if exists)
+      // Prepare profile data (document already uploaded)
       const profileData: ProfileUpdateData = {
         businessName: formData.businessName,
         businessType: formData.businessType.toLowerCase(), // Convert to lowercase
@@ -1019,51 +1056,19 @@ export default function CompleteProfileForm({
         branches: branches || [], // Use branches state instead of formData.branches
         contactEmail: formData.contactEmail, // Add from verification/login
         contactPhone: formData.contactPhone, // Add from verification/login
-        // Include document if exists
-        ...(formData.document && { document: formData.document }),
+        // Document already uploaded separately, don't include here
       };
 
       console.log("Submitting profile data:", profileData);
       console.log("Branches data:", branches);
       console.log("Has branches:", branches && branches.length > 0);
       console.log("Main phone value:", mainPhoneValue);
+      console.log("Document upload response:", documentResponse);
 
-      // Update profile with all data including document
+      // Update profile with data (document already uploaded)
       let profileResponse;
-      if (formData.document) {
-        // Use FormData for file upload
-        const formDataToSend = new FormData();
-
-        // Add all profile fields
-        Object.entries(profileData).forEach(([key, value]) => {
-          if (key !== "document" && value !== undefined) {
-            if (typeof value === "object" && !Array.isArray(value)) {
-              formDataToSend.append(key, JSON.stringify(value));
-              console.log(`Adding ${key} as JSON:`, value);
-            } else {
-              formDataToSend.append(key, String(value));
-              console.log(`Adding ${key} as string:`, value);
-            }
-          }
-        });
-
-        // Add document file
-        formDataToSend.append("document", formData.document);
-        console.log("Adding document file:", formData.document);
-
-        console.log("Submitting with FormData:");
-        for (let [key, value] of formDataToSend.entries()) {
-          console.log(`${key}:`, value);
-        }
-
-        // Use a custom method for FormData submission
-        profileResponse = await apiService.updateProfileWithFormData(
-          formDataToSend
-        );
-      } else {
-        // Use regular JSON request
-        profileResponse = await apiService.updateProfile(profileData);
-      }
+      // Always use regular JSON request since document is uploaded separately
+      profileResponse = await apiService.updateProfile(profileData);
 
       console.log("Profile update response:", profileResponse);
 
