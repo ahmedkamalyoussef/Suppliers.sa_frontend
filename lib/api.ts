@@ -23,6 +23,17 @@ export interface VerifyOtpRequest {
   otp: string;
 }
 
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  email: string;
+  otp: string;
+  password: string;
+  password_confirmation: string;
+}
+
 export interface LoginRequest {
   email: string;
   password: string;
@@ -197,6 +208,14 @@ class ApiService {
         );
         // Log detailed validation errors
         console.error("Validation Errors:", validationError.errors);
+        console.error("Error data:", errorData);
+        // Log password validation specifically
+        if (errorData.password) {
+          console.error("Password validation errors:", errorData.password);
+        }
+        // Don't clone response here, it's already used in errorData
+        console.error("Status:", response.status);
+        console.error("Status text:", response.statusText);
         throw validationError;
       }
 
@@ -253,6 +272,20 @@ class ApiService {
     localStorage.removeItem("supplier_token");
     localStorage.removeItem("token_type");
     localStorage.removeItem("supplier_user");
+  }
+
+  async forgotPassword(data: ForgotPasswordRequest): Promise<{ message: string }> {
+    return this.request("/api/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async resetPassword(data: ResetPasswordRequest): Promise<{ message: string }> {
+    return this.request("/api/auth/reset-password", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
   }
 
   async sendOtp(data: SendOtpRequest): Promise<OtpResponse> {

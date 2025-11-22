@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { useLanguage } from "@/lib/LanguageContext"; // عدل المسار حسب مكانك
+import { apiService, type ForgotPasswordRequest } from "@/lib/api";
 
 export default function ForgotPasswordPage() {
   const { t } = useLanguage();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,10 +33,23 @@ export default function ForgotPasswordPage() {
     setIsSubmitting(true);
     setError("");
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    setIsSubmitted(true);
-    setIsSubmitting(false);
+    try {
+      const forgotData: ForgotPasswordRequest = { email };
+      console.log("Sending forgot password request:", forgotData);
+      
+      const response = await apiService.forgotPassword(forgotData);
+      console.log("Forgot password response:", response);
+      
+      // Redirect to reset-password page with email
+      router.push(`/reset-password?email=${encodeURIComponent(email)}`);
+      
+      setIsSubmitted(true);
+    } catch (error: any) {
+      console.error("Forgot password failed:", error);
+      setError(error.message || "Failed to send reset instructions. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isSubmitted) {
@@ -108,6 +124,12 @@ export default function ForgotPasswordPage() {
                 </h1>
                 <p className="text-gray-600">{t("forgotPassword.subtitle")}</p>
               </div>
+
+              {error && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-700 text-sm">{error}</p>
+                </div>
+              )}
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
