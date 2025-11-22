@@ -23,6 +23,32 @@ export interface VerifyOtpRequest {
   otp: string;
 }
 
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  message: string;
+  userType: string;
+  supplier: {
+    id: number;
+    slug: string;
+    name: string;
+    email: string;
+    phone: string;
+    profileImage: string;
+    emailVerifiedAt: string;
+    status: string;
+    plan: string;
+    profileCompletion: number;
+    profile: any;
+    branches: any[];
+  };
+  accessToken: string;
+  tokenType: string;
+}
+
 export interface OtpResponse {
   message: string;
   success: boolean;
@@ -190,6 +216,45 @@ class ApiService {
     });
   }
 
+  async login(data: LoginRequest): Promise<LoginResponse> {
+    const response = await this.request<LoginResponse>("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+
+    if (response.accessToken) {
+      localStorage.setItem("supplier_token", response.accessToken);
+      localStorage.setItem("token_type", response.tokenType || "Bearer");
+    }
+
+    return response;
+  }
+
+  async logout(): Promise<void> {
+    const token = localStorage.getItem("supplier_token");
+    const tokenType = localStorage.getItem("token_type") || "Bearer";
+
+    if (!token) throw new Error("No auth token found");
+
+    const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `${tokenType} ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: "Logout failed" }));
+      throw new Error(error.message || "Logout failed");
+    }
+
+    // Clear localStorage after successful logout
+    localStorage.removeItem("supplier_token");
+    localStorage.removeItem("token_type");
+    localStorage.removeItem("supplier_user");
+  }
+
   async sendOtp(data: SendOtpRequest): Promise<OtpResponse> {
     return this.request("/api/auth/send-otp", {
       method: "POST",
@@ -301,11 +366,6 @@ class ApiService {
   // ====== HELPERS ======
   isAuthenticated(): boolean {
     return !!localStorage.getItem("supplier_token");
-  }
-
-  logout(): void {
-    localStorage.removeItem("supplier_token");
-    localStorage.removeItem("token_type");
   }
 }
 

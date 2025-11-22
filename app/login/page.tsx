@@ -3,12 +3,17 @@
 import { useState } from "react";
 import type React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { useLanguage } from "@/lib/LanguageContext"; // عدل المسار حسب مكانك
+import { useAuth } from "@/lib/UserContext";
+import { apiService, type LoginRequest } from "@/lib/api";
 
 export default function LoginPage() {
   const { t } = useLanguage();
+  const { login } = useAuth();
+  const router = useRouter();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -17,6 +22,7 @@ export default function LoginPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState("");
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({
@@ -56,10 +62,39 @@ export default function LoginPage() {
     if (!validateForm()) return;
 
     setIsSubmitting(true);
+    setLoginError("");
 
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      const loginData: LoginRequest = {
+        email: formData.email,
+        password: formData.password,
+      };
 
-    window.location.href = "/dashboard";
+      console.log("Attempting login with:", loginData);
+      const response = await apiService.login(loginData);
+      console.log("Login response:", response);
+      console.log("Supplier data:", response.supplier);
+      console.log("Supplier name:", response.supplier.name);
+
+      // Check if user is a supplier
+      if (response.userType !== "supplier") {
+        setLoginError("This account is not a supplier account");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Use AuthContext login
+      login(response.supplier, response.accessToken, response.tokenType);
+
+      // Always redirect to homepage after login
+      console.log("Login successful, redirecting to homepage");
+      router.push("/");
+    } catch (error: any) {
+      console.error("Login failed:", error);
+      setLoginError(error.message || "Login failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -79,6 +114,12 @@ export default function LoginPage() {
                 </h1>
                 <p className="text-gray-600">{t("login.subtitle")}</p>
               </div>
+
+              {loginError && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-700 text-sm">{loginError}</p>
+                </div>
+              )}
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>

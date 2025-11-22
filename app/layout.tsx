@@ -1,6 +1,7 @@
 import localFont from "next/font/local";
 import "./globals.css";
 import { LanguageProvider } from "../lib/LanguageContext";
+import { AuthProvider } from "../lib/UserContext";
 import { Metadata } from "next";
 import "leaflet/dist/leaflet.css";
 const pacifico = localFont({
@@ -125,7 +126,9 @@ export default function RootLayout({
         className={`${pacifico.variable} ${inter.variable} ${robotoMono.variable} antialiased`}
         suppressHydrationWarning={true}
       >
-        <LanguageProvider>{children}</LanguageProvider>
+        <LanguageProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

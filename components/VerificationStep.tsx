@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useLanguage } from "../lib/LanguageContext";
+import { useAuth } from "../lib/UserContext";
 import { apiService, type SendOtpRequest, type VerifyOtpRequest } from "../lib/api";
 
 interface VerificationStepProps {
@@ -18,6 +19,7 @@ export default function VerificationStep({
   onBack 
 }: VerificationStepProps) {
   const { t } = useLanguage();
+  const { login } = useAuth();
   const [currentStep, setCurrentStep] = useState<"method" | "code">("method");
   const CODE_LENGTH = 6; // عدد أرقام الكود
   const [verificationCode, setVerificationCode] = useState<string[]>(
@@ -110,6 +112,11 @@ export default function VerificationStep({
       // Check if verification was successful and token was stored
       if (response.accessToken || (response.supplier && response.message?.toLowerCase().includes("verified"))) {
         console.log("Verification successful, token stored");
+        
+        // Use AuthContext login if user data is available
+        if (response.supplier && response.accessToken) {
+          login(response.supplier, response.accessToken, response.tokenType || "Bearer");
+        }
         
         // Store verification data in localStorage for complete profile page
         localStorage.setItem('verificationData', JSON.stringify(response));

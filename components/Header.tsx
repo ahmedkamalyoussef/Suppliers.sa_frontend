@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "../lib/LanguageContext";
+import { useAuth } from "../lib/UserContext";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ContactModal from "./ContactModal";
 import Image from "next/image";
@@ -17,12 +18,23 @@ export default function Header() {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const { t, isRTL } = useLanguage();
+  const { user, isAuthenticated, logout, isLoading } = useAuth();
   const router = useRouter();
 
-  const isLoggedIn = true;
   const unreadCount = 3;
-  const userName = "Ahmed Al-Rashid";
-  const userInitials = "AR";
+  
+  // Get user data from auth context
+  const userName = user?.name || "";
+  const userInitials = userName ? userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : "SU";
+
+  console.log("Header - isAuthenticated:", isAuthenticated, "userName:", userName);
+  console.log("Header - full user object:", user);
+  console.log("Header - user.name:", user?.name);
+
+  // Track auth state changes
+  useEffect(() => {
+    console.log("Header auth state changed:", { isAuthenticated, userName, user });
+  }, [isAuthenticated, userName, user]);
 
   // Sample messages for quick preview
   const recentMessages = [
@@ -61,8 +73,9 @@ export default function Header() {
     },
   ];
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
     setIsUserMenuOpen(false);
+    await logout();
     router.push("/");
   };
 
@@ -214,7 +227,7 @@ export default function Header() {
               </div>
 
               {/* Logged In User Menu */}
-              {isLoggedIn ? (
+              {!isLoading && isAuthenticated ? (
                 <>
                   {/* Messages */}
                   <div className="relative">
@@ -328,7 +341,7 @@ export default function Header() {
                         {userInitials}
                       </div>
                       <span className="hidden lg:block font-medium text-sm ml-1 ">
-                        {userName}
+                        {userName || "User"}
                       </span>
                       <i className="ri-arrow-down-s-line hidden lg:block text-lg"></i>
                     </button>
@@ -350,7 +363,7 @@ export default function Header() {
                               </div>
                               <div>
                                 <p className="font-semibold text-gray-800 text-sm">
-                                  {userName}
+                                  {userName || "User"}
                                 </p>
                                 <p className="text-xs text-gray-500">
                                   {t("userMenu.viewProfile")}
@@ -497,7 +510,7 @@ export default function Header() {
               </button>
 
               {/* Show Auth Links for Guest on Mobile */}
-              {!isLoggedIn && (
+              {!isLoading && !isAuthenticated && (
                 <div className="pt-4 border-t border-gray-200 space-y-2">
                   <Link
                     href="/register"
