@@ -137,6 +137,7 @@ export default function BusinessLocationMap({
         <div className="p-4 bg-gray-50 border-b border-gray-100">
           <div className="flex space-x-2 mb-4">
             <button
+              type="button"
               onClick={() => setLocationMethod("map")}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 locationMethod === "map"
@@ -148,6 +149,7 @@ export default function BusinessLocationMap({
               {t("map.methodPin")}
             </button>
             <button
+              type="button"
               onClick={() => setLocationMethod("city")}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 locationMethod === "city"
@@ -159,6 +161,7 @@ export default function BusinessLocationMap({
               {t("map.methodCity")}
             </button>
             <button
+              type="button"
               onClick={() => setLocationMethod("address")}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 locationMethod === "address"
@@ -204,6 +207,7 @@ export default function BusinessLocationMap({
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
               />
               <button
+                type="button"
                 onClick={handleAddressGeocode}
                 disabled={!customAddress.trim()}
                 className="w-full bg-yellow-400 text-white py-2 px-4 rounded-lg hover:bg-yellow-500 font-medium text-sm whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
@@ -217,6 +221,7 @@ export default function BusinessLocationMap({
           {locationMethod === "map" && (
             <div className="text-center">
               <button
+                type="button"
                 onClick={getCurrentLocation}
                 className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 font-medium text-sm whitespace-nowrap cursor-pointer mr-3"
               >
@@ -293,6 +298,7 @@ export default function BusinessLocationMap({
 
           {locationMethod === "map" && (
             <button
+              type="button"
               onClick={handleMapClick}
               className="w-full bg-yellow-400 text-white py-2 px-4 rounded-lg hover:bg-yellow-500 font-medium text-sm whitespace-nowrap cursor-pointer"
             >

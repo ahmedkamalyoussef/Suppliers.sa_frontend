@@ -1,6 +1,6 @@
 "use client";
 
-import { SetStateAction, useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import BranchManagement from "./BranchManagement";
 import { useLanguage } from "./../lib/LanguageContext";
@@ -139,6 +139,9 @@ export default function CompleteProfileForm({
   const [showVerificationModal, setShowVerificationModal] =
     useState<boolean>(false);
   const { t, language, isRTL } = useLanguage();
+  
+  // Track if form should allow submission
+  const allowSubmissionRef = useRef<boolean>(false);
 
   const [additionalPhones, setAdditionalPhones] = useState<AdditionalPhone[]>([
     { id: 1, type: "Sales Representative", number: "", name: "" },
@@ -684,7 +687,27 @@ export default function CompleteProfileForm({
     return [...new Set(allSuggestions)].slice(0, 15);
   };
 
-  const handleInputChange = (field: keyof ProfileFormData, value: string): void => {
+  // Track step changes to prevent auto-submission
+  useEffect(() => {
+    console.log("Step changed to:", currentStep);
+    if (currentStep === 6) {
+      console.log("Reached step 6 - submission disabled, waiting for manual trigger");
+      allowSubmissionRef.current = false;
+    } else {
+      allowSubmissionRef.current = false;
+    }
+  }, [currentStep]);
+
+  // Function to manually allow submission
+  const allowSubmission = () => {
+    console.log("Manually allowing submission");
+    allowSubmissionRef.current = true;
+  };
+
+  const handleInputChange = (
+    field: keyof ProfileFormData,
+    value: string
+  ): void => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -817,8 +840,9 @@ export default function CompleteProfileForm({
   };
 
   const validateStep = (step: number): boolean => {
+    console.log(`Validating step ${step}`);
     const newErrors: Errors = {};
-    
+
     switch (step) {
       case 1:
         if (!formData.businessName || formData.businessName.trim() === "") {
@@ -828,16 +852,19 @@ export default function CompleteProfileForm({
           newErrors.businessType = "Business type is required";
         }
         break;
-        
+
       case 2:
         if (!formData.categories || formData.categories.length === 0) {
           newErrors.categories = "At least one category is required";
         }
-        if (!formData.productKeywords || formData.productKeywords.length === 0) {
+        if (
+          !formData.productKeywords ||
+          formData.productKeywords.length === 0
+        ) {
           newErrors.productKeywords = "At least one keyword is required";
         }
         break;
-        
+
       case 3:
         if (!formData.mainPhone || formData.mainPhone.trim() === "") {
           newErrors.mainPhone = "Main phone is required";
@@ -846,34 +873,37 @@ export default function CompleteProfileForm({
           newErrors.address = "Address is required";
         }
         break;
-        
+
       case 4:
         // Location validation if needed
         break;
-        
+
       case 5:
         // Branches validation (optional)
         break;
-        
+
       case 6:
         // Documents validation (optional)
         break;
     }
-    
+
     if (Object.keys(newErrors).length > 0) {
+      console.log("Validation errors:", newErrors);
       setErrors(newErrors);
       return false;
     }
-    
+
+    console.log("Step validation passed");
     return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log("handleSubmit called - currentStep:", currentStep, "allowSubmission:", allowSubmissionRef.current);
     e.preventDefault();
     
-    // Only allow submission on the final step
-    if (currentStep < 6) {
-      console.log("Cannot submit - not on final step");
+    // Only allow submission on the final step AND if manually triggered
+    if (currentStep < 6 || !allowSubmissionRef.current) {
+      console.log("Cannot submit - not on final step or not manually triggered");
       return;
     }
 
@@ -949,48 +979,48 @@ export default function CompleteProfileForm({
         description: formData.description,
         // Always send workingHours with proper structure
         workingHours: {
-          monday: { 
-            open: formData.workingHours.monday.open || "09:00", 
-            close: formData.workingHours.monday.close || "17:00", 
-            closed: formData.workingHours.monday.closed 
+          monday: {
+            open: formData.workingHours.monday.open || "09:00",
+            close: formData.workingHours.monday.close || "17:00",
+            closed: formData.workingHours.monday.closed,
           },
-          tuesday: { 
-            open: formData.workingHours.tuesday.open || "09:00", 
-            close: formData.workingHours.tuesday.close || "17:00", 
-            closed: formData.workingHours.tuesday.closed 
+          tuesday: {
+            open: formData.workingHours.tuesday.open || "09:00",
+            close: formData.workingHours.tuesday.close || "17:00",
+            closed: formData.workingHours.tuesday.closed,
           },
-          wednesday: { 
-            open: formData.workingHours.wednesday.open || "09:00", 
-            close: formData.workingHours.wednesday.close || "17:00", 
-            closed: formData.workingHours.wednesday.closed 
+          wednesday: {
+            open: formData.workingHours.wednesday.open || "09:00",
+            close: formData.workingHours.wednesday.close || "17:00",
+            closed: formData.workingHours.wednesday.closed,
           },
-          thursday: { 
-            open: formData.workingHours.thursday.open || "09:00", 
-            close: formData.workingHours.thursday.close || "17:00", 
-            closed: formData.workingHours.thursday.closed 
+          thursday: {
+            open: formData.workingHours.thursday.open || "09:00",
+            close: formData.workingHours.thursday.close || "17:00",
+            closed: formData.workingHours.thursday.closed,
           },
-          friday: { 
-            open: formData.workingHours.friday.open || "09:00", 
-            close: formData.workingHours.friday.close || "17:00", 
-            closed: formData.workingHours.friday.closed 
+          friday: {
+            open: formData.workingHours.friday.open || "09:00",
+            close: formData.workingHours.friday.close || "17:00",
+            closed: formData.workingHours.friday.closed,
           },
-          saturday: { 
-            open: formData.workingHours.saturday.open || "09:00", 
-            close: formData.workingHours.saturday.close || "17:00", 
-            closed: formData.workingHours.saturday.closed 
+          saturday: {
+            open: formData.workingHours.saturday.open || "09:00",
+            close: formData.workingHours.saturday.close || "17:00",
+            closed: formData.workingHours.saturday.closed,
           },
-          sunday: { 
-            open: formData.workingHours.sunday.open || "09:00", 
-            close: formData.workingHours.sunday.close || "17:00", 
-            closed: formData.workingHours.sunday.closed 
-          }
+          sunday: {
+            open: formData.workingHours.sunday.open || "09:00",
+            close: formData.workingHours.sunday.close || "17:00",
+            closed: formData.workingHours.sunday.closed,
+          },
         },
         hasBranches: branches && branches.length > 0,
         branches: branches || [], // Use branches state instead of formData.branches
         contactEmail: formData.contactEmail, // Add from verification/login
         contactPhone: formData.contactPhone, // Add from verification/login
         // Include document if exists
-        ...(formData.document && { document: formData.document })
+        ...(formData.document && { document: formData.document }),
       };
 
       console.log("Submitting profile data:", profileData);
@@ -1003,11 +1033,11 @@ export default function CompleteProfileForm({
       if (formData.document) {
         // Use FormData for file upload
         const formDataToSend = new FormData();
-        
+
         // Add all profile fields
         Object.entries(profileData).forEach(([key, value]) => {
-          if (key !== 'document' && value !== undefined) {
-            if (typeof value === 'object' && !Array.isArray(value)) {
+          if (key !== "document" && value !== undefined) {
+            if (typeof value === "object" && !Array.isArray(value)) {
               formDataToSend.append(key, JSON.stringify(value));
               console.log(`Adding ${key} as JSON:`, value);
             } else {
@@ -1016,23 +1046,25 @@ export default function CompleteProfileForm({
             }
           }
         });
-        
+
         // Add document file
-        formDataToSend.append('document', formData.document);
+        formDataToSend.append("document", formData.document);
         console.log("Adding document file:", formData.document);
-        
+
         console.log("Submitting with FormData:");
         for (let [key, value] of formDataToSend.entries()) {
           console.log(`${key}:`, value);
         }
-        
+
         // Use a custom method for FormData submission
-        profileResponse = await apiService.updateProfileWithFormData(formDataToSend);
+        profileResponse = await apiService.updateProfileWithFormData(
+          formDataToSend
+        );
       } else {
         // Use regular JSON request
         profileResponse = await apiService.updateProfile(profileData);
       }
-      
+
       console.log("Profile update response:", profileResponse);
 
       setSubmitStatus("Profile submitted successfully!");
@@ -1294,8 +1326,6 @@ export default function CompleteProfileForm({
       <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
         {currentStep === 1 && (
           <div className="space-y-4 md:space-y-6">
-            
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2 md:mb-3">
                 {t("completeProfile.step1.businessTypeLabel")} *
@@ -2525,6 +2555,10 @@ export default function CompleteProfileForm({
           ) : (
             <button
               type="submit"
+              onClick={() => {
+                console.log("Submit button clicked - allowing submission");
+                allowSubmission();
+              }}
               disabled={isSubmitting}
               className={`px-4 md:px-6 py-2 md:py-3 rounded-lg font-medium whitespace-nowrap cursor-pointer transition-all text-sm md:text-base ${
                 isSubmitting
