@@ -1,4 +1,4 @@
-import { FormData } from "@/lib/types";
+import { ProfileFormData } from "@/lib/types";
 type Day =
   | "monday"
   | "tuesday"
@@ -14,7 +14,7 @@ interface WorkingHoursDay {
   closed: boolean;
 }
 
-export const initialFormData: FormData = {
+export const initialFormData: ProfileFormData = {
   businessName: "",
   category: "",
   description: "",
@@ -39,4 +39,9 @@ export const initialFormData: FormData = {
     saturday: { open: "", close: "", closed: false },
     sunday: { open: "", close: "", closed: false },
   },
+  whoDoYouServe: "",
+  location: { lat: 24.7136, lng: 46.6753 },
+  hasBranches: false,
+  branches: [],
+  document: null,
 };

@@ -27,7 +27,7 @@ export type Branch = {
   isMainBranch: boolean;
 };
 
-export interface FormData {
+export interface ProfileFormData {
   businessName: string;
   category: string;
   categories: string[];
@@ -52,6 +52,11 @@ export interface FormData {
     saturday: { open: string; close: string; closed: boolean };
     sunday: { open: string; close: string; closed: boolean };
   };
+  whoDoYouServe: string;
+  location: Location;
+  hasBranches: boolean;
+  branches: Branch[];
+  document: File | null;
 }
 
 export interface Location {
@@ -64,8 +69,13 @@ export interface Errors {
 }
 
 export interface CompleteProfileFormProps {
-  formData: FormData;
-  setFormData: React.Dispatch<React.SetStateAction<FormData>>;
+  formData: ProfileFormData;
+  setFormData: React.Dispatch<React.SetStateAction<ProfileFormData>>;
   selectedLocation: Location;
-  setSelectedLocation: React.Dispatch<React.SetStateAction<Location>>; // إضافة هذا السطر
+  setSelectedLocation: (location: Location) => void;
+  currentStep: number;
+  setCurrentStep: (step: number) => void;
+  nextStep: () => void;
+  prevStep: () => void;
+  goToStep: (step: number) => void;
 }

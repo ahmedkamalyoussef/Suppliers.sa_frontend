@@ -4,13 +4,14 @@ import { SetStateAction, useEffect, useState } from "react";
 import Link from "next/link";
 import BranchManagement from "./BranchManagement";
 import { useLanguage } from "./../lib/LanguageContext";
+import { apiService, type ProfileUpdateData } from "./../lib/api";
 import {
-  FormData,
+  ProfileFormData,
   AdditionalPhone,
   Location,
   Errors,
   CompleteProfileFormProps,
-  Branch,
+  type Branch,
 } from "./../lib/types";
 import BusinessLocationMap from "./BusinessLocationMap";
 
@@ -110,10 +111,10 @@ export default function CompleteProfileForm({
   setSelectedLocation,
   currentStep,
   setCurrentStep,
-}: CompleteProfileFormProps & {
-  currentStep: number;
-  setCurrentStep: (step: number) => void;
-}) {
+  nextStep,
+  prevStep,
+  goToStep,
+}: CompleteProfileFormProps) {
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [selectedTargetCustomers, setSelectedTargetCustomers] = useState<
     string[]
@@ -683,7 +684,7 @@ export default function CompleteProfileForm({
     return [...new Set(allSuggestions)].slice(0, 15);
   };
 
-  const handleInputChange = (field: keyof FormData, value: string): void => {
+  const handleInputChange = (field: keyof ProfileFormData, value: string): void => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -815,46 +816,266 @@ export default function CompleteProfileForm({
     }
   };
 
-  const validateStep = (_step: number): boolean => {
+  const validateStep = (step: number): boolean => {
+    const newErrors: Errors = {};
+    
+    switch (step) {
+      case 1:
+        if (!formData.businessName || formData.businessName.trim() === "") {
+          newErrors.businessName = "Business name is required";
+        }
+        if (!formData.businessType) {
+          newErrors.businessType = "Business type is required";
+        }
+        break;
+        
+      case 2:
+        if (!formData.categories || formData.categories.length === 0) {
+          newErrors.categories = "At least one category is required";
+        }
+        if (!formData.productKeywords || formData.productKeywords.length === 0) {
+          newErrors.productKeywords = "At least one keyword is required";
+        }
+        break;
+        
+      case 3:
+        if (!formData.mainPhone || formData.mainPhone.trim() === "") {
+          newErrors.mainPhone = "Main phone is required";
+        }
+        if (!formData.address || formData.address.trim() === "") {
+          newErrors.address = "Address is required";
+        }
+        break;
+        
+      case 4:
+        // Location validation if needed
+        break;
+        
+      case 5:
+        // Branches validation (optional)
+        break;
+        
+      case 6:
+        // Documents validation (optional)
+        break;
+    }
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return false;
+    }
+    
     return true;
   };
 
-  const handleSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
-  ): Promise<void> => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    e.stopPropagation(); // منع أي propagation
-
-    // تأكد إننا في الخطوة الأخيرة
-    if (currentStep !== 6) {
+    
+    // Only allow submission on the final step
+    if (currentStep < 6) {
+      console.log("Cannot submit - not on final step");
       return;
     }
 
     setIsSubmitting(true);
-    setSubmitStatus("Uploading documents and saving profile...");
+    setSubmitStatus("Saving profile information...");
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      // Client-side validation for required fields
+      if (!formData.businessName || formData.businessName.trim() === "") {
+        setSubmitStatus("Business name is required");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Ensure mainPhone has a value
+      const mainPhoneValue = formData.mainPhone || formData.contactPhone;
+      if (!mainPhoneValue || mainPhoneValue.trim() === "") {
+        setSubmitStatus("Main phone is required");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!formData.businessType || formData.businessType.trim() === "") {
+        setSubmitStatus("Business type is required");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!formData.categories || formData.categories.length === 0) {
+        setSubmitStatus("At least one business category is required");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!formData.services || formData.services.length === 0) {
+        setSubmitStatus("At least one service is required");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!formData.targetCustomers || formData.targetCustomers.length === 0) {
+        setSubmitStatus("Target customers information is required");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Skip contactEmail and contactPhone validation since backend doesn't use them
+      // Only validate if they are provided
+      if (formData.contactEmail && formData.contactEmail.trim() !== "") {
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.contactEmail)) {
+          setSubmitStatus("Please enter a valid email address");
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      // Prepare profile data (with document if exists)
+      const profileData: ProfileUpdateData = {
+        businessName: formData.businessName,
+        businessType: formData.businessType.toLowerCase(), // Convert to lowercase
+        categories: formData.categories,
+        productKeywords: formData.productKeywords,
+        whoDoYouServe: formData.targetCustomers.join(", "), // Convert array to string for backend
+        serviceDistance: formData.serviceDistance,
+        services: formData.services,
+        website: formData.website,
+        mainPhone: mainPhoneValue, // Use validated main phone value
+        additionalPhones: formData.additionalPhones,
+        address: formData.address,
+        location: formData.location,
+        description: formData.description,
+        // Always send workingHours with proper structure
+        workingHours: {
+          monday: { 
+            open: formData.workingHours.monday.open || "09:00", 
+            close: formData.workingHours.monday.close || "17:00", 
+            closed: formData.workingHours.monday.closed 
+          },
+          tuesday: { 
+            open: formData.workingHours.tuesday.open || "09:00", 
+            close: formData.workingHours.tuesday.close || "17:00", 
+            closed: formData.workingHours.tuesday.closed 
+          },
+          wednesday: { 
+            open: formData.workingHours.wednesday.open || "09:00", 
+            close: formData.workingHours.wednesday.close || "17:00", 
+            closed: formData.workingHours.wednesday.closed 
+          },
+          thursday: { 
+            open: formData.workingHours.thursday.open || "09:00", 
+            close: formData.workingHours.thursday.close || "17:00", 
+            closed: formData.workingHours.thursday.closed 
+          },
+          friday: { 
+            open: formData.workingHours.friday.open || "09:00", 
+            close: formData.workingHours.friday.close || "17:00", 
+            closed: formData.workingHours.friday.closed 
+          },
+          saturday: { 
+            open: formData.workingHours.saturday.open || "09:00", 
+            close: formData.workingHours.saturday.close || "17:00", 
+            closed: formData.workingHours.saturday.closed 
+          },
+          sunday: { 
+            open: formData.workingHours.sunday.open || "09:00", 
+            close: formData.workingHours.sunday.close || "17:00", 
+            closed: formData.workingHours.sunday.closed 
+          }
+        },
+        hasBranches: branches && branches.length > 0,
+        branches: branches || [], // Use branches state instead of formData.branches
+        contactEmail: formData.contactEmail, // Add from verification/login
+        contactPhone: formData.contactPhone, // Add from verification/login
+        // Include document if exists
+        ...(formData.document && { document: formData.document })
+      };
+
+      console.log("Submitting profile data:", profileData);
+      console.log("Branches data:", branches);
+      console.log("Has branches:", branches && branches.length > 0);
+      console.log("Main phone value:", mainPhoneValue);
+
+      // Update profile with all data including document
+      let profileResponse;
+      if (formData.document) {
+        // Use FormData for file upload
+        const formDataToSend = new FormData();
+        
+        // Add all profile fields
+        Object.entries(profileData).forEach(([key, value]) => {
+          if (key !== 'document' && value !== undefined) {
+            if (typeof value === 'object' && !Array.isArray(value)) {
+              formDataToSend.append(key, JSON.stringify(value));
+              console.log(`Adding ${key} as JSON:`, value);
+            } else {
+              formDataToSend.append(key, String(value));
+              console.log(`Adding ${key} as string:`, value);
+            }
+          }
+        });
+        
+        // Add document file
+        formDataToSend.append('document', formData.document);
+        console.log("Adding document file:", formData.document);
+        
+        console.log("Submitting with FormData:");
+        for (let [key, value] of formDataToSend.entries()) {
+          console.log(`${key}:`, value);
+        }
+        
+        // Use a custom method for FormData submission
+        profileResponse = await apiService.updateProfileWithFormData(formDataToSend);
+      } else {
+        // Use regular JSON request
+        profileResponse = await apiService.updateProfile(profileData);
+      }
+      
+      console.log("Profile update response:", profileResponse);
 
       setSubmitStatus("Profile submitted successfully!");
       setShowVerificationModal(true);
-    } catch (error) {
-      setSubmitStatus("Failed to save profile. Please try again.");
+    } catch (error: any) {
+      console.error("Failed to update profile:", error);
+
+      // Handle validation errors more specifically
+      if (error.name === "ValidationError" && error.errors) {
+        console.error("Detailed validation errors:", error.errors);
+
+        // Format validation errors for user display with specific field messages
+        const errorMessages = Object.entries(error.errors)
+          .map(([field, messages]) => {
+            const fieldMessages = Array.isArray(messages)
+              ? messages
+              : [messages];
+            const messageText = fieldMessages.join(", ");
+
+            // Map field names to user-friendly labels
+            const fieldLabels: Record<string, string> = {
+              businessType: "Business type",
+              whoDoYouServe: "Target customers",
+              businessName: "Business name",
+              categories: "Business categories",
+              services: "Services",
+              // Removed contactEmail and contactPhone since backend doesn't use them
+            };
+
+            const fieldLabel = fieldLabels[field] || field;
+            return `${fieldLabel}: ${messageText}`;
+          })
+          .join("; ");
+
+        setSubmitStatus(`Validation failed: ${errorMessages}`);
+      } else {
+        setSubmitStatus(
+          error.message || "Failed to save profile. Please try again."
+        );
+      }
     } finally {
       setIsSubmitting(false);
     }
-  }; // <-- Add this closing brace to end handleSubmit
-
-  const nextStep = (): void => {
-    if (validateStep(currentStep)) {
-      if (currentStep < 6) {
-        setCurrentStep(currentStep + 1);
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
-    }
-  };
-  const prevStep = (): void => {
-    if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
   const getBusinessTypeIcon = (type: string): string => {
@@ -1073,6 +1294,8 @@ export default function CompleteProfileForm({
       <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
         {currentStep === 1 && (
           <div className="space-y-4 md:space-y-6">
+            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2 md:mb-3">
                 {t("completeProfile.step1.businessTypeLabel")} *
@@ -1579,7 +1802,7 @@ export default function CompleteProfileForm({
               <input
                 type="tel"
                 name="mainPhone"
-                value={formData.mainPhone || formData.contactPhone}
+                value={formData.mainPhone || formData.contactPhone || ""}
                 onChange={(e) => handleInputChange("mainPhone", e.target.value)}
                 className="w-full px-3 md:px-4 py-2 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
                 placeholder="+966 11 234 5678"
@@ -2270,18 +2493,34 @@ export default function CompleteProfileForm({
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
             }`}
           >
-            <i className={`${isRTL ? "ri-arrow-right-line ml-1 md:ml-2" : "ri-arrow-left-line mr-1 md:mr-2"}`}></i>
+            <i
+              className={`${
+                isRTL
+                  ? "ri-arrow-right-line ml-1 md:ml-2"
+                  : "ri-arrow-left-line mr-1 md:mr-2"
+              }`}
+            ></i>
             {t("completeProfile.buttons.previous")}
           </button>
 
           {currentStep < 6 ? (
             <button
               type="button"
-              onClick={nextStep}
+              onClick={() => {
+                if (validateStep(currentStep)) {
+                  nextStep();
+                }
+              }}
               className="bg-yellow-400 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg hover:bg-yellow-500 font-medium whitespace-nowrap cursor-pointer transition-all text-sm md:text-base"
             >
               {t("completeProfile.buttons.nextStep")}
-              <i className={`${isRTL ? "ri-arrow-left-line mr-1 md:mr-2" : "ri-arrow-right-line ml-1 md:ml-2"}`}></i>
+              <i
+                className={`${
+                  isRTL
+                    ? "ri-arrow-left-line mr-1 md:mr-2"
+                    : "ri-arrow-right-line ml-1 md:ml-2"
+                }`}
+              ></i>
             </button>
           ) : (
             <button

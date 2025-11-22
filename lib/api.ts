@@ -1,5 +1,4 @@
 // services/api.ts
-
 const API_BASE_URL = "http://localhost:8000";
 
 export interface RegistrationData {
@@ -12,23 +11,7 @@ export interface RegistrationData {
 
 export interface RegistrationResponse {
   message: string;
-  supplier: {
-    id: number;
-    slug: string;
-    name: string;
-    email: string;
-    phone: string;
-    profileImage: string;
-    status: string;
-    plan: string;
-    profileCompletion: number;
-    profile: {
-      slug: string;
-      businessName: string;
-      mainPhone: string;
-      contactEmail: string;
-    };
-  };
+  supplier: any;
 }
 
 export interface SendOtpRequest {
@@ -43,6 +26,67 @@ export interface VerifyOtpRequest {
 export interface OtpResponse {
   message: string;
   success: boolean;
+  supplier?: any;
+  accessToken?: string;
+  tokenType?: string;
+}
+
+export interface ProfileUpdateData {
+  businessName?: string;
+  businessType?: string;
+  categories?: string[];
+  productKeywords?: string[];
+  whoDoYouServe?: string;
+  serviceDistance?: number;
+  services?: string[];
+  website?: string;
+  mainPhone?: string;
+  additionalPhones?: Array<{
+    number: string;
+    name: string;
+    type: string;
+  }>;
+  address?: string;
+  location?: { lat: number; lng: number };
+  description?: string;
+  workingHours?: {
+    [key: string]: {
+      closed?: boolean;
+      open?: string;
+      close?: string;
+    };
+  };
+  hasBranches?: boolean;
+  branches?: Array<{
+    name: string;
+    phone?: string;
+    email?: string;
+    address?: string;
+    manager?: string;
+    location?: { lat: number; lng: number };
+    workingHours?: {
+      [key: string]: {
+        closed?: boolean;
+        open?: string;
+        close?: string;
+      };
+    };
+    specialServices?: string[];
+    isMainBranch?: boolean;
+  }>;
+  contactEmail?: string; // From verification/login
+  contactPhone?: string; // From verification/login
+  document?: File; // Include document in main request
+}
+
+export interface ProfileUpdateResponse {
+  message: string;
+  supplier: any;
+}
+
+export interface DocumentUploadResponse {
+  message: string;
+  data: any;
 }
 
 export interface ApiError {
@@ -66,46 +110,41 @@ class ApiService {
     this.baseURL = API_BASE_URL;
   }
 
-  // =============== GET CSRF TOKEN ===================
-  private async getCSRFToken(): Promise<string | null> {
-    // Ask Laravel to send the XSRF-TOKEN cookie
-    await fetch(`${this.baseURL}/sanctum/csrf-cookie`, {
-      method: "GET",
-      credentials: "include",
-    });
-
-    // Read it from cookies
-    const cookies = document.cookie.split(";");
-
-    for (const cookie of cookies) {
-      const [name, value] = cookie.trim().split("=");
-
-      if (name === "XSRF-TOKEN") {
-        return decodeURIComponent(value);
-      }
-    }
-
-    return null;
-  }
-
-  // =============== REQUEST WRAPPER ===================
+  // ====== REQUEST WRAPPER ======
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    requiresAuth: boolean = false
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
 
-    const headers: HeadersInit = {
+    // Convert HeadersInit to Record<string, string>
+    const optionsHeaders: Record<string, string> = {};
+    if (options.headers) {
+      if (options.headers instanceof Headers) {
+        options.headers.forEach((value, key) => {
+          optionsHeaders[key] = value;
+        });
+      } else if (Array.isArray(options.headers)) {
+        options.headers.forEach(([key, value]) => {
+          optionsHeaders[key] = value;
+        });
+      } else {
+        Object.assign(optionsHeaders, options.headers);
+      }
+    }
+
+    const headers: Record<string, string> = {
       "Content-Type": "application/json",
       Accept: "application/json",
+      ...optionsHeaders,
     };
 
-    // Add CSRF token for unsafe methods
-    if (["POST", "PUT", "PATCH", "DELETE"].includes(options.method || "")) {
-      const csrfToken = await this.getCSRFToken();
-      if (csrfToken) {
-        headers["X-XSRF-TOKEN"] = csrfToken;
-      }
+    if (requiresAuth) {
+      const token = localStorage.getItem("supplier_token");
+      const tokenType = localStorage.getItem("token_type") || "Bearer";
+      if (!token) throw new Error("No auth token found");
+      headers["Authorization"] = `${tokenType} ${token}`;
     }
 
     const response = await fetch(url, {
@@ -117,25 +156,34 @@ class ApiService {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
 
-      // CSRF token error
-      if (response.status === 419) {
-        throw new Error("CSRF token error. Please refresh the page and try again.");
-      }
+      // Enhanced logging for debugging
+      console.error(`API Error ${response.status}:`, {
+        url,
+        method: options.method || "GET",
+        errorData,
+        headers,
+      });
 
-      // Validation error
       if (response.status === 422) {
-        throw new ValidationError("Validation failed", errorData.errors || errorData);
+        const validationError = new ValidationError(
+          "Validation failed",
+          errorData.errors || errorData
+        );
+        // Log detailed validation errors
+        console.error("Validation Errors:", validationError.errors);
+        throw validationError;
       }
 
-      throw errorData;
+      throw new Error(errorData.message || `HTTP error ${response.status}`);
     }
 
     return await response.json();
   }
 
-  // =============== API Endpoints ===================
-
-  async registerSupplier(data: RegistrationData): Promise<RegistrationResponse> {
+  // ====== API METHODS ======
+  async registerSupplier(
+    data: RegistrationData
+  ): Promise<RegistrationResponse> {
     return this.request("/api/supplier/register", {
       method: "POST",
       body: JSON.stringify(data),
@@ -150,18 +198,114 @@ class ApiService {
   }
 
   async verifyOtp(data: VerifyOtpRequest): Promise<OtpResponse> {
-    console.log("Sending verify OTP request:", data);
-    try {
-      const response = await this.request("/api/auth/verify-otp", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
-      console.log("Verify OTP response:", response);
-      return response as OtpResponse;
-    } catch (error: any) {
-      console.log("Verify OTP error:", error);
-      throw error;
+    const response = await this.request<OtpResponse>("/api/auth/verify-otp", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+
+    if (response.accessToken) {
+      localStorage.setItem("supplier_token", response.accessToken);
+      localStorage.setItem("token_type", response.tokenType || "Bearer");
     }
+
+    return response;
+  }
+
+  async updateProfile(data: ProfileUpdateData): Promise<ProfileUpdateResponse> {
+    return this.request(
+      "/api/supplier/profile",
+      {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      },
+      true
+    ); // requiresAuth = true
+  }
+
+  async updateProfileWithFormData(formData: FormData): Promise<ProfileUpdateResponse> {
+    const token = localStorage.getItem("supplier_token");
+    const tokenType = localStorage.getItem("token_type") || "Bearer";
+
+    if (!token) throw new Error("No auth token found");
+
+    const response = await fetch(`${this.baseURL}/api/supplier/profile`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `${tokenType} ${token}`,
+        // Don't set Content-Type for FormData - browser sets it with boundary
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      
+      // Enhanced logging for debugging
+      console.error(`API Error ${response.status}:`, {
+        url: `${this.baseURL}/api/supplier/profile`,
+        method: "PATCH",
+        errorData,
+      });
+
+      if (response.status === 422) {
+        console.error("Validation Errors:", errorData.errors || errorData);
+        throw new ValidationError(
+          errorData.message || "Validation failed",
+          errorData.errors || errorData
+        );
+      }
+
+      throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async getProfile(): Promise<any> {
+    return this.request(
+      "/api/supplier/profile",
+      {
+        method: "GET",
+      },
+      true
+    ); // requiresAuth = true
+  }
+
+  async uploadDocument(file: File): Promise<DocumentUploadResponse> {
+    const token = localStorage.getItem("supplier_token");
+    const tokenType = localStorage.getItem("token_type") || "Bearer";
+
+    if (!token) throw new Error("No auth token found");
+
+    const formData = new FormData();
+    formData.append("document", file);
+
+    const response = await fetch(`${this.baseURL}/api/supplier/documents`, {
+      method: "POST",
+      headers: {
+        Authorization: `${tokenType} ${token}`,
+      },
+      body: formData,
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error("Document upload error:", errorData);
+      throw new Error(errorData.message || "Failed to upload document");
+    }
+
+    return await response.json();
+  }
+
+  // ====== HELPERS ======
+  isAuthenticated(): boolean {
+    return !!localStorage.getItem("supplier_token");
+  }
+
+  logout(): void {
+    localStorage.removeItem("supplier_token");
+    localStorage.removeItem("token_type");
   }
 }
 

@@ -107,9 +107,14 @@ export default function VerificationStep({
       
       console.log("OTP Verification Response:", response);
       
-      // Check if verification was successful
-      // Handle different response structures
-      if (response.success || response.message?.toLowerCase().includes("verified") || response.message?.toLowerCase().includes("success")) {
+      // Check if verification was successful and token was stored
+      if (response.accessToken || (response.supplier && response.message?.toLowerCase().includes("verified"))) {
+        console.log("Verification successful, token stored");
+        
+        // Store verification data in localStorage for complete profile page
+        localStorage.setItem('verificationData', JSON.stringify(response));
+        console.log("Stored verification data in localStorage");
+        
         onVerificationSuccess();
       } else {
         setErrors({ code: response.message || "Invalid verification code" });
@@ -117,8 +122,14 @@ export default function VerificationStep({
     } catch (error: any) {
       console.error("Failed to verify OTP:", error);
       
-      // Check if the error message indicates success
-      if (error.message?.toLowerCase().includes("verified") || error.message?.toLowerCase().includes("success")) {
+      // Check if the error message indicates success and has token
+      if (error.accessToken || (error.supplier && error.message?.toLowerCase().includes("verified"))) {
+        console.log("Verification successful from error response, token stored");
+        
+        // Store verification data in localStorage for complete profile page
+        localStorage.setItem('verificationData', JSON.stringify(error));
+        console.log("Stored verification data in localStorage (from error)");
+        
         onVerificationSuccess();
       } else {
         setErrors({ code: error.message || "Invalid verification code. Please try again." });
@@ -160,7 +171,7 @@ export default function VerificationStep({
           <div className="space-y-4">
             <button
               onClick={() => handleVerificationMethodSelect("phone")}
-              disabled={isSubmitting}
+              disabled={true}
               className="w-full p-6 border-2 border-gray-200 rounded-lg hover:border-yellow-400 hover:bg-yellow-50 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <div className="flex items-center space-x-4">
