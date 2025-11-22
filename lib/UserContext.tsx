@@ -51,7 +51,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (savedUser) {
         try {
           const userData = JSON.parse(savedUser);
-          console.log("Restored user data from localStorage:", userData);
           setUser(userData);
         } catch (error) {
           console.error("Failed to parse saved user data:", error);
@@ -65,9 +64,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = (userData: User, accessToken: string, accessTokenType: string) => {
-    console.log("AuthContext login called with:", userData);
-    console.log("User name:", userData.name);
-    console.log("Access token:", accessToken);
     setUser(userData);
     setToken(accessToken);
     setTokenType(accessTokenType);
@@ -79,12 +75,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
-    console.log("AuthContext logout called");
-    
     try {
       // Call logout API
       await apiService.logout();
-      console.log("Logout API call successful");
     } catch (error) {
       console.error("Logout API failed:", error);
       // Continue with local logout even if API fails

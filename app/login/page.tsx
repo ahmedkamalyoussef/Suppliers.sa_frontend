@@ -72,9 +72,6 @@ export default function LoginPage() {
 
       console.log("Attempting login with:", loginData);
       const response = await apiService.login(loginData);
-      console.log("Login response:", response);
-      console.log("Supplier data:", response.supplier);
-      console.log("Supplier name:", response.supplier.name);
 
       // Check if user is a supplier
       if (response.userType !== "supplier") {
@@ -87,7 +84,6 @@ export default function LoginPage() {
       login(response.supplier, response.accessToken, response.tokenType);
 
       // Always redirect to homepage after login
-      console.log("Login successful, redirecting to homepage");
       router.push("/");
     } catch (error: any) {
       console.error("Login failed:", error);

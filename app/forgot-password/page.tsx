@@ -35,10 +35,8 @@ export default function ForgotPasswordPage() {
 
     try {
       const forgotData: ForgotPasswordRequest = { email };
-      console.log("Sending forgot password request:", forgotData);
       
       const response = await apiService.forgotPassword(forgotData);
-      console.log("Forgot password response:", response);
       
       // Redirect to reset-password page with email
       router.push(`/reset-password?email=${encodeURIComponent(email)}`);

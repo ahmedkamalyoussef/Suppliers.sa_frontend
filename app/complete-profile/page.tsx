@@ -70,7 +70,6 @@ export default function CompleteProfilePage() {
 
   // Handler for location updates
   const handleLocationUpdate = useCallback((location: { lat: number; lng: number }) => {
-    console.log("Location updated:", location);
     setSelectedLocation(location);
     setFormData(prev => ({
       ...prev,

@@ -107,12 +107,8 @@ export default function VerificationStep({
         otp: enteredCode 
       });
       
-      console.log("OTP Verification Response:", response);
-      
       // Check if verification was successful and token was stored
       if (response.accessToken || (response.supplier && response.message?.toLowerCase().includes("verified"))) {
-        console.log("Verification successful, token stored");
-        
         // Use AuthContext login if user data is available
         if (response.supplier && response.accessToken) {
           login(response.supplier, response.accessToken, response.tokenType || "Bearer");
@@ -120,7 +116,6 @@ export default function VerificationStep({
         
         // Store verification data in localStorage for complete profile page
         localStorage.setItem('verificationData', JSON.stringify(response));
-        console.log("Stored verification data in localStorage");
         
         onVerificationSuccess();
       } else {
@@ -131,11 +126,8 @@ export default function VerificationStep({
       
       // Check if the error message indicates success and has token
       if (error.accessToken || (error.supplier && error.message?.toLowerCase().includes("verified"))) {
-        console.log("Verification successful from error response, token stored");
-        
         // Store verification data in localStorage for complete profile page
         localStorage.setItem('verificationData', JSON.stringify(error));
-        console.log("Stored verification data in localStorage (from error)");
         
         onVerificationSuccess();
       } else {

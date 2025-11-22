@@ -27,13 +27,9 @@ export default function Header() {
   const userName = user?.name || "";
   const userInitials = userName ? userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : "SU";
 
-  console.log("Header - isAuthenticated:", isAuthenticated, "userName:", userName);
-  console.log("Header - full user object:", user);
-  console.log("Header - user.name:", user?.name);
-
   // Track auth state changes
   useEffect(() => {
-    console.log("Header auth state changed:", { isAuthenticated, userName, user });
+    // Auth state changed
   }, [isAuthenticated, userName, user]);
 
   // Sample messages for quick preview

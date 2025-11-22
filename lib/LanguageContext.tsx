@@ -29,16 +29,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     // Check if we're in the browser
     if (typeof window !== "undefined") {
       const savedLanguage = localStorage.getItem("language") as Language;
-      console.log(
-        "LanguageContext: Saved language from localStorage:",
-        savedLanguage
-      );
 
       if (savedLanguage && (savedLanguage === "en" || savedLanguage === "ar")) {
         setLanguage(savedLanguage);
-        console.log("LanguageContext: Setting language to:", savedLanguage);
       } else {
-        console.log("LanguageContext: No saved language, using default: en");
+        setLanguage("en");
       }
     }
     setMounted(true);
@@ -46,10 +41,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (mounted && typeof window !== "undefined") {
-      console.log(
-        "LanguageContext: Saving language to localStorage:",
-        language
-      );
       localStorage.setItem("language", language);
       document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
       document.documentElement.lang = language;

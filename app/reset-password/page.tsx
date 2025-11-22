@@ -7,12 +7,28 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { useLanguage } from "@/lib/LanguageContext";
 import { apiService, type ResetPasswordRequest } from "@/lib/api";
+import { translations } from "@/lib/translations";
 
 export default function ResetPasswordPage() {
-  const { t } = useLanguage();
+  const { language } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "";
+
+  // Translation function
+  const t = (key: string, params?: { email?: string; errors?: string }) => {
+    const translation = translations[language as keyof typeof translations].resetPassword[key as keyof typeof translations.en.resetPassword];
+    if (!translation) return key;
+    
+    let result = translation;
+    if (params?.email) {
+      result = result.replace("{email}", params.email);
+    }
+    if (params?.errors) {
+      result = result.replace("{errors}", params.errors);
+    }
+    return result;
+  };
 
   const [formData, setFormData] = useState({
     otp: "",
@@ -32,21 +48,21 @@ export default function ResetPasswordPage() {
     const newErrors: string[] = [];
 
     if (!formData.otp.trim()) {
-      newErrors.push("OTP is required");
+      newErrors.push(t("otpRequired"));
     } else if (formData.otp.length !== 6) {
-      newErrors.push("OTP must be 6 digits");
+      newErrors.push(t("otpDigits"));
     }
 
     if (!formData.password.trim()) {
-      newErrors.push("Password is required");
+      newErrors.push(t("passwordRequired"));
     } else if (formData.password.length < 6) {
-      newErrors.push("Password must be at least 6 characters");
+      newErrors.push(t("passwordMinLength"));
     }
 
     if (!formData.password_confirmation.trim()) {
-      newErrors.push("Password confirmation is required");
+      newErrors.push(t("confirmPasswordRequired"));
     } else if (formData.password !== formData.password_confirmation) {
-      newErrors.push("Passwords do not match");
+      newErrors.push(t("passwordsNotMatch"));
     }
 
     if (newErrors.length > 0) {
@@ -63,9 +79,7 @@ export default function ResetPasswordPage() {
     if (!validateForm()) return;
 
     if (!email) {
-      setError(
-        "Email is required. Please start the password reset process again."
-      );
+      setError(t("emailRequired"));
       return;
     }
 
@@ -80,11 +94,7 @@ export default function ResetPasswordPage() {
         password_confirmation: formData.password_confirmation,
       };
 
-      console.log("Form data before validation:", formData);
-      console.log("Sending reset password request:", resetData);
-
       const response = await apiService.resetPassword(resetData);
-      console.log("Reset password response:", response);
 
       setIsSuccess(true);
     } catch (error: any) {
@@ -93,9 +103,9 @@ export default function ResetPasswordPage() {
       // Show detailed validation errors if available
       if (error.errors && error.errors.password) {
         const passwordErrors = error.errors.password;
-        setError(`Server validation: ${passwordErrors.join(", ")}`);
+        setError(t("serverValidation", { errors: passwordErrors.join(", ") }));
       } else {
-        setError(error.message || "Failed to reset password. Please try again.");
+        setError(error.message || t("resetFailed"));
       }
     } finally {
       setIsSubmitting(false);
@@ -115,11 +125,10 @@ export default function ResetPasswordPage() {
                   <i className="ri-lock-unlock-line text-green-600 text-3xl"></i>
                 </div>
                 <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                  Password Reset Successful
+                  {t("successTitle")}
                 </h2>
                 <p className="text-gray-600 mb-8">
-                  Your password has been successfully reset. You can now login
-                  with your new password.
+                  {t("successMessage")}
                 </p>
 
                 <div className="space-y-3">
@@ -127,7 +136,7 @@ export default function ResetPasswordPage() {
                     href="/login"
                     className="w-full bg-yellow-400 text-white py-3 px-6 rounded-lg hover:bg-yellow-500 font-medium text-center block whitespace-nowrap"
                   >
-                    Go to Login
+                    {t("goToLogin")}
                   </Link>
                 </div>
               </div>
@@ -153,10 +162,10 @@ export default function ResetPasswordPage() {
                   <i className="ri-lock-unlock-line text-blue-600 text-2xl"></i>
                 </div>
                 <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                  Reset Password
+                  {t("title")}
                 </h1>
                 <p className="text-gray-600">
-                  Enter the OTP sent to {email} and your new password
+                  {t("subtitle", { email })}
                 </p>
               </div>
 
@@ -169,7 +178,7 @@ export default function ResetPasswordPage() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    OTP Code
+                    {t("otpLabel")}
                   </label>
                   <input
                     type="text"
@@ -178,7 +187,7 @@ export default function ResetPasswordPage() {
                     className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-sm ${
                       error ? "border-red-300" : "border-gray-300"
                     }`}
-                    placeholder="Enter 6-digit OTP"
+                    placeholder={t("otpPlaceholder")}
                     maxLength={6}
                     required
                   />
@@ -186,7 +195,7 @@ export default function ResetPasswordPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    New Password
+                    {t("newPasswordLabel")}
                   </label>
                   <input
                     type="password"
@@ -197,17 +206,17 @@ export default function ResetPasswordPage() {
                     className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-sm ${
                       error ? "border-red-300" : "border-gray-300"
                     }`}
-                    placeholder="Enter new password"
+                    placeholder={t("newPasswordPlaceholder")}
                     required
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Must be at least 6 characters
+                    {t("passwordHint")}
                   </p>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Confirm New Password
+                    {t("confirmPasswordLabel")}
                   </label>
                   <input
                     type="password"
@@ -218,7 +227,7 @@ export default function ResetPasswordPage() {
                     className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-sm ${
                       error ? "border-red-300" : "border-gray-300"
                     }`}
-                    placeholder="Confirm new password"
+                    placeholder={t("confirmPasswordPlaceholder")}
                     required
                   />
                 </div>
@@ -235,12 +244,12 @@ export default function ResetPasswordPage() {
                   {isSubmitting ? (
                     <>
                       <i className="ri-loader-4-line animate-spin mr-2"></i>
-                      Resetting Password...
+                      {t("resetting")}
                     </>
                   ) : (
                     <>
                       <i className="ri-lock-unlock-line mr-2"></i>
-                      Reset Password
+                      {t("resetButton")}
                     </>
                   )}
                 </button>
@@ -248,12 +257,12 @@ export default function ResetPasswordPage() {
 
               <div className="mt-8 pt-6 border-t border-gray-200 text-center">
                 <p className="text-sm text-gray-600">
-                  Remember your password?{" "}
+                  {t("rememberPassword")}{" "}
                   <Link
                     href="/login"
                     className="text-blue-600 hover:text-blue-700 font-medium"
                   >
-                    Back to Login
+                    {t("backToLogin")}
                   </Link>
                 </p>
               </div>

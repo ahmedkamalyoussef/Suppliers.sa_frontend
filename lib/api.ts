@@ -213,9 +213,6 @@ class ApiService {
         if (errorData.password) {
           console.error("Password validation errors:", errorData.password);
         }
-        // Don't clone response here, it's already used in errorData
-        console.error("Status:", response.status);
-        console.error("Status text:", response.statusText);
         throw validationError;
       }
 
