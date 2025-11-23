@@ -9,6 +9,56 @@ import {
 } from "react";
 import { apiService } from "./api";
 
+export interface SupplierProfile {
+  id: number;
+  name: string;
+  status: string;
+  profile: {
+    business_type: string;
+    website: string;
+    contact_email: string;
+    description: string | null;
+    service_distance: string;
+    target_market: string[];
+    main_phone: string;
+    additional_phones: Array<{
+      id: number;
+      type: string;
+      number: string;
+      name: string;
+    }>;
+    business_address: string;
+    latitude: string;
+    longitude: string;
+    working_hours: {
+      [key: string]: {
+        open: string;
+        close: string;
+        closed: boolean;
+      };
+    };
+    services_offered: string[];
+  };
+  profile_image: string;
+  ratings: {
+    average: number | null;
+    count: number;
+    reviews: any[];
+  };
+  certifications: Array<{
+    id: number;
+    certification_name: string;
+  }>;
+  product_images: Array<{
+    id: number;
+    image_url: string;
+  }>;
+  services: Array<{
+    id: number;
+    service_name: string;
+  }>;
+}
+
 export interface User {
   id: number;
   slug: string;

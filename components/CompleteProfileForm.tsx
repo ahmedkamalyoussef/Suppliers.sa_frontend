@@ -870,6 +870,7 @@ export default function CompleteProfileForm({
         if (!formData.businessName || formData.businessName.trim() === "") {
           newErrors.businessName = "Business name is required";
         }
+
         if (!formData.businessType) {
           newErrors.businessType = "Business type is required";
         }
@@ -1372,6 +1373,31 @@ export default function CompleteProfileForm({
                   {errors.businessType}
                 </p>
               )}
+
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t("completeProfile.step1.descriptionLabel")} *
+                </label>
+                <textarea
+                  name="description"
+                  value={formData.description || ''}
+                  onChange={(e) => handleInputChange("description", e.target.value)}
+                  rows={4}
+                  className={`w-full px-3 md:px-4 py-2 md:py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ${
+                    errors.description ? "border-red-300" : "border-gray-300"
+                  }`}
+                  placeholder={t("completeProfile.step1.descriptionPlaceholder")}
+                  required
+                />
+                {errors.description && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.description}
+                  </p>
+                )}
+                <p className="text-xs text-gray-500 mt-1">
+                  {t("completeProfile.step1.descriptionHelp")}
+                </p>
+              </div>
             </div>
 
             <div>

@@ -6,6 +6,7 @@ import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 import Link from "next/link";
 import { useLanguage } from "@/lib/LanguageContext";
+import { SupplierProfile } from "@/lib/api";
 
 type WorkingDay = {
   open: string;
@@ -62,10 +63,12 @@ type Review = {
 };
 
 type PublicBusinessProfileProps = {
+  supplier?: SupplierProfile;
   businessId?: string;
 };
 
 export default function PublicBusinessProfile({
+  supplier,
   businessId,
 }: PublicBusinessProfileProps) {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -99,82 +102,77 @@ export default function PublicBusinessProfile({
     return result;
   };
 
-  // Sample business data based on businessId
-  const businesses: Record<string, Business> = {
-    "tech-solutions-co": {
-      id: "tech-solutions-co",
-      name: "TechSolutions Co.",
-      logo: "https://readdy.ai/api/search-image?query=Modern%20technology%20company%20logo%20design%20with%20clean%20minimalist%20style%2C%20professional%20corporate%20branding%2C%20tech%20industry%20symbol%2C%20blue%20and%20white%20colors%2C%20simple%20geometric%20shapes%2C%20contemporary%20business%20logo&width=200&height=200&seq=tech-logo&orientation=squarish",
-      category: "Technology Services",
-      businessType: "Supplier",
-      targetCustomers: ["Large Organizations", "Small Businesses"],
-      serviceDistance: "50 km",
-      rating: 4.9,
-      reviewCount: 89,
-      verified: true,
-      openNow: true,
-      description:
-        "TechSolutions Co. is a leading technology services provider specializing in enterprise software solutions, cloud infrastructure, and digital transformation services. With over 10 years of experience, we help businesses modernize their operations and achieve digital excellence through cutting-edge technology solutions.",
-      address: "King Fahd Road, Al Olaya District, Riyadh 12244, Saudi Arabia",
-      phone: "+966 11 234 5678",
-      salesPhone: "+966 50 987 6543",
-      supportPhone: "+966 50 123 4567",
-      email: "info@techsolutions.sa",
-      website: "https://techsolutions.sa",
-      workingHours: {
-        sunday: { open: "08:00", close: "17:00", closed: false },
-        monday: { open: "08:00", close: "17:00", closed: false },
-        tuesday: { open: "08:00", close: "17:00", closed: false },
-        wednesday: { open: "08:00", close: "17:00", closed: false },
-        thursday: { open: "08:00", close: "17:00", closed: false },
-        friday: { open: "", close: "", closed: true },
-        saturday: { open: "09:00", close: "15:00", closed: false },
+  // Map API data to business object
+  const business: Business = {
+    id: supplier?.id?.toString() || businessId || "1",
+    name: supplier?.name || "",
+    logo: supplier?.profile_image || "/images/business-logo.png",
+    category: supplier?.profile?.business_type || "",
+    businessType: "Supplier",
+    targetCustomers: supplier?.profile?.target_market || [],
+    serviceDistance: supplier?.profile?.service_distance || "",
+    rating: supplier?.ratings?.average || 0,
+    reviewCount: supplier?.ratings?.count || 0,
+    verified: true,
+    openNow: true, // You might want to calculate this based on working hours
+    description: supplier?.profile?.description || "",
+    address: supplier?.profile?.business_address || "",
+    phone: supplier?.profile?.main_phone || "",
+    salesPhone:
+      supplier?.profile?.additional_phones?.find((p) => p.type === "sales")
+        ?.number || "",
+    supportPhone:
+      supplier?.profile?.additional_phones?.find((p) => p.type === "support")
+        ?.number || "",
+    email: supplier?.profile?.contact_email || "",
+    website: supplier?.profile?.website || "",
+    workingHours: {
+      sunday: supplier?.profile?.working_hours?.sunday || {
+        open: "",
+        close: "",
+        closed: true,
       },
-      services: [
-        "Cloud Migration",
-        "Software Development",
-        "IT Consulting",
-        "System Integration",
-        "Data Analytics",
-        "Cybersecurity",
-        "Digital Transformation",
-        "Technical Support",
-      ],
-      images: [
-        "https://readdy.ai/api/search-image?query=Modern%20technology%20office%20with%20professional%20workstations%2C%20large%20monitors%2C%20sleek%20glass%20conference%20rooms%2C%20contemporary%20interior%20design%2C%20bright%20lighting%2C%20clean%20minimalist%20workspace%2C%20team%20collaboration%20areas&width=800&height=500&seq=tech-office-main&orientation=landscape",
-        "https://readdy.ai/api/search-image?query=High-tech%20server%20room%20with%20organized%20cable%20management%2C%20LED%20lighting%2C%20professional%20data%20center%20equipment%2C%20clean%20industrial%20design%2C%20blue%20accent%20lighting%2C%20modern%20infrastructure&width=800&height=500&seq=tech-server-room&orientation=landscape",
-        "https://readdy.ai/api/search-image?query=Professional%20business%20meeting%20room%20with%20large%20presentation%20screen%2C%20modern%20furniture%2C%20technology%20equipment%2C%20corporate%20environment%2C%20professional%20lighting%2C%20contemporary%20design&width=800&height=500&seq=tech-meeting-room&orientation=landscape",
-        "https://readdy.ai/api/search-image?query=Software%20development%20team%20working%20on%20computers%2C%20multiple%20monitors%2C%20modern%20coding%20environment%2C%20collaborative%20workspace%2C%20professional%20tech%20office%20setting%2C%20clean%20background&width=800&height=500&seq=tech-dev-team&orientation=landscape",
-      ],
-      productPhotos: [
-        "https://readdy.ai/api/search-image?query=Enterprise%20server%20rack%20with%20organized%20cables%2C%20LED%20status%20lights%2C%20professional%20data%20center%20equipment%2C%20clean%20industrial%20design%2C%20modern%20technology%20infrastructure%2C%20professional%20lighting&width=400&height=300&seq=tech-product-1&orientation=landscape",
-        "https://readdy.ai/api/search-image?query=Cloud%20computing%20dashboard%20interface%20on%20modern%20monitors%2C%20professional%20software%20interface%20design%2C%20clean%20UI%20elements%2C%20technology%20workspace%2C%20bright%20lighting%2C%20contemporary%20design&width=400&height=300&seq=tech-product-2&orientation=landscape",
-        "https://readdy.ai/api/search-image?query=Network%20security%20equipment%20with%20blinking%20lights%2C%20professional%20cybersecurity%20hardware%2C%20modern%20tech%20equipment%2C%20clean%20background%2C%20organized%20cable%20management%2C%20professional%20setup&width=400&height=300&seq=tech-product-3&orientation=landscape",
-        "https://readdy.ai/api/search-image?query=Professional%20IT%20consulting%20presentation%20setup%2C%20modern%20conference%20room%2C%20large%20display%20screens%2C%20technology%20equipment%2C%20corporate%20meeting%20environment%2C%20clean%20design&width=400&height=300&seq=tech-product-4&orientation=landscape",
-        "https://readdy.ai/api/search-image?query=Data%20analytics%20visualization%20on%20multiple%20screens%2C%20professional%20monitoring%20setup%2C%20modern%20dashboard%20interfaces%2C%20technology%20workspace%2C%20organized%20desk%20setup%2C%20contemporary%20design&width=400&height=300&seq=tech-product-5&orientation=landscape",
-        "https://readdy.ai/api/search-image?query=Modern%20software%20development%20workstation%20with%20multiple%20monitors%2C%20coding%20environment%2C%20professional%20programmer%20desk%20setup%2C%20clean%20workspace%2C%20contemporary%20office%20design%2C%20bright%20lighting&width=400&height=300&seq=tech-product-6&orientation=landscape",
-      ],
-      specialties: [
-        "Enterprise Solutions",
-        "Cloud Computing",
-        "AI Implementation",
-        "Digital Transformation",
-      ],
-      certifications: [
-        "ISO 27001",
-        "Microsoft Partner",
-        "AWS Certified",
-        "Google Cloud Partner",
-      ],
-      establishedYear: 2014,
-      employeeCount: "50-100",
-      languages: ["Arabic", "English"],
+      monday: supplier?.profile?.working_hours?.monday || {
+        open: "",
+        close: "",
+        closed: true,
+      },
+      tuesday: supplier?.profile?.working_hours?.tuesday || {
+        open: "",
+        close: "",
+        closed: true,
+      },
+      wednesday: supplier?.profile?.working_hours?.wednesday || {
+        open: "",
+        close: "",
+        closed: true,
+      },
+      thursday: supplier?.profile?.working_hours?.thursday || {
+        open: "",
+        close: "",
+        closed: true,
+      },
+      friday: supplier?.profile?.working_hours?.friday || {
+        open: "",
+        close: "",
+        closed: true,
+      },
+      saturday: supplier?.profile?.working_hours?.saturday || {
+        open: "",
+        close: "",
+        closed: true,
+      },
     },
+    services: supplier?.services?.map((s) => s.service_name) || [],
+    images: supplier?.product_images?.map((img) => img.image_url) || [],
+    productPhotos: supplier?.product_images?.map((img) => img.image_url) || [],
+    specialties: supplier?.profile?.services_offered || [],
+    certifications:
+      supplier?.certifications?.map((c) => c.certification_name) || [],
+    establishedYear: new Date().getFullYear(), // Default to current year
+    employeeCount: "", // Not provided in the API
+    languages: ["Arabic", "English"], // Default languages
   };
-
-  const resolvedBusinessId =
-    businessId && businesses[businessId] ? businessId : "tech-solutions-co";
-  const business = businesses[resolvedBusinessId];
 
   const getCurrentStatus = () => {
     const now = new Date();
@@ -361,25 +359,32 @@ export default function PublicBusinessProfile({
                       <span className="bg-yellow-400 text-white px-4 py-2 rounded-full text-sm font-semibold">
                         {business.category}
                       </span>
-                      <div
-                        className={`${getBusinessTypeColor(
-                          business.businessType
-                        )} px-4 py-2 rounded-full flex items-center gap-2 border backdrop-blur-sm`}
-                      >
-                        <i
-                          className={`${getBusinessTypeIcon(
-                            business.businessType
-                          )} text-sm`}
-                        ></i>
+                      <div className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full flex items-center gap-2 border border-yellow-200 backdrop-blur-sm">
+                        <i className="ri-store-3-line text-sm"></i>
                         <span className="text-sm font-medium">
-                          {business.businessType}
+                          {supplier?.profile?.business_type ||
+                            business.businessType}
                         </span>
                       </div>
-                      {business.verified && (
-                        <div className="bg-green-500 text-white px-4 py-2 rounded-full flex items-center gap-2">
-                          <i className="ri-verified-badge-fill text-sm"></i>
-                          <span className="text-sm font-medium">
-                            {t("publicProfile.verified")}
+                      {supplier?.status && (
+                        <div
+                          className={`${
+                            supplier.status.toLowerCase() === "pending"
+                              ? "bg-yellow-500"
+                              : supplier.status.toLowerCase() === "verified"
+                              ? "bg-green-500"
+                              : "bg-gray-500"
+                          } text-white px-4 py-2 rounded-full flex items-center gap-2`}
+                        >
+                          <i
+                            className={`ri-${
+                              supplier.status.toLowerCase() === "verified"
+                                ? "verified-badge-fill"
+                                : "time-line"
+                            } text-sm`}
+                          ></i>
+                          <span className="text-sm font-medium capitalize">
+                            {supplier.status}
                           </span>
                         </div>
                       )}
@@ -429,7 +434,8 @@ export default function PublicBusinessProfile({
                       <div className="flex items-center gap-2">
                         <i className="ri-map-pin-line"></i>
                         <span className="text-gray-600">
-                          Riyadh, Saudi Arabia
+                          {supplier?.profile?.business_address ||
+                            "Riyadh, Saudi Arabia"}
                         </span>
                       </div>
                     </div>
@@ -491,14 +497,15 @@ export default function PublicBusinessProfile({
                     <div className="flex items-center gap-2 mb-2">
                       <i className="ri-map-pin-range-line text-blue-600"></i>
                       <span className="text-gray-700">
-                        {t("publicProfile.about.upTo")}{" "}
-                        {business.serviceDistance}
+                        {supplier?.profile?.service_distance ||
+                          business.serviceDistance}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <i className="ri-map-pin-line text-blue-600"></i>
                       <span className="text-gray-700">
-                        {t("publicProfile.about.riyadhArea")}
+                        {supplier?.profile?.business_address ||
+                          t("publicProfile.about.riyadhArea")}
                       </span>
                     </div>
                   </div>
@@ -531,39 +538,77 @@ export default function PublicBusinessProfile({
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <i className="ri-user-line text-blue-600"></i>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">
-                          {t("publicProfile.contact.salesTeam")}
-                        </p>
-                        <a
-                          href={`tel:${business.salesPhone}`}
-                          className="text-gray-800 font-medium hover:text-blue-600"
-                        >
-                          {business.salesPhone}
-                        </a>
-                      </div>
-                    </div>
+                    {supplier?.profile?.additional_phones?.map(
+                      (phone, index) => (
+                        <div key={index} className="flex items-center gap-3">
+                          <div
+                            className={`w-10 h-10 ${
+                              phone.type === "sales"
+                                ? "bg-blue-100"
+                                : "bg-green-100"
+                            } rounded-full flex items-center justify-center`}
+                          >
+                            <i
+                              className={`${
+                                phone.type === "sales"
+                                  ? "ri-user-line text-blue-600"
+                                  : "ri-customer-service-2-line text-green-600"
+                              }`}
+                            ></i>
+                          </div>
+                          <div>
+                            <div>
+                              <p className="text-sm text-gray-500 capitalize">
+                                {phone.type}
+                              </p>
+                              <a
+                                href={`tel:${phone.number}`}
+                                className="text-gray-800 font-medium hover:text-blue-600 block"
+                              >
+                                {phone.number}
+                              </a>
+                              {phone.name && (
+                                <span className="text-xs text-gray-500 block">
+                                  {phone.name}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    )}
 
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                        <i className="ri-customer-service-2-line text-green-600"></i>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">
-                          {t("publicProfile.contact.supportTeam")}
-                        </p>
-                        <a
-                          href={`tel:${business.supportPhone}`}
-                          className="text-gray-800 font-medium hover:text-green-600"
-                        >
-                          {business.supportPhone}
-                        </a>
-                      </div>
-                    </div>
+                    {(!supplier?.profile?.additional_phones ||
+                      supplier.profile.additional_phones.length === 0) && (
+                      <>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i className="ri-user-line text-blue-600"></i>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-500">
+                              {t("publicProfile.contact.salesTeam")}
+                            </p>
+                            <span className="text-gray-800 font-medium">
+                              {t("publicProfile.contact.notAvailable")}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                            <i className="ri-customer-service-2-line text-green-600"></i>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-500">
+                              {t("publicProfile.contact.supportTeam")}
+                            </p>
+                            <span className="text-gray-800 font-medium">
+                              {t("publicProfile.contact.notAvailable")}
+                            </span>
+                          </div>
+                        </div>
+                      </>
+                    )}
 
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">

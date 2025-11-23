@@ -1,6 +1,56 @@
 // services/api.ts
 const API_BASE_URL = "http://localhost:8000";
 
+export interface SupplierProfile {
+  id: number;
+  name: string;
+  status: string;
+  profile: {
+    business_type: string;
+    website: string;
+    contact_email: string;
+    description: string | null;
+    service_distance: string;
+    target_market: string[];
+    main_phone: string;
+    additional_phones: Array<{
+      id: number;
+      type: string;
+      number: string;
+      name: string;
+    }>;
+    business_address: string;
+    latitude: string;
+    longitude: string;
+    working_hours: {
+      [key: string]: {
+        open: string;
+        close: string;
+        closed: boolean;
+      };
+    };
+    services_offered: string[];
+  };
+  profile_image: string;
+  ratings: {
+    average: number | null;
+    count: number;
+    reviews: any[];
+  };
+  certifications: Array<{
+    id: number;
+    certification_name: string;
+  }>;
+  product_images: Array<{
+    id: number;
+    image_url: string;
+  }>;
+  services: Array<{
+    id: number;
+    service_name: string;
+  }>;
+}
+
 export interface RegistrationData {
   businessName: string;
   email: string;
@@ -496,6 +546,35 @@ class ApiService {
   // ====== HELPERS ======
   isAuthenticated(): boolean {
     return !!localStorage.getItem("supplier_token");
+  }
+
+  async getSupplierProfile(id: string | number): Promise<SupplierProfile> {
+    console.log("Fetching supplier profile for ID:", id);
+    const headers = new Headers();
+    const token = localStorage.getItem("supplier_token");
+    
+    if (token) {
+      headers.append("Authorization", `Bearer ${token}`);
+      headers.append("Accept", "application/json");
+    }
+
+    try {
+      const response = await fetch(`${this.baseURL}/api/suppliers/${id}`, {
+        method: "GET",
+        headers,
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to fetch supplier profile");
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching supplier profile:", error);
+      throw error;
+    }
   }
 }
 

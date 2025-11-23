@@ -376,7 +376,7 @@ export default function Header() {
                           </div>
 
                           <Link
-                            href="/profile/1"
+                            href={`/profile/${user?.id || 'me'}`}
                             className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
                             onClick={() => setIsUserMenuOpen(false)}
                           >
