@@ -102,6 +102,40 @@ export default function PublicBusinessProfile({
     return result;
   };
 
+  // Helper function to safely get nested translation object
+  const getNestedTranslation = (key: string): Record<string, string> => {
+    try {
+      const translation = t(key) as unknown;
+      if (translation && typeof translation === "object") {
+        return translation as Record<string, string>;
+      }
+      return {};
+    } catch (e) {
+      return {};
+    }
+  };
+
+  // Helper function to get translated business type
+  const getTranslatedBusinessType = (type: string): string => {
+    if (!type) return type;
+    const businessTypes = getNestedTranslation("publicProfile.businessTypes");
+    return businessTypes[type.toLowerCase()] || type;
+  };
+
+  // Helper function to get translated status
+  const getTranslatedStatus = (status: string): string => {
+    if (!status) return status;
+    const statuses = getNestedTranslation("publicProfile.status");
+    return statuses[status.toLowerCase()] || status;
+  };
+
+  // Helper function to get translated phone type
+  const getTranslatedPhoneType = (type: string): string => {
+    if (!type) return type;
+    const phoneTypes = getNestedTranslation("publicProfile.phoneTypes");
+    return phoneTypes[type.toLowerCase()] || type;
+  };
+
   // Map API data to business object
   const business: Business = {
     id: supplier?.id?.toString() || businessId || "1",
@@ -362,8 +396,10 @@ export default function PublicBusinessProfile({
                       <div className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full flex items-center gap-2 border border-yellow-200 backdrop-blur-sm">
                         <i className="ri-store-3-line text-sm"></i>
                         <span className="text-sm font-medium">
-                          {supplier?.profile?.business_type ||
-                            business.businessType}
+                          {getTranslatedBusinessType(
+                            supplier?.profile?.business_type ||
+                              business.businessType
+                          )}
                         </span>
                       </div>
                       {supplier?.status && (
@@ -384,7 +420,7 @@ export default function PublicBusinessProfile({
                             } text-sm`}
                           ></i>
                           <span className="text-sm font-medium capitalize">
-                            {supplier.status}
+                            {getTranslatedStatus(supplier.status)}
                           </span>
                         </div>
                       )}
@@ -435,7 +471,7 @@ export default function PublicBusinessProfile({
                         <i className="ri-map-pin-line"></i>
                         <span className="text-gray-600">
                           {supplier?.profile?.business_address ||
-                            "Riyadh, Saudi Arabia"}
+                            t("publicProfile.defaultAddress")}
                         </span>
                       </div>
                     </div>
@@ -558,8 +594,8 @@ export default function PublicBusinessProfile({
                           </div>
                           <div>
                             <div>
-                              <p className="text-sm text-gray-500 capitalize">
-                                {phone.type}
+                              <p className="text-sm text-gray-500">
+                                {getTranslatedPhoneType(phone.type)}
                               </p>
                               <a
                                 href={`tel:${phone.number}`}

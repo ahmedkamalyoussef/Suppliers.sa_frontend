@@ -1596,8 +1596,20 @@ export const translations = {
     },
     publicProfile: {
       verified: "Verified",
-      reviews: "reviews",
+      reviews: {
+        title: "Customer Reviews",
+        count: "reviews"
+      },
+      businessTypes: {
+        supplier: "Supplier",
+        store: "Store",
+        office: "Office",
+        individual: "Individual"
+      },
       status: {
+        pending: "Pending",
+        verified: "Verified",
+        rejected: "Rejected",
         openNow: "Open Now",
         closed: "Closed",
         closedToday: "Closed Today",
@@ -4175,8 +4187,20 @@ export const translations = {
     // Public Profile
     publicProfile: {
       verified: "موثق",
-      reviews: "تقييم",
+      reviews: {
+        title: "تقييمات العملاء",
+        count: "تقييم"
+      },
+      businessTypes: {
+        supplier: "مورد",
+        store: "متجر",
+        office: "مكتب",
+        individual: "فردي"
+      },
       status: {
+        pending: "قيد المراجعة",
+        verified: "تم التحقق",
+        rejected: "مرفوض",
         openNow: "مفتوح الآن",
         closed: "مغلق",
         closedToday: "مغلق اليو��",
