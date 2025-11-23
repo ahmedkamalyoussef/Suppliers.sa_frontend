@@ -19,70 +19,71 @@ export default function DashboardStats() {
   const [recentActivities, setRecentActivities] = useState<any[]>([]);
 
   useEffect(() => {
-    fetchDashboardData();
+    // fetchDashboardData();
   }, [timeRange]);
 
-  const fetchDashboardData = async () => {
-    setLoading(true);
-    try {
-      const response = await api.get<{
-        success: boolean;
-        data?: {
-          stats?: {
-            views?: number;
-            viewsChange?: number;
-            contacts?: number;
-            contactsChange?: number;
-            inquiries?: number;
-            inquiriesChange?: number;
-            rating?: number;
-            ratingChange?: number;
-          };
-          recentActivities?: any[];
-        };
-      }>(API_CONFIG.supplier.dashboard, {
-        params: { range: timeRange },
-      });
+  // const fetchDashboardData = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await api.get<{
+  //       success: boolean;
+  //       data?: {
+  //         stats?: {
+  //           views?: number;
+  //           viewsChange?: number;
+  //           contacts?: number;
+  //           contactsChange?: number;
+  //           inquiries?: number;
+  //           inquiriesChange?: number;
+  //           rating?: number;
+  //           ratingChange?: number;
+  //         };
+  //         recentActivities?: any[];
+  //       };
+  //     }>(API_CONFIG.supplier.dashboard, {
+  //       params: { range: timeRange },
+  //     });
 
-      if (response.success && response.data) {
-        const dashboardData = response.data;
-        if (dashboardData.stats) {
-          setStats({
-            views: {
-              current: dashboardData.stats.views || 0,
-              change: Math.abs(dashboardData.stats.viewsChange || 0),
-              trend: (dashboardData.stats.viewsChange || 0) >= 0 ? "up" : "down",
-            },
-            contacts: {
-              current: dashboardData.stats.contacts || 0,
-              change: Math.abs(dashboardData.stats.contactsChange || 0),
-              trend:
-                (dashboardData.stats.contactsChange || 0) >= 0 ? "up" : "down",
-            },
-            inquiries: {
-              current: dashboardData.stats.inquiries || 0,
-              change: Math.abs(dashboardData.stats.inquiriesChange || 0),
-              trend:
-                (dashboardData.stats.inquiriesChange || 0) >= 0 ? "up" : "down",
-            },
-            rating: {
-              current: dashboardData.stats.rating || 0,
-              change: Math.abs(dashboardData.stats.ratingChange || 0),
-              trend:
-                (dashboardData.stats.ratingChange || 0) >= 0 ? "up" : "down",
-            },
-          });
-        }
-        if (dashboardData.recentActivities) {
-          setRecentActivities(dashboardData.recentActivities);
-        }
-      }
-    } catch (error) {
-      console.error("Failed to fetch dashboard data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     if (response.success && response.data) {
+  //       const dashboardData = response.data;
+  //       if (dashboardData.stats) {
+  //         setStats({
+  //           views: {
+  //             current: dashboardData.stats.views || 0,
+  //             change: Math.abs(dashboardData.stats.viewsChange || 0),
+  //             trend:
+  //               (dashboardData.stats.viewsChange || 0) >= 0 ? "up" : "down",
+  //           },
+  //           contacts: {
+  //             current: dashboardData.stats.contacts || 0,
+  //             change: Math.abs(dashboardData.stats.contactsChange || 0),
+  //             trend:
+  //               (dashboardData.stats.contactsChange || 0) >= 0 ? "up" : "down",
+  //           },
+  //           inquiries: {
+  //             current: dashboardData.stats.inquiries || 0,
+  //             change: Math.abs(dashboardData.stats.inquiriesChange || 0),
+  //             trend:
+  //               (dashboardData.stats.inquiriesChange || 0) >= 0 ? "up" : "down",
+  //           },
+  //           rating: {
+  //             current: dashboardData.stats.rating || 0,
+  //             change: Math.abs(dashboardData.stats.ratingChange || 0),
+  //             trend:
+  //               (dashboardData.stats.ratingChange || 0) >= 0 ? "up" : "down",
+  //           },
+  //         });
+  //       }
+  //       if (dashboardData.recentActivities) {
+  //         setRecentActivities(dashboardData.recentActivities);
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to fetch dashboard data:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const quickActions = [
     {
@@ -142,120 +143,122 @@ export default function DashboardStats() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <div className="bg-white p-4 sm:p-6 rounded-xl border border-gray-100 shadow-sm">
-          <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <i className="ri-eye-line text-blue-600 text-lg sm:text-xl"></i>
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i className="ri-eye-line text-blue-600 text-lg sm:text-xl"></i>
+              </div>
+              <span
+                className={`text-xs sm:text-sm font-medium ${
+                  stats.views.trend === "up" ? "text-green-600" : "text-red-600"
+                }`}
+              >
+                <i
+                  className={`${
+                    stats.views.trend === "up"
+                      ? "ri-arrow-up-line"
+                      : "ri-arrow-down-line"
+                  } mr-1`}
+                ></i>
+                {Math.abs(stats.views.change)}%
+              </span>
             </div>
-            <span
-              className={`text-xs sm:text-sm font-medium ${
-                stats.views.trend === "up" ? "text-green-600" : "text-red-600"
-              }`}
-            >
-              <i
-                className={`${
-                  stats.views.trend === "up"
-                    ? "ri-arrow-up-line"
-                    : "ri-arrow-down-line"
-                } mr-1`}
-              ></i>
-              {Math.abs(stats.views.change)}%
-            </span>
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-1">
+              {stats.views.current.toLocaleString()}
+            </h3>
+            <p className="text-gray-600 text-xs sm:text-sm">
+              {t("dashboard.profileViews")}
+            </p>
           </div>
-          <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-1">
-            {stats.views.current.toLocaleString()}
-          </h3>
-          <p className="text-gray-600 text-xs sm:text-sm">
-            {t("dashboard.profileViews")}
-          </p>
-        </div>
 
-        <div className="bg-white p-4 sm:p-6 rounded-xl border border-gray-100 shadow-sm">
-          <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <i className="ri-contacts-line text-green-600 text-lg sm:text-xl"></i>
-            </div>
-            <span
-              className={`text-xs sm:text-sm font-medium ${
-                stats.contacts.trend === "up"
-                  ? "text-green-600"
-                  : "text-red-600"
-              }`}
-            >
-              <i
-                className={`${
+          <div className="bg-white p-4 sm:p-6 rounded-xl border border-gray-100 shadow-sm">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <i className="ri-contacts-line text-green-600 text-lg sm:text-xl"></i>
+              </div>
+              <span
+                className={`text-xs sm:text-sm font-medium ${
                   stats.contacts.trend === "up"
-                    ? "ri-arrow-up-line"
-                    : "ri-arrow-down-line"
-                } mr-1`}
-              ></i>
-              {Math.abs(stats.contacts.change)}%
-            </span>
-          </div>
-          <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-1">
-            {stats.contacts.current}
-          </h3>
-          <p className="text-gray-600 text-xs sm:text-sm">
-            {t("dashboard.contactRequests")}
-          </p>
-        </div>
-
-        <div className="bg-white p-4 sm:p-6 rounded-xl border border-gray-100 shadow-sm">
-          <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-              <i className="ri-question-line text-yellow-600 text-lg sm:text-xl"></i>
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
+                <i
+                  className={`${
+                    stats.contacts.trend === "up"
+                      ? "ri-arrow-up-line"
+                      : "ri-arrow-down-line"
+                  } mr-1`}
+                ></i>
+                {Math.abs(stats.contacts.change)}%
+              </span>
             </div>
-            <span
-              className={`text-xs sm:text-sm font-medium ${
-                stats.inquiries.trend === "up"
-                  ? "text-green-600"
-                  : "text-red-600"
-              }`}
-            >
-              <i
-                className={`${
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-1">
+              {stats.contacts.current}
+            </h3>
+            <p className="text-gray-600 text-xs sm:text-sm">
+              {t("dashboard.contactRequests")}
+            </p>
+          </div>
+
+          <div className="bg-white p-4 sm:p-6 rounded-xl border border-gray-100 shadow-sm">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                <i className="ri-question-line text-yellow-600 text-lg sm:text-xl"></i>
+              </div>
+              <span
+                className={`text-xs sm:text-sm font-medium ${
                   stats.inquiries.trend === "up"
-                    ? "ri-arrow-up-line"
-                    : "ri-arrow-down-line"
-                } mr-1`}
-              ></i>
-              {Math.abs(stats.inquiries.change)}%
-            </span>
-          </div>
-          <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-1">
-            {stats.inquiries.current}
-          </h3>
-          <p className="text-gray-600 text-xs sm:text-sm">
-            {t("dashboard.businessInquiries")}
-          </p>
-        </div>
-
-        <div className="bg-white p-4 sm:p-6 rounded-xl border border-gray-100 shadow-sm">
-          <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <i className="ri-star-line text-purple-600 text-lg sm:text-xl"></i>
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
+                <i
+                  className={`${
+                    stats.inquiries.trend === "up"
+                      ? "ri-arrow-up-line"
+                      : "ri-arrow-down-line"
+                  } mr-1`}
+                ></i>
+                {Math.abs(stats.inquiries.change)}%
+              </span>
             </div>
-            <span
-              className={`text-xs sm:text-sm font-medium ${
-                stats.rating.trend === "up" ? "text-green-600" : "text-red-600"
-              }`}
-            >
-              <i
-                className={`${
-                  stats.rating.trend === "up"
-                    ? "ri-arrow-up-line"
-                    : "ri-arrow-down-line"
-                } mr-1`}
-              ></i>
-              {Math.abs(stats.rating.change)}
-            </span>
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-1">
+              {stats.inquiries.current}
+            </h3>
+            <p className="text-gray-600 text-xs sm:text-sm">
+              {t("dashboard.businessInquiries")}
+            </p>
           </div>
-          <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-1">
-            {stats.rating.current}
-          </h3>
-          <p className="text-gray-600 text-xs sm:text-sm">
-            {t("dashboard.averageRating")}
-          </p>
-        </div>
+
+          <div className="bg-white p-4 sm:p-6 rounded-xl border border-gray-100 shadow-sm">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <i className="ri-star-line text-purple-600 text-lg sm:text-xl"></i>
+              </div>
+              <span
+                className={`text-xs sm:text-sm font-medium ${
+                  stats.rating.trend === "up"
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
+                <i
+                  className={`${
+                    stats.rating.trend === "up"
+                      ? "ri-arrow-up-line"
+                      : "ri-arrow-down-line"
+                  } mr-1`}
+                ></i>
+                {Math.abs(stats.rating.change)}
+              </span>
+            </div>
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-1">
+              {stats.rating.current}
+            </h3>
+            <p className="text-gray-600 text-xs sm:text-sm">
+              {t("dashboard.averageRating")}
+            </p>
+          </div>
         </div>
       )}
 
@@ -318,49 +321,49 @@ export default function DashboardStats() {
           ) : (
             <div className="space-y-1">
               {recentActivities.map((activity, index) => (
-              <div
-                key={activity.id}
-                className={`p-4 sm:p-6 ${
-                  index !== recentActivities.length - 1
-                    ? "border-b border-gray-100"
-                    : ""
-                }`}
-              >
-                <div className="flex items-start space-x-3 sm:space-x-4">
-                  <div
-                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${activity.color}`}
-                  >
-                    <i className={`${activity.icon} text-xs sm:text-sm`}></i>
+                <div
+                  key={activity.id}
+                  className={`p-4 sm:p-6 ${
+                    index !== recentActivities.length - 1
+                      ? "border-b border-gray-100"
+                      : ""
+                  }`}
+                >
+                  <div className="flex items-start space-x-3 sm:space-x-4">
+                    <div
+                      className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${activity.color}`}
+                    >
+                      <i className={`${activity.icon} text-xs sm:text-sm`}></i>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-gray-800 mb-1 text-sm sm:text-base">
+                        {activity.title}
+                      </h4>
+                      <p className="text-gray-600 text-xs sm:text-sm mb-2">
+                        {activity.message}
+                      </p>
+                      <span className="text-gray-400 text-xs">
+                        {activity.time}
+                      </span>
+                    </div>
+                    <button className="text-gray-400 hover:text-gray-600 cursor-pointer flex-shrink-0">
+                      <i className="ri-more-line text-sm sm:text-base"></i>
+                    </button>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-gray-800 mb-1 text-sm sm:text-base">
-                      {activity.title}
-                    </h4>
-                    <p className="text-gray-600 text-xs sm:text-sm mb-2">
-                      {activity.message}
-                    </p>
-                    <span className="text-gray-400 text-xs">
-                      {activity.time}
-                    </span>
-                  </div>
-                  <button className="text-gray-400 hover:text-gray-600 cursor-pointer flex-shrink-0">
-                    <i className="ri-more-line text-sm sm:text-base"></i>
-                  </button>
                 </div>
-              </div>
               ))}
             </div>
           )}
 
           {recentActivities.length > 0 && (
             <div className="p-3 sm:p-4 border-t border-gray-100">
-            <button
-              onClick={() => setShowAllActivity(true)}
-              className="w-full text-center py-2 text-gray-600 hover:text-gray-800 font-medium text-xs sm:text-sm cursor-pointer"
-            >
-              {t("dashboard.viewAllActivity")}
-              <i className="ri-arrow-right-line ml-1 sm:ml-2"></i>
-            </button>
+              <button
+                onClick={() => setShowAllActivity(true)}
+                className="w-full text-center py-2 text-gray-600 hover:text-gray-800 font-medium text-xs sm:text-sm cursor-pointer"
+              >
+                {t("dashboard.viewAllActivity")}
+                <i className="ri-arrow-right-line ml-1 sm:ml-2"></i>
+              </button>
             </div>
           )}
         </div>

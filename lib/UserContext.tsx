@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
 import { apiService } from "./api";
 
 export interface User {
@@ -42,11 +48,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const savedToken = localStorage.getItem("supplier_token");
     const savedTokenType = localStorage.getItem("token_type") || "Bearer";
     const savedUser = localStorage.getItem("supplier_user");
-    
+
     if (savedToken) {
       setToken(savedToken);
       setTokenType(savedTokenType);
-      
+
       // Try to restore user data from localStorage
       if (savedUser) {
         try {
@@ -56,18 +62,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.error("Failed to parse saved user data:", error);
         }
       }
-      
+
       setIsLoading(false);
     } else {
       setIsLoading(false);
     }
   }, []);
 
-  const login = (userData: User, accessToken: string, accessTokenType: string) => {
+  const login = (
+    userData: User,
+    accessToken: string,
+    accessTokenType: string
+  ) => {
     setUser(userData);
     setToken(accessToken);
     setTokenType(accessTokenType);
-    
+
     // Save to localStorage
     localStorage.setItem("supplier_token", accessToken);
     localStorage.setItem("token_type", accessTokenType || "Bearer");
@@ -82,12 +92,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error("Logout API failed:", error);
       // Continue with local logout even if API fails
     }
-    
+
     // Clear local state
     setUser(null);
     setToken(null);
     setTokenType("Bearer");
-    
+
     // Clear localStorage
     localStorage.removeItem("supplier_token");
     localStorage.removeItem("token_type");

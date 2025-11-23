@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Header from "../../components/Header";
@@ -10,6 +10,7 @@ import BusinessManagement from "../../components/BusinessManagement";
 import DashboardAnalytics from "../../components/DashboardAnalytics";
 import DashboardMessages from "../../components/DashboardMessages";
 import DashboardSettings from "../../components/DashboardSettings";
+import { apiService } from "../../lib/api";
 
 function DashboardContent() {
   const searchParams = useSearchParams();
@@ -27,6 +28,8 @@ function DashboardContent() {
   const [pendingAvatarPreview, setPendingAvatarPreview] = useState<
     string | null
   >(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const [user] = useState({
     name: "Ahmed Al-Rashid",
@@ -308,13 +311,26 @@ function DashboardContent() {
                       <div className="flex-1">
                         <label className="inline-block bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded cursor-pointer">
                           <input
+                            ref={fileInputRef}
                             type="file"
                             accept="image/*"
                             className="hidden"
-                            onChange={(e) => {
-                              const file = e.target.files && e.target.files[0];
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
                               if (!file) return;
-                              if (!file.type.startsWith("image/")) return;
+
+                              // Validate file type
+                              if (!file.type.startsWith("image/")) {
+                                alert("يُسمح بملفات الصور فقط");
+                                return;
+                              }
+
+                              // Validate file size (5MB max)
+                              if (file.size > 5 * 1024 * 1024) {
+                                alert("حجم الملف يجب أن لا يتجاوز 5 ميجابايت");
+                                return;
+                              }
+
                               const reader = new FileReader();
                               reader.onload = () => {
                                 if (typeof reader.result === "string") {
@@ -342,19 +358,72 @@ function DashboardContent() {
                         Cancel
                       </button>
                       <button
-                        onClick={() => {
-                          const newUrl = pendingAvatarPreview || avatarUrl;
-                          setAvatarUrl(newUrl);
-                          if (typeof window !== "undefined") {
-                            localStorage.setItem("dashboardAvatar", newUrl);
+                        onClick={async () => {
+                          if (
+                            !pendingAvatarPreview ||
+                            !fileInputRef.current?.files?.[0]
+                          ) {
+                            alert("الرجاء اختيار صورة أولاً");
+                            return;
                           }
-                          setShowPhotoUpload(false);
-                          setPendingAvatarPreview(null);
+
+                          const file = fileInputRef.current.files[0];
+
+                          try {
+                            setIsUploading(true);
+
+                            // Update UI optimistically
+                            const previewUrl = URL.createObjectURL(file);
+                            setAvatarUrl(previewUrl);
+
+                            // Upload the image
+                            const result = await apiService.uploadProfileImage(
+                              file
+                            );
+
+                            // If we get here, the upload was successful
+                            if (typeof window !== "undefined") {
+                              localStorage.setItem(
+                                "dashboardAvatar",
+                                previewUrl
+                              );
+                            }
+
+                            // Don't show success message to avoid interrupting the user
+                            // The UI is already updated with the new image
+                          } catch (error: unknown) {
+                            // Revert the UI on error
+                            if (typeof window !== "undefined") {
+                              const savedAvatar =
+                                localStorage.getItem("dashboardAvatar");
+                              if (savedAvatar) {
+                                setAvatarUrl(savedAvatar);
+                              }
+                            }
+
+                            // Show error message
+                            const errorMessage =
+                              error instanceof Error
+                                ? error.message
+                                : "حدث خطأ أثناء رفع الصورة";
+                            alert(errorMessage);
+
+                            console.error("Error uploading image:", error);
+                          } finally {
+                            setIsUploading(false);
+                            setShowPhotoUpload(false);
+                            setPendingAvatarPreview(null);
+
+                            // Reset file input
+                            if (fileInputRef.current) {
+                              fileInputRef.current.value = "";
+                            }
+                          }
                         }}
-                        className="px-4 py-2 rounded bg-yellow-500 text-white hover:bg-yellow-600"
-                        disabled={!pendingAvatarPreview}
+                        className="px-4 py-2 rounded bg-yellow-500 text-white hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={!pendingAvatarPreview || isUploading}
                       >
-                        Save
+                        {isUploading ? "جاري الحفظ..." : "حفظ"}
                       </button>
                     </div>
                   </div>

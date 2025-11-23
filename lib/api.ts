@@ -261,7 +261,9 @@ class ApiService {
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: "Logout failed" }));
+      const error = await response
+        .json()
+        .catch(() => ({ message: "Logout failed" }));
       throw new Error(error.message || "Logout failed");
     }
 
@@ -271,14 +273,18 @@ class ApiService {
     localStorage.removeItem("supplier_user");
   }
 
-  async forgotPassword(data: ForgotPasswordRequest): Promise<{ message: string }> {
+  async forgotPassword(
+    data: ForgotPasswordRequest
+  ): Promise<{ message: string }> {
     return this.request("/api/auth/forgot-password", {
       method: "POST",
       body: JSON.stringify(data),
     });
   }
 
-  async resetPassword(data: ResetPasswordRequest): Promise<{ message: string }> {
+  async resetPassword(
+    data: ResetPasswordRequest
+  ): Promise<{ message: string }> {
     return this.request("/api/auth/reset-password", {
       method: "POST",
       body: JSON.stringify(data),
@@ -317,7 +323,9 @@ class ApiService {
     ); // requiresAuth = true
   }
 
-  async updateProfileWithFormData(formData: FormData): Promise<ProfileUpdateResponse> {
+  async updateProfileWithFormData(
+    formData: FormData
+  ): Promise<ProfileUpdateResponse> {
     const token = localStorage.getItem("supplier_token");
     const tokenType = localStorage.getItem("token_type") || "Bearer";
 
@@ -334,7 +342,7 @@ class ApiService {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      
+
       // Enhanced logging for debugging
       console.error(`API Error ${response.status}:`, {
         url: `${this.baseURL}/api/supplier/profile`,
@@ -350,7 +358,9 @@ class ApiService {
         );
       }
 
-      throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+      throw new Error(
+        errorData.message || `HTTP ${response.status}: ${response.statusText}`
+      );
     }
 
     return response.json();
@@ -363,7 +373,7 @@ class ApiService {
         method: "GET",
       },
       true
-    ); // requiresAuth = true
+    );
   }
 
   async uploadDocument(file: File): Promise<DocumentUploadResponse> {
@@ -391,6 +401,96 @@ class ApiService {
     }
 
     return await response.json();
+  }
+
+  async uploadProfileImage(
+    file: File
+  ): Promise<{ success: boolean; data: { url: string } }> {
+    const formData = new FormData();
+    formData.append("profile_image", file);
+
+    // Create headers object
+    const headers = new Headers();
+    // Don't set Content-Type header, let the browser set it with the correct boundary
+
+    // Get the auth token
+    const token = localStorage.getItem("supplier_token");
+    if (token) {
+      headers.append("Authorization", `Bearer ${token}`);
+    }
+
+    try {
+      const response = await fetch(
+        `${this.baseURL}/api/supplier/profile/image`,
+        {
+          method: "POST",
+          headers,
+          body: formData,
+          credentials: "include",
+        }
+      );
+
+      // First, check if the response is OK
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to upload image");
+      }
+
+      // Try to parse the response as JSON
+      let responseData;
+      try {
+        responseData = await response.json();
+      } catch (e) {
+        // If parsing fails but the status is 200, consider it a success
+        if (response.status === 200) {
+          return { success: true, data: { url: "" } }; // Return default success response
+        }
+        throw new Error("Failed to parse server response");
+      }
+
+      // If we got here, the request was successful
+      // The backend might be returning the URL directly or in a data object
+      const imageUrl = responseData.url || responseData.data?.url || "";
+
+      return {
+        success: true,
+        data: {
+          url: imageUrl,
+        },
+      };
+    } catch (error: unknown) {
+      console.error("API Error:", error);
+
+      // Handle different types of errors
+      if (typeof error === "object" && error !== null) {
+        // Handle Fetch API Response errors
+        if (
+          "response" in error &&
+          error.response &&
+          typeof error.response === "object" &&
+          error.response !== null
+        ) {
+          try {
+            // @ts-ignore - We've already checked the type
+            const errorData = await error.response.json().catch(() => ({}));
+            throw new Error(errorData.message || "فشل في رفع الصورة");
+          } catch (e) {
+            // If we can't parse the error response
+            throw new Error("فشل في معالجة استجابة الخادم");
+          }
+        }
+
+        // Handle Error objects
+        if (error instanceof Error) {
+          throw new Error(
+            error.message || "حدث خطأ أثناء رفع الصورة. يرجى المحاولة مرة أخرى."
+          );
+        }
+      }
+
+      // Default error
+      throw new Error("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.");
+    }
   }
 
   // ====== HELPERS ======

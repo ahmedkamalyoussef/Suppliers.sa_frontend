@@ -414,7 +414,7 @@ export default function TopSuppliers() {
                       ))}
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-2 mt-3 mt-auto">
+                    <div className="flex flex-col sm:flex-row gap-2 mt-auto">
                       <button className="flex-1 bg-yellow-400 text-white py-2 rounded-lg hover:bg-yellow-500 text-xs font-medium transition-colors">
                         <i className="ri-message-line mr-1"></i>{" "}
                         {t("topSuppliers.message")}
