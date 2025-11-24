@@ -44,6 +44,8 @@ export interface WorkingHour {
 
 export interface SupplierProfileData {
   business_type: string;
+  category: string;
+  business_image: string;
   website: string;
   contact_email: string;
   description: string | null;
@@ -198,6 +200,7 @@ export interface ProfileUpdateData {
   }>;
   contactEmail?: string; // From verification/login
   contactPhone?: string; // From verification/login
+  category?: string;
   document?: File; // Include document in main request
 }
 

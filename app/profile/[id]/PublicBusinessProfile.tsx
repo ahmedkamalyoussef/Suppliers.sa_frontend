@@ -29,6 +29,7 @@ type Business = {
   name: string;
   logo: string;
   category: string;
+  business_image: string;
   businessType: "Supplier" | "Store" | "Office" | "Individual";
   targetCustomers: string[];
   serviceDistance: string;
@@ -141,7 +142,8 @@ export default function PublicBusinessProfile({
     id: supplier?.id?.toString() || businessId || "1",
     name: supplier?.name || "",
     logo: supplier?.profile_image || "/images/business-logo.png",
-    category: supplier?.profile?.business_type || "",
+    category: supplier?.profile?.category || "",
+    business_image: supplier?.profile?.business_image || supplier?.profile_image || "",
     businessType: "Supplier",
     targetCustomers: supplier?.profile?.target_market || [],
     serviceDistance: supplier?.profile?.service_distance || "",
@@ -343,11 +345,21 @@ export default function PublicBusinessProfile({
         <section className="relative">
           <div className="h-80 relative overflow-hidden">
             <img
-              src={business.images[selectedImageIndex]}
+              src={business.business_image}
               alt={business.name}
               className="w-full h-full object-cover object-top"
             />
-            <div className="absolute inset-0 bg-yellow-100"></div>
+            <div
+              className="absolute inset-0 bg-yellow-100"
+              style={{
+                backgroundImage: `url(${
+                  business.business_image || ""
+                })`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+              }}
+            ></div>
           </div>
 
           <div className="absolute bottom-0 left-0 right-0 p-8">

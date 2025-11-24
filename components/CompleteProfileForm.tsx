@@ -15,6 +15,14 @@ import {
 } from "./../lib/types";
 import BusinessLocationMap from "./BusinessLocationMap";
 
+// Specific category options for the dropdown
+const categoryOptions = [
+  { en: "Electronics", ar: "إلكترونيات" },
+  { en: "Printing", ar: "طباعة" },
+  { en: "Furniture", ar: "أثاث" },
+  { en: "Technology", ar: "تكنولوجيا" }
+];
+
 // Categories with translations
 const categories = [
   { en: "Agriculture", ar: "الزراعة" },
@@ -139,7 +147,7 @@ export default function CompleteProfileForm({
   const [showVerificationModal, setShowVerificationModal] =
     useState<boolean>(false);
   const { t, language, isRTL } = useLanguage();
-  
+
   // Track if form should allow submission
   const allowSubmissionRef = useRef<boolean>(false);
 
@@ -691,7 +699,9 @@ export default function CompleteProfileForm({
   useEffect(() => {
     console.log("Step changed to:", currentStep);
     if (currentStep === 6) {
-      console.log("Reached step 6 - submission disabled, waiting for manual trigger");
+      console.log(
+        "Reached step 6 - submission disabled, waiting for manual trigger"
+      );
       allowSubmissionRef.current = false;
     } else {
       allowSubmissionRef.current = false;
@@ -702,15 +712,15 @@ export default function CompleteProfileForm({
   useEffect(() => {
     if (crFile) {
       console.log("Updating formData.document with crFile:", crFile.name);
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        document: crFile
+        document: crFile,
       }));
     } else {
       console.log("Clearing formData.document");
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        document: null
+        document: null,
       }));
     }
   }, [crFile]);
@@ -811,7 +821,7 @@ export default function CompleteProfileForm({
   const handleCRFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const file = e.target.files?.[0];
     console.log("File selected:", file?.name, file?.type, file?.size);
-    
+
     if (file) {
       const allowedTypes = [
         "image/jpeg",
@@ -874,6 +884,10 @@ export default function CompleteProfileForm({
         if (!formData.businessType) {
           newErrors.businessType = "Business type is required";
         }
+
+        if (!formData.category) {
+          newErrors.category = "Category is required";
+        }
         break;
 
       case 2:
@@ -921,12 +935,19 @@ export default function CompleteProfileForm({
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    console.log("handleSubmit called - currentStep:", currentStep, "allowSubmission:", allowSubmissionRef.current);
+    console.log(
+      "handleSubmit called - currentStep:",
+      currentStep,
+      "allowSubmission:",
+      allowSubmissionRef.current
+    );
     e.preventDefault();
-    
+
     // Only allow submission on the final step AND if manually triggered
     if (currentStep < 6 || !allowSubmissionRef.current) {
-      console.log("Cannot submit - not on final step or not manually triggered");
+      console.log(
+        "Cannot submit - not on final step or not manually triggered"
+      );
       return;
     }
 
@@ -1004,6 +1025,7 @@ export default function CompleteProfileForm({
       const profileData: ProfileUpdateData = {
         businessName: formData.businessName,
         businessType: formData.businessType.toLowerCase(), // Convert to lowercase
+        category: formData.category, // Add the selected category
         categories: formData.categories,
         productKeywords: formData.productKeywords,
         whoDoYouServe: formData.targetCustomers.join(", "), // Convert array to string for backend
@@ -1374,19 +1396,46 @@ export default function CompleteProfileForm({
                 </p>
               )}
 
+              {/* Category Dropdown */}
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Category *
+                </label>
+                <select
+                  value={formData.category || ''}
+                  onChange={(e) => handleInputChange("category", e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
+                  required
+                >
+                  <option value="">Select a category</option>
+                  {categoryOptions.map((option) => (
+                    <option key={option.en} value={option.en}>
+                      {language === 'ar' ? option.ar : option.en}
+                    </option>
+                  ))}
+                </select>
+                {errors.category && (
+                  <p className="text-red-500 text-xs mt-1">{errors.category}</p>
+                )}
+              </div>
+
               <div className="mt-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   {t("completeProfile.step1.descriptionLabel")} *
                 </label>
                 <textarea
                   name="description"
-                  value={formData.description || ''}
-                  onChange={(e) => handleInputChange("description", e.target.value)}
+                  value={formData.description || ""}
+                  onChange={(e) =>
+                    handleInputChange("description", e.target.value)
+                  }
                   rows={4}
                   className={`w-full px-3 md:px-4 py-2 md:py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ${
                     errors.description ? "border-red-300" : "border-gray-300"
                   }`}
-                  placeholder={t("completeProfile.step1.descriptionPlaceholder")}
+                  placeholder={t(
+                    "completeProfile.step1.descriptionPlaceholder"
+                  )}
                   required
                 />
                 {errors.description && (

@@ -135,7 +135,7 @@ export default function BusinessProfile() {
   const business = {
     id: businessProfile?.id || "",
     name: businessProfile?.name || "",
-    category: businessProfile?.profile?.business_type || "",
+    category: businessProfile?.profile?.category || "",
     businessType: businessProfile?.profile?.business_type || "",
     targetCustomers: businessProfile?.profile?.target_market || [],
     serviceDistance: businessProfile?.profile?.service_distance || "",
@@ -382,7 +382,7 @@ export default function BusinessProfile() {
           <div
             className="w-full h-full bg-cover bg-center"
             style={{
-              backgroundImage: `url(${businessProfile?.profile_image || ""})`,
+              backgroundImage: `url(${businessProfile?.profile?.business_image || businessProfile?.profile_image ||""})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
