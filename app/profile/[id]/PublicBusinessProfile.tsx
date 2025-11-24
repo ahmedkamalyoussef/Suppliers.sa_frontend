@@ -269,40 +269,14 @@ export default function PublicBusinessProfile({
 
   const status = getCurrentStatus();
 
-  const reviews: Review[] = [
-    {
-      id: 1,
-      customerName: "Ahmed Al-Mansouri",
-      rating: 5,
-      date: "2024-01-20",
-      comment:
-        "Exceptional service and high-quality products. The team was very professional and delivered exactly what we needed for our office setup. Highly recommended!",
-    },
-    {
-      id: 2,
-      customerName: "Fatima Al-Zahra",
-      rating: 5,
-      date: "2024-01-18",
-      comment:
-        "Outstanding experience from start to finish. The consultation was thorough and the final result exceeded our expectations. Great attention to detail.",
-    },
-    {
-      id: 3,
-      customerName: "Mohammed Al-Rashid",
-      rating: 4,
-      date: "2024-01-15",
-      comment:
-        "Very satisfied with the service quality and professionalism. The project was completed on time and within budget. Will definitely work with them again.",
-    },
-    {
-      id: 4,
-      customerName: "Sarah Al-Otaibi",
-      rating: 5,
-      date: "2024-01-12",
-      comment:
-        "Excellent customer service and expertise. They understood our requirements perfectly and provided solutions that worked beautifully for our needs.",
-    },
-  ];
+  // Get reviews from API response or use empty array if not available
+  const reviews: Review[] = supplier?.ratings?.reviews?.map(review => ({
+    id: review.id,
+    customerName: review.user?.name || t("businessProfile.anonymous"),
+    rating: review.rating,
+    date: new Date(review.created_at).toISOString().split('T')[0], // Format date as YYYY-MM-DD
+    comment: review.comment || t("businessProfile.noComment"),
+  })) || [];
 
   const handleInquirySubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

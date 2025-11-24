@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useLanguage } from "../../../lib/LanguageContext";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
@@ -11,9 +11,29 @@ import { BusinessProfile as BusinessProfileType } from "../../../lib/api";
 
 type BusinessProfileProps = {};
 
-export default function BusinessProfile({}: BusinessProfileProps) {
+export default function BusinessProfile() {
+  const router = useRouter();
   const params = useParams();
   const businessId = params?.id as string;
+
+  // Immediate redirection check
+  useEffect(() => {
+    // Check if user is logged in
+    const userData = localStorage.getItem('supplier_user');
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        // Check if the current profile ID matches the logged-in user's ID
+        if (user.id && user.id.toString() === businessId) {
+          // Redirect to the user's profile page immediately
+          router.replace(`/profile/${user.id}`);
+          return;
+        }
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+      }
+    }
+  }, [businessId, router]);
   const { t } = useLanguage();
   const [businessProfile, setBusinessProfile] =
     useState<BusinessProfileType | null>(null);
@@ -72,31 +92,30 @@ export default function BusinessProfile({}: BusinessProfileProps) {
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedRating || !reviewText.trim()) return;
+    if (!selectedRating || !reviewText.trim() || !businessProfile) return;
 
     try {
-      const formData = new FormData();
-      formData.append("rating", selectedRating.toString());
-      formData.append("review", reviewText);
-      formData.append("business_id", "ال");
-      formData.append("business_name", business.name);
-      formData.append("review_status", "pending_approval");
-      formData.append("submission_date", new Date().toISOString());
+      await apiService.submitReview(
+        businessProfile.id,
+        selectedRating,
+        reviewText
+      );
 
-      const response = await fetch(submitUrl, {
-        method: "POST",
-        body: formData,
-      });
+      setShowThankYou(true);
+      setTimeout(async () => {
+        setShowReviewModal(false);
+        setShowThankYou(false);
+        setSelectedRating(0);
+        setReviewText("");
 
-      if (response.ok) {
-        setShowThankYou(true);
-        setTimeout(() => {
-          setShowReviewModal(false);
-          setShowThankYou(false);
-          setSelectedRating(0);
-          setReviewText("");
-        }, 4000);
-      }
+        // Refresh the business profile to show the new review
+        try {
+          const profile = await apiService.getBusinessProfile(businessId);
+          setBusinessProfile(profile);
+        } catch (error) {
+          console.error("Failed to refresh business profile:", error);
+        }
+      }, 4000);
     } catch (error) {
       console.error("Failed to submit review:", error);
     }
@@ -127,9 +146,13 @@ export default function BusinessProfile({}: BusinessProfileProps) {
     phone: businessProfile?.profile?.main_phone || "",
     email: businessProfile?.profile?.contact_email || "",
     website: businessProfile?.profile?.website || "",
-    coordinates: { 
-      lat: businessProfile?.profile?.latitude ? parseFloat(businessProfile.profile.latitude) : 24.7136, 
-      lng: businessProfile?.profile?.longitude ? parseFloat(businessProfile.profile.longitude) : 46.6753 
+    coordinates: {
+      lat: businessProfile?.profile?.latitude
+        ? parseFloat(businessProfile.profile.latitude)
+        : 24.7136,
+      lng: businessProfile?.profile?.longitude
+        ? parseFloat(businessProfile.profile.longitude)
+        : 46.6753,
     },
     services: [
       "Wholesale Electronics",
@@ -214,40 +237,15 @@ export default function BusinessProfile({}: BusinessProfileProps) {
       "https://readdy.ai/api/search-image?query=Electronics%20repair%20workshop%20with%20professional%20tools%2C%20workbenches%2C%20testing%20equipment%2C%20organized%20tool%20storage%2C%20clean%20technical%20workspace%20environment&width=800&height=600&seq=electronics-workshop&orientation=landscape",
       "https://readdy.ai/api/search-image?query=Customer%20service%20area%20in%20electronics%20store%2C%20professional%20consultation%20desk%2C%20product%20displays%2C%20modern%20interior%20design%2C%20welcoming%20business%20environment&width=800&height=600&seq=electronics-service&orientation=landscape",
     ],
-    reviews: [
-      {
-        id: 1,
-        customerName: "Sarah Al-Ahmad",
-        rating: 5,
-        date: "2024-01-15",
-        comment:
-          "Excellent service and quality products. The staff is very knowledgeable and helped me find exactly what I needed for my project. Fast delivery and competitive prices.",
-      },
-      {
-        id: 2,
-        customerName: "Mohammed Al-Rashid",
-        rating: 5,
-        date: "2024-01-10",
-        comment:
-          "Been working with Metro Electronics for over 2 years. They consistently deliver high-quality components on time. Their technical support is outstanding.",
-      },
-      {
-        id: 3,
-        customerName: "Fatima Al-Zahra",
-        rating: 4,
-        date: "2024-01-08",
-        comment:
-          "Great selection of electronic components. The ordering process is smooth and they have good customer service. Slightly higher prices but worth it for the quality.",
-      },
-      {
-        id: 4,
-        customerName: "Ahmed Al-Mansouri",
-        rating: 5,
-        date: "2024-01-05",
-        comment:
-          "Metro Electronics saved our project deadline! They had the specialized components we needed in stock and delivered same day. Highly recommend!",
-      },
-    ],
+    reviews:
+      businessProfile?.ratings?.reviews?.map((review) => ({
+        id: review.id,
+        customerName: review.user?.name || t("businessProfile.anonymous"),
+        rating: review.rating,
+        date: review.created_at,
+        comment: review.comment,
+        avatar: review.user?.avatar,
+      })) || [],
   };
 
   const getCurrentStatus = () => {

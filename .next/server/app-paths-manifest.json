@@ -1,7 +1,7 @@
 {
   "/business/[id]/page": "app/business/[id]/page.js",
-  "/page": "app/page.js",
-  "/dashboard/page": "app/dashboard/page.js",
-  "/profile/[id]/page": "app/profile/[id]/page.js",
-  "/not-found": "app/not-found.js"
+  "/subscription/page": "app/subscription/page.js",
+  "/register/page": "app/register/page.js",
+  "/login/page": "app/login/page.js",
+  "/page": "app/page.js"
 }

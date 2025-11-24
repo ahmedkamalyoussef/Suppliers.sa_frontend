@@ -3,10 +3,13 @@ const API_BASE_URL = "http://localhost:8000";
 
 export interface Review {
   id: number;
-  reviewer_name: string;
-  comment: string;
   rating: number;
+  comment: string;
   created_at: string;
+  user: {
+    name: string;
+    avatar?: string;
+  };
 }
 
 export interface Certification {
@@ -68,12 +71,16 @@ export interface SupplierProfile {
     reviews: Review[];
   };
   certifications: Certification[];
-  product_images: { id: number; image_url: string; name: string }[];
+  product_images: Array<{
+    id: number;
+    image_url: string;
+    name: string;
+  }>;
   services: Service[];
 }
 
 // BusinessProfile extends SupplierProfile with explicit products in profile
-export interface BusinessProfile extends Omit<SupplierProfile, 'profile'> {
+export interface BusinessProfile extends Omit<SupplierProfile, "profile"> {
   profile: SupplierProfileData & {
     products: Product[]; // Company products inside profile
   };
@@ -592,11 +599,14 @@ class ApiService {
     }
 
     try {
-      const response = await fetch(`${this.baseURL}/api/suppliers/${id}/business`, {
-        method: "GET",
-        headers,
-        credentials: "include",
-      });
+      const response = await fetch(
+        `${this.baseURL}/api/suppliers/${id}/business`,
+        {
+          method: "GET",
+          headers,
+          credentials: "include",
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -641,6 +651,34 @@ class ApiService {
       console.error("Error fetching supplier profile:", error);
       throw error;
     }
+  }
+
+  async submitReview(supplierId: number, rating: number, comment: string): Promise<{ message: string }> {
+    const token = localStorage.getItem("supplier_token");
+    if (!token) {
+      throw new Error("Authentication required");
+    }
+
+    const response = await fetch(`${this.baseURL}/api/supplier/ratings`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+        "Accept": "application/json"
+      },
+      body: JSON.stringify({
+        rated_supplier_id: supplierId,
+        score: rating,
+        comment: comment
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.message || 'Failed to submit review');
+    }
+
+    return response.json();
   }
 }
 
