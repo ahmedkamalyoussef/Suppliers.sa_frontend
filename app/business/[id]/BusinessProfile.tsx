@@ -1,15 +1,22 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import { useLanguage } from "../../../lib/LanguageContext";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 import Link from "next/link";
+import { apiService } from "../../../lib/api";
+import { BusinessProfile as BusinessProfileType } from "../../../lib/api";
 
-type BusinessProfileProps = { businessId: string };
+type BusinessProfileProps = {};
 
-export default function BusinessProfile({ businessId }: BusinessProfileProps) {
+export default function BusinessProfile({}: BusinessProfileProps) {
+  const params = useParams();
+  const businessId = params?.id as string;
   const { t } = useLanguage();
+  const [businessProfile, setBusinessProfile] =
+    useState<BusinessProfileType | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showContact, setShowContact] = useState(false);
   const [showInquiryModal, setShowInquiryModal] = useState(false);
@@ -28,6 +35,21 @@ export default function BusinessProfile({ businessId }: BusinessProfileProps) {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  useEffect(() => {
+    const fetchBusinessProfile = async () => {
+      try {
+        const profile = await apiService.getBusinessProfile(businessId);
+        console.log("Fetched business profile:", profile);
+        console.log("Products:", profile?.profile?.products);
+        setBusinessProfile(profile);
+      } catch (error) {
+        console.error("Error fetching business profile:", error);
+      }
+    };
+
+    fetchBusinessProfile();
+  }, [businessId]);
 
   useEffect(() => {
     const fetchFormUrl = async () => {
@@ -56,7 +78,7 @@ export default function BusinessProfile({ businessId }: BusinessProfileProps) {
       const formData = new FormData();
       formData.append("rating", selectedRating.toString());
       formData.append("review", reviewText);
-      formData.append("business_id", business.id);
+      formData.append("business_id", "ال");
       formData.append("business_name", business.name);
       formData.append("review_status", "pending_approval");
       formData.append("submission_date", new Date().toISOString());
@@ -80,23 +102,35 @@ export default function BusinessProfile({ businessId }: BusinessProfileProps) {
     }
   };
 
-  // Sample business data - in real app this would come from database
+  // Extend the BusinessProfile type to include products at the root level
+  type BusinessProfileWithProducts = BusinessProfileType & {
+    products?: Array<{
+      id: number;
+      product_name: string;
+      created_at: string;
+      updated_at: string;
+    }>;
+  };
+
+  // Business data from API
   const business = {
-    id: "metro-electronics",
-    name: "Metro Electronics Supply",
-    category: "Electronics Supplier",
-    businessType: "Supplier",
-    targetCustomers: ["Large Organizations", "Small Businesses"],
-    serviceDistance: "40 km",
-    rating: 4.8,
-    reviewCount: 124,
-    description:
-      "Metro Electronics Supply is your trusted partner for all electronic components and supplies. We specialize in wholesale electronics, repair parts, and custom solutions for businesses of all sizes. With over 15 years of experience in the industry, we provide high-quality products, competitive pricing, and exceptional customer service. Our extensive inventory includes semiconductors, circuit boards, cables, connectors, and specialized components for various industries.",
-    address: "1247 King Fahd Road, Al-Olaya District, Riyadh 12313",
-    phone: "+966 11 234 5678",
-    email: "info@metroelectronics.com",
-    website: "https://metroelectronics.com",
-    coordinates: { lat: 24.7136, lng: 46.6753 },
+    id: businessProfile?.id || "",
+    name: businessProfile?.name || "",
+    category: businessProfile?.profile?.business_type || "",
+    businessType: businessProfile?.profile?.business_type || "",
+    targetCustomers: businessProfile?.profile?.target_market || [],
+    serviceDistance: businessProfile?.profile?.service_distance || "",
+    rating: businessProfile?.ratings?.average || 0,
+    reviewCount: businessProfile?.ratings?.count || 0,
+    description: businessProfile?.profile?.description || "",
+    address: businessProfile?.profile?.business_address || "",
+    phone: businessProfile?.profile?.main_phone || "",
+    email: businessProfile?.profile?.contact_email || "",
+    website: businessProfile?.profile?.website || "",
+    coordinates: { 
+      lat: businessProfile?.profile?.latitude ? parseFloat(businessProfile.profile.latitude) : 24.7136, 
+      lng: businessProfile?.profile?.longitude ? parseFloat(businessProfile.profile.longitude) : 46.6753 
+    },
     services: [
       "Wholesale Electronics",
       "Components Supply",
@@ -107,157 +141,73 @@ export default function BusinessProfile({ businessId }: BusinessProfileProps) {
       "Technical Support",
       "Installation",
     ],
-    // Extended products and services list - like an Excel sheet
-    productsAndServices: [
-      "LED TVs",
-      "OLED Displays",
-      "Samsung TVs",
-      "LG Electronics",
-      "Sony Products",
-      "iPhone Repair",
-      "iPad Repair",
-      "Samsung Phone Repair",
-      "Laptop Repair",
-      "Desktop Computers",
-      "Gaming Laptops",
-      "Gaming PCs",
-      "MacBook Repair",
-      "iPhone Screens",
-      "Phone Batteries",
-      "Laptop Batteries",
-      "Power Banks",
-      "USB Cables",
-      "Lightning Cables",
-      "Type-C Cables",
-      "HDMI Cables",
-      "Ethernet Cables",
-      "Audio Cables",
-      "Bluetooth Speakers",
-      "Wireless Headphones",
-      "Wired Headphones",
-      "Keyboards",
-      "Wireless Mouse",
-      "Gaming Mouse",
-      "Webcams",
-      "Security Cameras",
-      "CCTV Systems",
-      "Network Routers",
-      "WiFi Extenders",
-      "Switches",
-      "Modems",
-      "Printers",
-      "Scanners",
-      "Ink Cartridges",
-      "Toner Cartridges",
-      "Memory Cards",
-      "USB Flash Drives",
-      "External Hard Drives",
-      "SSD Drives",
-      "RAM Memory",
-      "Graphics Cards",
-      "Motherboards",
-      "Processors",
-      "Power Supplies",
-      "Computer Cases",
-      "Cooling Fans",
-      "Heat Sinks",
-      "Thermal Paste",
-      "Screwdrivers",
-      "Repair Tools",
-      "Multimeters",
-      "Soldering Irons",
-      "Wire Strippers",
-      "Cable Testers",
-      "Component Testing",
-      "Circuit Board Repair",
-      "Data Recovery",
-      "Software Installation",
-      "Operating Systems",
-      "Antivirus Software",
-      "Office Software",
-      "Adobe Products",
-      "Gaming Software",
-      "Driver Updates",
-      "System Optimization",
-      "Virus Removal",
-      "Hardware Diagnostics",
-      "Performance Upgrades",
-      "Custom Build PCs",
-      "Server Setup",
-      "Network Installation",
-      "Smart Home Devices",
-      "IoT Products",
-      "Electronic Components",
-      "Resistors",
-      "Capacitors",
-      "Transistors",
-      "Diodes",
-      "LEDs",
-      "Integrated Circuits",
-      "Microcontrollers",
-      "Sensors",
-      "Actuators",
-      "Breadboards",
-      "Prototyping",
-      "Arduino Boards",
-      "Raspberry Pi",
-      "Development Kits",
-      "Programming Tools",
-      "Testing Equipment",
-      "Oscilloscopes",
-      "Signal Generators",
-      "Power Meters",
-      "Frequency Counters",
-      "Logic Analyzers",
-      "Electronic Repair Services",
-      "Component Replacement",
-      "Circuit Analysis",
-      "PCB Design",
-      "Custom Electronics",
-      "Prototype Development",
-      "Product Assembly",
-      "Quality Testing",
-      "Bulk Component Orders",
-      "Wholesale Electronics",
-      "Distributor Services",
-      "Technical Consulting",
-    ],
-    // Business Gallery - 6 selected photos
-    galleryImages: [
-      {
-        url: "https://readdy.ai/api/search-image?query=Professional%20electronics%20store%20showroom%20with%20modern%20displays%2C%20organized%20product%20showcases%2C%20bright%20LED%20lighting%2C%20clean%20contemporary%20interior%20design%2C%20customer%20service%20area%2C%20wide%20angle%20view%20of%20retail%20space&width=600&height=450&seq=gallery-1&orientation=landscape",
-        caption: "Our Modern Showroom",
-      },
-      {
-        url: "https://readdy.ai/api/search-image?query=Electronics%20warehouse%20with%20organized%20inventory%20shelves%2C%20electronic%20components%20storage%20systems%2C%20industrial%20lighting%2C%20professional%20warehouse%20management%2C%20boxes%20and%20products%20neatly%20arranged&width=600&height=450&seq=gallery-2&orientation=landscape",
-        caption: "Warehouse & Inventory",
-      },
-      {
-        url: "https://readdy.ai/api/search-image?query=Electronics%20repair%20workshop%20with%20professional%20workbenches%2C%20testing%20equipment%2C%20soldering%20stations%2C%20technical%20tools%2C%20organized%20workspace%2C%20clean%20industrial%20environment&width=600&height=450&seq=gallery-3&orientation=landscape",
-        caption: "Repair Workshop",
-      },
-      {
-        url: "https://readdy.ai/api/search-image?query=Business%20team%20meeting%20in%20modern%20conference%20room%2C%20professional%20consultation%20with%20customers%2C%20product%20demonstration%2C%20clean%20office%20environment%2C%20technology%20equipment%20displays&width=600&height=450&seq=gallery-4&orientation=landscape",
-        caption: "Customer Consultation",
-      },
-      {
-        url: "https://readdy.ai/api/search-image?query=Electronic%20components%20and%20products%20display%2C%20various%20circuits%20boards%2C%20cables%2C%20connectors%2C%20technical%20equipment%20arranged%20professionally%2C%20product%20photography%20style%2C%20clean%20background&width=600&height=450&seq=gallery-5&orientation=landscape",
-        caption: "Product Range",
-      },
-      {
-        url: "https://readdy.ai/api/search-image?query=Professional%20delivery%20and%20logistics%20service%2C%20electronic%20products%20packaging%2C%20shipping%20boxes%2C%20delivery%20trucks%2C%20efficient%20logistics%20operation%2C%20clean%20organized%20distribution%20center&width=600&height=450&seq=gallery-6&orientation=landscape",
-        caption: "Delivery Service",
-      },
-    ],
-    workingHours: {
-      monday: { open: "08:00", close: "18:00", closed: false },
-      tuesday: { open: "08:00", close: "18:00", closed: false },
-      wednesday: { open: "08:00", close: "18:00", closed: false },
-      thursday: { open: "08:00", close: "18:00", closed: false },
-      friday: { open: "14:00", close: "18:00", closed: false },
-      saturday: { open: "09:00", close: "17:00", closed: false },
-      sunday: { open: "10:00", close: "16:00", closed: false },
-    },
+    // Dynamic products from API with fallback to empty array
+    productsAndServices: (() => {
+      const products = (businessProfile as BusinessProfileWithProducts)
+        ?.products;
+      console.log("Products in business object:", products);
+      if (!products || !Array.isArray(products)) {
+        console.warn("No products found or invalid products data");
+        return [];
+      }
+      return products.map((product) => product?.product_name).filter(Boolean);
+    })(),
+    // Product images from API
+    galleryImages: (() => {
+      const productImages = businessProfile?.product_images || [];
+      console.log("Product images:", productImages);
+
+      // If there are no product images, return a default image
+      if (productImages.length === 0) {
+        return [
+          {
+            url: "/images/placeholder-product.jpg",
+            caption: "No product images available",
+          },
+        ];
+      }
+
+      // Map the product images to the gallery format
+      return productImages.map((img, index) => ({
+        url: img.image_url,
+        caption: img.name || `Product ${index + 1}`,
+      }));
+    })(),
+    workingHours: (() => {
+      // Default working hours in case the API doesn't return any
+      const defaultWorkingHours = {
+        monday: { open: "09:00", close: "18:00", closed: false },
+        tuesday: { open: "09:00", close: "18:00", closed: false },
+        wednesday: { open: "09:00", close: "18:00", closed: false },
+        thursday: { open: "09:00", close: "18:00", closed: false },
+        friday: { open: "14:00", close: "22:00", closed: false },
+        saturday: { open: "10:00", close: "16:00", closed: true },
+        sunday: { open: "10:00", close: "16:00", closed: true },
+      };
+
+      // If no working hours from API, return defaults
+      if (!businessProfile?.profile?.working_hours) {
+        console.log("Using default working hours");
+        return defaultWorkingHours;
+      }
+
+      // Map API working hours to the expected format
+      const apiWorkingHours = businessProfile.profile.working_hours;
+      console.log("API Working Hours:", apiWorkingHours);
+
+      // Convert API format to our format
+      const mappedWorkingHours = {
+        monday: apiWorkingHours.monday || defaultWorkingHours.monday,
+        tuesday: apiWorkingHours.tuesday || defaultWorkingHours.tuesday,
+        wednesday: apiWorkingHours.wednesday || defaultWorkingHours.wednesday,
+        thursday: apiWorkingHours.thursday || defaultWorkingHours.thursday,
+        friday: apiWorkingHours.friday || defaultWorkingHours.friday,
+        saturday: apiWorkingHours.saturday || defaultWorkingHours.saturday,
+        sunday: apiWorkingHours.sunday || defaultWorkingHours.sunday,
+      };
+
+      return mappedWorkingHours;
+    })(),
     images: [
       "https://readdy.ai/api/search-image?query=Modern%20electronics%20supply%20store%20interior%20with%20organized%20shelves%2C%20professional%20lighting%2C%20clean%20white%20background%2C%20electronic%20components%20and%20devices%20displayed%20neatly%2C%20contemporary%20retail%20space%20design%2C%20wide%20angle%20view&width=800&height=600&seq=electronics-main&orientation=landscape",
       "https://readdy.ai/api/search-image?query=Electronic%20components%20warehouse%20with%20organized%20storage%20systems%2C%20shelves%20full%20of%20electronic%20parts%2C%20professional%20industrial%20interior%2C%20bright%20lighting%2C%20clean%20organized%20workspace&width=800&height=600&seq=electronics-warehouse&orientation=landscape",
@@ -381,7 +331,7 @@ export default function BusinessProfile({ businessId }: BusinessProfileProps) {
       formData.append("subject", inquiryForm.subject);
       formData.append("message", inquiryForm.message);
       formData.append("business_name", business.name);
-      formData.append("business_id", business.id);
+      formData.append("business_id", "اا");
 
       const response = await fetch(
         "https://readdy.ai/api/form/d30bvun348pq0eno6930",
@@ -431,11 +381,15 @@ export default function BusinessProfile({ businessId }: BusinessProfileProps) {
       <main>
         {/* Hero Section */}
         <section className="relative h-64 md:h-80 lg:h-96 overflow-hidden">
-          <img
-            src={business.images[selectedImageIndex]}
-            alt={business.name}
-            className="w-full h-full object-cover object-top"
-          />
+          <div
+            className="w-full h-full bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${businessProfile?.profile_image || ""})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
+          ></div>
           <div className="absolute inset-0 bg-black bg-opacity-40"></div>
 
           <div className="absolute inset-0 flex items-end">
@@ -991,13 +945,6 @@ export default function BusinessProfile({ businessId }: BusinessProfileProps) {
               >
                 <i className="ri-map-line mr-1 md:mr-2"></i>
                 {t("businessProfile.backToMap")}
-              </Link>
-              <Link
-                href="/add-business"
-                className="border border-yellow-400 text-yellow-600 px-6 py-3 md:px-8 md:py-4 rounded-full hover:bg-yellow-50 font-semibold whitespace-nowrap cursor-pointer text-sm md:text-base"
-              >
-                <i className="ri-add-line mr-1 md:mr-2"></i>
-                {t("businessProfile.addYourBusiness")}
               </Link>
             </div>
           </div>

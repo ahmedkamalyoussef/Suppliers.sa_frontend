@@ -1,54 +1,82 @@
 // services/api.ts
 const API_BASE_URL = "http://localhost:8000";
 
+export interface Review {
+  id: number;
+  reviewer_name: string;
+  comment: string;
+  rating: number;
+  created_at: string;
+}
+
+export interface Certification {
+  id: number;
+  certification_name: string;
+}
+
+export interface Product {
+  id: number;
+  product_name: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Service {
+  id: number;
+  service_name: string;
+}
+
+export interface Phone {
+  id: number;
+  type: string;
+  number: string;
+  name: string;
+}
+
+export interface WorkingHour {
+  open: string;
+  close: string;
+  closed: boolean;
+}
+
+export interface SupplierProfileData {
+  business_type: string;
+  website: string;
+  contact_email: string;
+  description: string | null;
+  service_distance: string;
+  target_market: string[];
+  main_phone: string;
+  additional_phones: Phone[];
+  business_address: string;
+  latitude: string;
+  longitude: string;
+  working_hours: Record<string, WorkingHour>;
+  services_offered: string[];
+  products?: Product[];
+}
+
 export interface SupplierProfile {
   id: number;
   name: string;
   status: string;
-  profile: {
-    business_type: string;
-    website: string;
-    contact_email: string;
-    description: string | null;
-    service_distance: string;
-    target_market: string[];
-    main_phone: string;
-    additional_phones: Array<{
-      id: number;
-      type: string;
-      number: string;
-      name: string;
-    }>;
-    business_address: string;
-    latitude: string;
-    longitude: string;
-    working_hours: {
-      [key: string]: {
-        open: string;
-        close: string;
-        closed: boolean;
-      };
-    };
-    services_offered: string[];
-  };
+  profile: SupplierProfileData;
   profile_image: string;
   ratings: {
     average: number | null;
     count: number;
-    reviews: any[];
+    reviews: Review[];
   };
-  certifications: Array<{
-    id: number;
-    certification_name: string;
-  }>;
-  product_images: Array<{
-    id: number;
-    image_url: string;
-  }>;
-  services: Array<{
-    id: number;
-    service_name: string;
-  }>;
+  certifications: Certification[];
+  product_images: { id: number; image_url: string; name: string }[];
+  services: Service[];
+}
+
+// BusinessProfile extends SupplierProfile with explicit products in profile
+export interface BusinessProfile extends Omit<SupplierProfile, 'profile'> {
+  profile: SupplierProfileData & {
+    products: Product[]; // Company products inside profile
+  };
 }
 
 export interface RegistrationData {
@@ -548,11 +576,47 @@ class ApiService {
     return !!localStorage.getItem("supplier_token");
   }
 
+  /**
+   * Fetches business profile for a specific supplier
+   * @param id The supplier ID
+   * @returns Promise with the supplier's business profile including products
+   */
+  async getBusinessProfile(id: string | number): Promise<BusinessProfile> {
+    console.log("Fetching business profile for ID:", id);
+    const headers = new Headers();
+    const token = localStorage.getItem("supplier_token");
+
+    if (token) {
+      headers.append("Authorization", `Bearer ${token}`);
+      headers.append("Accept", "application/json");
+    }
+
+    try {
+      const response = await fetch(`${this.baseURL}/api/suppliers/${id}/business`, {
+        method: "GET",
+        headers,
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.message || "Failed to fetch business profile"
+        );
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching business profile:", error);
+      throw error;
+    }
+  }
+
   async getSupplierProfile(id: string | number): Promise<SupplierProfile> {
     console.log("Fetching supplier profile for ID:", id);
     const headers = new Headers();
     const token = localStorage.getItem("supplier_token");
-    
+
     if (token) {
       headers.append("Authorization", `Bearer ${token}`);
       headers.append("Accept", "application/json");
@@ -567,7 +631,9 @@ class ApiService {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || "Failed to fetch supplier profile");
+        throw new Error(
+          errorData.message || "Failed to fetch supplier profile"
+        );
       }
 
       return await response.json();
