@@ -442,19 +442,29 @@ class ApiService {
     targetCustomer?: string;
     isApproved?: boolean;
     isOpenNow?: boolean;
-    sort?: 'rating' | 'distance' | 'reviews' | 'name';
+    sort?: "rating" | "distance" | "reviews" | "name";
     per_page?: number;
     page?: number;
+    address?: string;
+    category?: string; // Add category as a separate parameter
   }): Promise<BusinessListResponse> {
     const queryParams = new URLSearchParams();
-    
+
     if (params) {
-      Object.entries(params).forEach(([key, value]) => {
+      // Handle category separately to prevent double encoding
+      const { category, ...restParams } = params;
+      
+      if (category) {
+        queryParams.append('category', category);
+      }
+
+      // Handle the rest of the parameters
+      Object.entries(restParams).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
           if (Array.isArray(value)) {
-            queryParams.append(key, value.join(','));
-          } else if (typeof value === 'boolean') {
-            queryParams.append(key, value ? '1' : '0');
+            queryParams.append(key, value.join(","));
+          } else if (typeof value === "boolean") {
+            queryParams.append(key, value ? "1" : "0");
           } else {
             queryParams.append(key, value.toString());
           }
@@ -465,7 +475,7 @@ class ApiService {
     return this.request<BusinessListResponse>(
       `/api/public/businesses?${queryParams.toString()}`,
       {
-        method: "GET"
+        method: "GET",
       },
       false // doesn't require auth
     );
@@ -727,7 +737,11 @@ class ApiService {
     }
   }
 
-  async submitReview(supplierId: number, rating: number, comment: string): Promise<{ message: string }> {
+  async submitReview(
+    supplierId: number,
+    rating: number,
+    comment: string
+  ): Promise<{ message: string }> {
     const token = localStorage.getItem("supplier_token");
     if (!token) {
       throw new Error("Authentication required");
@@ -737,19 +751,19 @@ class ApiService {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-        "Accept": "application/json"
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
       },
       body: JSON.stringify({
         rated_supplier_id: supplierId,
         score: rating,
-        comment: comment
-      })
+        comment: comment,
+      }),
     });
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
-      throw new Error(error.message || 'Failed to submit review');
+      throw new Error(error.message || "Failed to submit review");
     }
 
     return response.json();

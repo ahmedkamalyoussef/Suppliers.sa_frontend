@@ -2,7 +2,30 @@
 
 import Link from "next/link";
 import { useLanguage } from "../lib/LanguageContext";
-import type { Business } from "@/app/businesses/page";
+import { useState, useEffect } from "react";
+
+interface Business {
+  id: number;
+  name: string;
+  category: string;
+  businessType: string;
+  location: string;
+  distance: string;
+  rating: number;
+  reviews: number;
+  verified: boolean;
+  openNow: boolean;
+  lat: number;
+  lng: number;
+  image: string;
+  services: string[];
+  targetCustomers: string[];
+  serviceDistance: string | number;
+  businessImage?: string;
+  reviewsCount?: number;
+  status?: string;
+  [key: string]: any; // For any additional properties
+}
 
 interface BusinessCardProps {
   business: Business;
@@ -14,6 +37,26 @@ export default function BusinessCard({
   viewMode = "grid",
 }: BusinessCardProps) {
   const { t } = useLanguage();
+
+  const [showMessageModal, setShowMessageModal] = useState(false);
+  const [message, setMessage] = useState("");
+
+  // Log business data when it changes
+  useEffect(() => {
+    console.log("Business data in BusinessCard:", business);
+  }, [business]);
+
+  // Get the image URL with fallback
+  const getImageUrl = (imgUrl?: string) => {
+    if (!imgUrl) return "/images/placeholder-business.jpg";
+    if (imgUrl.startsWith("http")) return imgUrl;
+    return `${process.env.NEXT_PUBLIC_API_URL || ""}${imgUrl}`;
+  };
+
+  // Format the rating display
+  const formatRating = (rating: number) => {
+    return rating % 1 === 0 ? rating.toFixed(1) : rating;
+  };
 
   const getBusinessTypeIcon = (type: string): string => {
     switch (type) {
@@ -53,16 +96,20 @@ export default function BusinessCard({
             {/* Image */}
             <div className="md:w-48 h-32 md:h-auto relative overflow-hidden rounded-lg flex-shrink-0">
               <img
-                src={business.image}
+                src={getImageUrl(business.profileImage || business.image)}
                 alt={business.name}
                 className="w-full h-full object-cover object-top"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "/images/placeholder-business.jpg";
+                }}
               />
               <div className="absolute top-2 right-2 bg-white rounded-full px-2 py-1 shadow-md">
                 <span className="text-xs font-medium text-gray-700">
-                  {business.distance}
+                  {business.status}
                 </span>
               </div>
-              {business.verified && (
+              {business.status === "verified" && (
                 <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium shadow-md">
                   {t("businessCard.verified")}
                 </div>
@@ -130,7 +177,7 @@ export default function BusinessCard({
                       <i className="ri-group-line w-4 h-4 flex items-center justify-center mr-2"></i>
                       <span>
                         {t("businessCard.serves")}:{" "}
-                        {business.targetCustomers.join(", ")}
+                        {business.services.join(", ")}
                       </span>
                     </div>
                     <div className="flex items-center text-xs text-gray-600">
@@ -190,7 +237,7 @@ export default function BusinessCard({
         />
         <div className="absolute top-4 right-4 bg-white rounded-full px-3 py-1 shadow-md">
           <span className="text-sm font-medium text-gray-700">
-            {business.distance}
+            {business.status}
           </span>
         </div>
         <div className="absolute top-4 left-4 flex items-center space-x-2">
@@ -252,7 +299,7 @@ export default function BusinessCard({
           <div className="flex items-center text-xs text-gray-600">
             <i className="ri-group-line w-4 h-4 flex items-center justify-center mr-2"></i>
             <span>
-              {t("businessCard.serves")}: {business.targetCustomers.join(", ")}
+              {t("businessCard.serves")}: {business.services.join(", ")}
             </span>
           </div>
           <div className="flex items-center text-xs text-gray-600">

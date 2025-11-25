@@ -16,25 +16,33 @@ export interface Business {
   id: number;
   name: string;
   category: string;
-  businessType:
-    | "Supplier"
-    | "Store"
-    | "Office"
-    | "Manufacturer"
-    | "Individual"
-    | string;
+  businessType: string;
   location: string;
+  address: string;
   distance: string;
   rating: number;
-  reviews: number;
+  reviewsCount: number;
+  reviews: number; // For backward compatibility
   verified: boolean;
   openNow: boolean;
   lat: number;
   lng: number;
+  latitude?: string | number;
+  longitude?: string | number;
   image: string;
+  businessImage?: string;
+  profileImage?: string;
   services: string[];
   targetCustomers: string[];
-  serviceDistance: string;
+  targetMarket?: string[];
+  serviceDistance: string | number;
+  categories?: string[];
+  phone?: string;
+  mainPhone?: string;
+  status?: string;
+  contactEmail?: string;
+  type?: string;
+  [key: string]: any; // For any additional properties
 }
 
 type AISuggestions = {
@@ -53,19 +61,20 @@ type AIFilterPayload = {
 
 // Suspense wrapper for useSearchParams
 function BusinessesContent() {
-  console.log('BusinessesContent component rendered');
+  console.log("BusinessesContent component rendered");
   const { t } = useLanguage();
   const searchParams = useSearchParams();
   const [selectedDistance, setSelectedDistance] = useState<string>("");
-  const [filteredBusinesses, setFilteredBusinesses] = useState<Business[]>(
-    allBusinesses as Business[]
-  );
+  const [filteredBusinesses, setFilteredBusinesses] = useState<Business[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedLocation, setSelectedLocation] = useState<string>("");
   const [selectedRating, setSelectedRating] = useState<string>("");
   const [selectedBusinessType, setSelectedBusinessType] =
     useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [address, setAddress] = useState<string>("");
+  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
+  const [debouncedAddress, setDebouncedAddress] = useState<string>("");
   const [sortBy, setSortBy] = useState<
     "rating" | "distance" | "reviews" | "name"
   >("rating");
@@ -73,36 +82,231 @@ function BusinessesContent() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 12;
   const [businesses, setBusinesses] = useState<any[]>([]);
+  const [businessLocations, setBusinessLocations] = useState<any[]>([]);
+  const [verifiedOnly, setVerifiedOnly] = useState<boolean>(false);
+  const [openNow, setOpenNow] = useState<boolean>(false);
+
+  // Debounce search and address inputs
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedAddress(address);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [address]);
+
+  // Update URL when search or address changes
+  useEffect(() => {
+    const params = new URLSearchParams();
+
+    if (debouncedSearch) {
+      params.set("search", debouncedSearch);
+    } else {
+      params.delete("search");
+    }
+
+    if (debouncedAddress) {
+      params.set("address", debouncedAddress);
+    } else {
+      params.delete("address");
+    }
+
+    // Update URL without page reload
+    const url = new URL(window.location.href);
+    url.search = params.toString();
+    window.history.pushState({}, "", url.toString());
+  }, [debouncedSearch, debouncedAddress]);
+
+  // Log when selectedCategory changes
+  useEffect(() => {
+    console.log("Selected category changed:", selectedCategory);
+  }, [selectedCategory]);
 
   // Fetch businesses from API
-  useEffect(() => {    
+  useEffect(() => {
     const fetchBusinesses = async () => {
-      console.log('Starting API call to fetch businesses...');
+      console.log("Starting API call to fetch businesses...");
       try {
-        const response = await apiService.getBusinesses({
+        const params: any = {
           page: currentPage,
           per_page: itemsPerPage,
-          sort: sortBy
+          sort: sortBy,
+        };
+
+        // Add category to params if selected (using 'category' as parameter name to match backend)
+        if (selectedCategory && selectedCategory !== "all") {
+          // Don't encode here - the API service will handle proper encoding
+          params.category = selectedCategory;
+          console.log("Setting category param:", selectedCategory);
+        }
+
+        // Add business type to params if selected
+        if (
+          selectedBusinessType &&
+          selectedBusinessType.toLowerCase() !== "all"
+        ) {
+          params.businessType = selectedBusinessType;
+          console.log("Setting business type param:", selectedBusinessType);
+        }
+
+        // Add search and address to params if they exist
+        if (debouncedSearch) {
+          params.keyword = debouncedSearch;
+        }
+        if (debouncedAddress) {
+          params.address = debouncedAddress;
+        }
+        
+        // Add distance filter if selected
+        if (selectedDistance) {
+          // Convert the selected distance string to a number
+          const distanceInKm = parseInt(selectedDistance);
+          if (!isNaN(distanceInKm)) {
+            params.serviceDistance = distanceInKm;
+          }
+        }
+
+        // Add verified only filter if checked
+        if (verifiedOnly) {
+          params.isApproved = true;
+        }
+
+        // Add open now filter if checked
+        if (openNow) {
+          params.isOpenNow = true;
+        }
+
+        // Handle URL parameters if they exist
+        const category = searchParams.get("category");
+        if (category) {
+          params.category = category;
+          setSelectedCategory(category);
+        }
+
+        console.log("Fetching businesses with params:", params);
+        const response = await apiService.getBusinesses(params);
+        console.log("📊 API Data:", response.data);
+        console.log("API Response:", response);
+
+        // Map API response to Business type
+        const apiBusinesses: Business[] = response.data.map((business: any) => {
+          console.log("API Business data:", business); // Debug log
+
+          const mappedBusiness: Business = {
+            // First spread the original business data to keep all fields
+            ...business,
+
+            // Then override with our mapped fields
+            id: business.id,
+            name: business.name,
+            address: business.address || "Address not available",
+            location: business.address || "Address not available",
+            lat: parseFloat(business.latitude) || 0,
+            lng: parseFloat(business.longitude) || 0,
+            latitude: business.latitude,
+            longitude: business.longitude,
+            type: business.category,
+            category: business.category || "Other",
+            businessType: business.businessType || "Supplier",
+            // Use businessImage directly from the API response
+            businessImage: business.businessImage,
+            // For backward compatibility
+            image: business.businessImage || "",
+            profileImage: business.businessImage,
+
+            serviceDistance: business.serviceDistance || "",
+            rating: business.rating || 0,
+            reviewsCount: business.reviewsCount || 0,
+            reviews: business.reviewsCount || 0,
+            categories: Array.isArray(business.categories)
+              ? business.categories
+              : [business.category || "Other"],
+            phone: business.mainPhone || business.phone || "",
+            status: business.status || "pending",
+            contactEmail: business.contactEmail || "",
+            targetMarket: Array.isArray(business.targetMarket)
+              ? business.targetMarket
+              : [],
+            targetCustomers: Array.isArray(business.targetCustomers)
+              ? business.targetCustomers
+              : [],
+            services: Array.isArray(business.services) ? business.services : [],
+            verified: business.verified || false,
+            openNow: business.openNow || false,
+          };
+
+          console.log("Mapped business:", mappedBusiness); // Debug log
+          return mappedBusiness;
         });
-        console.log('API Response:', response);
-        setBusinesses(response.data);
+
+        setBusinesses(apiBusinesses);
+        setFilteredBusinesses(apiBusinesses);
+
+        // Transform for map locations - use the already mapped businesses
+        const locations = apiBusinesses.map((business) => ({
+          id: business.id,
+          name: business.name,
+          address: business.address,
+          lat: business.lat,
+          lng: business.lng,
+          type: business.category,
+          category:
+            business.category?.toLowerCase().replace(/\s+/g, "-") || "other",
+          businessType: business.businessType,
+          businessImage: business.businessImage,
+          serviceDistance: business.serviceDistance,
+          rating: business.rating,
+          reviewsCount: business.reviewsCount,
+          reviews: business.reviewsCount, // For backward compatibility
+          categories: business.categories,
+          phone: business.phone,
+          status: business.status,
+          contactEmail: business.contactEmail,
+          targetMarket: business.targetMarket,
+          targetCustomers: business.targetCustomers,
+          services: business.services,
+          verified: business.verified,
+          openNow: business.openNow,
+          image: business.image,
+        }));
+
+        setBusinessLocations(locations);
       } catch (error) {
-        console.error('Error fetching businesses:', error);
+        console.error("Error fetching businesses:", error);
       }
     };
 
     fetchBusinesses();
-    
+
     // Cleanup function
     return () => {
-      console.log('Cleaning up...');
+      console.log("Cleaning up...");
     };
-  }, [currentPage, itemsPerPage, sortBy]);
+  }, [
+    currentPage,
+    itemsPerPage,
+    sortBy,
+    selectedCategory,
+    selectedBusinessType,
+    debouncedSearch,
+    debouncedAddress,
+    searchParams,
+    verifiedOnly,
+    openNow,
+    openNow
+  ]);
 
   // Apply filters from URL parameters when component mounts
   useEffect(() => {
     const category = searchParams.get("category");
     const location = searchParams.get("location");
+    const address = searchParams.get("address");
     const type = searchParams.get("type");
     const rating = searchParams.get("rating");
     const search = searchParams.get("search");
@@ -111,6 +315,7 @@ function BusinessesContent() {
 
     if (category) setSelectedCategory(category);
     if (location) setSelectedLocation(location);
+    if (address) setAddress(address);
     if (type) setSelectedBusinessType(type);
     if (rating) setSelectedRating(rating);
     if (search) setSearchQuery(search);
@@ -144,7 +349,7 @@ function BusinessesContent() {
 
   const handleAIFilter = (payload: AIFilterPayload) => {
     const { query, filters } = payload;
-    let filtered: Business[] = [...(allBusinesses as Business[])];
+    let filtered: Business[] = [...businesses];
 
     // Apply AI-generated filters
     if (filters.categories.length > 0) {
@@ -174,10 +379,11 @@ function BusinessesContent() {
 
           const mappedCategory = categoryMap[cat] || cat;
           return (
-            business.category
-              .toLowerCase()
-              .includes(mappedCategory.toLowerCase()) ||
-            business.category.toLowerCase().includes(cat.toLowerCase())
+            business.category === mappedCategory ||
+            business.category === cat ||
+            (business.categories &&
+              (business.categories.includes(mappedCategory) ||
+                business.categories.includes(cat)))
           );
         })
       );
@@ -245,55 +451,254 @@ function BusinessesContent() {
 
   // Apply regular filters
   useEffect(() => {
-    let filtered: Business[] = [...(allBusinesses as Business[])];
+    let filtered: Business[] = [...businesses];
 
     // Apply search filter
     if (searchQuery) {
       filtered = filtered.filter(
         (business: Business) =>
-          business.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          business.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          business.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          business.name.includes(searchQuery) ||
+          business.category.includes(searchQuery) ||
+          business.location.includes(searchQuery) ||
+          (business.categories &&
+            business.categories.some((cat: string) =>
+              cat.includes(searchQuery)
+            )) ||
           business.services.some((service: string) =>
-            service.toLowerCase().includes(searchQuery.toLowerCase())
+            service.includes(searchQuery)
           )
       );
     }
 
+    // Categories list matching SearchSection.tsx
+    const categories = [
+      {
+        id: "all",
+        name: t("filters.allCategories") || "All Categories",
+        icon: "ri-apps-2-line",
+        color: "from-purple-400 to-purple-600",
+      },
+      {
+        id: "Agriculture",
+        name: t("cat.agriculture") || "Agriculture",
+        icon: "ri-leaf-line",
+        color: "from-green-400 to-green-600",
+      },
+      {
+        id: "Apparel & Fashion",
+        name: t("cat.apparelFashion") || "Apparel & Fashion",
+        icon: "ri-t-shirt-line",
+        color: "from-blue-400 to-blue-600",
+      },
+      {
+        id: "Automobile",
+        name: t("cat.automobile") || "Automobile",
+        icon: "ri-car-line",
+        color: "from-red-400 to-red-600",
+      },
+      {
+        id: "Brass Hardware & Components",
+        name: t("cat.brassHardware") || "Brass Hardware & Components",
+        icon: "ri-tools-line",
+        color: "from-yellow-400 to-yellow-600",
+      },
+      {
+        id: "Business Services",
+        name: t("cat.businessServices") || "Business Services",
+        icon: "ri-briefcase-line",
+        color: "from-purple-500 to-purple-700",
+      },
+      {
+        id: "Chemicals",
+        name: t("cat.chemicals") || "Chemicals",
+        icon: "ri-flask-line",
+        color: "from-blue-300 to-blue-500",
+      },
+      {
+        id: "Computer Hardware & Software",
+        name:
+          t("cat.computerHardwareSoftware") || "Computer Hardware & Software",
+        icon: "ri-computer-line",
+        color: "from-indigo-400 to-indigo-600",
+      },
+      {
+        id: "Construction & Real Estate",
+        name: t("cat.constructionRealEstate") || "Construction & Real Estate",
+        icon: "ri-building-line",
+        color: "from-orange-400 to-orange-600",
+      },
+      {
+        id: "Consumer Electronics",
+        name: t("cat.consumerElectronics") || "Consumer Electronics",
+        icon: "ri-smartphone-line",
+        color: "from-blue-400 to-blue-600",
+      },
+      {
+        id: "Electronics & Electrical Supplies",
+        name:
+          t("cat.electronicsElectrical") || "Electronics & Electrical Supplies",
+        icon: "ri-plug-line",
+        color: "from-yellow-400 to-yellow-600",
+      },
+      {
+        id: "Energy & Power",
+        name: t("cat.energyPower") || "Energy & Power",
+        icon: "ri-flashlight-line",
+        color: "from-yellow-400 to-yellow-600",
+      },
+      {
+        id: "Environment & Pollution",
+        name: t("cat.environmentPollution") || "Environment & Pollution",
+        icon: "ri-leaf-line",
+        color: "from-green-500 to-green-700",
+      },
+      {
+        id: "Food & Beverage",
+        name: t("cat.foodBeverage") || "Food & Beverage",
+        icon: "ri-restaurant-line",
+        color: "from-orange-400 to-red-500",
+      },
+      {
+        id: "Furniture",
+        name: t("cat.furniture") || "Furniture",
+        icon: "ri-sofa-line",
+        color: "from-amber-400 to-orange-500",
+      },
+      {
+        id: "Gifts & Crafts",
+        name: t("cat.giftsCrafts") || "Gifts & Crafts",
+        icon: "ri-gift-line",
+        color: "from-pink-400 to-rose-500",
+      },
+      {
+        id: "Health & Beauty",
+        name: t("cat.healthBeauty") || "Health & Beauty",
+        icon: "ri-scissors-line",
+        color: "from-fuchsia-400 to-pink-500",
+      },
+      {
+        id: "Home Supplies",
+        name: t("cat.homeSupplies") || "Home Supplies",
+        icon: "ri-home-line",
+        color: "from-amber-300 to-amber-500",
+      },
+      {
+        id: "Home Textiles & Furnishings",
+        name: t("cat.homeTextiles") || "Home Textiles & Furnishings",
+        icon: "ri-store-line",
+        color: "from-emerald-300 to-emerald-500",
+      },
+      {
+        id: "Hospital & Medical Supplies",
+        name: t("cat.hospitalMedical") || "Hospital & Medical Supplies",
+        icon: "ri-hospital-line",
+        color: "from-red-300 to-red-500",
+      },
+      {
+        id: "Hotel Supplies & Equipment",
+        name: t("cat.hotelSupplies") || "Hotel Supplies & Equipment",
+        icon: "ri-hotel-line",
+        color: "from-blue-300 to-blue-500",
+      },
+      {
+        id: "Industrial Supplies",
+        name: t("cat.industrialSupplies") || "Industrial Supplies",
+        icon: "ri-tools-line",
+        color: "from-gray-400 to-gray-600",
+      },
+      {
+        id: "Jewelry & Gemstones",
+        name: t("cat.jewelryGemstones") || "Jewelry & Gemstones",
+        icon: "ri-gem-line",
+        color: "from-yellow-300 to-yellow-500",
+      },
+      {
+        id: "Leather & Leather Products",
+        name: t("cat.leatherProducts") || "Leather & Leather Products",
+        icon: "ri-suitcase-line",
+        color: "from-amber-600 to-amber-800",
+      },
+      {
+        id: "Office & School Supplies",
+        name: t("cat.officeSchool") || "Office & School Supplies",
+        icon: "ri-book-line",
+        color: "from-blue-300 to-blue-500",
+      },
+      {
+        id: "Oil and Gas",
+        name: t("cat.oilGas") || "Oil and Gas",
+        icon: "ri-oil-line",
+        color: "from-gray-700 to-gray-900",
+      },
+      {
+        id: "Plastics & Products",
+        name: t("cat.plasticsProducts") || "Plastics & Products",
+        icon: "ri-bubble-chart-line",
+        color: "from-blue-300 to-blue-500",
+      },
+      {
+        id: "Printing & Publishing",
+        name: t("cat.printingPublishing") || "Printing & Publishing",
+        icon: "ri-printer-line",
+        color: "from-purple-400 to-purple-600",
+      },
+      {
+        id: "Security & Protection",
+        name: t("cat.securityProtection") || "Security & Protection",
+        icon: "ri-shield-line",
+        color: "from-red-500 to-red-700",
+      },
+      {
+        id: "Sports & Entertainment",
+        name: t("cat.sportsEntertainment") || "Sports & Entertainment",
+        icon: "ri-football-line",
+        color: "from-green-500 to-green-700",
+      },
+      {
+        id: "Telecommunications",
+        name: t("cat.telecommunications") || "Telecommunications",
+        icon: "ri-phone-line",
+        color: "from-blue-400 to-blue-600",
+      },
+      {
+        id: "Textiles & Fabrics",
+        name: t("cat.textilesFabrics") || "Textiles & Fabrics",
+        icon: "ri-scissors-line",
+        color: "from-pink-400 to-pink-600",
+      },
+    ];
+
     // Apply category filter
     if (selectedCategory && selectedCategory !== "all") {
-      const categoryMap: Record<string, string> = {
-        "construction-real-estate": "Construction & Real Estate",
-        "consumer-electronics": "Consumer Electronics",
-        "food-beverage": "Food & Beverage",
-        "hospital-medical": "Hospital & Medical Supplies",
-        automobile: "Automobile",
-        "textiles-fabrics": "Textiles & Fabrics",
-        "industrial-supplies": "Industrial Supplies",
-        furniture: "Furniture",
-        "oil-gas": "Oil and Gas",
-        agriculture: "Agriculture",
-        "jewelry-gemstones": "Jewelry & Gemstones",
-        "leather-products": "Leather & Leather Products",
-        "plastics-products": "Plastics & Products",
-        "printing-publishing": "Printing & Publishing",
-        "security-protection": "Security & Protection",
-        "sports-entertainment": "Sports & Entertainment",
-        telecommunications: "Telecommunications",
-        "hotel-supplies": "Hotel Supplies & Equipment",
-        "office-school": "Office & School Supplies",
-      };
+      filtered = filtered.filter((business: Business) => {
+        // Find the category object to get the display name
+        const categoryObj = categories.find(
+          (cat) => cat.id === selectedCategory
+        );
+        const categoryName = categoryObj ? categoryObj.name : selectedCategory;
 
-      const mappedCategory = categoryMap[selectedCategory] || selectedCategory;
-      filtered = filtered.filter((business: Business) =>
-        business.category.toLowerCase().includes(mappedCategory.toLowerCase())
-      );
+        // Check if business category matches either ID or display name
+        return (
+          business.category === selectedCategory ||
+          business.category === categoryName ||
+          (business.categories &&
+            (business.categories.includes(selectedCategory) ||
+              business.categories.some(
+                (cat) =>
+                  typeof cat === "string" &&
+                  (cat === selectedCategory || cat === categoryName)
+              )))
+        );
+      });
     }
 
     // Apply business type filter
-    if (selectedBusinessType && selectedBusinessType !== "all") {
+    if (selectedBusinessType && selectedBusinessType.toLowerCase() !== "all") {
       filtered = filtered.filter(
-        (business: Business) => business.businessType === selectedBusinessType
+        (business: Business) =>
+          business.businessType &&
+          business.businessType.toLowerCase() ===
+            selectedBusinessType.toLowerCase()
       );
     }
 
@@ -312,11 +717,19 @@ function BusinessesContent() {
     }
 
     // Apply distance filter
-    if (selectedDistance) {
+    if (selectedDistance && selectedDistance !== "all") {
       filtered = filtered.filter((business: Business) => {
-        const businessDistance = parseFloat(business.distance.split(" ")[0]);
+        // Check if serviceDistance exists and is a valid number
+        if (business.serviceDistance === undefined || business.serviceDistance === null) {
+          return false; // or true depending on your requirements
+        }
+        
+        const businessDistance = typeof business.serviceDistance === 'string' 
+          ? parseFloat(business.serviceDistance.split(" ")[0])
+          : Number(business.serviceDistance);
+          
         const selectedDistanceValue = parseFloat(selectedDistance);
-        return businessDistance <= selectedDistanceValue;
+        return !isNaN(businessDistance) && businessDistance <= selectedDistanceValue;
       });
     }
 
@@ -498,6 +911,13 @@ function BusinessesContent() {
                     setSelectedBusinessType={setSelectedBusinessType}
                     selectedDistance={selectedDistance}
                     setSelectedDistance={setSelectedDistance}
+                    address={address}
+                    setAddress={setAddress}
+                    isRTL={false} // You can replace this with your actual RTL detection logic
+                    verifiedOnly={verifiedOnly}
+                    setVerifiedOnly={setVerifiedOnly}
+                    openNow={openNow}
+                    setOpenNow={setOpenNow}
                   />
                 </div>
 
@@ -707,210 +1127,6 @@ function BusinessesContent() {
     </div>
   );
 }
-
-// Add mock businesses data with coordinates
-const allBusinesses = [
-  {
-    id: 1,
-    name: "Premium Glass Solutions",
-    category: "Construction & Real Estate",
-    businessType: "Supplier",
-    location: "Jeddah, Saudi Arabia",
-    distance: "2.1 km",
-    rating: 4.8,
-    reviews: 156,
-    verified: true,
-    openNow: true,
-    lat: 21.4858,
-    lng: 39.1925,
-    image:
-      "https://readdy.ai/api/search-image?query=modern%20glass%20manufacturing%20facility%20with%20clear%20windows%20and%20professional%20workers%20handling%20glass%20panels%20in%20industrial%20setting%20with%20blue%20sky%20background&width=400&height=300&seq=1&orientation=landscape",
-    services: [
-      "Window Glass",
-      "Tempered Glass",
-      "Laminated Glass",
-      "Free Delivery",
-      "Installation Service",
-    ],
-    targetCustomers: ["Contractors", "Homeowners", "Architects"],
-    serviceDistance: "50 km radius",
-  },
-  {
-    id: 2,
-    name: "Al-Riyadh Electronics Hub",
-    category: "Consumer Electronics",
-    businessType: "Store",
-    location: "Riyadh, Saudi Arabia",
-    distance: "1.5 km",
-    rating: 4.6,
-    reviews: 289,
-    verified: true,
-    openNow: true,
-    lat: 24.7136,
-    lng: 46.6753,
-    image:
-      "https://readdy.ai/api/search-image?query=modern%20electronics%20store%20interior%20with%20smartphones%20tablets%20computers%20and%20LED%20displays%20showcasing%20latest%20technology%20products%20with%20clean%20white%20background&width=400&height=300&seq=2&orientation=landscape",
-    services: [
-      "Smartphones",
-      "Laptops",
-      "Home Appliances",
-      "24/7 Service",
-      "Warranty",
-    ],
-    targetCustomers: ["Individuals", "Businesses", "Students"],
-    serviceDistance: "City-wide",
-  },
-  {
-    id: 3,
-    name: "Makkah Medical Supplies",
-    category: "Hospital & Medical Supplies",
-    businessType: "Supplier",
-    location: "Makkah, Saudi Arabia",
-    distance: "3.2 km",
-    rating: 4.9,
-    reviews: 98,
-    verified: true,
-    openNow: false,
-    lat: 21.3891,
-    lng: 39.8579,
-    image:
-      "https://readdy.ai/api/search-image?query=medical%20equipment%20warehouse%20with%20hospital%20supplies%20surgical%20instruments%20and%20healthcare%20devices%20organized%20on%20shelves%20with%20clean%20sterile%20environment&width=400&height=300&seq=3&orientation=landscape",
-    services: [
-      "Medical Equipment",
-      "Surgical Instruments",
-      "Hospital Furniture",
-      "Bulk Orders",
-      "Credit Available",
-    ],
-    targetCustomers: ["Hospitals", "Clinics", "Medical Centers"],
-    serviceDistance: "Regional",
-  },
-  {
-    id: 4,
-    name: "Saudi Steel Works",
-    category: "Construction & Real Estate",
-    businessType: "Manufacturer",
-    location: "Dammam, Saudi Arabia",
-    distance: "5.8 km",
-    rating: 4.7,
-    reviews: 203,
-    verified: true,
-    openNow: true,
-    lat: 26.4207,
-    lng: 50.0888,
-    image:
-      "https://readdy.ai/api/search-image?query=steel%20manufacturing%20facility%20with%20metal%20beams%20pipes%20and%20construction%20materials%20stacked%20in%20organized%20warehouse%20with%20industrial%20cranes%20and%20workers&width=400&height=300&seq=4&orientation=landscape",
-    services: [
-      "Steel Beams",
-      "Metal Pipes",
-      "Construction Steel",
-      "Custom Orders",
-      "Export Services",
-    ],
-    targetCustomers: ["Construction Companies", "Engineers", "Developers"],
-    serviceDistance: "Nationwide",
-  },
-  {
-    id: 5,
-    name: "Fresh Food Distributors",
-    category: "Food & Beverage",
-    businessType: "Supplier",
-    location: "Jeddah, Saudi Arabia",
-    distance: "4.1 km",
-    rating: 4.5,
-    reviews: 167,
-    verified: true,
-    openNow: true,
-    lat: 21.4908,
-    lng: 39.1975,
-    image:
-      "https://readdy.ai/api/search-image?query=fresh%20food%20distribution%20center%20with%20fruits%20vegetables%20and%20packaged%20goods%20in%20refrigerated%20warehouse%20with%20delivery%20trucks%20and%20food%20safety%20standards&width=400&height=300&seq=5&orientation=landscape",
-    services: [
-      "Fresh Produce",
-      "Packaged Goods",
-      "Frozen Foods",
-      "Free Delivery",
-      "Bulk Orders",
-    ],
-    targetCustomers: ["Restaurants", "Hotels", "Supermarkets"],
-    serviceDistance: "Western Region",
-  },
-  {
-    id: 6,
-    name: "Tech Solutions Center",
-    category: "Consumer Electronics",
-    businessType: "Store",
-    location: "Al Khobar, Saudi Arabia",
-    distance: "3.7 km",
-    rating: 4.4,
-    reviews: 142,
-    verified: true,
-    openNow: true,
-    lat: 26.2172,
-    lng: 50.1971,
-    image:
-      "https://readdy.ai/api/search-image?query=modern%20technology%20center%20with%20computers%20servers%20networking%20equipment%20and%20IT%20professionals%20working%20in%20clean%20organized%20environment&width=400&height=300&seq=6&orientation=landscape",
-    services: [
-      "IT Support",
-      "Networking",
-      "Server Solutions",
-      "Cloud Services",
-      "Technical Training",
-    ],
-    targetCustomers: ["Businesses", "Government", "Educational Institutions"],
-    serviceDistance: "Eastern Province",
-  },
-  {
-    id: 7,
-    name: "Medina Trading Post",
-    category: "Office & School Supplies",
-    businessType: "Store",
-    location: "Medina, Saudi Arabia",
-    distance: "6.2 km",
-    rating: 4.3,
-    reviews: 87,
-    verified: false,
-    openNow: true,
-    lat: 24.5247,
-    lng: 39.5692,
-    image:
-      "https://readdy.ai/api/search-image?query=office%20supplies%20store%20with%20stationery%20books%20furniture%20and%20school%20materials%20organized%20on%20shelves%20in%20bright%20retail%20environment&width=400&height=300&seq=7&orientation=landscape",
-    services: [
-      "Office Furniture",
-      "Stationery",
-      "School Supplies",
-      "Printing Services",
-      "Bulk Orders",
-    ],
-    targetCustomers: ["Schools", "Offices", "Students"],
-    serviceDistance: "City-wide",
-  },
-  {
-    id: 8,
-    name: "Abha Mountain Equipment",
-    category: "Sports & Entertainment",
-    businessType: "Store",
-    location: "Abha, Saudi Arabia",
-    distance: "12.5 km",
-    rating: 4.6,
-    reviews: 73,
-    verified: true,
-    openNow: false,
-    lat: 18.2164,
-    lng: 42.5047,
-    image:
-      "https://readdy.ai/api/search-image?query=mountain%20sports%20equipment%20store%20with%20hiking%20gear%20camping%20supplies%20and%20outdoor%20adventure%20equipment%20displayed%20in%20rustic%20mountain%20setting&width=400&height=300&seq=8&orientation=landscape",
-    services: [
-      "Hiking Gear",
-      "Camping Equipment",
-      "Mountain Bikes",
-      "Adventure Tours",
-      "Equipment Rental",
-    ],
-    targetCustomers: ["Adventure Enthusiasts", "Tourists", "Sports Clubs"],
-    serviceDistance: "Southern Region",
-  },
-];
 
 export default function BusinessesPage() {
   return (

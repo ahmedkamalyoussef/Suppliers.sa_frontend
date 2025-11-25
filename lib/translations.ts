@@ -2270,7 +2270,10 @@ export const translations = {
       allCategories: "All Categories",
       allTypes: "All Types",
       searchTitle: "Search",
+      search: "Search",
       searchPlaceholder: "Search businesses, services, products...",
+      address: "Address",
+      addressPlaceholder: "Enter location or address...",
       categoriesTitle: "Categories",
       businessTypeTitle: "Business Type",
       filtersTitle: "Filters",
@@ -4780,10 +4783,13 @@ export const translations = {
 
     // Filters
     filters: {
-      allCategories: "كل الفئات",
-      allTypes: "كل الأنواع",
+      allCategories: "الكل",
+      allTypes: "جميع الأنواع",
       searchTitle: "بحث",
+      search: "بحث",
       searchPlaceholder: "ابحث عن شركات، خدمات، منتجات...",
+      address: "العنوان",
+      addressPlaceholder: "أدخل الموقع أو العنوان...",
       categoriesTitle: "الفئات",
       businessTypeTitle: "نوع النشاط",
       filtersTitle: "الفلاتر",

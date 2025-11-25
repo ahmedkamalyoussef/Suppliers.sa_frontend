@@ -22,7 +22,7 @@ export default function SearchSection() {
   const { t, isRTL } = useLanguage();
   const router = useRouter();
 
-  // Fetch businesses from API
+  // Fetch businesses from API 
   useEffect(() => {
     const fetchBusinesses = async () => {
       console.log("Starting API call to fetch businesses...");
@@ -83,17 +83,19 @@ export default function SearchSection() {
 
   // Filter businesses based on selected category
   const getFilteredBusinesses = () => {
-    console.log('Filtering businesses with category:', selectedCategory);
+    console.log("Filtering businesses with category:", selectedCategory);
     const filtered = enhancedBusinessLocations.filter((business) => {
       if (selectedCategory === "all") return true;
       // Check both the category and categories array if it exists
-      return business.category === selectedCategory || 
-             (business.categories && business.categories.includes(selectedCategory));
+      return (
+        business.category === selectedCategory ||
+        (business.categories && business.categories.includes(selectedCategory))
+      );
     });
-    console.log('Filtered businesses:', filtered);
+    console.log("Filtered businesses:", filtered);
     return filtered;
   };
-  
+
   // Get filtered businesses
   const filteredBusinesses = getFilteredBusinesses();
 
@@ -160,7 +162,8 @@ export default function SearchSection() {
     },
     {
       id: "Electronics & Electrical Supplies",
-      name: t("cat.electronicsElectrical") || "Electronics & Electrical Supplies",
+      name:
+        t("cat.electronicsElectrical") || "Electronics & Electrical Supplies",
       icon: "ri-plug-line",
       color: "from-yellow-400 to-yellow-600",
     },
@@ -304,7 +307,8 @@ export default function SearchSection() {
     },
     {
       id: "Scientific & Laboratory Instruments",
-      name: t("cat.scientificLaboratory") || "Scientific & Laboratory Instruments",
+      name:
+        t("cat.scientificLaboratory") || "Scientific & Laboratory Instruments",
       icon: "ri-microscope-line",
       color: "from-blue-400 to-blue-600",
     },
@@ -345,7 +349,9 @@ export default function SearchSection() {
       color: "from-indigo-400 to-indigo-600",
     },
   ];
-  const handleSearch = () => {
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+
     const params = new URLSearchParams();
 
     if (searchQuery.trim()) {
@@ -357,11 +363,13 @@ export default function SearchSection() {
     }
 
     if (location.trim()) {
-      params.set("location", location.trim());
+      params.set("address", location.trim());
     }
 
     const queryString = params.toString();
     const url = queryString ? `/businesses?${queryString}` : "/businesses";
+
+    // Navigate to the businesses page with the search parameters
     router.push(url);
   };
   const handleMarkerClick = (business: any) => {
@@ -600,54 +608,59 @@ export default function SearchSection() {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4 md:mb-6">
-                    <div className="relative">
-                      <input
-                        type="text"
-                        placeholder={t("searchPlaceholder")}
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className={`w-full py-2.5 sm:py-3 md:py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:outline-none text-xs sm:text-sm ${
-                          isRTL
-                            ? "pr-8 sm:pr-10 md:pr-12 pl-3 sm:pl-4 text-right"
-                            : "pl-8 sm:pl-10 md:pl-12 pr-3 sm:pr-4"
-                        }`}
-                      />
-                      <i
-                        className={`ri-search-line absolute top-1/2 transform -translate-y-1/2 text-gray-400 text-xs sm:text-sm ${
-                          isRTL ? "right-3 sm:right-4" : "left-3 sm:left-4"
-                        }`}
-                      ></i>
+                  {/* رجعنا التصميم القديم:  inputs 2 بس في grid  */}
+                  <form onSubmit={handleSearch} className="contents">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4 md:mb-6">
+                      {/* Search Input */}
+                      <div className="relative">
+                        <input
+                          type="text"
+                          placeholder={t("searchPlaceholder")}
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className={`w-full py-2.5 sm:py-3 md:py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:outline-none text-xs sm:text-sm ${
+                            isRTL
+                              ? "pr-8 sm:pr-10 md:pr-12 pl-3 sm:pl-4 text-right"
+                              : "pl-8 sm:pl-10 md:pl-12 pr-3 sm:pr-4"
+                          }`}
+                        />
+                        <i
+                          className={`ri-search-line absolute top-1/2 transform -translate-y-1/2 text-gray-400 text-xs sm:text-sm ${
+                            isRTL ? "right-3 sm:right-4" : "left-3 sm:left-4"
+                          }`}
+                        ></i>
+                      </div>
+
+                      {/* Location Input */}
+                      <div className="relative">
+                        <input
+                          type="text"
+                          placeholder={t("locationPlaceholder")}
+                          value={location}
+                          onChange={(e) => setLocation(e.target.value)}
+                          className={`w-full py-2.5 sm:py-3 md:py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:outline-none text-xs sm:text-sm ${
+                            isRTL
+                              ? "pr-8 sm:pr-10 md:pr-12 pl-3 sm:pl-4 text-right"
+                              : "pl-8 sm:pl-10 md:pl-12 pr-3 sm:pr-4"
+                          }`}
+                        />
+                        <i
+                          className={`ri-map-pin-line absolute top-1/2 transform -translate-y-1/2 text-gray-400 text-xs sm:text-sm ${
+                            isRTL ? "right-3 sm:right-4" : "left-3 sm:left-4"
+                          }`}
+                        ></i>
+                      </div>
                     </div>
 
-                    <div className="relative">
-                      <input
-                        type="text"
-                        placeholder={t("locationPlaceholder")}
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
-                        className={`w-full py-2.5 sm:py-3 md:py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:outline-none text-xs sm:text-sm ${
-                          isRTL
-                            ? "pr-8 sm:pr-10 md:pr-12 pl-3 sm:pl-4 text-right"
-                            : "pl-8 sm:pl-10 md:pl-12 pr-3 sm:pr-4"
-                        }`}
-                      />
-                      <i
-                        className={`ri-map-pin-line absolute top-1/2 transform -translate-y-1/2 text-gray-400 text-xs sm:text-sm ${
-                          isRTL ? "right-3 sm:right-4" : "left-3 sm:left-4"
-                        }`}
-                      ></i>
-                    </div>
-                  </div>
-
-                  <Link
-                    href="/businesses"
-                    onClick={handleSearch}
-                    className="w-full bg-yellow-400 text-white py-2.5 sm:py-3 md:py-4 rounded-xl hover:bg-yellow-500 font-semibold text-sm sm:text-base md:text-lg whitespace-nowrap cursor-pointer flex items-center justify-center"
-                  >
-                    <i className="ri-search-line mr-1 sm:mr-2"></i>
-                    {t("searchBusinesses")}
-                  </Link>
+                    {/* Button تحت نفس القديم */}
+                    <button
+                      type="submit"
+                      className="w-full bg-yellow-400 text-white py-2.5 sm:py-3 md:py-4 rounded-xl hover:bg-yellow-500 font-semibold text-sm sm:text-base md:text-lg whitespace-nowrap cursor-pointer flex items-center justify-center"
+                    >
+                      <i className="ri-search-line mr-1 sm:mr-2"></i>
+                      {t("searchBusinesses")}
+                    </button>
+                  </form>
                 </div>
 
                 {/* Enhanced Interactive Map Section */}

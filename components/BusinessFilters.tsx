@@ -24,6 +24,13 @@ interface BusinessFiltersProps {
   setSelectedBusinessType: (type: string) => void;
   selectedDistance: string;
   setSelectedDistance: (distance: string) => void;
+  address: string;
+  setAddress: (address: string) => void;
+  isRTL: boolean;
+  verifiedOnly: boolean;
+  setVerifiedOnly: (value: boolean) => void;
+  openNow: boolean;
+  setOpenNow: (value: boolean) => void;
 }
 
 export default function BusinessFilters({
@@ -35,6 +42,13 @@ export default function BusinessFilters({
   setSelectedBusinessType,
   selectedDistance,
   setSelectedDistance,
+  address,
+  setAddress,
+  isRTL,
+  verifiedOnly,
+  setVerifiedOnly,
+  openNow,
+  setOpenNow,
 }: BusinessFiltersProps) {
   const { t } = useLanguage();
   const [showVerified, setShowVerified] = useState<boolean>(false);
@@ -42,151 +56,151 @@ export default function BusinessFilters({
 
   const categories: Category[] = [
     { id: "all", name: t("filters.allCategories"), icon: "ri-apps-2-line" },
-    { id: "agriculture", name: t("cat.agriculture"), icon: "ri-plant-line" },
+    { id: "Agriculture", name: t("cat.agriculture"), icon: "ri-plant-line" },
     {
-      id: "apparel-fashion",
+      id: "Apparel & Fashion",
       name: t("cat.apparelFashion"),
       icon: "ri-shirt-line",
     },
-    { id: "automobile", name: t("cat.automobile"), icon: "ri-car-line" },
+    { id: "Automobile", name: t("cat.automobile"), icon: "ri-car-line" },
     {
-      id: "brass-hardware",
+      id: "Brass & Hardware",
       name: t("cat.brassHardware"),
       icon: "ri-tools-line",
     },
     {
-      id: "business-services",
+      id: "Business Services",
       name: t("cat.businessServices"),
       icon: "ri-briefcase-line",
     },
-    { id: "chemicals", name: t("cat.chemicals"), icon: "ri-flask-line" },
+    { id: "Chemicals", name: t("cat.chemicals"), icon: "ri-flask-line" },
     {
-      id: "computer-hardware-software",
+      id: "Computer Hardware & Software",
       name: t("cat.computerHardware"),
       icon: "ri-computer-line",
     },
     {
-      id: "construction-real-estate",
+      id: "Construction & Real Estate",
       name: t("cat.constructionRealEstate"),
       icon: "ri-hammer-line",
     },
     {
-      id: "consumer-electronics",
+      id: "Consumer Electronics",
       name: t("cat.consumerElectronics"),
       icon: "ri-smartphone-line",
     },
     {
-      id: "electronics-electrical",
+      id: "Electronics & Electrical Supplies",
       name: t("cat.electronicsElectrical"),
       icon: "ri-flashlight-line",
     },
     {
-      id: "energy-power",
+      id: "Energy & Power",
       name: t("cat.energyPower"),
       icon: "ri-lightning-line",
     },
     {
-      id: "environment-pollution",
+      id: "Environment & Pollution",
       name: t("cat.environmentPollution"),
       icon: "ri-leaf-line",
     },
     {
-      id: "food-beverage",
+      id: "Food & Beverage",
       name: t("cat.foodBeverage"),
       icon: "ri-restaurant-line",
     },
-    { id: "furniture", name: t("cat.furniture"), icon: "ri-sofa-line" },
-    { id: "gifts-crafts", name: t("cat.giftsCrafts"), icon: "ri-gift-line" },
+    { id: "Furniture", name: t("cat.furniture"), icon: "ri-sofa-line" },
+    { id: "Gifts & Crafts", name: t("cat.giftsCrafts"), icon: "ri-gift-line" },
     {
-      id: "health-beauty",
+      id: "Health & Beauty",
       name: t("cat.healthBeauty"),
       icon: "ri-scissors-line",
     },
-    { id: "home-supplies", name: t("cat.homeSupplies"), icon: "ri-home-line" },
-    { id: "home-textiles", name: t("cat.homeTextiles"), icon: "ri-shirt-line" },
+    { id: "Home Supplies", name: t("cat.homeSupplies"), icon: "ri-home-line" },
+    { id: "Home Textiles", name: t("cat.homeTextiles"), icon: "ri-shirt-line" },
     {
-      id: "hospital-medical",
+      id: "Hospital & Medical",
       name: t("cat.hospitalMedical"),
       icon: "ri-health-book-line",
     },
     {
-      id: "hotel-supplies",
+      id: "Hotel Supplies & Equipment",
       name: t("cat.hotelSupplies"),
       icon: "ri-hotel-line",
     },
     {
-      id: "industrial-supplies",
+      id: "Industrial Supplies",
       name: t("cat.industrialSupplies"),
       icon: "ri-settings-line",
     },
     {
-      id: "jewelry-gemstones",
+      id: "Jewelry & Gemstones",
       name: t("cat.jewelryGemstones"),
       icon: "ri-gem-line",
     },
     {
-      id: "leather-products",
+      id: "Leather Products",
       name: t("cat.leatherProducts"),
       icon: "ri-handbag-line",
     },
-    { id: "machinery", name: t("cat.machinery"), icon: "ri-settings-2-line" },
+    { id: "Machinery", name: t("cat.machinery"), icon: "ri-settings-2-line" },
     {
-      id: "mineral-metals",
+      id: "Mineral & Metals",
       name: t("cat.mineralMetals"),
       icon: "ri-copper-diamond-line",
     },
-    { id: "office-school", name: t("cat.officeSchool"), icon: "ri-book-line" },
-    { id: "oil-gas", name: t("cat.oilGas"), icon: "ri-oil-line" },
+    { id: "Office & School Supplies", name: t("cat.officeSchool"), icon: "ri-book-line" },
+    { id: "Oil & Gas", name: t("cat.oilGas"), icon: "ri-oil-line" },
     {
-      id: "packaging-paper",
+      id: "Packaging & Paper",
       name: t("cat.packagingPaper"),
       icon: "ri-box-line",
     },
     {
-      id: "pharmaceuticals",
+      id: "Pharmaceuticals",
       name: t("cat.pharmaceuticals"),
       icon: "ri-capsule-line",
     },
-    { id: "pipes-tubes", name: t("cat.pipesTubes"), icon: "ri-roadster-line" },
+    { id: "Pipes & Tubes", name: t("cat.pipesTubes"), icon: "ri-roadster-line" },
     {
-      id: "plastics-products",
+      id: "Plastics & Products",
       name: t("cat.plasticsProducts"),
       icon: "ri-recycle-line",
     },
     {
-      id: "printing-publishing",
+      id: "Printing & Publishing",
       name: t("cat.printingPublishing"),
       icon: "ri-printer-line",
     },
-    { id: "real-estate", name: t("cat.realEstate"), icon: "ri-building-line" },
+    { id: "Real Estate", name: t("cat.realEstate"), icon: "ri-building-line" },
     {
-      id: "scientific-laboratory",
+      id: "Scientific & Laboratory",
       name: t("cat.scientificLaboratory"),
       icon: "ri-microscope-line",
     },
     {
-      id: "security-protection",
+      id: "Security & Protection",
       name: t("cat.securityProtection"),
       icon: "ri-shield-line",
     },
     {
-      id: "sports-entertainment",
+      id: "Sports & Entertainment",
       name: t("cat.sportsEntertainment"),
       icon: "ri-football-line",
     },
     {
-      id: "telecommunications",
+      id: "Telecommunications",
       name: t("cat.telecommunications"),
       icon: "ri-phone-line",
     },
     {
-      id: "textiles-fabrics",
+      id: "Textiles & Fabrics",
       name: t("cat.textilesFabrics"),
       icon: "ri-shirt-line",
     },
-    { id: "toys", name: t("cat.toys"), icon: "ri-gamepad-line" },
+    { id: "Toys", name: t("cat.toys"), icon: "ri-gamepad-line" },
     {
-      id: "transportation",
+      id: "Transportation",
       name: t("cat.transportation"),
       icon: "ri-truck-line",
     },
@@ -221,20 +235,50 @@ export default function BusinessFilters({
 
   return (
     <div className="space-y-6">
-      {/* Search */}
-      <div className="bg-white rounded-2xl shadow-lg p-6">
-        <h3 className="text-lg font-semibold mb-4 text-gray-800">
+      {/* Search and Address Section */}
+      <div className="bg-white rounded-2xl shadow-lg p-6 space-y-4">
+        <h3 className="text-lg font-semibold text-gray-800">
           {t("filters.searchTitle")}
         </h3>
-        <div className="relative">
-          <input
-            type="text"
-            placeholder={t("filters.searchPlaceholder")}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full py-3 pl-10 pr-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:outline-none text-sm"
-          />
-          <i className="ri-search-line absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+        
+        {/* Search Input */}
+        <div className="space-y-1">
+          <label className="block text-sm font-medium text-gray-700 rtl:text-right">
+            {t("filters.search")}
+          </label>
+          <div className="relative rounded-md">
+            <div className={`absolute inset-y-0 ${isRTL ? 'right-0 pr-3' : 'left-0 pl-3'} flex items-center pointer-events-none`}>
+              <i className="ri-search-line text-gray-500"></i>
+            </div>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t("filters.searchPlaceholder")}
+              className={`block w-full ${isRTL ? 'pr-10' : 'pl-10'} py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all duration-200`}
+              dir={isRTL ? 'rtl' : 'ltr'}
+            />
+          </div>
+        </div>
+
+        {/* Address Input */}
+        <div className="space-y-1">
+          <label className="block text-sm font-medium text-gray-700 rtl:text-right">
+            {t("filters.address")}
+          </label>
+          <div className="relative rounded-md">
+            <div className={`absolute inset-y-0 ${isRTL ? 'right-0 pr-3' : 'left-0 pl-3'} flex items-center pointer-events-none`}>
+              <i className="ri-map-pin-line text-gray-500"></i>
+            </div>
+            <input
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder={t("filters.addressPlaceholder")}
+              className={`block w-full ${isRTL ? 'pr-10' : 'pl-10'} py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all duration-200`}
+              dir={isRTL ? 'rtl' : 'ltr'}
+            />
+          </div>
         </div>
       </div>
 
