@@ -214,6 +214,38 @@ export interface DocumentUploadResponse {
   data: any;
 }
 
+export interface Business {
+  id: number;
+  name: string;
+  businessImage: string;
+  slug: string;
+  category: string;
+  categories: string[];
+  targetMarket: string[];
+  services: string[];
+  businessType: string;
+  address: string;
+  serviceDistance: number;
+  rating?: number;
+  reviewsCount: number;
+  status: string;
+  plan: string;
+  latitude: string;
+  longitude: string;
+  mainPhone: string;
+  contactEmail: string;
+}
+
+export interface BusinessListResponse {
+  data: Business[];
+  meta: {
+    current_page: number;
+    per_page: number;
+    total: number;
+    last_page: number;
+  };
+}
+
 export interface ApiError {
   [key: string]: string[];
 }
@@ -398,6 +430,45 @@ class ApiService {
     }
 
     return response;
+  }
+
+  async getBusinesses(params?: {
+    keyword?: string;
+    categories?: string | string[];
+    location?: string;
+    businessType?: string;
+    minRating?: number;
+    serviceDistance?: number;
+    targetCustomer?: string;
+    isApproved?: boolean;
+    isOpenNow?: boolean;
+    sort?: 'rating' | 'distance' | 'reviews' | 'name';
+    per_page?: number;
+    page?: number;
+  }): Promise<BusinessListResponse> {
+    const queryParams = new URLSearchParams();
+    
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (Array.isArray(value)) {
+            queryParams.append(key, value.join(','));
+          } else if (typeof value === 'boolean') {
+            queryParams.append(key, value ? '1' : '0');
+          } else {
+            queryParams.append(key, value.toString());
+          }
+        }
+      });
+    }
+
+    return this.request<BusinessListResponse>(
+      `/api/public/businesses?${queryParams.toString()}`,
+      {
+        method: "GET"
+      },
+      false // doesn't require auth
+    );
   }
 
   async updateProfile(data: ProfileUpdateData): Promise<ProfileUpdateResponse> {

@@ -10,7 +10,7 @@ import { ProfileFormData } from "@/lib/types";
 import { initialFormData } from "@/lib/initialData";
 import { useRouter } from "next/navigation";
 
-// Step configuration
+// Step configuration 
 const TOTAL_STEPS = 6;
 const STEP_TITLES = {
   1: "Business Information",

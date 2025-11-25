@@ -13,8 +13,16 @@ interface Business {
   lng: number;
   type: string;
   category: string;
+  categories?: string[]; // Array of categories
+  businessType?: string;
+  profileImage?: string;
+  serviceDistance?: number;
+  rating?: number;
+  reviewsCount?: number;
+  status?: string;
   phone?: string;
-  email?: string;
+  contactEmail?: string;
+  description?: string;
 }
 
 interface MapProps {
@@ -35,7 +43,7 @@ const InteractiveMap = ({
   const tileLayerRef = useRef<any>(null);
   const { language } = useLanguage();
   const [mapStyle, setMapStyle] = useState(propMapStyle || "streets"); // متغير للـ style
-
+  console.log("InteractiveMap: to:", businesses);
   // Debug log for language changes
   useEffect(() => {
     console.log("InteractiveMap: Language changed to:", language);
@@ -110,7 +118,9 @@ const InteractiveMap = ({
         console.log("Initial language:", language);
 
         if (mapTilerKey) {
-          const { MaptilerLayer } = await import("@maptiler/leaflet-maptilersdk");
+          const { MaptilerLayer } = await import(
+            "@maptiler/leaflet-maptilersdk"
+          );
           const initialLanguage = language === "ar" ? "ar" : "en";
           console.log("Initial MapTiler language:", initialLanguage);
 
@@ -221,7 +231,7 @@ const InteractiveMap = ({
             map.removeLayer(tileLayerRef.current);
             tileLayerRef.current = null;
             // Small delay to ensure layer is fully removed before adding new one
-            await new Promise(resolve => setTimeout(resolve, 50));
+            await new Promise((resolve) => setTimeout(resolve, 50));
           } catch (error) {
             console.error("Error removing tile layer:", error);
           }
@@ -346,26 +356,20 @@ const InteractiveMap = ({
           translations[language as keyof typeof translations] ||
           translations.en;
 
-        // Generate some realistic business data
+        // Helper function to get translation or fallback
+        const getTranslation = (key: string, fallback: string) => {
+          return (t as any)[key] || fallback;
+        };
+
+        // Use actual business data with fallbacks
         const businessData = {
-          phone:
-            business.phone ||
-            `+966 ${Math.floor(Math.random() * 9000000000) + 1000000000}`,
-          email:
-            business.email ||
-            `${business.name.toLowerCase().replace(/\s+/g, "")}@company.com`,
-          rating: (Math.random() * 2 + 3).toFixed(1), // 3.0 to 5.0
-          reviews: Math.floor(Math.random() * 200) + 10,
-          established: Math.floor(Math.random() * 20) + 2000,
-          employees: Math.floor(Math.random() * 500) + 5,
-          workingHours:
-            language === "ar" ? "8:00 ص - 6:00 م" : "8:00 AM - 6:00 PM",
-          website: `www.${business.name.toLowerCase().replace(/\s+/g, "")}.com`,
-          status: Math.random() > 0.3 ? "verified" : "pending",
-          description:
-            language === "ar"
-              ? "شركة رائدة في مجالها تقدم خدمات عالية الجودة لعملائها"
-              : "Leading company in its field providing high-quality services to clients",
+          phone: business.phone || getTranslation("notAvailable", "N/A"),
+          email: business.contactEmail || getTranslation("notAvailable", "N/A"),
+          rating: business.rating || 0,
+          reviews: business.reviewsCount || 0,
+          workingHours: getTranslation("notAvailable", "N/A"),
+          status: business.status || "pending",
+          description: business.description || "",
         };
 
         const tooltipContent = `
@@ -395,15 +399,18 @@ const InteractiveMap = ({
               <!-- Left Column -->
               <div style="flex:1;min-width:0;">
                 <!-- Business Type & Category -->
-                <div style="display:flex;gap:6px;margin-bottom:6px;${
+                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;${
                   isRtl ? "flex-direction:row-reverse;" : ""
                 }">
-                  <span style="padding:3px 6px;border-radius:8px;background:#3B82F6;color:#fff;font-size:9px;font-weight:600;">
-                    ${business.type}
-                  </span>
-                  <span style="padding:3px 6px;border-radius:8px;background:#6B7280;color:#fff;font-size:9px;font-weight:600;">
-                    ${business.category}
-                  </span>
+                  ${(business.categories || [business.category])
+                    .map(
+                      (category) => `
+                    <span style="padding:3px 6px;border-radius:8px;background:#6B7280;color:#fff;font-size:9px;font-weight:600;">
+                      ${category}
+                    </span>
+                  `
+                    )
+                    .join("")}
                 </div>
 
                 <!-- Address -->
@@ -456,38 +463,43 @@ const InteractiveMap = ({
                 <div style="display:flex;gap:8px;${
                   isRtl ? "flex-direction:row-reverse;" : ""
                 }">
-                  <div>
-                    <div style="color:#6B7280;font-size:8px;font-weight:600;margin-bottom:1px;">${
-                      t.established
-                    }</div>
-                    <div style="color:#374151;font-size:9px;">${
-                      businessData.established
-                    }</div>
-                  </div>
-                  <div>
-                    <div style="color:#6B7280;font-size:8px;font-weight:600;margin-bottom:1px;">${
-                      t.employees
-                    }</div>
-                    <div style="color:#374151;font-size:9px;">${
-                      businessData.employees
-                    }+</div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Working Hours Row -->
-            <div style="margin-top:6px;padding-top:6px;border-top:1px solid #f3f4f6;">
-              <div style="color:#6B7280;font-size:9px;font-weight:600;margin-bottom:2px;">${
-                t.workingHours
-              }</div>
-              <div style="color:#374151;font-size:10px;">${
-                businessData.workingHours
-              }</div>
+            <!-- Rating and Reviews -->
+            <div style="margin-top:6px;padding-top:6px;border-top:1px solid #f3f4f6;display:flex;justify-content:space-between;">
+              <div>
+                <div style="color:#6B7280;font-size:9px;font-weight:600;margin-bottom:2px;">
+                  ${t.rating || "Rating"}
+                </div>
+                <div style="color:#374151;font-size:10px;display:flex;align-items:center;gap:2px;">
+                  <span>${businessData.rating}</span>
+                  <i class="ri-star-fill" style="color:#F59E0B;font-size:12px;"></i>
+                  <span style="margin-left:4px;color:#6B7280;font-size:9px;">(${
+                    businessData.reviews
+                  })</span>
+                </div>
+              </div>
+              <div>
+                <div style="color:#6B7280;font-size:9px;font-weight:600;margin-bottom:2px;">
+                  ${t.status || "Status"}
+                </div>
+                <div style="color:#374151;font-size:10px;display:flex;align-items:center;gap:2px;">
+                  <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background-color:${
+                    businessData.status === "active" ? "#10B981" : "#F59E0B"
+                  };"></span>
+                  <span>${
+                    businessData.status === "active"
+                      ? t.verified || "Verified"
+                      : t.pending || "Pending"
+                  }</span>
+                </div>
+              </div>
             </div>
           </div>
         `;
-
         marker.bindTooltip(tooltipContent, {
           direction: "top",
           offset: [0, -10], // موحد للغتين

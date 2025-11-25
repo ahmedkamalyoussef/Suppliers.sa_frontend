@@ -10,6 +10,7 @@ import BusinessFilters from "../../components/BusinessFilters";
 import BusinessCard from "../../components/BusinessCard";
 import AIChatWidget from "../../components/AIChatWidget";
 import AIFilterBar from "../../components/AIFilterBar";
+import { apiService } from "../../lib/api";
 
 export interface Business {
   id: number;
@@ -52,6 +53,7 @@ type AIFilterPayload = {
 
 // Suspense wrapper for useSearchParams
 function BusinessesContent() {
+  console.log('BusinessesContent component rendered');
   const { t } = useLanguage();
   const searchParams = useSearchParams();
   const [selectedDistance, setSelectedDistance] = useState<string>("");
@@ -70,6 +72,32 @@ function BusinessesContent() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 12;
+  const [businesses, setBusinesses] = useState<any[]>([]);
+
+  // Fetch businesses from API
+  useEffect(() => {    
+    const fetchBusinesses = async () => {
+      console.log('Starting API call to fetch businesses...');
+      try {
+        const response = await apiService.getBusinesses({
+          page: currentPage,
+          per_page: itemsPerPage,
+          sort: sortBy
+        });
+        console.log('API Response:', response);
+        setBusinesses(response.data);
+      } catch (error) {
+        console.error('Error fetching businesses:', error);
+      }
+    };
+
+    fetchBusinesses();
+    
+    // Cleanup function
+    return () => {
+      console.log('Cleaning up...');
+    };
+  }, [currentPage, itemsPerPage, sortBy]);
 
   // Apply filters from URL parameters when component mounts
   useEffect(() => {

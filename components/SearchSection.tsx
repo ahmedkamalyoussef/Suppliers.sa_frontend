@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useLanguage } from "../lib/LanguageContext";
 import FeaturedBusinesses from "./FeaturedBusinesses";
 import InteractiveMap from "./InteractiveMap";
+import { apiService } from "../lib/api";
 export default function SearchSection() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -16,741 +17,332 @@ export default function SearchSection() {
   const [description, setDescription] = useState("");
   const [sentenceCount, setSentenceCount] = useState(0);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const [businesses, setBusinesses] = useState<any[]>([]);
+  const [businessLocations, setBusinessLocations] = useState<any[]>([]);
   const { t, isRTL } = useLanguage();
   const router = useRouter();
 
-  // Enhanced business locations with proper category mapping and real Saudi addresses
-  const businessLocations = [
-    // Agriculture category - Real locations in agricultural regions
-    {
-      id: 1,
-      name: "Green Valley Agriculture",
-      address: "Al Kharj Agricultural Area, Riyadh",
-      lat: 24.1386,
-      lng: 47.3056,
-      type: "Agriculture",
-      category: "agriculture",
-    },
-    {
-      id: 2,
-      name: "Date Palm Suppliers",
-      address: "Al Ahsa Oasis, Eastern Province",
-      lat: 25.3833,
-      lng: 49.5833,
-      type: "Agriculture",
-      category: "agriculture",
-    },
-    {
-      id: 3,
-      name: "Northern Agriculture",
-      address: "Al Jouf Agricultural Region",
-      lat: 29.7855,
-      lng: 40.1,
-      type: "Agriculture",
-      category: "agriculture",
-    },
-    {
-      id: 4,
-      name: "Central Grain Trading",
-      address: "Qassim Agricultural Zone, Buraidah",
-      lat: 26.3333,
-      lng: 43.9667,
-      type: "Agriculture",
-      category: "agriculture",
-    },
-    {
-      id: 5,
-      name: "Hail Agricultural Equipment",
-      address: "Hail Agricultural Center",
-      lat: 27.5236,
-      lng: 41.7,
-      type: "Agriculture",
-      category: "agriculture",
-    },
+  // Fetch businesses from API
+  useEffect(() => {
+    const fetchBusinesses = async () => {
+      console.log("Starting API call to fetch businesses...");
+      try {
+        const params: any = {
+          page: 1,
+          per_page: 500, // Get more businesses to show on the map
+          sort: "name",
+        };
 
-    // Electronics category - Major commercial areas
-    {
-      id: 6,
-      name: "Tech Solutions Center",
-      address: "Olaya District, Riyadh",
-      lat: 24.7136,
-      lng: 46.6753,
-      type: "Electronics",
-      category: "consumer-electronics",
-    },
-    {
-      id: 7,
-      name: "Metro Electronics Supply",
-      address: "Tahlia Street, Riyadh",
-      lat: 24.7186,
-      lng: 46.685,
-      type: "Electronics",
-      category: "consumer-electronics",
-    },
-    {
-      id: 8,
-      name: "Red Sea Electronics",
-      address: "Tahlia Street, Jeddah",
-      lat: 21.4858,
-      lng: 39.1925,
-      type: "Electronics",
-      category: "consumer-electronics",
-    },
-    {
-      id: 9,
-      name: "Eastern Electronics Hub",
-      address: "King Saud Street, Dammam",
-      lat: 26.4207,
-      lng: 50.0888,
-      type: "Electronics",
-      category: "consumer-electronics",
-    },
-    {
-      id: 10,
-      name: "Qassim Electronics",
-      address: "King Abdulaziz Road, Buraidah",
-      lat: 26.331,
-      lng: 43.98,
-      type: "Electronics",
-      category: "consumer-electronics",
-    },
+        // Only add categories param if a specific category is selected (not 'all')
+        if (selectedCategory !== "all") {
+          params.categories = selectedCategory;
+        }
 
-    // Automotive category - Industrial and commercial zones
-    {
-      id: 11,
-      name: "Riyadh Auto Parts",
-      address: "Industrial City, Riyadh",
-      lat: 24.7236,
-      lng: 46.6853,
-      type: "Automotive",
-      category: "automobile",
-    },
-    {
-      id: 12,
-      name: "Eastern Auto Parts",
-      address: "Industrial Area, Dammam",
-      lat: 26.4157,
-      lng: 50.0838,
-      type: "Automotive",
-      category: "automobile",
-    },
-    {
-      id: 13,
-      name: "Jeddah Automotive Center",
-      address: "Industrial City, Jeddah",
-      lat: 21.4908,
-      lng: 39.1975,
-      type: "Automotive",
-      category: "automobile",
-    },
+        const response = await apiService.getBusinesses(params);
+        console.log("Fetched businesses in SearchSection:", response);
 
-    // Construction category - Major construction hubs
-    {
-      id: 14,
-      name: "Capital Hardware",
-      address: "Industrial Valley, Riyadh",
-      lat: 24.7086,
-      lng: 46.67,
-      type: "Hardware",
-      category: "construction-real-estate",
-    },
-    {
-      id: 15,
-      name: "Coastal Construction",
-      address: "Corniche Road, Jeddah",
-      lat: 21.4808,
-      lng: 39.1875,
-      type: "Construction",
-      category: "construction-real-estate",
-    },
-    {
-      id: 16,
-      name: "Tabuk Construction Materials",
-      address: "Industrial Area, Tabuk",
-      lat: 28.4048,
-      lng: 36.571,
-      type: "Construction",
-      category: "construction-real-estate",
-    },
-    {
-      id: 17,
-      name: "Mountain Construction",
-      address: "Construction District, Abha",
-      lat: 18.2164,
-      lng: 42.5047,
-      type: "Construction",
-      category: "construction-real-estate",
-    },
+        // Transform API data to match businessLocations format
+        const locations = response.data.map((business: any) => ({
+          ...business, // Spread all business properties
+          id: business.id,
+          name: business.name,
+          address: business.address || "Address not available",
+          lat: parseFloat(business.latitude) || 0,
+          lng: parseFloat(business.longitude) || 0,
+          type: business.category,
+          category:
+            business.category?.toLowerCase().replace(/\s+/g, "-") || "other",
+          businessType: business.businessType,
+          businessImage: business.profileImage,
+          serviceDistance: business.serviceDistance,
+          rating: business.rating || 0,
+          reviewsCount: business.reviewsCount || 0,
+          // Keep the original categories array if it exists
+          categories: business.categories || [business.category],
+          // Map mainPhone to phone for backward compatibility
+          phone: business.mainPhone || business.phone,
+          // Ensure all required fields have defaults
+          status: business.status || "pending",
+          contactEmail: business.contactEmail,
+          targetMarket: business.targetMarket,
+          services: business.services,
+        }));
 
-    // Industrial category - Industrial cities
-    {
-      id: 18,
-      name: "Jeddah Industrial Supplies",
-      address: "Industrial City, Jeddah",
-      lat: 21.4908,
-      lng: 39.1975,
-      type: "Industrial",
-      category: "industrial-supplies",
-    },
-    {
-      id: 19,
-      name: "Oil Services Company",
-      address: "Industrial City, Jubail",
-      lat: 27.0174,
-      lng: 49.6584,
-      type: "Oil&Gas",
-      category: "oil-gas",
-    },
-    {
-      id: 20,
-      name: "Industrial Equipment Co.",
-      address: "Industrial City, Yanbu",
-      lat: 24.0875,
-      lng: 38.0569,
-      type: "Industrial",
-      category: "industrial-supplies",
-    },
-    {
-      id: 21,
-      name: "Jubail Petrochemicals",
-      address: "Industrial City, Al Jubail",
-      lat: 27.0174,
-      lng: 49.6584,
-      type: "Petrochemical",
-      category: "chemicals",
-    },
+        setBusinessLocations(locations);
+        setBusinesses(response.data);
+      } catch (error) {
+        console.error("Error fetching businesses in SearchSection:", error);
+      }
+    };
 
-    // Fashion & Textiles category - Commercial districts
-    {
-      id: 22,
-      name: "Fashion District",
-      address: "Al-Rawdah District, Jeddah",
-      lat: 21.4758,
-      lng: 39.1825,
-      type: "Fashion",
-      category: "apparel-fashion",
-    },
-    {
-      id: 23,
-      name: "Southern Textiles",
-      address: "Textile Market, Abha",
-      lat: 18.2164,
-      lng: 42.5047,
-      type: "Textiles",
-      category: "textiles-fabrics",
-    },
-    {
-      id: 24,
-      name: "Riyadh Fashion Hub",
-      address: "Batha Commercial Area, Riyadh",
-      lat: 24.6333,
-      lng: 46.7167,
-      type: "Fashion",
-      category: "apparel-fashion",
-    },
+    fetchBusinesses();
+  }, [selectedCategory]);
 
-    // Medical category - Near hospitals and medical areas
-    {
-      id: 25,
-      name: "Medical Equipment Co.",
-      address: "Al-Sharafeyah, Jeddah",
-      lat: 21.4958,
-      lng: 39.2025,
-      type: "Medical",
-      category: "hospital-medical",
-    },
-    {
-      id: 26,
-      name: "Riyadh Medical Supplies",
-      address: "Medical City, Riyadh",
-      lat: 24.6986,
-      lng: 46.7236,
-      type: "Medical",
-      category: "hospital-medical",
-    },
-
-    // Food & Beverage category - Various regions
-    {
-      id: 26,
-      name: "Mountain Fresh Foods",
-      address: "King Khalid Street, Abha",
-      lat: 18.2164,
-      lng: 42.5047,
-      type: "Food",
-      category: "food-beverage",
-    },
-    {
-      id: 27,
-      name: "Mecca Food Distributors",
-      address: "Al-Misfalah, Mecca",
-      lat: 21.3941,
-      lng: 39.8629,
-      type: "Food",
-      category: "food-beverage",
-    },
-    {
-      id: 28,
-      name: "Central Food Trading",
-      address: "Food Market, Riyadh",
-      lat: 24.65,
-      lng: 46.71,
-      type: "Food",
-      category: "food-beverage",
-    },
-
-    // Technology category - Business districts
-    {
-      id: 29,
-      name: "Khobar Tech Center",
-      address: "Prince Faisal Street, Khobar",
-      lat: 26.2172,
-      lng: 50.1971,
-      type: "Technology",
-      category: "computer-hardware-software",
-    },
-    {
-      id: 30,
-      name: "Riyadh Tech Hub",
-      address: "Digital City, Riyadh",
-      lat: 24.7611,
-      lng: 46.6822,
-      type: "Technology",
-      category: "computer-hardware-software",
-    },
-
-    // Office Supplies category - Commercial areas
-    {
-      id: 31,
-      name: "Office Plus Supplies",
-      address: "Business District, Riyadh",
-      lat: 24.7286,
-      lng: 46.6903,
-      type: "Office",
-      category: "office-school",
-    },
-    {
-      id: 32,
-      name: "Jeddah Office Solutions",
-      address: "Commercial Center, Jeddah",
-      lat: 21.5433,
-      lng: 39.1728,
-      type: "Office",
-      category: "office-school",
-    },
-
-    // Services category - Various service locations
-    {
-      id: 33,
-      name: "Highland Tourism Services",
-      address: "Tourist District, Abha",
-      lat: 18.2214,
-      lng: 42.5097,
-      type: "Tourism",
-      category: "sports-entertainment",
-    },
-    {
-      id: 34,
-      name: "Mountain Tourism Equipment",
-      address: "Tourist Area, Taif",
-      lat: 21.2753,
-      lng: 40.4208,
-      type: "Tourism",
-      category: "sports-entertainment",
-    },
-    {
-      id: 35,
-      name: "Pilgrimage Services",
-      address: "Near Haram, Mecca",
-      lat: 21.3841,
-      lng: 39.8529,
-      type: "Services",
-      category: "business-services",
-    },
-
-    // Trading & Logistics category - Commercial hubs
-    {
-      id: 36,
-      name: "Medina Trading",
-      address: "Prophet Mosque Area, Medina",
-      lat: 24.5247,
-      lng: 39.5692,
-      type: "Trading",
-      category: "business-services",
-    },
-    {
-      id: 37,
-      name: "Northern Trading Post",
-      address: "Commercial Street, Hail",
-      lat: 27.5164,
-      lng: 41.695,
-      type: "Trading",
-      category: "business-services",
-    },
-    {
-      id: 38,
-      name: "Border Trade Center",
-      address: "Commercial District, Najran",
-      lat: 17.4924,
-      lng: 44.1277,
-      type: "Trading",
-      category: "business-services",
-    },
-    {
-      id: 39,
-      name: "Southern Logistics",
-      address: "Transportation Hub, Jazan",
-      lat: 16.8892,
-      lng: 42.5511,
-      type: "Logistics",
-      category: "transportation",
-    },
-
-    // Marine & Port category - Coastal areas
-    {
-      id: 40,
-      name: "Gulf Marine Supplies",
-      address: "Corniche, Al Khobar",
-      lat: 26.2122,
-      lng: 50.1921,
-      type: "Marine",
-      category: "transportation",
-    },
-    {
-      id: 41,
-      name: "Port Jazan Services",
-      address: "Port Area, Jazan",
-      lat: 16.8892,
-      lng: 42.5511,
-      type: "Port",
-      category: "transportation",
-    },
-    {
-      id: 42,
-      name: "Coastal Fishing Supplies",
-      address: "Marina District, Dammam",
-      lat: 26.4333,
-      lng: 50.1,
-      type: "Fishing",
-      category: "food-beverage",
-    },
-
-    // Specialty products category
-    {
-      id: 43,
-      name: "Rose City Perfumes",
-      address: "Rose Garden Area, Taif",
-      lat: 21.2703,
-      lng: 40.4158,
-      type: "Perfumes",
-      category: "health-beauty",
-    },
-    {
-      id: 44,
-      name: "Islamic Books Store",
-      address: "Old City, Medina",
-      lat: 24.5197,
-      lng: 39.5642,
-      type: "Books",
-      category: "office-school",
-    },
-    {
-      id: 45,
-      name: "Desert Mining Equipment",
-      address: "Mining District, Tabuk",
-      lat: 28.3948,
-      lng: 36.561,
-      type: "Mining",
-      category: "machinery",
-    },
-    {
-      id: 46,
-      name: "Desert Equipment Rental",
-      address: "Service Road, Qassim",
-      lat: 26.321,
-      lng: 43.97,
-      type: "Equipment",
-      category: "machinery",
-    },
-
-    // Military & Security category
-    {
-      id: 47,
-      name: "Southern Military Supplies",
-      address: "King Fahd Road, Khamis Mushait",
-      lat: 18.3061,
-      lng: 42.7326,
-      type: "Military",
-      category: "security-protection",
-    },
-
-    // General supplies category
-    {
-      id: 48,
-      name: "Holy City Supplies",
-      address: "Ajyad Street, Mecca",
-      lat: 21.3891,
-      lng: 39.8579,
-      type: "Supplies",
-      category: "home-supplies",
-    },
-  ];
+  // Use businessLocations directly since it's already populated from the API
+  const enhancedBusinessLocations = businessLocations;
 
   // Filter businesses based on selected category
   const getFilteredBusinesses = () => {
-    if (selectedCategory === "all") {
-      return businessLocations;
-    }
-    return businessLocations.filter(
-      (business) => business.category === selectedCategory
-    );
+    console.log('Filtering businesses with category:', selectedCategory);
+    const filtered = enhancedBusinessLocations.filter((business) => {
+      if (selectedCategory === "all") return true;
+      // Check both the category and categories array if it exists
+      return business.category === selectedCategory || 
+             (business.categories && business.categories.includes(selectedCategory));
+    });
+    console.log('Filtered businesses:', filtered);
+    return filtered;
   };
+  
+  // Get filtered businesses
+  const filteredBusinesses = getFilteredBusinesses();
 
   const categories = [
     {
       id: "all",
-      name: t("allCategories"),
+      name: t("filters.allCategories") || "All Categories",
       icon: "ri-apps-2-line",
       color: "from-purple-400 to-purple-600",
     },
     {
-      id: "agriculture",
-      name: t("cat.agriculture"),
-      icon: "ri-plant-line",
+      id: "Agriculture",
+      name: t("cat.agriculture") || "Agriculture",
+      icon: "ri-leaf-line",
       color: "from-green-400 to-green-600",
     },
     {
-      id: "apparel-fashion",
-      name: t("cat.apparelFashion"),
-      icon: "ri-shirt-line",
-      color: "from-pink-400 to-pink-600",
+      id: "Apparel & Fashion",
+      name: t("cat.apparelFashion") || "Apparel & Fashion",
+      icon: "ri-t-shirt-line",
+      color: "from-blue-400 to-blue-600",
     },
     {
-      id: "automobile",
-      name: t("cat.automobile"),
+      id: "Automobile",
+      name: t("cat.automobile") || "Automobile",
       icon: "ri-car-line",
       color: "from-red-400 to-red-600",
     },
     {
-      id: "brass-hardware",
-      name: t("cat.brassHardware"),
+      id: "Brass Hardware & Components",
+      name: t("cat.brassHardware") || "Brass Hardware & Components",
       icon: "ri-tools-line",
-      color: "from-yellow-600 to-orange-600",
+      color: "from-yellow-400 to-yellow-600",
     },
     {
-      id: "business-services",
-      name: t("cat.businessServices"),
+      id: "Business Services",
+      name: t("cat.businessServices") || "Business Services",
       icon: "ri-briefcase-line",
-      color: "from-blue-400 to-blue-600",
-    },
-    {
-      id: "chemicals",
-      name: t("cat.chemicals"),
-      icon: "ri-flask-line",
       color: "from-purple-500 to-purple-700",
     },
     {
-      id: "computer-hardware-software",
-      name: t("cat.computerHardwareSoftware"),
+      id: "Chemicals",
+      name: t("cat.chemicals") || "Chemicals",
+      icon: "ri-flask-line",
+      color: "from-blue-300 to-blue-500",
+    },
+    {
+      id: "Computer Hardware & Software",
+      name: t("cat.computerHardwareSoftware") || "Computer Hardware & Software",
       icon: "ri-computer-line",
       color: "from-indigo-400 to-indigo-600",
     },
     {
-      id: "construction-real-estate",
-      name: t("cat.constructionRealEstate"),
-      icon: "ri-hammer-line",
-      color: "from-orange-500 to-red-500",
+      id: "Construction & Real Estate",
+      name: t("cat.constructionRealEstate") || "Construction & Real Estate",
+      icon: "ri-building-line",
+      color: "from-orange-400 to-orange-600",
     },
     {
-      id: "consumer-electronics",
-      name: t("cat.consumerElectronics"),
+      id: "Consumer Electronics",
+      name: t("cat.consumerElectronics") || "Consumer Electronics",
       icon: "ri-smartphone-line",
       color: "from-blue-400 to-blue-600",
     },
     {
-      id: "electronics-electrical",
-      name: t("cat.electronicsElectrical"),
+      id: "Electronics & Electrical Supplies",
+      name: t("cat.electronicsElectrical") || "Electronics & Electrical Supplies",
+      icon: "ri-plug-line",
+      color: "from-yellow-400 to-yellow-600",
+    },
+    {
+      id: "Energy & Power",
+      name: t("cat.energyPower") || "Energy & Power",
       icon: "ri-flashlight-line",
       color: "from-yellow-400 to-yellow-600",
     },
     {
-      id: "energy-power",
-      name: t("cat.energyPower"),
-      icon: "ri-lightning-line",
-      color: "from-yellow-500 to-orange-500",
-    },
-    {
-      id: "environment-pollution",
-      name: t("cat.environmentPollution"),
+      id: "Environment & Pollution",
+      name: t("cat.environmentPollution") || "Environment & Pollution",
       icon: "ri-leaf-line",
       color: "from-green-500 to-green-700",
     },
     {
-      id: "food-beverage",
-      name: t("cat.foodBeverage"),
+      id: "Food & Beverage",
+      name: t("cat.foodBeverage") || "Food & Beverage",
       icon: "ri-restaurant-line",
       color: "from-orange-400 to-red-500",
     },
     {
-      id: "furniture",
-      name: t("cat.furniture"),
+      id: "Furniture",
+      name: t("cat.furniture") || "Furniture",
       icon: "ri-sofa-line",
       color: "from-amber-400 to-orange-500",
     },
     {
-      id: "gifts-crafts",
-      name: t("cat.giftsCrafts"),
+      id: "Gifts & Crafts",
+      name: t("cat.giftsCrafts") || "Gifts & Crafts",
       icon: "ri-gift-line",
       color: "from-pink-400 to-rose-500",
     },
     {
-      id: "health-beauty",
-      name: t("cat.healthBeauty"),
+      id: "Health & Beauty",
+      name: t("cat.healthBeauty") || "Health & Beauty",
       icon: "ri-scissors-line",
       color: "from-fuchsia-400 to-pink-500",
     },
     {
-      id: "home-supplies",
-      name: t("cat.homeSupplies"),
+      id: "Home Supplies",
+      name: t("cat.homeSupplies") || "Home Supplies",
       icon: "ri-home-line",
-      color: "from-teal-400 to-teal-600",
+      color: "from-amber-300 to-amber-500",
     },
     {
-      id: "home-textiles",
-      name: t("cat.homeTextiles"),
-      icon: "ri-shirt-line",
-      color: "from-purple-400 to-purple-600",
+      id: "Home Textiles & Furnishings",
+      name: t("cat.homeTextiles") || "Home Textiles & Furnishings",
+      icon: "ri-store-line",
+      color: "from-emerald-300 to-emerald-500",
     },
     {
-      id: "hospital-medical",
-      name: t("cat.hospitalMedical"),
-      icon: "ri-health-book-line",
-      color: "from-green-400 to-emerald-500",
+      id: "Hospital & Medical Supplies",
+      name: t("cat.hospitalMedical") || "Hospital & Medical Supplies",
+      icon: "ri-hospital-line",
+      color: "from-red-300 to-red-500",
     },
     {
-      id: "hotel-supplies",
-      name: t("cat.hotelSupplies"),
+      id: "Hotel Supplies & Equipment",
+      name: t("cat.hotelSupplies") || "Hotel Supplies & Equipment",
       icon: "ri-hotel-line",
-      color: "from-blue-500 to-blue-700",
+      color: "from-blue-300 to-blue-500",
     },
     {
-      id: "industrial-supplies",
-      name: t("cat.industrialSupplies"),
-      icon: "ri-settings-line",
-      color: "from-gray-500 to-gray-700",
+      id: "Industrial Supplies",
+      name: t("cat.industrialSupplies") || "Industrial Supplies",
+      icon: "ri-tools-line",
+      color: "from-gray-400 to-gray-600",
     },
     {
-      id: "jewelry-gemstones",
-      name: t("cat.jewelryGemstones"),
+      id: "Jewelry & Gemstones",
+      name: t("cat.jewelryGemstones") || "Jewelry & Gemstones",
       icon: "ri-gem-line",
-      color: "from-yellow-400 to-yellow-600",
+      color: "from-yellow-300 to-yellow-500",
     },
     {
-      id: "leather-products",
-      name: t("cat.leatherProducts"),
-      icon: "ri-handbag-line",
+      id: "Leather & Leather Products",
+      name: t("cat.leatherProducts") || "Leather & Leather Products",
+      icon: "ri-suitcase-line",
       color: "from-amber-600 to-amber-800",
     },
     {
-      id: "machinery",
-      name: t("cat.machinery"),
-      icon: "ri-settings-2-line",
-      color: "from-gray-600 to-gray-800",
+      id: "Machinery",
+      name: t("cat.machinery") || "Machinery",
+      icon: "ri-tools-fill",
+      color: "from-gray-500 to-gray-700",
     },
     {
-      id: "mineral-metals",
-      name: t("cat.mineralMetals"),
+      id: "Mineral & Metals",
+      name: t("cat.mineralMetals") || "Mineral & Metals",
       icon: "ri-copper-diamond-line",
       color: "from-gray-400 to-gray-600",
     },
     {
-      id: "office-school",
-      name: t("cat.officeSchool"),
+      id: "Office & School Supplies",
+      name: t("cat.officeSchool") || "Office & School Supplies",
       icon: "ri-book-line",
+      color: "from-blue-300 to-blue-500",
+    },
+    {
+      id: "Oil and Gas",
+      name: t("cat.oilGas") || "Oil and Gas",
+      icon: "ri-oil-line",
+      color: "from-gray-700 to-gray-900",
+    },
+    {
+      id: "Packaging & Paper",
+      name: t("cat.packagingPaper") || "Packaging & Paper",
+      icon: "ri-boxing-line",
+      color: "from-amber-300 to-amber-500",
+    },
+    {
+      id: "Pharmaceuticals",
+      name: t("cat.pharmaceuticals") || "Pharmaceuticals",
+      icon: "ri-medicine-bottle-line",
       color: "from-blue-400 to-blue-600",
     },
     {
-      id: "oil-gas",
-      name: t("cat.oilGas"),
-      icon: "ri-oil-line",
-      color: "from-black to-gray-800",
-    },
-    {
-      id: "packaging-paper",
-      name: t("cat.packagingPaper"),
-      icon: "ri-box-line",
-      color: "from-brown-400 to-brown-600",
-    },
-    {
-      id: "pharmaceuticals",
-      name: t("cat.pharmaceuticals"),
-      icon: "ri-capsule-line",
-      color: "from-red-400 to-red-600",
-    },
-    {
-      id: "pipes-tubes",
-      name: t("cat.pipesTubes"),
-      icon: "ri-roadster-line",
+      id: "Pipes, Tubes & Fittings",
+      name: t("cat.pipesTubes") || "Pipes, Tubes & Fittings",
+      icon: "ri-tube-line",
       color: "from-gray-500 to-gray-700",
     },
     {
-      id: "plastics-products",
-      name: t("cat.plasticsProducts"),
-      icon: "ri-recycle-line",
-      color: "from-green-400 to-green-600",
+      id: "Plastics & Products",
+      name: t("cat.plasticsProducts") || "Plastics & Products",
+      icon: "ri-bubble-chart-line",
+      color: "from-blue-300 to-blue-500",
     },
     {
-      id: "printing-publishing",
-      name: t("cat.printingPublishing"),
+      id: "Printing & Publishing",
+      name: t("cat.printingPublishing") || "Printing & Publishing",
       icon: "ri-printer-line",
-      color: "from-gray-400 to-gray-600",
+      color: "from-purple-400 to-purple-600",
     },
     {
-      id: "real-estate",
-      name: t("cat.realEstate"),
-      icon: "ri-building-line",
-      color: "from-blue-500 to-blue-700",
+      id: "Real Estate",
+      name: t("cat.realEstate") || "Real Estate",
+      icon: "ri-building-2-line",
+      color: "from-orange-400 to-orange-600",
     },
     {
-      id: "scientific-laboratory",
-      name: t("cat.scientificLaboratory"),
+      id: "Scientific & Laboratory Instruments",
+      name: t("cat.scientificLaboratory") || "Scientific & Laboratory Instruments",
       icon: "ri-microscope-line",
-      color: "from-purple-500 to-purple-700",
+      color: "from-blue-400 to-blue-600",
     },
     {
-      id: "security-protection",
-      name: t("cat.securityProtection"),
+      id: "Security & Protection",
+      name: t("cat.securityProtection") || "Security & Protection",
       icon: "ri-shield-line",
       color: "from-red-500 to-red-700",
     },
     {
-      id: "sports-entertainment",
-      name: t("cat.sportsEntertainment"),
+      id: "Sports & Entertainment",
+      name: t("cat.sportsEntertainment") || "Sports & Entertainment",
       icon: "ri-football-line",
       color: "from-green-500 to-green-700",
     },
     {
-      id: "telecommunications",
-      name: t("cat.telecommunications"),
+      id: "Telecommunications",
+      name: t("cat.telecommunications") || "Telecommunications",
       icon: "ri-phone-line",
-      color: "from-blue-500 to-blue-700",
+      color: "from-blue-400 to-blue-600",
     },
     {
-      id: "textiles-fabrics",
-      name: t("cat.textilesFabrics"),
-      icon: "ri-shirt-line",
-      color: "from-teal-400 to-cyan-500",
-    },
-    {
-      id: "toys",
-      name: t("cat.toys"),
-      icon: "ri-gamepad-line",
+      id: "Textiles & Fabrics",
+      name: t("cat.textilesFabrics") || "Textiles & Fabrics",
+      icon: "ri-scissors-line",
       color: "from-pink-400 to-pink-600",
     },
     {
-      id: "transportation",
-      name: t("cat.transportation"),
+      id: "Toys",
+      name: t("cat.toys") || "Toys",
+      icon: "ri-gamepad-line",
+      color: "from-red-400 to-red-600",
+    },
+    {
+      id: "Transportation",
+      name: t("cat.transportation") || "Transportation",
       icon: "ri-truck-line",
-      color: "from-blue-600 to-blue-800",
+      color: "from-indigo-400 to-indigo-600",
     },
   ];
   const handleSearch = () => {
@@ -1062,7 +654,8 @@ export default function SearchSection() {
                 <div className="bg-gray-100 rounded-2xl overflow-hidden shadow-xl relative h-64 sm:h-80 md:h-[28rem] mb-3 sm:mb-4 md:mb-6">
                   {/* Interactive Map Component */}
                   <InteractiveMap
-                    businesses={getFilteredBusinesses()}
+                    key={`map-${selectedCategory}`} // Force re-render when category changes
+                    businesses={filteredBusinesses}
                     onBusinessClick={handleMarkerClick}
                   />
 
@@ -1130,7 +723,8 @@ export default function SearchSection() {
       </section>
 
       {/* Featured Businesses Section */}
-      <FeaturedBusinesses />
+      <FeaturedBusinesses businesses={businesses} />
+      {console.log("Passing businesses to FeaturedBusinesses:", businesses)}
 
       {/* Request Section */}
       <section className="py-12 md:py-16 bg-gradient-to-b from-white to-gray-50">
@@ -1481,7 +1075,6 @@ export default function SearchSection() {
                       </div>
                     </div>
                   </div>
-
                 </div>
               </div>
             </div>

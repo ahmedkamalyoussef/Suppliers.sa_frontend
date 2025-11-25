@@ -78,6 +78,11 @@ export const translations = {
     closed: "Closed",
     sendMassege: "Send Message",
     featuredBusinessesviewAll: "View All Businesses",
+    featuredBusinesses: {
+      serves: "Serves",
+      serviceArea: "Service Area",
+      more: "+{{count}} more"
+    },
 
     searchStep: "Search & Discover",
     searchStepDesc:
@@ -2645,6 +2650,11 @@ export const translations = {
     closed: "مغلق",
     sendMassege: "إرسال رسالة",
     featuredBusinessesviewAll: "عرض الجميع",
+    featuredBusinesses: {
+      serves: "يخدم",
+      serviceArea: "مساحة الخدمة",
+      more: "+{{count}} المزيد"
+    },
 
     searchStep: "البحث والاكتشاف",
     searchStepDesc:

@@ -3,9 +3,36 @@
 import Link from "next/link";
 import { useLanguage } from "../lib/LanguageContext";
 
-export default function FeaturedBusinesses() {
+interface Business {
+  id: number;
+  name: string;
+  category: string;
+  businessType: string;
+  targetMarket: string[];
+  serviceDistance: string;
+  rating: number;
+  reviews: number;
+  distance: string;
+  image: string;
+  services: string[];
+  businessImage: string;
+  reviewsCount: number;
+  status: string;
+  
+}
+
+interface FeaturedBusinessesProps {
+  businesses: Business[];
+}
+
+export default function FeaturedBusinesses({ businesses }: FeaturedBusinessesProps) {
   const { t } = useLanguage();
-  const businesses = [
+  
+  // Log the received businesses data
+  console.log('Featured Businesses Data:', businesses);
+  
+  // Use the businesses from props or fallback to default data
+  const displayBusinesses = businesses || [
     {
       id: 1,
       name: "Metro Electronics Supply",
@@ -174,13 +201,13 @@ export default function FeaturedBusinesses() {
             >
               <div className="relative h-40 sm:h-48 overflow-hidden">
                 <img
-                  src={business.image}
+                  src={business.businessImage}
                   alt={business.name}
                   className="w-full h-full object-cover object-top"
                 />
                 <div className="absolute top-2 sm:top-4 right-2 sm:right-4 bg-white rounded-full px-2 sm:px-3 py-1 shadow-md">
                   <span className="text-xs sm:text-sm font-medium text-gray-700">
-                    {business.distance}
+                    {business.serviceDistance} km
                   </span>
                 </div>
                 <div className="absolute top-2 sm:top-4 left-2 sm:left-4">
@@ -225,7 +252,7 @@ export default function FeaturedBusinesses() {
                     ))}
                   </div>
                   <span className="text-xs sm:text-sm text-gray-600 ml-2">
-                    {business.rating} ({business.reviews})
+                    {business.rating} ({business.reviewsCount})
                   </span>
                 </div>
 
@@ -235,7 +262,7 @@ export default function FeaturedBusinesses() {
                     <i className="ri-group-line w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center mr-1 sm:mr-2"></i>
                     <span>
                       {t("featuredBusinesses.serves")}{" "}
-                      {business.targetCustomers.join(", ")}
+                      {business.targetMarket.join(", ")}
                     </span>
                   </div>
                   <div className="flex items-center text-xs text-gray-600">
