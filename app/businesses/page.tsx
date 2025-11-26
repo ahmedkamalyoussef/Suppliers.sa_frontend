@@ -79,6 +79,7 @@ function BusinessesContent() {
     "rating" | "distance" | "reviews" | "name"
   >("rating");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [showAllBusinesses, setShowAllBusinesses] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 12;
   const [businesses, setBusinesses] = useState<any[]>([]);
@@ -101,27 +102,52 @@ function BusinessesContent() {
     return () => clearTimeout(timer);
   }, [address]);
 
-  // Update URL when search or address changes
+  // Update URL when filters change
   useEffect(() => {
     const params = new URLSearchParams();
 
-    if (debouncedSearch) {
-      params.set("search", debouncedSearch);
-    } else {
-      params.delete("search");
+    // Handle search and address
+    if (debouncedSearch) params.set("search", debouncedSearch);
+    if (debouncedAddress) params.set("address", debouncedAddress);
+    
+    // Handle category
+    if (selectedCategory && selectedCategory !== "all") {
+      params.set("category", selectedCategory);
     }
-
-    if (debouncedAddress) {
-      params.set("address", debouncedAddress);
-    } else {
-      params.delete("address");
+    
+    // Handle business type
+    if (selectedBusinessType && selectedBusinessType !== "all") {
+      params.set("businessType", selectedBusinessType);
+    }
+    
+    // Handle distance
+    if (selectedDistance) {
+      params.set("distance", selectedDistance);
+    }
+    
+    // Handle verified filter
+    if (verifiedOnly) {
+      params.set("verified", "true");
+    }
+    
+    // Handle open now filter
+    if (openNow) {
+      params.set("openNow", "true");
     }
 
     // Update URL without page reload
     const url = new URL(window.location.href);
     url.search = params.toString();
     window.history.pushState({}, "", url.toString());
-  }, [debouncedSearch, debouncedAddress]);
+  }, [
+    debouncedSearch, 
+    debouncedAddress, 
+    selectedCategory, 
+    selectedBusinessType, 
+    selectedDistance, 
+    verifiedOnly, 
+    openNow
+  ]);
 
   // Log when selectedCategory changes
   useEffect(() => {
@@ -135,7 +161,7 @@ function BusinessesContent() {
       try {
         const params: any = {
           page: currentPage,
-          per_page: itemsPerPage,
+          per_page: showAllBusinesses ? Number.MAX_SAFE_INTEGER : itemsPerPage,
           sort: sortBy,
         };
 
@@ -162,7 +188,7 @@ function BusinessesContent() {
         if (debouncedAddress) {
           params.address = debouncedAddress;
         }
-        
+
         // Add distance filter if selected
         if (selectedDistance) {
           // Convert the selected distance string to a number
@@ -299,7 +325,7 @@ function BusinessesContent() {
     searchParams,
     verifiedOnly,
     openNow,
-    openNow
+    openNow,
   ]);
 
   // Apply filters from URL parameters when component mounts
@@ -720,16 +746,22 @@ function BusinessesContent() {
     if (selectedDistance && selectedDistance !== "all") {
       filtered = filtered.filter((business: Business) => {
         // Check if serviceDistance exists and is a valid number
-        if (business.serviceDistance === undefined || business.serviceDistance === null) {
+        if (
+          business.serviceDistance === undefined ||
+          business.serviceDistance === null
+        ) {
           return false; // or true depending on your requirements
         }
-        
-        const businessDistance = typeof business.serviceDistance === 'string' 
-          ? parseFloat(business.serviceDistance.split(" ")[0])
-          : Number(business.serviceDistance);
-          
+
+        const businessDistance =
+          typeof business.serviceDistance === "string"
+            ? parseFloat(business.serviceDistance.split(" ")[0])
+            : Number(business.serviceDistance);
+
         const selectedDistanceValue = parseFloat(selectedDistance);
-        return !isNaN(businessDistance) && businessDistance <= selectedDistanceValue;
+        return (
+          !isNaN(businessDistance) && businessDistance <= selectedDistanceValue
+        );
       });
     }
 
@@ -1112,11 +1144,20 @@ function BusinessesContent() {
           </div>
         </section>
 
-        {/* Load More Section */}
+        {/* Load More / Show Less Section */}
         {sortedBusinesses.length > 0 && (
           <section className="py-8 text-center">
-            <button className="bg-yellow-400 text-white px-8 py-4 rounded-full hover:bg-yellow-500 font-semibold whitespace-nowrap cursor-pointer">
-              {t("businessesPage.loadMore")}
+            <button 
+              onClick={() => {
+                setShowAllBusinesses(!showAllBusinesses);
+                // Reset to first page when toggling view
+                setCurrentPage(1);
+              }}
+              className="bg-yellow-400 text-white px-8 py-4 rounded-full hover:bg-yellow-500 font-semibold whitespace-nowrap cursor-pointer transition-all duration-200"
+            >
+              {showAllBusinesses 
+                ? t("businessesPage.showLess") 
+                : t("businessesPage.loadMore")}
             </button>
           </section>
         )}

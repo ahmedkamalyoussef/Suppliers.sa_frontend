@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "../lib/LanguageContext";
+import { apiService } from "../lib/api";
 
 interface Category {
   id: string;
@@ -50,9 +51,28 @@ export default function BusinessFilters({
   openNow,
   setOpenNow,
 }: BusinessFiltersProps) {
+  // Fetch stats when component mounts
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const stats = await apiService.getStats();
+        setStats(stats);
+      } catch (error) {
+        console.error('Error fetching business stats:', error);
+      }
+    };
+
+    fetchStats();
+  }, []);
   const { t } = useLanguage();
-  const [showVerified, setShowVerified] = useState<boolean>(false);
-  const [showOpenNow, setShowOpenNow] = useState<boolean>(false);
+  const [stats, setStats] = useState<{
+    total_businesses: number;
+    total_suppliers: number;
+    open_now: number;
+    new_this_week: number;
+  } | null>(null);
+
+  // Using props for verifiedOnly and openNow instead of local state
 
   const categories: Category[] = [
     { id: "all", name: t("filters.allCategories"), icon: "ri-apps-2-line" },
@@ -149,7 +169,11 @@ export default function BusinessFilters({
       name: t("cat.mineralMetals"),
       icon: "ri-copper-diamond-line",
     },
-    { id: "Office & School Supplies", name: t("cat.officeSchool"), icon: "ri-book-line" },
+    {
+      id: "Office & School Supplies",
+      name: t("cat.officeSchool"),
+      icon: "ri-book-line",
+    },
     { id: "Oil & Gas", name: t("cat.oilGas"), icon: "ri-oil-line" },
     {
       id: "Packaging & Paper",
@@ -161,7 +185,11 @@ export default function BusinessFilters({
       name: t("cat.pharmaceuticals"),
       icon: "ri-capsule-line",
     },
-    { id: "Pipes & Tubes", name: t("cat.pipesTubes"), icon: "ri-roadster-line" },
+    {
+      id: "Pipes & Tubes",
+      name: t("cat.pipesTubes"),
+      icon: "ri-roadster-line",
+    },
     {
       id: "Plastics & Products",
       name: t("cat.plasticsProducts"),
@@ -229,8 +257,8 @@ export default function BusinessFilters({
     setSelectedCategory("all");
     setSelectedBusinessType("all");
     setSelectedDistance("");
-    setShowVerified(false);
-    setShowOpenNow(false);
+    setVerifiedOnly(false);
+    setOpenNow(false);
   };
 
   return (
@@ -240,14 +268,18 @@ export default function BusinessFilters({
         <h3 className="text-lg font-semibold text-gray-800">
           {t("filters.searchTitle")}
         </h3>
-        
+
         {/* Search Input */}
         <div className="space-y-1">
           <label className="block text-sm font-medium text-gray-700 rtl:text-right">
             {t("filters.search")}
           </label>
           <div className="relative rounded-md">
-            <div className={`absolute inset-y-0 ${isRTL ? 'right-0 pr-3' : 'left-0 pl-3'} flex items-center pointer-events-none`}>
+            <div
+              className={`absolute inset-y-0 ${
+                isRTL ? "right-0 pr-3" : "left-0 pl-3"
+              } flex items-center pointer-events-none`}
+            >
               <i className="ri-search-line text-gray-500"></i>
             </div>
             <input
@@ -255,8 +287,10 @@ export default function BusinessFilters({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t("filters.searchPlaceholder")}
-              className={`block w-full ${isRTL ? 'pr-10' : 'pl-10'} py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all duration-200`}
-              dir={isRTL ? 'rtl' : 'ltr'}
+              className={`block w-full ${
+                isRTL ? "pr-10" : "pl-10"
+              } py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all duration-200`}
+              dir={isRTL ? "rtl" : "ltr"}
             />
           </div>
         </div>
@@ -267,7 +301,11 @@ export default function BusinessFilters({
             {t("filters.address")}
           </label>
           <div className="relative rounded-md">
-            <div className={`absolute inset-y-0 ${isRTL ? 'right-0 pr-3' : 'left-0 pl-3'} flex items-center pointer-events-none`}>
+            <div
+              className={`absolute inset-y-0 ${
+                isRTL ? "right-0 pr-3" : "left-0 pl-3"
+              } flex items-center pointer-events-none`}
+            >
               <i className="ri-map-pin-line text-gray-500"></i>
             </div>
             <input
@@ -275,8 +313,10 @@ export default function BusinessFilters({
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               placeholder={t("filters.addressPlaceholder")}
-              className={`block w-full ${isRTL ? 'pr-10' : 'pl-10'} py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all duration-200`}
-              dir={isRTL ? 'rtl' : 'ltr'}
+              className={`block w-full ${
+                isRTL ? "pr-10" : "pl-10"
+              } py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all duration-200`}
+              dir={isRTL ? "rtl" : "ltr"}
             />
           </div>
         </div>
@@ -356,8 +396,8 @@ export default function BusinessFilters({
           <label className="flex items-center space-x-3 cursor-pointer">
             <input
               type="checkbox"
-              checked={showVerified}
-              onChange={(e) => setShowVerified(e.target.checked)}
+              checked={verifiedOnly}
+              onChange={(e) => setVerifiedOnly(e.target.checked)}
               className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
             />
             <div className="flex items-center space-x-2">
@@ -372,8 +412,8 @@ export default function BusinessFilters({
           <label className="flex items-center space-x-3 cursor-pointer">
             <input
               type="checkbox"
-              checked={showOpenNow}
-              onChange={(e) => setShowOpenNow(e.target.checked)}
+              checked={openNow}
+              onChange={(e) => setOpenNow(e.target.checked)}
               className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
             />
             <div className="flex items-center space-x-2">
@@ -402,30 +442,38 @@ export default function BusinessFilters({
         <h3 className="text-lg font-semibold mb-4 text-gray-800">
           {t("filters.quickStats")}
         </h3>
-        <div className="space-y-3">
+        <div className="space-y-3"> 
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-600">
               {t("filters.totalBusinesses")}
             </span>
-            <span className="text-sm font-semibold text-gray-800">1,247</span>
+            <span className="text-sm font-semibold text-gray-800">
+              {stats ? stats.total_businesses.toLocaleString() : '...'}
+            </span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-600">
               {t("filters.verified")}
             </span>
-            <span className="text-sm font-semibold text-green-600">892</span>
+            <span className="text-sm font-semibold text-green-600">
+              {stats ? stats.total_suppliers.toLocaleString() : '...'}
+            </span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-600">
               {t("filters.openNow")}
             </span>
-            <span className="text-sm font-semibold text-blue-600">634</span>
+            <span className="text-sm font-semibold text-blue-600">
+              {stats ? stats.open_now.toLocaleString() : '...'}
+            </span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-600">
               {t("filters.newThisWeek")}
             </span>
-            <span className="text-sm font-semibold text-yellow-600">23</span>
+            <span className="text-sm font-semibold text-yellow-600">
+              {stats ? stats.new_this_week.toLocaleString() : '...'}
+            </span>
           </div>
         </div>
       </div>

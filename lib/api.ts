@@ -453,9 +453,9 @@ class ApiService {
     if (params) {
       // Handle category separately to prevent double encoding
       const { category, ...restParams } = params;
-      
+
       if (category) {
-        queryParams.append('category', category);
+        queryParams.append("category", category);
       }
 
       // Handle the rest of the parameters
@@ -768,6 +768,19 @@ class ApiService {
 
     return response.json();
   }
+
+  // Get business statistics
+  async getStats(): Promise<BusinessStats> {
+    return this.request<BusinessStats>('/api/public/stats');
+  }
+}
+
+// Interface for business statistics
+interface BusinessStats {
+  total_businesses: number;
+  total_suppliers: number;
+  open_now: number;
+  new_this_week: number;
 }
 
 export const apiService = new ApiService();

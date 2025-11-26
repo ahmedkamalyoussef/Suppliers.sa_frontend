@@ -81,7 +81,7 @@ export const translations = {
     featuredBusinesses: {
       serves: "Serves",
       serviceArea: "Service Area",
-      more: "+{{count}} more"
+      more: "+{{count}} more",
     },
 
     searchStep: "Search & Discover",
@@ -682,6 +682,7 @@ export const translations = {
         "Try adjusting your search criteria or browse all categories",
       clearFilters: "Clear Filters",
       loadMore: "Load More Businesses",
+      showLess: "Show Less",
       loading: "Loading businesses...",
     },
     contactModal: {
@@ -1212,7 +1213,8 @@ export const translations = {
       backToLogin: "Back to Login",
       rememberPassword: "Remember your password?",
       successTitle: "Password Reset Successful",
-      successMessage: "Your password has been successfully reset. You can now login with your new password.",
+      successMessage:
+        "Your password has been successfully reset. You can now login with your new password.",
       goToLogin: "Go to Login",
       otpRequired: "OTP is required",
       otpDigits: "OTP must be 6 digits",
@@ -1220,9 +1222,10 @@ export const translations = {
       passwordMinLength: "Password must be at least 6 characters",
       confirmPasswordRequired: "Password confirmation is required",
       passwordsNotMatch: "Passwords do not match",
-      emailRequired: "Email is required. Please start the password reset process again.",
+      emailRequired:
+        "Email is required. Please start the password reset process again.",
       resetFailed: "Failed to reset password. Please try again.",
-      serverValidation: "Server validation: {errors}"
+      serverValidation: "Server validation: {errors}",
     },
     login: {
       title: "Welcome Back",
@@ -1454,7 +1457,8 @@ export const translations = {
         emailLabel: "Email Address *",
         referralCodeLabel: "Referral Code (Optional)",
         referralCodePlaceholder: "Enter referral phone or CR number",
-        referralCodeHint: "Enter the phone number or CR of the person who referred you. This will give both of you discounts on subscription.",
+        referralCodeHint:
+          "Enter the phone number or CR of the person who referred you. This will give both of you discounts on subscription.",
         continueButton: "Continue to Verification",
         continueButtonSubmitting: "Please wait...",
         verifying: "Verifying...",
@@ -1499,14 +1503,16 @@ export const translations = {
         phoneInvalid: "Please enter a valid phone number",
         emailRequired: "Email address is required",
         emailInvalid: "Please enter a valid email address",
-        referralCodeInvalid: "Referral code is not valid. Please check and try again.",
+        referralCodeInvalid:
+          "Referral code is not valid. Please check and try again.",
         verificationIncomplete: "Please enter the complete 4-digit code",
         verificationInvalid: "Invalid verification code. Please try again.",
       },
       notifications: {
         referralSuccessTitle: "New Referral Received!",
         referralSuccessMessage: "has joined using your referral code",
-        referralDiscountAdded: "You gained an additional 5% discount on your subscription! Your total discount is now",
+        referralDiscountAdded:
+          "You gained an additional 5% discount on your subscription! Your total discount is now",
         percent: "%",
       },
     },
@@ -1603,13 +1609,13 @@ export const translations = {
       verified: "Verified",
       reviews: {
         title: "Customer Reviews",
-        count: "reviews"
+        count: "reviews",
       },
       businessTypes: {
         supplier: "Supplier",
         store: "Store",
         office: "Office",
-        individual: "Individual"
+        individual: "Individual",
       },
       status: {
         pending: "Pending",
@@ -1925,8 +1931,10 @@ export const translations = {
         minChars: "20 chars minimum",
         businessTypeLabel: "Business Type",
         descriptionLabel: "Business Description",
-        descriptionPlaceholder: "Tell us about your business, products, and services...",
-        descriptionHelp: "A detailed description helps customers understand what makes your business unique.",
+        descriptionPlaceholder:
+          "Tell us about your business, products, and services...",
+        descriptionHelp:
+          "A detailed description helps customers understand what makes your business unique.",
         categoriesLabel: "Business Categories",
         categoriesDesc:
           "Select the categories that apply to your business. This helps ",
@@ -2656,7 +2664,7 @@ export const translations = {
     featuredBusinesses: {
       serves: "يخدم",
       serviceArea: "مساحة الخدمة",
-      more: "+{{count}} المزيد"
+      more: "+{{count}} المزيد",
     },
 
     searchStep: "البحث والاكتشاف",
@@ -3520,6 +3528,7 @@ export const translations = {
       noFoundBody: "جرّب تعديل معايير البحث أو تصفح جميع الفئات",
       clearFilters: "مسح الفلاتر",
       loadMore: "تحميل المزيد من الأنشطة",
+      showLess: "عرض عدد أقل",
       loading: "جاري تحميل الأنشطة...",
     },
 
@@ -3704,7 +3713,7 @@ export const translations = {
           confirmPasswordPlaceholder: "قم بتأكيد كلمة المرور",
           button: "متابعة التجربة",
           haveAccount: "لديك حساب بالفعل؟",
-          signinLink: "سجل دخولك من هنا"
+          signinLink: "سجل دخولك من هنا",
         },
         step2: {
           title: "تحقق من حسابك",
@@ -4016,7 +4025,8 @@ export const translations = {
       backToLogin: "العودة لتسجيل الدخول",
       rememberPassword: "تتذكر كلمة المرور؟",
       successTitle: "تم إعادة تعيين كلمة المرور بنجاح",
-      successMessage: "تم إعادة تعيين كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة.",
+      successMessage:
+        "تم إعادة تعيين كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة.",
       goToLogin: "اذهب إلى تسجيل الدخول",
       otpRequired: "رمز OTP مطلوب",
       otpDigits: "يجب أن يكون رمز OTP 6 أرقام",
@@ -4024,9 +4034,10 @@ export const translations = {
       passwordMinLength: "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
       confirmPasswordRequired: "تأكيد كلمة المرور مطلوب",
       passwordsNotMatch: "كلمات المرور غير متطابقة",
-      emailRequired: "البريد الإلكتروني مطلوب. يرجى بدء عملية إعادة تعيين كلمة المرور مرة أخرى.",
+      emailRequired:
+        "البريد الإلكتروني مطلوب. يرجى بدء عملية إعادة تعيين كلمة المرور مرة أخرى.",
       resetFailed: "فشل في إعادة تعيين كلمة المرور. يرجى المحاولة مرة أخرى.",
-      serverValidation: "تحقق من الخادم: {errors}"
+      serverValidation: "تحقق من الخادم: {errors}",
     },
 
     // Login
@@ -4139,8 +4150,10 @@ export const translations = {
         phonePlaceholder: "أدخل الرقم بعد +966",
         emailLabel: "البريد الإلكتروني *",
         referralCodeLabel: "كود الإحالة (اختياري)",
-        referralCodePlaceholder: "أدخل رقم الهاتف أو رقم السجل التجاري للشخص الذي أحالك",
-        referralCodeHint: "أدخل رقم الهاتف أو رقم السجل التجاري للشخص الذي أحالك. هذا سيعطيك كلاكما خصومات على الاشتراك.",
+        referralCodePlaceholder:
+          "أدخل رقم الهاتف أو رقم السجل التجاري للشخص الذي أحالك",
+        referralCodeHint:
+          "أدخل رقم الهاتف أو رقم السجل التجاري للشخص الذي أحالك. هذا سيعطيك كلاكما خصومات على الاشتراك.",
         continueButton: "الانتقال للتحقق",
         continueButtonSubmitting: "جارٍ الإرسال...",
         alreadyAccount: "هل لديك حساب بالفعل؟",
@@ -4185,14 +4198,16 @@ export const translations = {
         phoneInvalid: "يرجى إدخال رقم هاتف صالح",
         emailRequired: "البريد الإلكتروني مطلوب",
         emailInvalid: "يرجى إدخال بريد إلكتروني صالح",
-        referralCodeInvalid: "كود الإحالة غير صحيح. يرجى التحقق والمحاولة مرة أخرى.",
+        referralCodeInvalid:
+          "كود الإحالة غير صحيح. يرجى التحقق والمحاولة مرة أخرى.",
         verificationIncomplete: "يرجى إدخال الرمز المكون من 4 أرقام بالكامل",
         verificationInvalid: "رمز التحقق غير صحيح. حاول مرة أخرى.",
       },
       notifications: {
         referralSuccessTitle: "تم استقبال إحالة جديدة!",
         referralSuccessMessage: "لقد انضم باستخدام كود الإحالة الخاص بك",
-        referralDiscountAdded: "حصلت على خصم إضافي بنسبة 5% على اشتراكك! إجمالي الخصم الخاص بك الآن",
+        referralDiscountAdded:
+          "حصلت على خصم إضافي بنسبة 5% على اشتراكك! إجمالي الخصم الخاص بك الآن",
         percent: "%",
       },
     },
@@ -4202,13 +4217,13 @@ export const translations = {
       verified: "موثق",
       reviews: {
         title: "تقييمات العملاء",
-        count: "تقييم"
+        count: "تقييم",
       },
       businessTypes: {
         supplier: "مورد",
         store: "متجر",
         office: "مكتب",
-        individual: "فردي"
+        individual: "فردي",
       },
       status: {
         pending: "قيد المراجعة",
@@ -4527,7 +4542,8 @@ export const translations = {
         businessTypeLabel: "نوع العمل",
         descriptionLabel: "وصف النشاط التجاري",
         descriptionPlaceholder: "أخبرنا عن نشاطك التجاري ومنتجاتك وخدماتك...",
-        descriptionHelp: "يساعد الوصف التفصيلي العملاء على فهم ما يميز نشاطك التجاري.",
+        descriptionHelp:
+          "يساعد الوصف التفصيلي العملاء على فهم ما يميز نشاطك التجاري.",
         categoriesLabel: "فئات العمل",
         categoriesDesc: "اختر الفئات التي تنطبق على عملك. هذا يساعد ",
         clearAll: "مسح الكل",
