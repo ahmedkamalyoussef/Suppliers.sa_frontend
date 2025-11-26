@@ -274,6 +274,7 @@ class ApiService {
     requiresAuth: boolean = false
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
+    console.log(`[API] Preparing request to: ${url}`, { method: options.method || 'GET' });
 
     // Convert HeadersInit to Record<string, string>
     const optionsHeaders: Record<string, string> = {};
@@ -300,46 +301,131 @@ class ApiService {
     if (requiresAuth) {
       const token = localStorage.getItem("supplier_token");
       const tokenType = localStorage.getItem("token_type") || "Bearer";
-      if (!token) throw new Error("No auth token found");
+      console.log('[API] Auth check - Token exists:', !!token);
+      if (!token) {
+        console.error('[API] No auth token found in localStorage');
+        throw new Error("No auth token found");
+      }
       headers["Authorization"] = `${tokenType} ${token}`;
     }
 
-    const response = await fetch(url, {
-      ...options,
-      credentials: "include",
-      headers,
-    });
+    console.log('[API] Request headers:', headers);
+    if (options.body) {
+      console.log('[API] Request body:', options.body);
+    }
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-
-      // Enhanced logging for debugging
-      console.error(`API Error ${response.status}:`, {
-        url,
-        method: options.method || "GET",
-        errorData,
+    try {
+      console.log('[API] Sending request...');
+      const response = await fetch(url, {
+        ...options,
+        credentials: "include",
         headers,
       });
 
-      if (response.status === 422) {
-        const validationError = new ValidationError(
-          "Validation failed",
-          errorData.errors || errorData
-        );
-        // Log detailed validation errors
-        console.error("Validation Errors:", validationError.errors);
-        console.error("Error data:", errorData);
-        // Log password validation specifically
-        if (errorData.password) {
-          console.error("Password validation errors:", errorData.password);
-        }
-        throw validationError;
+      console.log(`[API] Received response: ${response.status} ${response.statusText}`);
+      
+      // Clone the response to read it as text first (for logging)
+      const responseClone = response.clone();
+      const responseText = await response.text();
+      let responseData;
+      
+      try {
+        responseData = JSON.parse(responseText);
+        console.log('[API] Response data:', responseData);
+      } catch (e) {
+        console.log('[API] Non-JSON response:', responseText);
+        responseData = {};
       }
 
-      throw new Error(errorData.message || `HTTP error ${response.status}`);
-    }
+      if (!response.ok) {
+        console.error(`[API] Request failed with status ${response.status}:`, {
+          url,
+          status: response.status,
+          statusText: response.statusText,
+          response: responseData,
+        });
 
-    return await response.json();
+        if (response.status === 422) {
+          const validationError = new ValidationError(
+            "Validation failed",
+            responseData.errors || responseData
+          );
+          console.error('[API] Validation Errors:', validationError.errors);
+          throw validationError;
+        }
+
+        throw new Error(responseData.message || `HTTP error ${response.status}`);
+      }
+
+      return responseData;
+    } catch (error) {
+      console.error('[API] Request failed:', error);
+      throw error;
+    }
+  }
+
+  // ====== SUPPLIER INQUIRIES ======
+  async sendInquiry(data: {
+    receiver_supplier_id: number;
+    sender_name: string;
+    company: string;
+    email: string;
+    phone: string;
+    subject: string;
+    message: string;
+  }): Promise<InquiryResponse> {
+    return this.request(
+      "/api/supplier/supplier-inquiries",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+      true
+    );
+  }
+
+  async replyToInquiry(
+    inquiryId: number,
+    data: { message: string }
+  ): Promise<InquiryResponse> {
+    return this.request(
+      `/api/supplier/supplier-inquiries/${inquiryId}/reply`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+      true
+    );
+  }
+
+  async markInquiryAsRead(inquiryId: number): Promise<ReadStatusResponse> {
+    return this.request(
+      `/api/supplier/supplier-inquiries/${inquiryId}/read`,
+      {
+        method: "POST",
+      },
+      true
+    );
+  }
+
+  async getInquiry(inquiryId: number): Promise<{ data: Inquiry[] }> {
+    return this.request(
+      `/api/supplier/supplier-inquiries/${inquiryId}`,
+      {
+        method: "GET",
+      },
+      true
+    );
+  }
+
+  async getAllInquiries(): Promise<InquiryListResponse> {
+    return this.request(
+      "/api/supplier/supplier-inquiries",
+      {
+        method: "GET",
+      },
+      true
+    );
   }
 
   // ====== API METHODS ======
@@ -673,7 +759,6 @@ class ApiService {
    * @returns Promise with the supplier's business profile including products
    */
   async getBusinessProfile(id: string | number): Promise<BusinessProfile> {
-    console.log("Fetching business profile for ID:", id);
     const headers = new Headers();
     const token = localStorage.getItem("supplier_token");
 
@@ -707,7 +792,6 @@ class ApiService {
   }
 
   async getSupplierProfile(id: string | number): Promise<SupplierProfile> {
-    console.log("Fetching supplier profile for ID:", id);
     const headers = new Headers();
     const token = localStorage.getItem("supplier_token");
 
@@ -771,8 +855,88 @@ class ApiService {
 
   // Get business statistics
   async getStats(): Promise<BusinessStats> {
-    return this.request<BusinessStats>('/api/public/stats');
+    return this.request<BusinessStats>("/api/public/stats");
   }
+
+  /**
+   * Fetches the profile picture URL for a user
+   * @param userId The ID of the user
+   * @returns Promise with the profile picture URL
+   */
+  async getProfilePicture(userId: string | number): Promise<{ profile_image: string }> {
+    return this.request<{ profile_image: string }>(
+      `/api/auth/profile/picture/${userId}`,
+      {
+        method: 'GET',
+      }
+    );
+  }
+
+  /**
+   * Changes the user's password
+   * @param currentPassword The user's current password
+   * @param newPassword The new password
+   * @param confirmPassword The new password confirmation
+   * @returns Promise with success message
+   */
+  async changePassword(
+    currentPassword: string,
+    newPassword: string,
+    confirmPassword: string
+  ): Promise<{ message: string }> {
+    return this.request<{ message: string }>(
+      '/api/auth/change-password',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          current_password: currentPassword,
+          password: newPassword,
+          password_confirmation: confirmPassword,
+        }),
+      },
+      true // requires authentication
+    );
+  }
+}
+
+// Supplier Inquiry Interfaces
+export interface Inquiry {
+  id: number;
+  subject: string;
+  message: string;
+  email: string;
+  phone: string;
+  company: string | null;
+  sender: {
+    id: number;
+    name: string;
+  };
+  receiver: {
+    id: number;
+    name: string;
+  };
+  is_read: boolean;
+  type: "inquiry" | "reply";
+  created_at: string;
+  time_ago: string;
+  is_reply: boolean;
+}
+
+export interface InquiryResponse {
+  message: string;
+  data: Inquiry;
+}
+
+export interface InquiryListResponse {
+  data: Inquiry[];
+}
+
+export interface ReadStatusResponse {
+  success: boolean;
+  message: string;
 }
 
 // Interface for business statistics

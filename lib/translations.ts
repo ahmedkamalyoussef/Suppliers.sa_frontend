@@ -1767,6 +1767,8 @@ export const translations = {
         emergency: "Emergency Services",
         installation: "Installation",
         maintenance: "Maintenance",
+        delivery: "Delivery",
+        consulting: "Consulting",
       },
       photos: {
         title: "Business Photos",
@@ -4372,7 +4374,9 @@ export const translations = {
         bulk: "طلبات كبيرة",
         emergency: "خدمات الطوارئ",
         installation: "التركيب",
-        maintenance: "ا��صيانة",
+        maintenance: "صيانة",
+        delivery: "التوصيل",
+        consulting: "الاستشارات",
       },
       photos: {
         title: "صور النشاط",

@@ -24,7 +24,7 @@ export default function DashboardAnalytics() {
       15, 14, 16, 15, 17, 16, 18, 17, 19,
     ],
   };
-
+ 
   const topSearchKeywords = [
     { keyword: "LED TV", searches: 156, change: 12 },
     { keyword: "Samsung electronics", searches: 134, change: 8 },

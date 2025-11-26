@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useCallback, useMemo } from "react";
 import type React from "react";
 import { useSearchParams } from "next/navigation";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { useLanguage } from "../../lib/LanguageContext";
+import { useRouter } from "next/navigation";
+import InteractiveMap from "../../components/InteractiveMap";
 import BusinessFilters from "../../components/BusinessFilters";
 import BusinessCard from "../../components/BusinessCard";
 import AIChatWidget from "../../components/AIChatWidget";
@@ -109,27 +111,27 @@ function BusinessesContent() {
     // Handle search and address
     if (debouncedSearch) params.set("search", debouncedSearch);
     if (debouncedAddress) params.set("address", debouncedAddress);
-    
+
     // Handle category
     if (selectedCategory && selectedCategory !== "all") {
       params.set("category", selectedCategory);
     }
-    
+
     // Handle business type
     if (selectedBusinessType && selectedBusinessType !== "all") {
       params.set("businessType", selectedBusinessType);
     }
-    
+
     // Handle distance
     if (selectedDistance) {
       params.set("distance", selectedDistance);
     }
-    
+
     // Handle verified filter
     if (verifiedOnly) {
       params.set("verified", "true");
     }
-    
+
     // Handle open now filter
     if (openNow) {
       params.set("openNow", "true");
@@ -140,13 +142,13 @@ function BusinessesContent() {
     url.search = params.toString();
     window.history.pushState({}, "", url.toString());
   }, [
-    debouncedSearch, 
-    debouncedAddress, 
-    selectedCategory, 
-    selectedBusinessType, 
-    selectedDistance, 
-    verifiedOnly, 
-    openNow
+    debouncedSearch,
+    debouncedAddress,
+    selectedCategory,
+    selectedBusinessType,
+    selectedDistance,
+    verifiedOnly,
+    openNow,
   ]);
 
   // Log when selectedCategory changes
@@ -792,50 +794,40 @@ function BusinessesContent() {
     }
   );
 
-  // Function to get map position based on coordinates
-  const getMapPosition = (lat: number, lng: number) => {
-    // Saudi Arabia bounds for Google Maps embed view
-    // These bounds are adjusted for the specific Google Maps embed viewport
-    const mapBounds = {
-      north: 32.5,
-      south: 16.0,
-      east: 55.5,
-      west: 34.0,
-    };
+  // Handle business click on map
+  const handleBusinessClick = useCallback((business: any) => {
+    // You can implement navigation or other actions when a business is clicked
+    console.log('Business clicked:', business);
+  }, []);
 
-    // Calculate percentage position within the map bounds
-    const latPercent =
-      ((mapBounds.north - lat) / (mapBounds.north - mapBounds.south)) * 100;
-    const lngPercent =
-      ((lng - mapBounds.west) / (mapBounds.east - mapBounds.west)) * 100;
-
-    // Ensure positions stay strictly within visible map area with padding
-    const safeTop = Math.max(5, Math.min(95, latPercent));
-    const safeLeft = Math.max(5, Math.min(95, lngPercent));
-
-    return {
-      top: `${safeTop}%`,
-      left: `${safeLeft}%`,
-    };
-  };
-
-  // Function to get business type color for map markers
-  const getBusinessTypeColor = (type: Business["businessType"]) => {
-    switch (type) {
-      case "Supplier":
-        return "bg-blue-500";
-      case "Store":
-        return "bg-green-500";
-      case "Office":
-        return "bg-purple-500";
-      case "Manufacturer":
-        return "bg-orange-500";
-      case "Individual":
-        return "bg-gray-500";
-      default:
-        return "bg-gray-500";
-    }
-  };
+  // Transform businesses to match InteractiveMap's expected format
+  const mapBusinesses = useMemo(() => {
+    return filteredBusinesses.map(business => {
+      const serviceDistance = typeof business.serviceDistance === 'string' 
+        ? parseFloat(business.serviceDistance) 
+        : business.serviceDistance || 0;
+        
+      return {
+        id: business.id,
+        name: business.name,
+        address: business.location || 'Address not available',
+        lat: typeof business.lat === 'string' ? parseFloat(business.lat) : business.lat || 0,
+        lng: typeof business.lng === 'string' ? parseFloat(business.lng) : business.lng || 0,
+        type: business.businessType,
+        category: business.category,
+        categories: business.categories || [],
+        businessType: business.businessType,
+        profileImage: business.profileImage,
+        serviceDistance: serviceDistance,
+        rating: business.rating || 0,
+        reviewsCount: business.reviewsCount || 0,
+        status: business.status,
+        phone: business.phone || '',
+        contactEmail: business.contactEmail || '',
+        description: business.description || ''
+      };
+    });
+  }, [filteredBusinesses]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -972,125 +964,11 @@ function BusinessesContent() {
                         </div>
                       </div>
 
-                      <div className="relative h-[420px]">
-                        <iframe
-                          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7476794.374816895!2d39.857910156249994!3d23.885837699999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x15e7b33fe7952a41%3A0x5960504bc21ab69b!2sSaudi%20Arabia!5e0!3m2!1sen!2sus!4v1647890123456!5m2!1sen!2sus&disableDefaultUI=true&gestureHandling=none&scrollwheel=false&disableDoubleClickZoom=true&clickableIcons=false"
-                          width="100%"
-                          height="100%"
-                          style={{ border: 0 }}
-                          allowFullScreen
-                          loading="lazy"
-                          referrerPolicy="no-referrer-when-downgrade"
-                          className="w-full h-full"
-                        ></iframe>
-
-                        <div className="absolute inset-0 pointer-events-none">
-                          {/* Filtered Business Location Dots */}
-                          {sortedBusinesses.map((business, index) => {
-                            const position = getMapPosition(
-                              business.lat,
-                              business.lng
-                            );
-                            const colorClass = getBusinessTypeColor(
-                              business.businessType
-                            );
-
-                            return (
-                              <div
-                                key={business.id}
-                                className="absolute transform -translate-x-1/2 -translate-y-1/2 group z-10"
-                                style={position}
-                                title={`${business.name} - ${business.location}`}
-                              >
-                                {/* Main Business Dot with pulse animation */}
-                                <div
-                                  className={`relative w-4 h-4 ${colorClass} rounded-full border-2 border-white shadow-lg animate-pulse`}
-                                >
-                                  <div
-                                    className={`absolute inset-0 ${colorClass} rounded-full animate-ping opacity-75`}
-                                  ></div>
-                                </div>
-
-                                {/* Business Info Tooltip */}
-                                <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-white rounded-lg shadow-xl border border-gray-200 p-3 min-w-64 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-auto z-20 scale-95 group-hover:scale-100">
-                                  <div className="text-xs">
-                                    <h4 className="font-semibold text-gray-800 mb-1">
-                                      {business.name}
-                                    </h4>
-                                    <p className="text-yellow-600 font-medium mb-1">
-                                      {business.category}
-                                    </p>
-                                    <p className="text-gray-600 mb-2">
-                                      {business.location}
-                                    </p>
-                                    <div className="flex items-center mb-2">
-                                      <div className="flex items-center space-x-1">
-                                        {[...Array(5)].map((_, i) => (
-                                          <i
-                                            key={i}
-                                            className={`text-xs ${
-                                              i < Math.floor(business.rating)
-                                                ? "ri-star-fill text-yellow-400"
-                                                : "ri-star-line text-gray-300"
-                                            }`}
-                                          ></i>
-                                        ))}
-                                      </div>
-                                      <span className="text-xs text-gray-600 ml-1">
-                                        {business.rating} ({business.reviews})
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                      <span
-                                        className={`inline-block px-2 py-1 rounded-full text-white text-xs ${colorClass}`}
-                                      >
-                                        {business.businessType}
-                                      </span>
-                                      <span className="text-xs text-gray-500">
-                                        {business.distance}
-                                      </span>
-                                    </div>
-                                  </div>
-                                  {/* Tooltip Arrow */}
-                                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white"></div>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-
-                        {/* Legend */}
-                        <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg p-3 z-10">
-                          <h4 className="text-xs font-semibold text-gray-800 mb-2">
-                            {t("businessesPage.legendTitle")}
-                          </h4>
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-center space-x-2">
-                              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                              <span className="text-xs text-gray-600">
-                                {t("businessesPage.supplier")}
-                              </span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                              <span className="text-xs text-gray-600">
-                                {t("businessesPage.store")}
-                              </span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-                              <span className="text-xs text-gray-600">
-                                {t("businessesPage.office")}
-                              </span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-                              <span className="text-xs text-gray-600">
-                                {t("businessesPage.manufacturer")}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
+                      <div className="h-[500px] w-full rounded-lg overflow-hidden">
+                        <InteractiveMap 
+                          businesses={mapBusinesses}
+                          onBusinessClick={handleBusinessClick}
+                        />
                       </div>
                     </div>
                   )}
@@ -1147,7 +1025,7 @@ function BusinessesContent() {
         {/* Load More / Show Less Section */}
         {sortedBusinesses.length > 0 && (
           <section className="py-8 text-center">
-            <button 
+            <button
               onClick={() => {
                 setShowAllBusinesses(!showAllBusinesses);
                 // Reset to first page when toggling view
@@ -1155,8 +1033,8 @@ function BusinessesContent() {
               }}
               className="bg-yellow-400 text-white px-8 py-4 rounded-full hover:bg-yellow-500 font-semibold whitespace-nowrap cursor-pointer transition-all duration-200"
             >
-              {showAllBusinesses 
-                ? t("businessesPage.showLess") 
+              {showAllBusinesses
+                ? t("businessesPage.showLess")
                 : t("businessesPage.loadMore")}
             </button>
           </section>

@@ -7,6 +7,7 @@ import Footer from "../../../components/Footer";
 import Link from "next/link";
 import { useLanguage } from "@/lib/LanguageContext";
 import { SupplierProfile } from "@/lib/api";
+import { useAuth } from "@/lib/UserContext";
 
 type WorkingDay = {
   open: string;
@@ -53,6 +54,8 @@ type Business = {
   establishedYear: number;
   employeeCount: string;
   languages: string[];
+  latitude: number;
+  longitude: number;
 };
 
 type Review = {
@@ -85,7 +88,11 @@ export default function PublicBusinessProfile({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { t } = useLanguage();
+  const { user } = useAuth();
 
+  // Check if the current user is viewing their own profile
+  const isOwnProfile = user?.id?.toString() == businessId;
+  console.log("isOwnProfile", isOwnProfile);
   // Helper function to safely handle translations
   const safeT = (
     key: string,
@@ -143,7 +150,8 @@ export default function PublicBusinessProfile({
     name: supplier?.name || "",
     logo: supplier?.profile_image || "/images/business-logo.png",
     category: supplier?.profile?.category || "",
-    business_image: supplier?.profile?.business_image || supplier?.profile_image || "",
+    business_image:
+      supplier?.profile?.business_image || supplier?.profile_image || "",
     businessType: "Supplier",
     targetCustomers: supplier?.profile?.target_market || [],
     serviceDistance: supplier?.profile?.service_distance || "",
@@ -154,6 +162,12 @@ export default function PublicBusinessProfile({
     description: supplier?.profile?.description || "",
     address: supplier?.profile?.business_address || "",
     phone: supplier?.profile?.main_phone || "",
+    latitude: supplier?.profile?.latitude
+      ? parseFloat(supplier.profile.latitude)
+      : 24.7136,
+    longitude: supplier?.profile?.longitude
+      ? parseFloat(supplier.profile.longitude)
+      : 46.6753,
     salesPhone:
       supplier?.profile?.additional_phones?.find((p) => p.type === "sales")
         ?.number || "",
@@ -272,13 +286,14 @@ export default function PublicBusinessProfile({
   const status = getCurrentStatus();
 
   // Get reviews from API response or use empty array if not available
-  const reviews: Review[] = supplier?.ratings?.reviews?.map(review => ({
-    id: review.id,
-    customerName: review.user?.name || t("businessProfile.anonymous"),
-    rating: review.rating,
-    date: new Date(review.created_at).toISOString().split('T')[0], // Format date as YYYY-MM-DD
-    comment: review.comment || t("businessProfile.noComment"),
-  })) || [];
+  const reviews: Review[] =
+    supplier?.ratings?.reviews?.map((review) => ({
+      id: review.id,
+      customerName: review.user?.name || t("businessProfile.anonymous"),
+      rating: review.rating,
+      date: new Date(review.created_at).toISOString().split("T")[0], // Format date as YYYY-MM-DD
+      comment: review.comment || t("businessProfile.noComment"),
+    })) || [];
 
   const handleInquirySubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -352,9 +367,7 @@ export default function PublicBusinessProfile({
             <div
               className="absolute inset-0 bg-yellow-100"
               style={{
-                backgroundImage: `url(${
-                  business.business_image || ""
-                })`,
+                backgroundImage: `url(${business.business_image || ""})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",
@@ -464,6 +477,7 @@ export default function PublicBusinessProfile({
                   </div>
                 </div>
 
+                {!isOwnProfile && (
                 <div className="flex gap-3">
                   <button
                     onClick={() => setShowInquiryModal(true)}
@@ -477,6 +491,7 @@ export default function PublicBusinessProfile({
                     {t("publicProfile.buttons.callNow")}
                   </button>
                 </div>
+                )}
               </div>
             </div>
           </div>
@@ -683,19 +698,21 @@ export default function PublicBusinessProfile({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      onClick={() => setShowInquiryModal(true)}
-                      className="bg-yellow-400 text-white py-3 px-4 rounded-lg hover:bg-yellow-500 font-medium text-sm whitespace-nowrap cursor-pointer"
-                    >
-                      <i className="ri-message-line mr-2"></i>
-                      {t("publicProfile.buttons.message")}
-                    </button>
-                    <button className="border border-yellow-400 text-yellow-600 py-3 px-4 rounded-lg hover:bg-yellow-50 font-medium text-sm whitespace-nowrap cursor-pointer">
-                      <i className="ri-phone-line mr-2"></i>
-                      {t("publicProfile.buttons.call")}
-                    </button>
-                  </div>
+                  {!isOwnProfile && (
+                    <div className="grid grid-cols-2 gap-3 mt-4">
+                      <button
+                        onClick={() => setShowInquiryModal(true)}
+                        className="bg-yellow-400 text-white py-3 px-4 rounded-lg hover:bg-yellow-500 font-medium text-sm whitespace-nowrap cursor-pointer"
+                      >
+                        <i className="ri-message-line mr-2"></i>
+                        {t("publicProfile.buttons.message")}
+                      </button>
+                      <button className="border border-yellow-400 text-yellow-600 py-3 px-4 rounded-lg hover:bg-yellow-50 font-medium text-sm whitespace-nowrap cursor-pointer">
+                        <i className="ri-phone-line mr-2"></i>
+                        {t("publicProfile.buttons.call")}
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Working Hours */}
@@ -730,7 +747,6 @@ export default function PublicBusinessProfile({
                     ))}
                   </div>
                 </div>
-
                 {/* Location Map */}
                 <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
                   <div className="p-4 border-b border-gray-100">
@@ -740,7 +756,7 @@ export default function PublicBusinessProfile({
                   </div>
                   <div className="h-64">
                     <iframe
-                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3621.399!2d46.6753!3d24.7136!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2z24.7136%2C46.6753!5e0!3m2!1sen!2sus!4v1645123456789!5m2!1sen!2sus&disableDefaultUI=true&gestureHandling=none&scrollwheel=false&disableDoubleClickZoom=true&clickableIcons=false"
+                      src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3024.2!2d${business.longitude}!3d${business.latitude}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2z${business.latitude}%2C${business.longitude}!5e0!3m2!1sen!2sus!4v1645123456789!5m2!1sen!2sus&disableDefaultUI=true&gestureHandling=none&scrollwheel=false&disableDoubleClickZoom=true&clickableIcons=false`}
                       width="100%"
                       height="100%"
                       style={{ border: 0 }}
@@ -967,7 +983,7 @@ export default function PublicBusinessProfile({
                     <i className="ri-close-line text-xl"></i>
                   </button>
                 </div>
-
+ 
                 <form
                   onSubmit={handleInquirySubmit}
                   className="p-6 space-y-4"

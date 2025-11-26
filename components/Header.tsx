@@ -396,16 +396,7 @@ export default function Header() {
                               {t("userMenu.dashboard")}
                             </span>
                           </Link>
-                          <Link
-                            href="/add-business"
-                            className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
-                            onClick={() => setIsUserMenuOpen(false)}
-                          >
-                            <i className="ri-building-2-line text-lg"></i>
-                            <span className="text-sm font-medium">
-                              {t("userMenu.addBusiness")}
-                            </span>
-                          </Link>
+                          
 
                           <div className="border-t border-gray-100 my-2"></div>
 

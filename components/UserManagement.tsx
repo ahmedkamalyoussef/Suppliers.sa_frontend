@@ -279,7 +279,6 @@ export default function UserManagement() {
   };
 
   const handleBulkAction = (action: "suspend" | "delete") => {
-    console.log(`${action} users:`, selectedUsers);
     setSelectedUsers([]);
   };
 

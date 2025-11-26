@@ -28,9 +28,6 @@ interface FeaturedBusinessesProps {
 export default function FeaturedBusinesses({ businesses }: FeaturedBusinessesProps) {
   const { t } = useLanguage();
   
-  // Log the received businesses data
-  console.log('Featured Businesses Data:', businesses);
-  
 
 
   const getBusinessTypeIcon = (type: string) => {

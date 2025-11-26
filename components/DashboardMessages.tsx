@@ -25,7 +25,7 @@ type SentMessage = {
   time: string;
   type: "response" | "update";
 };
-
+ 
 type AnyMessage = InboxMessage | SentMessage;
 
 type MessageType = InboxMessage["type"] | SentMessage["type"];
@@ -211,7 +211,6 @@ export default function DashboardMessages({
 
   const handleReply = (messageId: number) => {
     if (replyText.trim()) {
-      console.log("Sending reply:", replyText);
       setReplyText("");
       setSelectedMessage(null);
     }
@@ -529,11 +528,6 @@ export default function DashboardMessages({
                   )
                     return;
                   // In a real app, send the message to backend here
-                  console.log("Composed message:", {
-                    to: composeTo,
-                    subject: composeSubject,
-                    body: composeBody,
-                  });
                   setShowCompose(false);
                   setComposeTo("");
                   setComposeSubject("");

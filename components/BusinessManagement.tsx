@@ -1,105 +1,223 @@
 "use client";
 
-import { useState } from "react";
-import { useLanguage } from "../lib/LanguageContext";
+import { profile } from "console";
+import { useState, useEffect } from "react";
+import { useAuth } from "../lib/UserContext";
+
+interface WorkingHours {
+  open: string;
+  close: string;
+  closed: boolean;
+}
+
+interface BusinessData {
+  name: string;
+  category: string;
+  businessType: string;
+  description: string;
+  productKeywords: string;
+  email: string;
+  phone: string;
+  website: string;
+  address: string;
+  serviceDistance: string;
+  targetCustomers: string[];
+  services: string[];
+  workingHours: {
+    monday: WorkingHours;
+    tuesday: WorkingHours;
+    wednesday: WorkingHours;
+    thursday: WorkingHours;
+    friday: WorkingHours;
+    saturday: WorkingHours;
+    sunday: WorkingHours;
+  };
+}
+
+interface Service {
+  id?: number;
+  name: string;
+}
+
+interface ProductImage {
+  id?: number;
+  url?: string;
+  image?: string;
+}
 
 export default function BusinessManagement() {
-  const { t } = useLanguage();
   const [activeSection, setActiveSection] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
-  const [businessData, setBusinessData] = useState({
-    name: "Metro Electronics Supply",
-    category: "Electronics",
-    businessType: "Supplier",
-    description:
-      "Metro Electronics Supply is your trusted partner for all electronic components and supplies. We specialize in wholesale electronics, repair parts, and custom solutions for businesses of all sizes.",
-    productKeywords:
-      "LED TV, Samsung electronics, iPhone repair, laptop wholesale, gaming computers, mobile accessories, warranty service, bulk orders, electronic components, circuit boards, cables, connectors, semiconductors",
-    email: "info@metroelectronics.com",
-    phone: "+966 50 123 4567",
-    website: "https://metroelectronics.com",
-    address: "1247 King Fahd Road, Al-Olaya District, Riyadh 12313",
-    serviceDistance: "40 km",
-    targetCustomers: ["Large Organizations", "Small Businesses"],
-    services: [
-      "Wholesale",
-      "Repair Services",
-      "Custom Orders",
-      "Bulk Orders",
-      "Emergency Services",
-    ],
+  const [businessData, setBusinessData] = useState<BusinessData>({
+    name: "",
+    category: "",
+    businessType: "",
+    description: "",
+    productKeywords: "",
+    email: "",
+    phone: "",
+    website: "",
+    address: "",
+    serviceDistance: "",
+    targetCustomers: [],
+    services: [],
     workingHours: {
       monday: { open: "08:00", close: "18:00", closed: false },
       tuesday: { open: "08:00", close: "18:00", closed: false },
       wednesday: { open: "08:00", close: "18:00", closed: false },
       thursday: { open: "08:00", close: "18:00", closed: false },
-      friday: { open: "08:00", close: "18:00", closed: false },
+      friday: { open: "08:00", close: "18:00", closed: true },
       saturday: { open: "09:00", close: "17:00", closed: false },
       sunday: { open: "10:00", close: "16:00", closed: false },
     },
   });
 
-  const [businessImages, setBusinessImages] = useState([
-    "https://readdy.ai/api/search-image?query=Modern%20electronics%20supply%20store%20interior%20with%20organized%20shelves%2C%20professional%20lighting%2C%20clean%20white%20background%2C%20electronic%20components%20and%20devices%20displayed%20neatly%2C%20contemporary%20retail%20space%20design%2C%20wide%20angle%20view&width=400&height=300&seq=electronics-main&orientation=landscape",
-    "https://readdy.ai/api/search-image?query=Electronic%20components%20warehouse%20with%20organized%20storage%20systems%2C%20shelves%20full%20of%20electronic%20parts%2C%20professional%20industrial%20interior%2C%20bright%20lighting%2C%20clean%20organized%20workspace&width=400&height=300&seq=electronics-warehouse&orientation=landscape",
-    "https://readdy.ai/api/search-image?query=Electronics%20repair%20workshop%20with%20professional%20tools%2C%20workbenches%2C%20testing%20equipment%2C%20organized%20tool%20storage%2C%20clean%20technical%20workspace%20environment&width=400&height=300&seq=electronics-workshop&orientation=landscape",
-  ]);
+  const { user } = useAuth();
+  const [businessImages, setBusinessImages] = useState<ProductImage[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [productKeywords, setProductKeywords] = useState<string[]>([]);
+  const [keywordInput, setKeywordInput] = useState("");
+
+  useEffect(() => {
+    if (user) {
+      // Process the user data from auth context
+      processUserData(user);
+    } else {
+      setIsLoading(false);
+    }
+  }, [user]);
+
+  const processUserData = (parsedUser: any) => {
+    // Process keywords from API data (array format)
+    let keywordsFromData: string[] = [];
+    if (Array.isArray(parsedUser.profile?.productKeywords)) {
+      keywordsFromData = parsedUser.profile.productKeywords;
+    } else if (typeof parsedUser.profile?.productKeywords === "string") {
+      keywordsFromData = parsedUser.profile.productKeywords
+        .split(",")
+        .map((k: string) => k.trim())
+        .filter(Boolean);
+    }
+
+    // Debug: Log the entire parsedUser object to see its structure
+
+    // Debug: Log the profile object
+
+    // Debug: Log the working hours from API
+
+    // Set default working hours structure
+    const defaultWorkingHours = {
+      monday: { open: "09:00", close: "17:00", closed: false },
+      tuesday: { open: "09:00", close: "17:00", closed: false },
+      wednesday: { open: "09:00", close: "17:00", closed: false },
+      thursday: { open: "09:00", close: "17:00", closed: false },
+      friday: { open: "09:00", close: "17:00", closed: true },
+      saturday: { open: "10:00", close: "16:00", closed: true },
+      sunday: { open: "10:00", close: "16:00", closed: true },
+    };
+
+    // Get working hours from API response or use defaults
+    const apiWorkingHours = parsedUser.profile?.workingHours || {};
+
+    // Merge API working hours with defaults
+    const workingHours = {
+      ...defaultWorkingHours,
+      ...apiWorkingHours,
+    };
+
+    // Update business data
+    setBusinessData({
+      name: parsedUser.profile?.businessName || parsedUser.name || "",
+      category: parsedUser.profile?.category || "",
+      businessType: parsedUser.profile?.businessType || "",
+      description: parsedUser.profile?.description || "",
+      productKeywords: keywordsFromData.join(", "),
+      email: parsedUser.profile?.contactEmail || "",
+      phone: parsedUser.profile?.mainPhone || "",
+      website: parsedUser.profile?.website || "",
+      address: parsedUser.profile?.address || "",
+      serviceDistance: parsedUser.profile?.serviceDistance || "",
+      targetCustomers: Array.isArray(parsedUser.profile?.targetCustomers)
+        ? parsedUser.profile.targetCustomers
+        : [],
+      services: Array.isArray(parsedUser.profile?.services)
+        ? parsedUser.profile.services
+        : [],
+      workingHours: workingHours,
+    });
+
+    // Set the keywords state arrays
+    setProductKeywords(keywordsFromData);
+    setKeywordInput(keywordsFromData.join(", "));
+
+    // Set product images if available
+    if (Array.isArray(parsedUser.product_images)) {
+      setBusinessImages(
+        parsedUser.product_images.map((img: any) => ({
+          id: img.id,
+          url: img.image_url,
+          image: img.image_url,
+        }))
+      );
+    }
+
+    setIsLoading(false);
+  };
 
   const sections = [
-    {
-      id: "profile",
-      name: t("businessManagement.sections.profile"),
-      icon: "ri-information-line",
-    },
-    {
-      id: "products",
-      name: t("businessManagement.sections.products"),
-      icon: "ri-price-tag-3-line",
-    },
-    {
-      id: "photos",
-      name: t("businessManagement.sections.photos"),
-      icon: "ri-image-line",
-    },
-    {
-      id: "hours",
-      name: t("businessManagement.sections.hours"),
-      icon: "ri-time-line",
-    },
+    { id: "profile", name: "Profile", icon: "ri-information-line" },
+    { id: "products", name: "Products", icon: "ri-price-tag-3-line" },
+    { id: "photos", name: "Photos", icon: "ri-image-line" },
+    { id: "hours", name: "Hours", icon: "ri-time-line" },
   ];
 
   const handleSave = () => {
     setIsEditing(false);
+    console.log("Saved data:", businessData);
   };
 
-  const handleImageUpload = (event: { target: { files: any } }) => {
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (files) {
-      const newImageUrl = `https://readdy.ai/api/search-image?query=Business%20interior%20modern%20professional%20clean%20lighting%20organized%20workspace%20commercial%20space%20design&width=400&height=300&seq=new-upload-${Date.now()}&orientation=landscape`;
-      setBusinessImages([...businessImages, newImageUrl]);
+    if (files && files[0]) {
+      const newImage: ProductImage = {
+        id: Date.now(),
+        url: URL.createObjectURL(files[0]),
+        image: files[0].name,
+      };
+      setBusinessImages([...businessImages, newImage]);
     }
   };
 
-  const removeImage = (index: number) => {
-    setBusinessImages(businessImages.filter((_, i) => i !== index));
+  const removeImage = (id: number | undefined) => {
+    setBusinessImages(businessImages.filter((img) => img.id !== id));
   };
 
   const availableServices = [
-    t("businessManagement.services.wholesale"),
-    t("businessManagement.services.retail"),
-    t("businessManagement.services.repair"),
-    t("businessManagement.services.custom"),
-    t("businessManagement.services.bulk"),
-    t("businessManagement.services.emergency"),
-    t("businessManagement.services.installation"),
-    t("businessManagement.services.maintenance"),
+    "Wholesale",
+    "Retail",
+    "Repair Services",
+    "Custom Orders",
+    "Bulk Orders",
+    "Emergency Service",
+    "Installation",
+    "Maintenance",
+    "Delivery",
+    "Consulting",
   ];
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-800">
-          {t("businessManagement.title")}
+          Business Management
         </h2>
         <button
           onClick={() => setIsEditing(!isEditing)}
@@ -112,9 +230,7 @@ export default function BusinessManagement() {
           <i
             className={`${isEditing ? "ri-save-line" : "ri-edit-line"} mr-2`}
           ></i>
-          {isEditing
-            ? t("businessManagement.saveChanges")
-            : t("businessManagement.editProfile")}
+          {isEditing ? "Save Changes" : "Edit Profile"}
         </button>
       </div>
 
@@ -146,7 +262,7 @@ export default function BusinessManagement() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("businessManagement.form.businessName")}
+                    Business Name
                   </label>
                   <input
                     type="text"
@@ -165,7 +281,7 @@ export default function BusinessManagement() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("businessManagement.form.category")}
+                    Category
                   </label>
                   <select
                     value={businessData.category}
@@ -182,6 +298,7 @@ export default function BusinessManagement() {
                         : "border-gray-200 bg-gray-50"
                     }`}
                   >
+                    <option value="Home Supplies">Home Supplies</option>
                     <option value="Electronics">Electronics</option>
                     <option value="Printing">Printing</option>
                     <option value="Furniture">Furniture</option>
@@ -191,7 +308,7 @@ export default function BusinessManagement() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("businessManagement.form.phone")}
+                    Phone
                   </label>
                   <input
                     type="tel"
@@ -213,7 +330,7 @@ export default function BusinessManagement() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("businessManagement.form.email")}
+                    Email
                   </label>
                   <input
                     type="email"
@@ -235,7 +352,7 @@ export default function BusinessManagement() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("businessManagement.form.website")}
+                    Website
                   </label>
                   <input
                     type="url"
@@ -257,7 +374,7 @@ export default function BusinessManagement() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("businessManagement.form.serviceDistance")}
+                    Service Distance
                   </label>
                   <select
                     value={businessData.serviceDistance}
@@ -274,17 +391,19 @@ export default function BusinessManagement() {
                         : "border-gray-200 bg-gray-50"
                     }`}
                   >
-                    <option value="8 km">8 km</option>
-                    <option value="16 km">16 km</option>
-                    <option value="40 km">40 km</option>
-                    <option value="80 km">80 km</option>
+                    <option value="5 km">5 km</option>
+                    <option value="10 km">10 km</option>
+                    <option value="15 km">15 km</option>
+                    <option value="25 km">25 km</option>
+                    <option value="50 km">50 km</option>
+                    <option value="100+ km">100+ km</option>
                   </select>
                 </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t("businessManagement.form.address")}
+                  Address
                 </label>
                 <input
                   type="text"
@@ -306,7 +425,7 @@ export default function BusinessManagement() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t("businessManagement.form.description")}
+                  Description
                 </label>
                 <textarea
                   value={businessData.description}
@@ -326,8 +445,7 @@ export default function BusinessManagement() {
                   }`}
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  {businessData.description.length}/500{" "}
-                  {t("businessManagement.form.characters")}
+                  {businessData.description.length}/500 characters
                 </p>
               </div>
             </div>
@@ -340,83 +458,138 @@ export default function BusinessManagement() {
                 <div className="flex items-center space-x-3 mb-4">
                   <i className="ri-search-line text-blue-600 text-xl"></i>
                   <h3 className="text-lg font-semibold text-blue-800">
-                    {t("businessManagement.products.searchKeywords")}
+                    Search Keywords
                   </h3>
                 </div>
 
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("businessManagement.products.keywordsLabel")}
+                    Keywords
                   </label>
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {[
+                      "wholesale supplier",
+                      "retail products",
+                      "bulk orders",
+                      "custom solutions",
+                      "premium quality",
+                      "fast delivery",
+                      "competitive prices",
+                      "professional service",
+                      "reliable partner",
+                      "expert consultation",
+                    ].map((keyword, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => {
+                          const newKeywords: string[] =
+                            productKeywords.includes(keyword)
+                              ? productKeywords.filter((k) => k !== keyword)
+                              : [...productKeywords, keyword];
+                          setProductKeywords(newKeywords);
+                          setKeywordInput(newKeywords.join(", "));
+                          setBusinessData((prev) => ({
+                            ...prev,
+                            productKeywords: newKeywords.join(", "),
+                          }));
+                        }}
+                        className={`px-3 py-2 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                          productKeywords.includes(keyword)
+                            ? "bg-green-100 text-green-800 border border-green-300"
+                            : "bg-white text-gray-700 border border-gray-300 hover:bg-blue-50 hover:border-blue-300"
+                        }`}
+                      >
+                        {productKeywords.includes(keyword) ? (
+                          <>
+                            <i className="ri-check-line mr-1"></i>
+                            {keyword}
+                          </>
+                        ) : (
+                          <>
+                            <i className="ri-add-line mr-1"></i>
+                            {keyword}
+                          </>
+                        )}
+                      </button>
+                    ))}
+                  </div>
                   <textarea
-                    value={businessData.productKeywords}
+                    value={keywordInput}
                     disabled={!isEditing}
-                    onChange={(e) =>
-                      setBusinessData({
-                        ...businessData,
-                        productKeywords: e.target.value,
-                      })
-                    }
+                    onChange={(e) => {
+                      const newValue = e.target.value;
+                      setKeywordInput(newValue);
+                      const newKeywords = newValue
+                        .split(",")
+                        .map((k) => k.trim())
+                        .filter(Boolean);
+                      setProductKeywords(newKeywords);
+                      setBusinessData((prev) => ({
+                        ...prev,
+                        productKeywords: newKeywords.join(", "),
+                      }));
+                    }}
                     rows={5}
                     className={`w-full px-4 py-3 border rounded-lg text-sm resize-none ${
                       isEditing
                         ? "border-gray-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                         : "border-gray-200 bg-gray-50"
                     }`}
-                    placeholder={t(
-                      "businessManagement.products.keywordsPlaceholder"
-                    )}
+                    placeholder="Enter keywords separated by commas..."
                   />
                   <p className="text-xs text-blue-600 mt-2">
                     <i className="ri-information-line mr-1"></i>
-                    {t("businessManagement.products.keywordsHelp")}
+                    These keywords help customers find your business
                   </p>
                 </div>
 
                 <div className="bg-white p-4 rounded-lg border border-blue-200">
                   <h4 className="font-medium text-gray-800 mb-3">
-                    {t("businessManagement.products.currentKeywords")}
+                    Current Keywords
                   </h4>
                   <div className="flex flex-wrap gap-2">
-                    {businessData.productKeywords
-                      .split(",")
-                      .map((keyword, index) => (
-                        <span
-                          key={index}
-                          className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium"
-                        >
-                          {keyword.trim()}
-                        </span>
-                      ))}
+                    {productKeywords.map((keyword, index) => (
+                      <span
+                        key={index}
+                        className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium"
+                      >
+                        {keyword}
+                      </span>
+                    ))}
                   </div>
                 </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">
-                  {t("businessManagement.products.servicesOffered")}
+                  Services Offered
                 </label>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {availableServices.map((service) => (
                     <label
                       key={service}
-                      className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer"
+                      className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
                     >
                       <input
                         type="checkbox"
-                        checked={businessData.services.includes(service)}
+                        checked={businessData.services.some(
+                          (s) => s.toLowerCase() === service.toLowerCase()
+                        )}
                         disabled={!isEditing}
                         onChange={(e) => {
                           if (e.target.checked) {
                             setBusinessData({
                               ...businessData,
-                              services: [...businessData.services, service],
+                              services: [...businessData.services, service].map(
+                                (s) => s.trim()
+                              ),
                             });
                           } else {
                             setBusinessData({
                               ...businessData,
                               services: businessData.services.filter(
-                                (s) => s !== service
+                                (s) => s.toLowerCase() !== service.toLowerCase()
                               ),
                             });
                           }
@@ -436,12 +609,12 @@ export default function BusinessManagement() {
             <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold text-gray-800">
-                  {t("businessManagement.photos.title")}
+                  Business Photos
                 </h3>
                 {isEditing && (
                   <label className="bg-yellow-400 text-white px-4 py-2 rounded-lg hover:bg-yellow-500 cursor-pointer font-medium text-sm whitespace-nowrap">
                     <i className="ri-add-line mr-2"></i>
-                    {t("businessManagement.photos.addPhotos")}
+                    Add Photos
                     <input
                       type="file"
                       multiple
@@ -454,16 +627,16 @@ export default function BusinessManagement() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {businessImages.map((image, index) => (
-                  <div key={index} className="relative group">
+                {businessImages.map((image) => (
+                  <div key={image.id} className="relative group">
                     <img
-                      src={image}
-                      alt={`Business photo ${index + 1}`}
+                      src={image.url || image.image || ""}
+                      alt="Business photo"
                       className="w-full h-48 object-cover rounded-lg border border-gray-200"
                     />
                     {isEditing && (
                       <button
-                        onClick={() => removeImage(index)}
+                        onClick={() => removeImage(image.id)}
                         className="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                       >
                         <i className="ri-close-line text-sm"></i>
@@ -476,7 +649,7 @@ export default function BusinessManagement() {
                   <label className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-yellow-400 hover:bg-yellow-50 transition-colors">
                     <i className="ri-camera-line text-gray-400 text-3xl mb-2"></i>
                     <span className="text-gray-500 text-sm">
-                      {t("businessManagement.photos.addMore")}
+                      Add more photos
                     </span>
                     <input
                       type="file"
@@ -495,7 +668,7 @@ export default function BusinessManagement() {
           {activeSection === "hours" && (
             <div className="space-y-6">
               <h3 className="text-lg font-semibold text-gray-800">
-                {t("businessManagement.hours.title")}
+                Working Hours
               </h3>
 
               <div className="space-y-4">
@@ -507,7 +680,7 @@ export default function BusinessManagement() {
                     >
                       <div className="w-24">
                         <span className="text-sm font-medium text-gray-700 capitalize">
-                          {t(`businessManagement.days.${day}`)}
+                          {day}
                         </span>
                       </div>
 
@@ -527,9 +700,7 @@ export default function BusinessManagement() {
                           }
                           className="w-4 h-4 text-yellow-400 border-gray-300 rounded focus:ring-yellow-400 mr-2"
                         />
-                        <span className="text-sm text-gray-600">
-                          {t("businessManagement.hours.closed")}
-                        </span>
+                        <span className="text-sm text-gray-600">Closed</span>
                       </label>
 
                       {!hours.closed && (
@@ -553,9 +724,7 @@ export default function BusinessManagement() {
                                 : "border-gray-200 bg-gray-100"
                             }`}
                           />
-                          <span className="text-gray-500">
-                            {t("businessManagement.hours.to")}
-                          </span>
+                          <span className="text-gray-500">to</span>
                           <input
                             type="time"
                             value={hours.close}
@@ -592,7 +761,7 @@ export default function BusinessManagement() {
             <div className="flex items-center space-x-3">
               <i className="ri-information-line text-yellow-600"></i>
               <span className="text-yellow-800 font-medium">
-                {t("businessManagement.unsaved.message")}
+                You have unsaved changes
               </span>
             </div>
             <div className="flex space-x-3">
@@ -600,14 +769,14 @@ export default function BusinessManagement() {
                 onClick={() => setIsEditing(false)}
                 className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-sm whitespace-nowrap cursor-pointer"
               >
-                {t("businessManagement.unsaved.cancel")}
+                Cancel
               </button>
               <button
                 onClick={handleSave}
                 className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 font-medium text-sm whitespace-nowrap cursor-pointer"
               >
                 <i className="ri-save-line mr-2"></i>
-                {t("businessManagement.unsaved.save")}
+                Save Changes
               </button>
             </div>
           </div>

@@ -103,16 +103,16 @@ export default function SystemSettings() {
   };
 
   const handleSaveSettings = () => {
-    console.log("Saving settings:", settings);
+    // Save settings implementation
   };
 
   const handleSystemBackup = () => {
-    console.log("Creating system backup...");
+    // Backup implementation
   };
 
   const handleSystemReset = () => {
     if (confirm(t("systemSettings.dangerZone.resetConfirm"))) {
-      console.log("Resetting system settings...");
+      // Reset implementation
     }
   };
 

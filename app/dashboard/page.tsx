@@ -12,6 +12,17 @@ import DashboardMessages from "../../components/DashboardMessages";
 import DashboardSettings from "../../components/DashboardSettings";
 import { apiService } from "../../lib/api";
 
+interface User {
+  name: string;
+  email: string;
+  phone: string;
+  businessName: string;
+  businessId: string;
+  memberSince: string;
+  plan: string;
+  avatar: string;
+}
+
 function DashboardContent() {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState("overview");
@@ -31,17 +42,59 @@ function DashboardContent() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  const [user] = useState({
-    name: "Ahmed Al-Rashid",
-    email: "info@metroelectronics.com",
-    phone: "+966 50 123 4567",
-    businessName: "Metro Electronics Supply",
-    businessId: "tech-solutions-co",
-    memberSince: "2024-01-15",
-    plan: "Premium",
-    avatar:
-      "https://readdy.ai/api/search-image?query=Professional%20middle%20eastern%20businessman%20portrait%2C%20clean%20background%2C%20modern%20business%20attire%2C%20confident%20smile%2C%20professional%20headshot%20style&width=100&height=100&seq=user-avatar&orientation=squarish",
-  });
+  const [user, setUser] = useState<{
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+    businessName: string;
+    businessId: string;
+    memberSince: string;
+    plan: string;
+    avatar: string;
+  } | null>(null);
+
+  useEffect(() => {
+    // Fetch user data from localStorage or API
+    const fetchUserData = async () => {
+      try {
+        const userData = localStorage.getItem("supplier_user");
+        if (userData) {
+          const parsedUser = JSON.parse(userData);
+          
+          // Fetch the latest profile picture
+          let profileImage = parsedUser.profileImage || "/images/default-avatar.png";
+          try {
+            const { profile_image } = await apiService.getProfilePicture(parsedUser.id);
+            if (profile_image) {
+              profileImage = profile_image;
+            }
+          } catch (error) {
+            console.error("Error fetching profile picture:", error);
+            // Fallback to the existing image if there's an error
+          }
+          
+          setUser({
+            id: parsedUser.id?.toString() || "",
+            name: parsedUser.name || "User",
+            email: parsedUser.email || "",
+            phone: parsedUser.phone || "",
+            businessName: parsedUser.profile?.businessName || parsedUser.name || "Business",
+            businessId: parsedUser.slug || parsedUser.id?.toString() || "",
+            memberSince: parsedUser.emailVerifiedAt
+              ? new Date(parsedUser.emailVerifiedAt).toLocaleDateString()
+              : "N/A",
+            plan: parsedUser.plan || "Basic",
+            avatar: profileImage,
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   useEffect(() => {
     const tab = searchParams?.get("tab");
@@ -95,13 +148,13 @@ function DashboardContent() {
                   : "bg-white"
               }`}
             >
-              <div className="absolute inset-0 opacity-10">
+              {/* <div className="absolute inset-0 opacity-10">
                 <img
                   src="https://readdy.ai/api/search-image?query=Professional%20business%20background%20pattern%20with%20geometric%20shapes%2C%20modern%20corporate%20design%2C%20subtle%20gradient%20overlay%2C%20clean%20minimalist%20style%2C%20blue%20and%20yellow%20color%20scheme&width=800&height=200&seq=profile-bg&orientation=landscape"
                   alt="Profile Background"
                   className="w-full h-full object-cover"
                 />
-              </div>
+              </div> */}
 
               {/* Customization Buttons */}
               <div className="absolute top-1 end-4 flex space-x-2 rtl:space-x-reverse">
@@ -125,9 +178,9 @@ function DashboardContent() {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-4 sm:space-y-0">
                   <div className="relative flex-shrink-0">
                     <img
-                      alt={user.name}
+                      alt={user?.name || "User"}
                       className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-yellow-100 shadow-lg"
-                      src={avatarUrl}
+                      src={user?.avatar||avatarUrl}
                     />
                     <button
                       onClick={() => setShowPhotoUpload(true)}
@@ -138,25 +191,31 @@ function DashboardContent() {
                   </div>
                   <div className="flex flex-col">
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-1 sm:mb-2">
-                      Welcome back, {user.name}
+                      {user ? `Welcome back, ${user.name}` : "Loading..."}
                     </h1>
-                    <p className="text-gray-600 mb-2">{user.businessName}</p>
+                    <p className="text-gray-600 mb-2">
+                      {user?.businessName || "Loading..."}
+                    </p>
                     <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
                       <span className="flex items-center">
                         <i className="ri-calendar-line mr-1"></i>
-                        Member since {user.memberSince}
+                        {user
+                          ? `Member since ${user.memberSince}`
+                          : "Loading..."}
                       </span>
                       <span className="flex items-center">
                         <i className="ri-vip-crown-line mr-1 text-yellow-500"></i>
-                        {user.plan} Plan
+                        {user ? `${user.plan} Plan` : "Loading..."}
                       </span>
                     </div>
                   </div>
                 </div>
                 <div className="flex justify-start md:justify-end">
                   <Link
-                    href={`/profile/${user.businessId}`}
-                    className="border border-gray-300 text-gray-600 px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-gray-50 font-medium flex items-center"
+                    href={user ? `/profile/${user.id}` : "#"}
+                    className={`border border-gray-300 text-gray-600 px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-gray-50 font-medium flex items-center ${
+                      !user ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                   >
                     <i className="ri-eye-line mr-2"></i>
                     View Public Profile
@@ -194,7 +253,9 @@ function DashboardContent() {
                 {activeTab === "messages" && (
                   <DashboardMessages selectedMessageId={selectedMessageId} />
                 )}
-                {activeTab === "settings" && <DashboardSettings user={user} />}
+                {activeTab === "settings" && user && (
+                  <DashboardSettings user={user} />
+                )}
               </div>
             </div>
 
@@ -303,11 +364,14 @@ function DashboardContent() {
                   </div>
                   <div className="p-6 space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-4 sm:space-y-0">
-                      <img
-                        src={pendingAvatarPreview || avatarUrl}
-                        alt="Avatar Preview"
-                        className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-yellow-100 shadow"
-                      />
+                      <div className="relative">
+                        <img
+                          src={pendingAvatarPreview || user?.avatar || avatarUrl}
+                          alt="Avatar Preview"
+                          className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-yellow-100 shadow"
+                        />
+                        
+                      </div>
                       <div className="flex-1">
                         <label className="inline-block bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded cursor-pointer">
                           <input
@@ -331,11 +395,18 @@ function DashboardContent() {
                                 return;
                               }
 
+                              // Show preview immediately
+                              const objectUrl = URL.createObjectURL(file);
+                              setPendingAvatarPreview(objectUrl);
+                              
+                              // Also read as data URL for potential upload
                               const reader = new FileReader();
                               reader.onload = () => {
                                 if (typeof reader.result === "string") {
-                                  setPendingAvatarPreview(reader.result);
+                                  // Keep the object URL for preview, but we have the data URL if needed
                                 }
+                                // Clean up the object URL to avoid memory leaks
+                                URL.revokeObjectURL(objectUrl);
                               };
                               reader.readAsDataURL(file);
                             }}
@@ -387,6 +458,29 @@ function DashboardContent() {
                                 "dashboardAvatar",
                                 previewUrl
                               );
+                              
+                              // Fetch the latest profile picture from the API
+                              try {
+                                const userData = localStorage.getItem("supplier_user");
+                                if (userData) {
+                                  const parsedUser = JSON.parse(userData);
+                                  const { profile_image } = await apiService.getProfilePicture(parsedUser.id);
+                                  if (profile_image) {
+                                    setAvatarUrl(profile_image);
+                                    localStorage.setItem("dashboardAvatar", profile_image);
+                                    
+                                    // Update user avatar in the UI
+                                    setUser(prev => prev ? {
+                                      ...prev,
+                                      avatar: profile_image
+                                    } : null);
+                                  }
+                                }
+                              } catch (error) {
+                                console.error("Error refreshing profile picture:", error);
+                                // Continue with the preview URL if there's an error
+                                setAvatarUrl(previewUrl);
+                              }
                             }
 
                             // Don't show success message to avoid interrupting the user

@@ -25,7 +25,6 @@ export default function SearchSection() {
   // Fetch businesses from API 
   useEffect(() => {
     const fetchBusinesses = async () => {
-      console.log("Starting API call to fetch businesses...");
       try {
         const params: any = {
           page: 1,
@@ -39,7 +38,6 @@ export default function SearchSection() {
         }
 
         const response = await apiService.getBusinesses(params);
-        console.log("Fetched businesses in SearchSection:", response);
 
         // Transform API data to match businessLocations format
         const locations = response.data.map((business: any) => ({
@@ -83,7 +81,6 @@ export default function SearchSection() {
 
   // Filter businesses based on selected category
   const getFilteredBusinesses = () => {
-    console.log("Filtering businesses with category:", selectedCategory);
     const filtered = enhancedBusinessLocations.filter((business) => {
       if (selectedCategory === "all") return true;
       // Check both the category and categories array if it exists
@@ -92,7 +89,6 @@ export default function SearchSection() {
         (business.categories && business.categories.includes(selectedCategory))
       );
     });
-    console.log("Filtered businesses:", filtered);
     return filtered;
   };
 
@@ -737,7 +733,6 @@ export default function SearchSection() {
 
       {/* Featured Businesses Section */}
       <FeaturedBusinesses businesses={businesses} />
-      {console.log("Passing businesses to FeaturedBusinesses:", businesses)}
 
       {/* Request Section */}
       <section className="py-12 md:py-16 bg-gradient-to-b from-white to-gray-50">

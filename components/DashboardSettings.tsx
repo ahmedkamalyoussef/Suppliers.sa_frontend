@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useLanguage } from "@/lib/LanguageContext";
+import { apiService } from "@/lib/api";
+import { toast } from "react-toastify";
 
 interface User {
   name: string;
@@ -57,6 +59,7 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
     new: "",
     confirm: "",
   });
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   const sections = [
     {
@@ -113,22 +116,108 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
   };
 
   const handleSaveSettings = () => {
-    console.log("Saving settings:", settings);
+    // Save settings implementation
   };
 
-  const handlePasswordChange = () => {
+  const handlePasswordChange = async () => {
+    const isArabic = document.documentElement.dir === "rtl";
+
+    // Validate passwords match
     if (passwordData.new !== passwordData.confirm) {
-      alert(t("settings.messages.passwordMismatch"));
+      toast.error(
+        isArabic ? "كلمة المرور غير متطابقة" : "Passwords do not match"
+      );
       return;
     }
-    console.log("Changing password");
-    setPasswordData({ current: "", new: "", confirm: "" });
-    setShowPasswordChange(false);
+
+    // Validate password length
+    if (passwordData.new.length < 6) {
+      toast.error(
+        isArabic
+          ? "يجب أن تكون كلمة المرور 6 أحرف على الأقل"
+          : "Password must be at least 6 characters"
+      );
+      return;
+    }
+
+    // Validate current password is provided
+    if (!passwordData.current) {
+      toast.error(
+        isArabic
+          ? "الرجاء إدخال كلمة المرور الحالية"
+          : "Please enter your current password"
+      );
+      return;
+    }
+
+    try {
+      setIsChangingPassword(true);
+
+      await apiService.changePassword(
+        passwordData.current,
+        passwordData.new,
+        passwordData.confirm
+      );
+
+      // Reset form on success
+      setPasswordData({
+        current: "",
+        new: "",
+        confirm: "",
+      });
+      setShowPasswordChange(false);
+
+      toast.success(
+        isArabic
+          ? "تم تغيير كلمة المرور بنجاح"
+          : "Password changed successfully"
+      );
+    } catch (error: any) {
+      let errorMessage = isArabic
+        ? "حدث خطأ أثناء تغيير كلمة المرور"
+        : "An error occurred while changing the password";
+
+      if (error.response) {
+        // Handle specific error statuses
+        switch (error.response.status) {
+          case 401:
+            errorMessage = isArabic
+              ? "كلمة المرور الحالية غير صحيحة"
+              : "Current password is incorrect";
+            break;
+          case 400:
+            errorMessage = isArabic ? "بيانات غير صالحة" : "Invalid data";
+            break;
+          case 422:
+            errorMessage = isArabic
+              ? "تأكد من صحة البيانات المدخلة"
+              : "Please check your input data";
+            break;
+          case 500:
+            errorMessage = isArabic
+              ? "خطأ في الخادم، يرجى المحاولة لاحقاً"
+              : "Server error, please try again later";
+            break;
+          default:
+            if (error.response.data?.message) {
+              errorMessage = error.response.data.message;
+            }
+        }
+      } else if (error.request) {
+        errorMessage = isArabic
+          ? "تعذر الاتصال بالخادم. يرجى التحقق من اتصالك بالإنترنت"
+          : "Unable to connect to the server. Please check your internet connection";
+      }
+
+      toast.error(errorMessage);
+    } finally {
+      setIsChangingPassword(false);
+    }
   };
 
   const handleDeleteAccount = () => {
     if (confirm(t("settings.messages.deleteConfirm"))) {
-      console.log("Deleting account");
+      // Delete account implementation
     }
   };
 
@@ -332,12 +421,18 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                       />
                     </div>
                     <div className="md:col-span-3">
-                      <button
-                        onClick={handlePasswordChange}
-                        className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 font-medium text-sm whitespace-nowrap cursor-pointer"
+                      <div
+                        onClick={() => {
+                          console.log("Button clicked!");
+                          handlePasswordChange();
+                        }}
+                        className="bg-blue-500 text-white px-6 py-2 rounded-lg font-medium text-sm whitespace-nowrap text-center cursor-pointer hover:bg-blue-600"
+                        style={{ display: "inline-block" }}
                       >
-                        {t("settings.profile.updatePassword")}
-                      </button>
+                        {isChangingPassword
+                          ? "جاري الحفظ..."
+                          : "تحديث كلمة المرور"}
+                      </div>
                     </div>
                   </div>
                 )}

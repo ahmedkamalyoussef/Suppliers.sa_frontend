@@ -43,16 +43,14 @@ const InteractiveMap = ({
   const tileLayerRef = useRef<any>(null);
   const { language } = useLanguage();
   const [mapStyle, setMapStyle] = useState(propMapStyle || "streets"); // متغير للـ style
-  console.log("InteractiveMap: to:", businesses);
   // Debug log for language changes
   useEffect(() => {
-    console.log("InteractiveMap: Language changed to:", language);
+    // Language change handler
   }, [language]);
 
   // Update map style when prop changes
   useEffect(() => {
     if (propMapStyle && propMapStyle !== mapStyle) {
-      console.log("InteractiveMap: Map style changed to:", propMapStyle);
       setMapStyle(propMapStyle);
     }
   }, [propMapStyle, mapStyle]);
@@ -113,16 +111,12 @@ const InteractiveMap = ({
 
         // Choose tile source. Prefer MapTiler SDK for language switching; fallback to OSM.
         const mapTilerKey = process.env.NEXT_PUBLIC_MAPTILER_KEY;
-        console.log("Initial MapTiler Key exists:", !!mapTilerKey);
-        console.log("Initial MapTiler Key length:", mapTilerKey?.length || 0);
-        console.log("Initial language:", language);
 
         if (mapTilerKey) {
           const { MaptilerLayer } = await import(
             "@maptiler/leaflet-maptilersdk"
           );
           const initialLanguage = language === "ar" ? "ar" : "en";
-          console.log("Initial MapTiler language:", initialLanguage);
 
           const layer = new MaptilerLayer({
             apiKey: mapTilerKey,
@@ -214,14 +208,7 @@ const InteractiveMap = ({
 
         if (!isMounted || !map || controller.signal.aborted) return;
 
-        // Debug log for production
-        console.log("MapTiler Key exists:", !!mapTilerKey);
-        console.log("MapTiler Key length:", mapTilerKey?.length || 0);
-        console.log("Current language:", language);
-        console.log("Language type:", typeof language);
-
         if (!mapTilerKey) {
-          console.log("No MapTiler key, using OSM tiles");
           return; // OSM doesn't support language switching
         }
 
@@ -241,7 +228,6 @@ const InteractiveMap = ({
 
         const { MaptilerLayer } = await import("@maptiler/leaflet-maptilersdk");
         const targetLanguage = language === "ar" ? "ar" : "en";
-        console.log("Setting MapTiler language to:", targetLanguage);
 
         const layer = new MaptilerLayer({
           apiKey: mapTilerKey,
@@ -254,9 +240,7 @@ const InteractiveMap = ({
           layer.addTo(map);
         }
       } catch (error) {
-        if (error instanceof Error && error.name === "AbortError") {
-          console.log("Tile update was cancelled");
-        } else {
+        if (!(error instanceof Error && error.name === "AbortError")) {
           console.error("Error updating tiles:", error);
         }
       }
@@ -386,9 +370,9 @@ const InteractiveMap = ({
                 business.name
               }</h3>
               <span style="padding:3px 6px;border-radius:12px;background:${
-                businessData.status === "verified" ? "#10B981" : "#F59E0B"
+                businessData.status === "approved" ? "#10B981" : "#F59E0B"
               };color:#fff;font-size:9px;font-weight:600;">
-                ${businessData.status === "verified" ? t.verified : t.pending}
+                ${businessData.status === "approved" ? t.verified : t.pending}
               </span>
             </div>
 
@@ -488,10 +472,10 @@ const InteractiveMap = ({
                 </div>
                 <div style="color:#374151;font-size:10px;display:flex;align-items:center;gap:2px;">
                   <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background-color:${
-                    businessData.status === "active" ? "#10B981" : "#F59E0B"
+                    businessData.status === "approved" ? "#10B981" : "#F59E0B"
                   };"></span>
                   <span>${
-                    businessData.status === "active"
+                    businessData.status === "approved"
                       ? t.verified || "Verified"
                       : t.pending || "Pending"
                   }</span>

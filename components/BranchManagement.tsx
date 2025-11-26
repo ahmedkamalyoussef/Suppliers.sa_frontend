@@ -13,7 +13,7 @@ type BranchWorkingHoursDay = {
 type WorkingHours = {
   monday: BranchWorkingHoursDay;
   tuesday: BranchWorkingHoursDay;
-  wednesday: BranchWorkingHoursDay;
+  wednesday: BranchWorkingHoursDay; 
   thursday: BranchWorkingHoursDay;
   friday: BranchWorkingHoursDay;
   saturday: BranchWorkingHoursDay;

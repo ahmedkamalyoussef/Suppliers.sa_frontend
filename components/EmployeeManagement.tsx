@@ -255,7 +255,6 @@ export default function EmployeeManagement() {
   };
 
   const handleAddEmployee = () => {
-    console.log("Adding employee:", newEmployee);
     setShowAddEmployee(false);
     setNewEmployee({
       name: "",

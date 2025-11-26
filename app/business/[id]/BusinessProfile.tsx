@@ -8,6 +8,7 @@ import Footer from "../../../components/Footer";
 import Link from "next/link";
 import { apiService } from "../../../lib/api";
 import { BusinessProfile as BusinessProfileType } from "../../../lib/api";
+import { useAuth } from "@/lib/UserContext";
 
 type BusinessProfileProps = {};
 
@@ -19,7 +20,7 @@ export default function BusinessProfile() {
   // Immediate redirection check
   useEffect(() => {
     // Check if user is logged in
-    const userData = localStorage.getItem('supplier_user');
+    const userData = localStorage.getItem("supplier_user");
     if (userData) {
       try {
         const user = JSON.parse(userData);
@@ -30,7 +31,7 @@ export default function BusinessProfile() {
           return;
         }
       } catch (error) {
-        console.error('Error parsing user data:', error);
+        console.error("Error parsing user data:", error);
       }
     }
   }, [businessId, router]);
@@ -53,6 +54,10 @@ export default function BusinessProfile() {
     subject: "",
     message: "",
   });
+  const { user } = useAuth();
+
+  // Check if the current user is viewing their own profile
+  const isOwnProfile = user?.id?.toString() == businessId;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -314,39 +319,34 @@ export default function BusinessProfile() {
     e.preventDefault();
 
     if (inquiryForm.message.length > 500) {
-      alert("Message must be 500 characters or less");
+      alert(t('businessProfile.messageTooLong') || "Message must be 500 characters or less");
+      return;
+    }
+
+    if (!businessProfile) {
+      console.error("Business profile not loaded");
+      alert(t('businessProfile.businessNotLoaded') || "Business information not loaded. Please try again.");
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      const formData = new FormData();
-      formData.append("name", inquiryForm.name);
-      formData.append("email", inquiryForm.email);
-      formData.append("phone", inquiryForm.phone);
-      formData.append("company", inquiryForm.company);
-      formData.append("subject", inquiryForm.subject);
-      formData.append("message", inquiryForm.message);
-      formData.append("business_name", business.name);
-      formData.append("business_id", "اا");
-
-      const response = await fetch(
-        "https://readdy.ai/api/form/d30bvun348pq0eno6930",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      if (response.ok) {
-        setIsSubmitted(true);
-      } else {
-        throw new Error("Submission failed");
-      }
-    } catch (error) {
-      console.error("Form submission error:", error);
-      alert("There was an error sending your message. Please try again.");
+      await apiService.sendInquiry({
+        receiver_supplier_id: businessProfile.id,
+        sender_name: inquiryForm.name,
+        company: inquiryForm.company,
+        email: inquiryForm.email,
+        phone: inquiryForm.phone,
+        subject: inquiryForm.subject || `Inquiry from ${inquiryForm.name}`,
+        message: inquiryForm.message,
+      });
+      
+      setIsSubmitted(true);
+    } catch (error: any) {
+      console.error("Inquiry submission error:", error);
+      const errorMessage = error?.message || t('businessProfile.submissionError') || "There was an error sending your message. Please try again.";
+      alert(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -382,7 +382,11 @@ export default function BusinessProfile() {
           <div
             className="w-full h-full bg-cover bg-center"
             style={{
-              backgroundImage: `url(${businessProfile?.profile?.business_image || businessProfile?.profile_image ||""})`,
+              backgroundImage: `url(${
+                businessProfile?.profile?.business_image ||
+                businessProfile?.profile_image ||
+                ""
+              })`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
@@ -451,6 +455,22 @@ export default function BusinessProfile() {
                 </div>
               </div>
             </div>
+            {!isOwnProfile && (
+              <div className="flex gap-3 mt-4 px-4 md:px-6 pb-6 md:pb-8">
+                <button
+                  onClick={() => setShowInquiryModal(true)}
+                  className="bg-yellow-400 hover:bg-yellow-500 text-white px-8 py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors"
+                >
+                  <i className="ri-message-line mr-2"></i>
+                  {t("publicProfile.buttons.message")}
+                </button>
+
+                <button className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white px-8 py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors border border-gray-300">
+                  <i className="ri-phone-line mr-2"></i>
+                  {t("publicProfile.buttons.call")}
+                </button>
+              </div>
+            )}
           </div>
         </section>
 
@@ -471,7 +491,6 @@ export default function BusinessProfile() {
                   </p>
                 </div>
               </div>
-
               <div className="flex items-center space-x-2 md:space-x-3">
                 <div className="w-8 h-8 md:w-10 md:h-10 bg-green-100 rounded-full flex items-center justify-center">
                   <i className="ri-map-pin-range-line text-green-600 text-sm md:text-base"></i>
@@ -976,7 +995,7 @@ export default function BusinessProfile() {
                   <button
                     onClick={resetInquiryForm}
                     className="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-full cursor-pointer"
-                  >
+                  > 
                     <i className="ri-close-line text-lg md:text-xl"></i>
                   </button>
                 </div>
