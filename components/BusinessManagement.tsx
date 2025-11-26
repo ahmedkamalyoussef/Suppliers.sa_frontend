@@ -72,7 +72,7 @@ export default function BusinessManagement() {
     },
   });
 
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [businessImages, setBusinessImages] = useState<ProductImage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [productKeywords, setProductKeywords] = useState<string[]>([]);
@@ -171,9 +171,47 @@ export default function BusinessManagement() {
     { id: "hours", name: "Hours", icon: "ri-time-line" },
   ];
 
-  const handleSave = () => {
-    setIsEditing(false);
-    console.log("Saved data:", businessData);
+  const handleSave = async () => {
+    try {
+      const updateData = {
+        businessName: businessData.name,
+        category: businessData.category,
+        businessType: businessData.businessType,
+        description: businessData.description,
+        contactEmail: businessData.email,
+        mainPhone: businessData.phone,
+        website: businessData.website,
+        address: businessData.address,
+        serviceDistance: businessData.serviceDistance,
+        productKeywords: businessData.productKeywords
+          .split(",")
+          .map((k) => k.trim())
+          .filter(Boolean),
+        services: businessData.services,
+        workingHours: businessData.workingHours,
+      };
+
+      console.log("Data sent successfully:", updateData);
+
+      const { apiService } = await import("../lib/api");
+      const response = await apiService.updateProfile(updateData);
+      
+      // Override localStorage with the updated data
+      if (response.supplier) {
+        localStorage.setItem('supplier_user', JSON.stringify(response.supplier));
+        
+        // Update the auth context user state
+        updateUser(response.supplier);
+        
+        // Update the component state with the new data
+        processUserData(response.supplier);
+      }
+
+      setIsEditing(false);
+      
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {

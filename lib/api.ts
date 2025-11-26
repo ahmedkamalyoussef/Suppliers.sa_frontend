@@ -161,7 +161,7 @@ export interface ProfileUpdateData {
   categories?: string[];
   productKeywords?: string[];
   whoDoYouServe?: string;
-  serviceDistance?: number;
+  serviceDistance?: string;
   services?: string[];
   website?: string;
   mainPhone?: string;
@@ -274,7 +274,9 @@ class ApiService {
     requiresAuth: boolean = false
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
-    console.log(`[API] Preparing request to: ${url}`, { method: options.method || 'GET' });
+    console.log(`[API] Preparing request to: ${url}`, {
+      method: options.method || "GET",
+    });
 
     // Convert HeadersInit to Record<string, string>
     const optionsHeaders: Record<string, string> = {};
@@ -301,39 +303,41 @@ class ApiService {
     if (requiresAuth) {
       const token = localStorage.getItem("supplier_token");
       const tokenType = localStorage.getItem("token_type") || "Bearer";
-      console.log('[API] Auth check - Token exists:', !!token);
+      console.log("[API] Auth check - Token exists:", !!token);
       if (!token) {
-        console.error('[API] No auth token found in localStorage');
+        console.error("[API] No auth token found in localStorage");
         throw new Error("No auth token found");
       }
       headers["Authorization"] = `${tokenType} ${token}`;
     }
 
-    console.log('[API] Request headers:', headers);
+    console.log("[API] Request headers:", headers);
     if (options.body) {
-      console.log('[API] Request body:', options.body);
+      console.log("[API] Request body:", options.body);
     }
 
     try {
-      console.log('[API] Sending request...');
+      console.log("[API] Sending request...");
       const response = await fetch(url, {
         ...options,
         credentials: "include",
         headers,
       });
 
-      console.log(`[API] Received response: ${response.status} ${response.statusText}`);
-      
+      console.log(
+        `[API] Received response: ${response.status} ${response.statusText}`
+      );
+
       // Clone the response to read it as text first (for logging)
       const responseClone = response.clone();
       const responseText = await response.text();
       let responseData;
-      
+
       try {
         responseData = JSON.parse(responseText);
-        console.log('[API] Response data:', responseData);
+        console.log("[API] Response data:", responseData);
       } catch (e) {
-        console.log('[API] Non-JSON response:', responseText);
+        console.log("[API] Non-JSON response:", responseText);
         responseData = {};
       }
 
@@ -350,16 +354,18 @@ class ApiService {
             "Validation failed",
             responseData.errors || responseData
           );
-          console.error('[API] Validation Errors:', validationError.errors);
+          console.error("[API] Validation Errors:", validationError.errors);
           throw validationError;
         }
 
-        throw new Error(responseData.message || `HTTP error ${response.status}`);
+        throw new Error(
+          responseData.message || `HTTP error ${response.status}`
+        );
       }
 
       return responseData;
     } catch (error) {
-      console.error('[API] Request failed:', error);
+      console.error("[API] Request failed:", error);
       throw error;
     }
   }
@@ -536,6 +542,19 @@ class ApiService {
   }): Promise<BusinessListResponse> {
     const queryParams = new URLSearchParams();
 
+    const options: RequestInit = { method: "GET" };
+
+    // Check if user is authenticated
+    const token = localStorage.getItem("supplier_token");
+    if (token) {
+      const tokenType = localStorage.getItem("token_type") || "Bearer";
+      options.headers = {
+        ...options.headers,
+        Authorization: `${tokenType} ${token}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      };
+    }
     if (params) {
       // Handle category separately to prevent double encoding
       const { category, ...restParams } = params;
@@ -863,11 +882,13 @@ class ApiService {
    * @param userId The ID of the user
    * @returns Promise with the profile picture URL
    */
-  async getProfilePicture(userId: string | number): Promise<{ profile_image: string }> {
+  async getProfilePicture(
+    userId: string | number
+  ): Promise<{ profile_image: string }> {
     return this.request<{ profile_image: string }>(
       `/api/auth/profile/picture/${userId}`,
       {
-        method: 'GET',
+        method: "GET",
       }
     );
   }
@@ -885,11 +906,11 @@ class ApiService {
     confirmPassword: string
   ): Promise<{ message: string }> {
     return this.request<{ message: string }>(
-      '/api/auth/change-password',
+      "/api/auth/change-password",
       {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           current_password: currentPassword,
