@@ -177,7 +177,8 @@ export default function BusinessManagement() {
       const currentUser = JSON.parse(localStorage.getItem('supplier_user') || '{}');
       const emailHasChanged = currentUser.email !== businessData.email;
 
-      const updateData: any = {
+      // Create base update data without email
+      const updateData: Record<string, any> = {
         businessName: businessData.name,
         category: businessData.category,
         businessType: businessData.businessType,
@@ -203,45 +204,41 @@ export default function BusinessManagement() {
 
       const { apiService } = await import("../lib/api");
       const response = await apiService.updateProfile(updateData);
-      
+
       // Override localStorage with the updated data
       if (response.supplier) {
-        localStorage.setItem('supplier_user', JSON.stringify(response.supplier));
-        
+        localStorage.setItem(
+          "supplier_user",
+          JSON.stringify(response.supplier)
+        );
+
         // Update the auth context user state
         updateUser(response.supplier);
-        
+
         // Update the component state with the new data
         processUserData(response.supplier);
       }
 
       setIsEditing(false);
-      
     } catch (error) {
       console.error("Error updating profile:", error);
-      // Show error message to user
-      if (error instanceof Error) {
-        if (error.message.includes('contact email has already been taken')) {
-          alert('هذا البريد الإلكتروني مسجل مسبقاً. الرجاء استخدام بريد إلكتروني آخر.');
-        } else {
-          alert('حدث خطأ أثناء تحديث الملف الشخصي. الرجاء المحاولة مرة أخرى.');
-        }
-      }
     }
   };
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const files = event.target.files;
     if (files && files[0]) {
       try {
         // Create FormData for the file upload
         const formData = new FormData();
-        formData.append('image', files[0]);
-        
+        formData.append("image", files[0]);
+
         // Upload the image using the API
         const { apiService } = await import("../lib/api");
         const response = await apiService.uploadProductImage(formData);
-        
+
         // Add the uploaded image to the state
         const newImage: ProductImage = {
           id: response.id,
@@ -249,28 +246,28 @@ export default function BusinessManagement() {
           image: response.name,
         };
         setBusinessImages([...businessImages, newImage]);
-        
-        console.log('Image uploaded successfully:', response);
+
+        console.log("Image uploaded successfully:", response);
       } catch (error) {
-        console.error('Error uploading image:', error);
+        console.error("Error uploading image:", error);
       }
     }
   };
 
   const removeImage = async (id: number | undefined) => {
     if (!id) return;
-    
+
     try {
       // Delete the image using the API
       const { apiService } = await import("../lib/api");
       await apiService.deleteProductImage(id);
-      
+
       // Remove the image from the state
       setBusinessImages(businessImages.filter((img) => img.id !== id));
-      
-      console.log('Image deleted successfully:', id);
+
+      console.log("Image deleted successfully:", id);
     } catch (error) {
-      console.error('Error deleting image:', error);
+      console.error("Error deleting image:", error);
     }
   };
 
