@@ -415,7 +415,7 @@ export default function DashboardAnalytics() {
               </h3>
               {keywordsData?.period && (
                 <span className="text-xs text-gray-500">
-                  {t("dashboardAnalytics.keywords.period")}:{" "}
+                  
                   {keywordsData.period}
                 </span>
               )}
@@ -455,25 +455,9 @@ export default function DashboardAnalytics() {
                         ></div>
                       </div>
                       <div className="flex justify-between text-xs text-gray-500">
-                        <span
-                          className={
-                            keyword.change > 0
-                              ? "text-green-600"
-                              : keyword.change < 0
-                              ? "text-red-600"
-                              : ""
-                          }
-                        >
-                          {keyword.change > 0 ? "+" : ""}
-                          {keyword.change}%{" "}
-                          {t("dashboardAnalytics.keywords.change")}
-                        </span>
-                        <span>
-                          {keyword.contacts}{" "}
-                          {t("dashboardAnalytics.keywords.contacts")}
-                        </span>
+                        
                         <span className="text-gray-400 text-xs">
-                          {new Date(keyword.last_searched).toLocaleDateString()}
+                          Last search : {new Date(keyword.last_searched).toLocaleDateString()}
                         </span>
                       </div>
                     </div>
@@ -612,7 +596,7 @@ export default function DashboardAnalytics() {
 
             {customerInsightsData?.period && (
               <div className="pt-4 mt-4 border-t border-gray-100 text-xs text-gray-500">
-                {t("dashboardAnalytics.period")}: {customerInsightsData.period}
+                {customerInsightsData.period}
               </div>
             )}
           </div>

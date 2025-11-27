@@ -789,14 +789,12 @@ class ApiService {
     }
 
     try {
-      const response = await fetch(
-        `${this.baseURL}/api/suppliers/${id}/business`,
-        {
-          method: "GET",
-          headers,
-          credentials: "include",
-        }
-      );
+      // Use the working endpoint /suppliers/{id} instead of /suppliers/{id}/business
+      const response = await fetch(`${this.baseURL}/api/suppliers/${id}`, {
+        method: "GET",
+        headers,
+        credentials: "include",
+      });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -805,7 +803,17 @@ class ApiService {
         );
       }
 
-      return await response.json();
+      const data = await response.json();
+
+      // Transform the data to match BusinessProfile interface
+      // The API returns SupplierProfile format, we need to ensure it matches BusinessProfile
+      return {
+        ...data,
+        profile: {
+          ...data.profile,
+          products: data.products || [], // Ensure products array exists
+        },
+      };
     } catch (error) {
       console.error("Error fetching business profile:", error);
       throw error;

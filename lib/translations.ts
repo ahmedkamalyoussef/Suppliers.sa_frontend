@@ -982,7 +982,7 @@ export const translations = {
       keywords: {
         title: "Top Search Keywords",
         subtitle: "Keywords that brought customers to your profile",
-        period: "Last 30 days",
+        period: "Last",
         searches: "Searches",
         contacts: "Contacts",
         change: "Change",
@@ -1005,6 +1005,7 @@ export const translations = {
           "Upload more business photos to increase customer engagement",
           "Focus marketing on Riyadh and Jeddah - your top performing locations",
         ],
+        highPriority: "High Priority",
         mediumPriority: "Medium Priority",
         lowPriority: "Low Priority",
         lastUpdated: "Last updated"
@@ -3825,6 +3826,7 @@ export const translations = {
           "ارفع المزيد من صور النشاط لزيادة تفاعل العملاء",
           "ركز التسويق على الرياض وجدة - مواقعك الأفضل أداءً",
         ],
+        highPriority: "أولوية عالية",
         mediumPriority: "أولوية متوسطة",
         lowPriority: "أولوية منخفضة",
         lastUpdated: "آخر تحديث"

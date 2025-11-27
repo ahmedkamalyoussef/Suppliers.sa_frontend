@@ -173,30 +173,74 @@ export default function BusinessManagement() {
 
   const handleSave = async () => {
     try {
-      // Get current user data to check if email has changed
-      const currentUser = JSON.parse(localStorage.getItem('supplier_user') || '{}');
-      const emailHasChanged = currentUser.email !== businessData.email;
-
-      // Create base update data without email
-      const updateData: Record<string, any> = {
-        businessName: businessData.name,
-        category: businessData.category,
-        businessType: businessData.businessType,
-        description: businessData.description,
-        mainPhone: businessData.phone,
-        website: businessData.website,
-        address: businessData.address,
-        serviceDistance: businessData.serviceDistance,
-        productKeywords: businessData.productKeywords
-          .split(",")
-          .map((k) => k.trim())
-          .filter(Boolean),
-        services: businessData.services,
-        workingHours: businessData.workingHours,
-      };
-
-      // Only include email in the update if it has changed
-      if (emailHasChanged) {
+      // Get current user data to compare changes
+      const currentUser = JSON.parse(
+        localStorage.getItem("supplier_user") || "{}"
+      );
+      
+      // Create update data with only changed fields
+      const updateData: Record<string, any> = {};
+      
+      // Compare each field with original data
+      const originalProfile = currentUser.profile || {};
+      
+      if (businessData.name !== (originalProfile.businessName || currentUser.name)) {
+        updateData.businessName = businessData.name;
+      }
+      
+      if (businessData.category !== (originalProfile.category || "")) {
+        updateData.category = businessData.category;
+      }
+      
+      if (businessData.businessType !== (originalProfile.businessType || "")) {
+        updateData.businessType = businessData.businessType;
+      }
+      
+      if (businessData.description !== (originalProfile.description || "")) {
+        updateData.description = businessData.description;
+      }
+      
+      if (businessData.phone !== (originalProfile.mainPhone || "")) {
+        updateData.mainPhone = businessData.phone;
+      }
+      
+      if (businessData.website !== (originalProfile.website || "")) {
+        updateData.website = businessData.website;
+      }
+      
+      if (businessData.address !== (originalProfile.address || "")) {
+        updateData.address = businessData.address;
+      }
+      
+      if (businessData.serviceDistance !== (originalProfile.serviceDistance || "")) {
+        updateData.serviceDistance = businessData.serviceDistance;
+      }
+      
+      // Compare product keywords (convert to array for comparison)
+      const currentKeywords = businessData.productKeywords
+        .split(",")
+        .map((k) => k.trim())
+        .filter(Boolean);
+      const originalKeywords = Array.isArray(originalProfile.productKeywords) 
+        ? originalProfile.productKeywords 
+        : [];
+      
+      if (JSON.stringify(currentKeywords.sort()) !== JSON.stringify(originalKeywords.sort())) {
+        updateData.productKeywords = currentKeywords;
+      }
+      
+      // Compare services
+      if (JSON.stringify(businessData.services.sort()) !== JSON.stringify((originalProfile.services || []).sort())) {
+        updateData.services = businessData.services;
+      }
+      
+      // Compare working hours
+      if (JSON.stringify(businessData.workingHours) !== JSON.stringify(originalProfile.workingHours || {})) {
+        updateData.workingHours = businessData.workingHours;
+      }
+      
+      // Only include email if it has changed
+      if (businessData.email !== (originalProfile.contactEmail || currentUser.email)) {
         updateData.contactEmail = businessData.email;
       }
 

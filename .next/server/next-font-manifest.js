@@ -1,1 +1,1 @@
-self.__NEXT_FONT_MANIFEST="{\"pages\":{},\"app\":{},\"appUsingSizeAdjust\":false,\"pagesUsingSizeAdjust\":false}"
+self.__NEXT_FONT_MANIFEST="{\"pages\":{},\"app\":{\"/home/kemo/Development/Work/mostaql/Supplier.sa1/app/layout\":[\"static/media/dd830f3b569412d7-s.p.ttf\",\"static/media/f84675713043186b-s.p.ttf\",\"static/media/7961084753107d16-s.p.ttf\"]},\"appUsingSizeAdjust\":true,\"pagesUsingSizeAdjust\":false}"
