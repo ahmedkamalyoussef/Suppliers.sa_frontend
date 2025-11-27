@@ -28,6 +28,11 @@ export default function AIFilterBar({ onFilterChange }: AIFilterBarProps) {
 
     setIsProcessing(true);
 
+    // Update URL with search query to trigger API call
+    const url = new URL(window.location.href);
+    url.searchParams.set('search', searchQuery.trim());
+    window.history.pushState({}, '', url.toString());
+
     // Simulate AI processing
     setTimeout(() => {
       const suggestions = generateAdvancedAISuggestions(searchQuery);

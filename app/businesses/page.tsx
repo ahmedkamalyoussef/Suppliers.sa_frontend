@@ -212,9 +212,16 @@ function BusinessesContent() {
 
         // Handle URL parameters if they exist
         const category = searchParams.get("category");
+        const aiSearch = searchParams.get("search");
+        
         if (category) {
           params.category = category;
           setSelectedCategory(category);
+        }
+
+        // Add AI search parameter if it exists
+        if (aiSearch && aiSearch.trim()) {
+          params.ai = aiSearch;
         }
 
         console.log("Fetching businesses with params:", params);

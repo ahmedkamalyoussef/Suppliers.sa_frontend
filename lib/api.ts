@@ -541,6 +541,7 @@ class ApiService {
     page?: number;
     address?: string;
     category?: string; // Add category as a separate parameter
+    ai?: string; // Add AI parameter for advanced filtering
   }): Promise<BusinessListResponse> {
     const queryParams = new URLSearchParams();
 
@@ -779,6 +780,11 @@ class ApiService {
    * @param id The supplier ID
    * @returns Promise with the supplier's business profile including products
    */
+  /**
+   * Fetches business profile for a specific supplier
+   * @param id The supplier ID
+   * @returns Promise with the supplier's business profile including products
+   */
   async getBusinessProfile(id: string | number): Promise<BusinessProfile> {
     const headers = new Headers();
     const token = localStorage.getItem("supplier_token");
@@ -789,33 +795,49 @@ class ApiService {
     }
 
     try {
-      // Use the working endpoint /suppliers/{id} instead of /suppliers/{id}/business
-      const response = await fetch(`${this.baseURL}/api/suppliers/${id}`, {
-        method: "GET",
-        headers,
-        credentials: "include",
-      });
+      console.log(`[API] Fetching business profile for supplier ID: ${id}`);
+
+      const response = await fetch(
+        `${this.baseURL}/api/suppliers/${id}/business`,
+        {
+          method: "GET",
+          headers,
+          credentials: "include",
+        }
+      );
+
+      console.log(`[API] Business profile response status: ${response.status}`);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.error("[API] Business profile error:", errorData);
         throw new Error(
-          errorData.message || "Failed to fetch business profile"
+          errorData.message ||
+            `Failed to fetch business profile (${response.status})`
         );
       }
 
       const data = await response.json();
 
-      // Transform the data to match BusinessProfile interface
-      // The API returns SupplierProfile format, we need to ensure it matches BusinessProfile
-      return {
-        ...data,
-        profile: {
-          ...data.profile,
-          products: data.products || [], // Ensure products array exists
-        },
-      };
+      // Check if data is null or undefined
+      if (!data) {
+        console.error(
+          "[API] Received null/undefined data from business profile endpoint"
+        );
+        throw new Error("No data received from server");
+      }
+
+      console.log("[API] Business profile data received:", data);
+
+      // Validate essential properties exist
+      if (!data.profile) {
+        console.warn("[API] Profile data is missing, using default structure");
+        data.profile = {};
+      }
+
+      return data;
     } catch (error) {
-      console.error("Error fetching business profile:", error);
+      console.error("[API] Error fetching business profile:", error);
       throw error;
     }
   }
