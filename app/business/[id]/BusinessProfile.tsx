@@ -16,6 +16,10 @@ export default function BusinessProfile() {
   const router = useRouter();
   const params = useParams();
   const businessId = params?.id as string;
+  const [viewStartTime, setViewStartTime] = useState<number | null>(null);
+  const [sessionId] = useState(
+    () => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+  );
 
   // Immediate redirection check
   useEffect(() => {
@@ -35,6 +39,70 @@ export default function BusinessProfile() {
       }
     }
   }, [businessId, router]);
+
+  // Track view duration
+  useEffect(() => {
+    // Start timer when component mounts
+    const startTime = Date.now();
+    setViewStartTime(startTime);
+
+    // Get current user data for location
+    const userData = localStorage.getItem("supplier_user");
+    let location = "Unknown";
+
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        location = user.profile?.address || "Unknown";
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+      }
+    }
+
+    // Track view only once when component unmounts
+    let hasTracked = false;
+
+    const trackView = async () => {
+      if (hasTracked || !businessId) return;
+      hasTracked = true;
+
+      const duration = Math.floor((Date.now() - startTime) / 1000);
+
+      // Only track if duration is at least 1 second
+      if (duration < 1) return;
+
+      // Get businessType from localStorage user data
+      let customerType = "Supplier";
+      const userData = localStorage.getItem("supplier_user");
+      if (userData) {
+        try {
+          const user = JSON.parse(userData);
+          customerType = user.profile?.businessType || user.businessType || "Supplier";
+        } catch (error) {
+          console.error("Error parsing user data for business type:", error);
+        }
+      }
+
+      try {
+        await apiService.trackView({
+          supplier_id: parseInt(businessId),
+          location: location,
+          customer_type: customerType,
+          duration: duration,
+          session_id: sessionId,
+        });
+        console.log(`View tracked for supplier ${businessId}: ${duration}s, type: ${customerType}`);
+      } catch (error) {
+        console.error("Error tracking view:", error);
+      }
+    };
+
+    // Cleanup function - only runs once when component unmounts
+    return () => {
+      trackView();
+    };
+  }, [businessId, sessionId]);
+
   const { t } = useLanguage();
   const [businessProfile, setBusinessProfile] =
     useState<BusinessProfileType | null>(null);
@@ -319,13 +387,19 @@ export default function BusinessProfile() {
     e.preventDefault();
 
     if (inquiryForm.message.length > 500) {
-      alert(t('businessProfile.messageTooLong') || "Message must be 500 characters or less");
+      alert(
+        t("businessProfile.messageTooLong") ||
+          "Message must be 500 characters or less"
+      );
       return;
     }
 
     if (!businessProfile) {
       console.error("Business profile not loaded");
-      alert(t('businessProfile.businessNotLoaded') || "Business information not loaded. Please try again.");
+      alert(
+        t("businessProfile.businessNotLoaded") ||
+          "Business information not loaded. Please try again."
+      );
       return;
     }
 
@@ -341,11 +415,14 @@ export default function BusinessProfile() {
         subject: inquiryForm.subject || `Inquiry from ${inquiryForm.name}`,
         message: inquiryForm.message,
       });
-      
+
       setIsSubmitted(true);
     } catch (error: any) {
       console.error("Inquiry submission error:", error);
-      const errorMessage = error?.message || t('businessProfile.submissionError') || "There was an error sending your message. Please try again.";
+      const errorMessage =
+        error?.message ||
+        t("businessProfile.submissionError") ||
+        "There was an error sending your message. Please try again.";
       alert(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -540,7 +617,10 @@ export default function BusinessProfile() {
                   <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 mb-4 md:mb-6">
                     {t("businessProfile.aboutThisBusiness")}
                   </h2>
-                  <p className="text-gray-600 leading-relaxed text-base md:text-lg">
+                  <p
+                    className="text-gray-600 leading-relaxed text-base md:text-lg mb-8 
+               break-words whitespace-pre-line"
+                  >
                     {business.description}
                   </p>
                 </div>
@@ -995,7 +1075,7 @@ export default function BusinessProfile() {
                   <button
                     onClick={resetInquiryForm}
                     className="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-full cursor-pointer"
-                  > 
+                  >
                     <i className="ri-close-line text-lg md:text-xl"></i>
                   </button>
                 </div>

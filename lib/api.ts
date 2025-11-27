@@ -1039,6 +1039,205 @@ class ApiService {
       true // requiresAuth = true to send token
     );
   }
+
+  // ====== ANALYTICS ======
+  async trackView(data: {
+    supplier_id: number;
+    location: string;
+    customer_type: string;
+    duration: number;
+    session_id: string;
+  }): Promise<any> {
+    return this.request(
+      "/api/supplier/analytics/track-view",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      },
+      true
+    );
+  }
+
+  async trackSearch(data: {
+    keyword: string;
+    search_type: string;
+    location: string;
+  }): Promise<any> {
+    return this.request(
+      "/api/supplier/analytics/track-search",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      },
+      true
+    );
+  }
+
+  // Performance Metrics
+  async getPerformanceMetrics(): Promise<{
+    metrics: Array<{
+      metric: string;
+      value: number;
+      target: number;
+      color: string;
+      unit: string;
+      isRating?: boolean;
+    }>;
+    overallScore: number;
+  }> {
+    return this.request(
+      "/api/supplier/analytics/performance",
+      { method: "GET" },
+      true
+    );
+  }
+
+  // Charts Data
+  async getChartsData(
+    range: number = 30,
+    type: "views" | "contacts" | "inquiries"
+  ): Promise<{
+    type: string;
+    range: number;
+    data: number[];
+    labels: string[];
+  }> {
+    return this.request(
+      `/api/supplier/analytics/charts?range=${range}&type=${type}`,
+      { method: "GET" },
+      true
+    );
+  }
+
+  // Keywords Analytics
+  async getKeywordsAnalytics(range: number = 30): Promise<{
+    keywords: Array<{
+      keyword: string;
+      searches: number;
+      change: number;
+      contacts: number;
+      last_searched: string;
+    }>;
+    totalSearches: number;
+    averageChange: number;
+    period: string;
+  }> {
+    return this.request(
+      `/api/supplier/analytics/keywords?range=${range}`,
+      { method: "GET" },
+      true
+    );
+  }
+
+  // Customer Insights
+  async getCustomerInsights(range: number = 30): Promise<{
+    demographics: Array<{
+      type: string;
+      percentage: number;
+      count: number;
+    }>;
+    topLocations: Array<{
+      city: string;
+      visitors: number;
+      percentage: number;
+    }>;
+    totalVisitors: number;
+    totalCustomers: number;
+    period: string;
+  }> {
+    return this.request(
+      `/api/supplier/analytics/insights?range=${range}`,
+      { method: "GET" },
+      true
+    );
+  }
+
+  // Recommendations
+  async getRecommendations(): Promise<{
+    recommendations: string[];
+    priority: "low" | "medium" | "high";
+    generated_at: string;
+    based_on: {
+      profile_completion: number;
+      response_rate: number;
+      customer_satisfaction: number;
+      search_visibility: number;
+      total_inquiries: number;
+      total_ratings: number;
+      profile_views: number;
+    };
+  }> {
+    return this.request(
+      "/api/supplier/analytics/recommendations",
+      { method: "GET" },
+      true
+    );
+  }
+
+  // Export Analytics
+  async exportAnalytics(format = "csv") {
+    if (format === "csv") {
+      return this.downloadAnalyticsCSV();
+    } else {
+      return this.request(
+        `/api/supplier/analytics/export?format=${format}`,
+        { method: "GET" },
+        true
+      );
+    }
+  }
+  async downloadAnalyticsCSV() {
+    const token = localStorage.getItem("supplier_token");
+    const tokenType = localStorage.getItem("token_type") || "Bearer";
+
+    if (!token) {
+      throw new Error("No auth token found");
+    }
+
+    const response = await fetch(
+      `${this.baseURL}/api/supplier/analytics/export?format=csv`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `${tokenType} ${token}`,
+          Accept: "text/csv",
+        },
+        credentials: "include",
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || "Failed to download CSV");
+    }
+
+    const contentDisposition = response.headers.get("Content-Disposition");
+    let filename = "analytics_export.csv";
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+      if (filenameMatch && filenameMatch[1]) {
+        filename = filenameMatch[1];
+      }
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+
+    return { success: true, filename };
+  }
 }
 
 // Supplier Inquiry Interfaces

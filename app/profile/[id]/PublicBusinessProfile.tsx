@@ -478,19 +478,19 @@ export default function PublicBusinessProfile({
                 </div>
 
                 {!isOwnProfile && (
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setShowInquiryModal(true)}
-                    className="bg-yellow-400 hover:bg-yellow-500 text-white px-8 py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors"
-                  >
-                    <i className="ri-message-line mr-2"></i>
-                    {t("publicProfile.buttons.message")}
-                  </button>
-                  <button className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-gray-700 px-8 py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors border border-gray-300">
-                    <i className="ri-phone-line mr-2"></i>
-                    {t("publicProfile.buttons.callNow")}
-                  </button>
-                </div>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setShowInquiryModal(true)}
+                      className="bg-yellow-400 hover:bg-yellow-500 text-white px-8 py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors"
+                    >
+                      <i className="ri-message-line mr-2"></i>
+                      {t("publicProfile.buttons.message")}
+                    </button>
+                    <button className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-gray-700 px-8 py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors border border-gray-300">
+                      <i className="ri-phone-line mr-2"></i>
+                      {t("publicProfile.buttons.callNow")}
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
@@ -506,7 +506,10 @@ export default function PublicBusinessProfile({
                 <h2 className="text-3xl font-bold text-gray-800 mb-6">
                   {safeT("publicProfile.about.title", { name: business.name })}
                 </h2>
-                <p className="text-gray-600 leading-relaxed text-lg mb-8">
+                <p
+                  className="text-gray-600 leading-relaxed text-base md:text-lg mb-8 
+               break-words whitespace-pre-line"
+                >
                   {business.description}
                 </p>
 
@@ -983,7 +986,7 @@ export default function PublicBusinessProfile({
                     <i className="ri-close-line text-xl"></i>
                   </button>
                 </div>
- 
+
                 <form
                   onSubmit={handleInquirySubmit}
                   className="p-6 space-y-4"

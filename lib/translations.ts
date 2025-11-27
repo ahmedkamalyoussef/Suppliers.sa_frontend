@@ -957,6 +957,7 @@ export const translations = {
     },
     dashboardAnalytics: {
       title: "Analytics & Insights",
+      description: "Your business analytics dashboard",
       exportButton: "Export",
       timeRange: {
         last7days: "Last 7 days",
@@ -981,22 +982,34 @@ export const translations = {
       keywords: {
         title: "Top Search Keywords",
         subtitle: "Keywords that brought customers to your profile",
+        period: "Last 30 days",
+        searches: "Searches",
+        contacts: "Contacts",
+        change: "Change",
+        totalSearches: "Total Searches"
       },
       insights: {
         title: "Customer Insights",
         subtitle: "Who is viewing your business profile",
         customerTypes: "Customer Types",
         topLocations: "Top Locations",
+        totalCustomers: "Total Customers",
+        totalVisitors: "Total Visitors"
       },
       recommendations: {
         title: "Recommendations to Improve Performance",
+        subtitle: "Personalized suggestions to enhance your business performance",
         items: [
           'Add more product keywords related to "gaming computers" - high search volume with 22% growth',
           "Improve response rate to reach 90% target - currently at 88%",
           "Upload more business photos to increase customer engagement",
           "Focus marketing on Riyadh and Jeddah - your top performing locations",
         ],
+        mediumPriority: "Medium Priority",
+        lowPriority: "Low Priority",
+        lastUpdated: "Last updated"
       },
+      period: "Last 30 days",
     },
     settings: {
       title: "Account Settings",
@@ -3764,6 +3777,7 @@ export const translations = {
     // Dashboard Analytics
     dashboardAnalytics: {
       title: "التحليلات والإحصاءات",
+      description: "لوحة تحليلات نشاطك التجاري",
       exportButton: "تصدير",
       timeRange: {
         last7days: "آخر 7 أيام",
@@ -3788,22 +3802,34 @@ export const translations = {
       keywords: {
         title: "أهم الكلمات المفتاحية للبحث",
         subtitle: "الكلمات المفتاحية التي جلبت العملاء لملفك",
+        period: "آخر 30 يوماً",
+        searches: "عمليات البحث",
+        contacts: "جهات الاتصال",
+        change: "التغيير",
+        totalSearches: "إجمالي عمليات البحث"
       },
       insights: {
         title: "رؤى العملاء",
         subtitle: "من يشاهد ملف نشاطك التجاري",
         customerTypes: "أنواع العملاء",
         topLocations: "أهم المواقع",
+        totalCustomers: "إجمالي العملاء",
+        totalVisitors: "إجمالي الزوار"
       },
       recommendations: {
         title: "توصيات لتحسين الأداء",
+        subtitle: "اقتراحات مخصصة لتعزيز أداء نشاطك التجاري",
         items: [
           'أضف المزيد من الكلمات المفتاحية المتعلقة بـ "أجهزة الكمبيوتر للألعاب" - حجم بحث كبير بنمو 22%',
           "حسّن معدل الاستجابة للوصول إلى هدف 90% - حالياً عند 88%",
           "ارفع المزيد من صور النشاط لزيادة تفاعل العملاء",
           "ركز التسويق على الرياض وجدة - مواقعك الأفضل أداءً",
         ],
+        mediumPriority: "أولوية متوسطة",
+        lowPriority: "أولوية منخفضة",
+        lastUpdated: "آخر تحديث"
       },
+      period: "آخر 30 يوماً",
     },
 
     // Settings

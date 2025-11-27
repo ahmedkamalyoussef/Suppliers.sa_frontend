@@ -173,12 +173,15 @@ export default function BusinessManagement() {
 
   const handleSave = async () => {
     try {
-      const updateData = {
+      // Get current user data to check if email has changed
+      const currentUser = JSON.parse(localStorage.getItem('supplier_user') || '{}');
+      const emailHasChanged = currentUser.email !== businessData.email;
+
+      const updateData: any = {
         businessName: businessData.name,
         category: businessData.category,
         businessType: businessData.businessType,
         description: businessData.description,
-        contactEmail: businessData.email,
         mainPhone: businessData.phone,
         website: businessData.website,
         address: businessData.address,
@@ -190,6 +193,11 @@ export default function BusinessManagement() {
         services: businessData.services,
         workingHours: businessData.workingHours,
       };
+
+      // Only include email in the update if it has changed
+      if (emailHasChanged) {
+        updateData.contactEmail = businessData.email;
+      }
 
       console.log("Data sent successfully:", updateData);
 
@@ -211,6 +219,14 @@ export default function BusinessManagement() {
       
     } catch (error) {
       console.error("Error updating profile:", error);
+      // Show error message to user
+      if (error instanceof Error) {
+        if (error.message.includes('contact email has already been taken')) {
+          alert('هذا البريد الإلكتروني مسجل مسبقاً. الرجاء استخدام بريد إلكتروني آخر.');
+        } else {
+          alert('حدث خطأ أثناء تحديث الملف الشخصي. الرجاء المحاولة مرة أخرى.');
+        }
+      }
     }
   };
 

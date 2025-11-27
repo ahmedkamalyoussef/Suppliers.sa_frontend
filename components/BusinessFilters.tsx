@@ -51,6 +51,52 @@ export default function BusinessFilters({
   openNow,
   setOpenNow,
 }: BusinessFiltersProps) {
+  const [lastTrackedSearch, setLastTrackedSearch] = useState<string>("");
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
+
+  // Track search when user types (with 2-second debounce)
+  const handleSearchChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    
+    // Clear previous timeout
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+    
+    // Set new timeout to track search after 2 seconds
+    if (value && value !== lastTrackedSearch) {
+      const timeout = setTimeout(async () => {
+        try {
+          // Get current user location
+          const userData = localStorage.getItem("supplier_user");
+          let location = "Unknown";
+          
+          if (userData) {
+            try {
+              const user = JSON.parse(userData);
+              location = user.profile?.address || "Unknown";
+            } catch (error) {
+              console.error("Error parsing user data:", error);
+            }
+          }
+
+          await apiService.trackSearch({
+            keyword: value,
+            search_type: "supplier",
+            location: location,
+          });
+          
+          setLastTrackedSearch(value);
+          console.log(`Search tracked: ${value}`);
+        } catch (error) {
+          console.error("Error tracking search:", error);
+        }
+      }, 2000); // 2 seconds delay
+      
+      setSearchTimeout(timeout);
+    }
+  };
   // Fetch stats when component mounts
   useEffect(() => {
     const fetchStats = async () => {
@@ -285,7 +331,7 @@ export default function BusinessFilters({
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange}
               placeholder={t("filters.searchPlaceholder")}
               className={`block w-full ${
                 isRTL ? "pr-10" : "pl-10"
