@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "@/lib/LanguageContext";
 import { apiService } from "@/lib/api";
 import { toast } from "react-toastify";
@@ -61,6 +61,50 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
   });
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
+  // Fetch and set preferences data
+  useEffect(() => {
+    const fetchPreferences = async () => {
+      try {
+        const preferences = await apiService.getPreferences();
+        console.log('=== Preferences Data ===', preferences);
+        
+        // Update settings with API data
+        if (preferences) {
+          setSettings(prev => ({
+            ...prev,
+            profile: {
+              ...prev.profile,
+              name: preferences.supplierName || prev.profile.name,
+              email: preferences.email || prev.profile.email,
+              phone: preferences.phone || prev.profile.phone,
+              businessName: preferences.businessName || prev.profile.businessName,
+            },
+            notifications: {
+              emailNotifications: preferences.preferences?.emailNotifications ?? prev.notifications.emailNotifications,
+              smsNotifications: preferences.preferences?.smsNotifications ?? prev.notifications.smsNotifications,
+              newInquiries: preferences.preferences?.newInquiriesNotifications ?? prev.notifications.newInquiries,
+              profileViews: preferences.preferences?.profileViewsNotifications ?? prev.notifications.profileViews,
+              marketingEmails: preferences.preferences?.marketingEmails ?? prev.notifications.marketingEmails,
+              weeklyReports: preferences.preferences?.weeklyReports ?? prev.notifications.weeklyReports,
+              instantAlerts: prev.notifications.instantAlerts,
+            },
+            privacy: {
+              profileVisibility: preferences.preferences?.profileVisibility ?? prev.privacy.profileVisibility,
+              showEmail: preferences.preferences?.showEmailPublicly ?? prev.privacy.showEmail,
+              showPhone: preferences.preferences?.showPhonePublicly ?? prev.privacy.showPhone,
+              allowDirectContact: preferences.preferences?.allowDirectContact ?? prev.privacy.allowDirectContact,
+              searchEngineIndexing: preferences.preferences?.allowSearchEngineIndexing ?? prev.privacy.searchEngineIndexing,
+            },
+          }));
+        }
+      } catch (error) {
+        console.error('Error fetching preferences:', error);
+      }
+    };
+    
+    fetchPreferences();
+  }, []);
+
   const sections = [
     {
       id: "profile",
@@ -115,8 +159,46 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
     }));
   };
 
-  const handleSaveSettings = () => {
-    // Save settings implementation
+  const handleSaveSettings = async () => {
+    try {
+      // Prepare the data for the API
+      const preferencesData = {
+        name: settings.profile.name,
+        email: settings.profile.email,
+        phone: settings.profile.phone,
+        businessName: settings.profile.businessName,
+        emailNotifications: settings.notifications.emailNotifications,
+        smsNotifications: settings.notifications.smsNotifications,
+        newInquiriesNotifications: settings.notifications.newInquiries,
+        profileViewsNotifications: settings.notifications.profileViews,
+        weeklyReports: settings.notifications.weeklyReports,
+        marketingEmails: settings.notifications.marketingEmails,
+        profileVisibility: settings.privacy.profileVisibility,
+        showEmailPublicly: settings.privacy.showEmail,
+        showPhonePublicly: settings.privacy.showPhone,
+        allowDirectContact: settings.privacy.allowDirectContact,
+        allowSearchEngineIndexing: settings.privacy.searchEngineIndexing,
+      };
+
+      // Call the updatePreferences API
+      const response = await apiService.updatePreferences(preferencesData);
+      console.log('Updated preferences:', response);
+      
+      // Show success message
+      const isArabic = document.documentElement.dir === "rtl";
+      toast.success(
+        isArabic ? "تم حفظ الإعدادات بنجاح" : "Settings saved successfully"
+      );
+      
+    } catch (error) {
+      console.error('Error saving preferences:', error);
+      
+      // Show error message
+      const isArabic = document.documentElement.dir === "rtl";
+      toast.error(
+        isArabic ? "فشل حفظ الإعدادات" : "Failed to save settings"
+      );
+    }
   };
 
   const handlePasswordChange = async () => {
@@ -495,7 +577,6 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                     </label>
                   </div>
                 </div>
-
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800 mb-4">
                     {t("settings.notifications.notificationTypes")}

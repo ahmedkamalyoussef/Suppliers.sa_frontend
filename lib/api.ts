@@ -1,4 +1,6 @@
 // services/api.ts
+import { DashboardResponse } from "../types/dashboard";
+
 const API_BASE_URL = "http://localhost:8000";
 
 export interface Review {
@@ -354,7 +356,7 @@ class ApiService {
             "Validation failed",
             responseData.errors || responseData
           );
-          console.error("[API] Validation Errors:", validationError.errors);
+          console.error("[API] Validation Error:", validationError.errors);
           throw validationError;
         }
 
@@ -919,6 +921,122 @@ class ApiService {
         }),
       },
       true // requires authentication
+    );
+  }
+
+  // ====== PREFERENCES ======
+  async getPreferences(): Promise<any> {
+    return this.request(
+      "/api/supplier/preferences",
+      {
+        method: "GET",
+      },
+      true
+    );
+  }
+
+  async updatePreferences(preferences: any): Promise<any> {
+    return this.request(
+      "/api/supplier/preferences",
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(preferences),
+      },
+      true
+    );
+  }
+
+  // ====== PRODUCT IMAGES ======
+  async uploadProductImage(formData: FormData): Promise<any> {
+    const token = localStorage.getItem("supplier_token");
+    const tokenType = localStorage.getItem("token_type") || "Bearer";
+
+    if (!token) throw new Error("No auth token found");
+
+    const response = await fetch(
+      `${this.baseURL}/api/supplier/product-images`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `${tokenType} ${token}`,
+          // Don't set Content-Type for FormData - browser sets it with boundary
+        },
+        body: formData,
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.message || `HTTP ${response.status}: ${response.statusText}`
+      );
+    }
+
+    return response.json();
+  }
+
+  async deleteProductImage(imageId: number): Promise<any> {
+    const token = localStorage.getItem("supplier_token");
+    const tokenType = localStorage.getItem("token_type") || "Bearer";
+
+    if (!token) throw new Error("No auth token found");
+
+    const response = await fetch(
+      `${this.baseURL}/api/supplier/product-images/${imageId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `${tokenType} ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.message || `HTTP ${response.status}: ${response.statusText}`
+      );
+    }
+
+    // Return success for DELETE operations
+    return { success: true, message: "Image deleted successfully" };
+  }
+
+  async deleteAccount(): Promise<any> {
+    const token = localStorage.getItem("supplier_token");
+    const tokenType = localStorage.getItem("token_type") || "Bearer";
+
+    if (!token) throw new Error("No auth token found");
+
+    const response = await fetch(`${this.baseURL}/api/supplier/account`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `${tokenType} ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.message || `HTTP ${response.status}: ${response.statusText}`
+      );
+    }
+
+    // Return success for DELETE operations
+    return { success: true, message: "Account deleted successfully" };
+  }
+
+  // ====== DASHBOARD ======
+  async getDashboard(range: string = "30"): Promise<DashboardResponse> {
+    return this.request<DashboardResponse>(
+      `/api/supplier/dashboard?range=${range}`,
+      {
+        method: "GET",
+      },
+      true // requiresAuth = true to send token
     );
   }
 }

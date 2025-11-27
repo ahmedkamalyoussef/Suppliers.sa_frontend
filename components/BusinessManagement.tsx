@@ -214,20 +214,48 @@ export default function BusinessManagement() {
     }
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files[0]) {
-      const newImage: ProductImage = {
-        id: Date.now(),
-        url: URL.createObjectURL(files[0]),
-        image: files[0].name,
-      };
-      setBusinessImages([...businessImages, newImage]);
+      try {
+        // Create FormData for the file upload
+        const formData = new FormData();
+        formData.append('image', files[0]);
+        
+        // Upload the image using the API
+        const { apiService } = await import("../lib/api");
+        const response = await apiService.uploadProductImage(formData);
+        
+        // Add the uploaded image to the state
+        const newImage: ProductImage = {
+          id: response.id,
+          url: response.image_url,
+          image: response.name,
+        };
+        setBusinessImages([...businessImages, newImage]);
+        
+        console.log('Image uploaded successfully:', response);
+      } catch (error) {
+        console.error('Error uploading image:', error);
+      }
     }
   };
 
-  const removeImage = (id: number | undefined) => {
-    setBusinessImages(businessImages.filter((img) => img.id !== id));
+  const removeImage = async (id: number | undefined) => {
+    if (!id) return;
+    
+    try {
+      // Delete the image using the API
+      const { apiService } = await import("../lib/api");
+      await apiService.deleteProductImage(id);
+      
+      // Remove the image from the state
+      setBusinessImages(businessImages.filter((img) => img.id !== id));
+      
+      console.log('Image deleted successfully:', id);
+    } catch (error) {
+      console.error('Error deleting image:', error);
+    }
   };
 
   const availableServices = [

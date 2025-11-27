@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useLanguage } from "../lib/LanguageContext";
-import { api } from "../lib/api/service";
-import { API_CONFIG } from "../lib/api/config";
+import { apiService } from "../lib/api";
 
 export default function DashboardStats() {
   const { t } = useLanguage();
@@ -17,65 +16,47 @@ export default function DashboardStats() {
     rating: { current: 0, change: 0, trend: "up" as "up" | "down" },
   });
   const [recentActivities, setRecentActivities] = useState<any[]>([]);
- 
+
   useEffect(() => {
-    // fetchDashboardData();
+    fetchDashboardData();
   }, [timeRange]);
 
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      const response = await api.get<{
-        success: boolean;
-        data?: {
-          stats?: {
-            views?: number;
-            viewsChange?: number;
-            contacts?: number;
-            contactsChange?: number;
-            inquiries?: number;
-            inquiriesChange?: number;
-            rating?: number;
-            ratingChange?: number;
-          };
-          recentActivities?: any[];
-        };
-      }>(API_CONFIG.supplier.dashboard, {
-        params: { range: timeRange },
-      });
-
-      if (response.success && response.data) {
-        const dashboardData = response.data;
-        if (dashboardData.stats) {
+      const response = await apiService.getDashboard(timeRange);
+      console.log('Dashboard data:', response);
+      
+      if (response.overview) {
+        // Update stats
+        if (response.overview.stats) {
           setStats({
             views: {
-              current: dashboardData.stats.views || 0,
-              change: Math.abs(dashboardData.stats.viewsChange || 0),
-              trend:
-                (dashboardData.stats.viewsChange || 0) >= 0 ? "up" : "down",
+              current: response.overview.stats.views.current,
+              change: Math.abs(response.overview.stats.views.change),
+              trend: response.overview.stats.views.trend,
             },
             contacts: {
-              current: dashboardData.stats.contacts || 0,
-              change: Math.abs(dashboardData.stats.contactsChange || 0),
-              trend:
-                (dashboardData.stats.contactsChange || 0) >= 0 ? "up" : "down",
+              current: response.overview.stats.contacts.current,
+              change: Math.abs(response.overview.stats.contacts.change),
+              trend: response.overview.stats.contacts.trend,
             },
             inquiries: {
-              current: dashboardData.stats.inquiries || 0,
-              change: Math.abs(dashboardData.stats.inquiriesChange || 0),
-              trend:
-                (dashboardData.stats.inquiriesChange || 0) >= 0 ? "up" : "down",
+              current: response.overview.stats.inquiries.current,
+              change: Math.abs(response.overview.stats.inquiries.change),
+              trend: response.overview.stats.inquiries.trend,
             },
             rating: {
-              current: dashboardData.stats.rating || 0,
-              change: Math.abs(dashboardData.stats.ratingChange || 0),
-              trend:
-                (dashboardData.stats.ratingChange || 0) >= 0 ? "up" : "down",
+              current: response.overview.stats.rating.current,
+              change: Math.abs(response.overview.stats.rating.change),
+              trend: response.overview.stats.rating.trend,
             },
           });
         }
-        if (dashboardData.recentActivities) {
-          setRecentActivities(dashboardData.recentActivities);
+        
+        // Update recent activities
+        if (response.overview.recentActivities) {
+          setRecentActivities(response.overview.recentActivities);
         }
       }
     } catch (error) {
