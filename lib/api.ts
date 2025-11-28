@@ -13,6 +13,12 @@ export interface Review {
     name: string;
     avatar?: string;
   };
+  reply?: {
+    id: number;
+    reply: string;
+    type: string;
+    created_at: string;
+  };
 }
 
 export interface Certification {
@@ -82,6 +88,14 @@ export interface SupplierProfile {
     name: string;
   }>;
   services: Service[];
+  preferences?: {
+    marketing_emails: boolean;
+    profile_visibility: "public" | "limited";
+    show_email_publicly: boolean;
+    show_phone_publicly: boolean;
+    allow_direct_contact: boolean;
+    allow_search_engine_indexing: boolean;
+  };
 }
 
 // BusinessProfile extends SupplierProfile with explicit products in profile
@@ -237,6 +251,14 @@ export interface Business {
   longitude: string;
   mainPhone: string;
   contactEmail: string;
+  preferences: {
+    marketing_emails: boolean;
+    profile_visibility: "public" | "limited";
+    show_email_publicly: boolean;
+    show_phone_publicly: boolean;
+    allow_direct_contact: boolean;
+    allow_search_engine_indexing: boolean;
+  };
 }
 
 export interface BusinessListResponse {
@@ -858,15 +880,14 @@ class ApiService {
         headers,
         credentials: "include",
       });
-
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
           errorData.message || "Failed to fetch supplier profile"
         );
       }
-
-      return await response.json();
+      const d = await response.json();
+      return d;
     } catch (error) {
       console.error("Error fetching supplier profile:", error);
       throw error;

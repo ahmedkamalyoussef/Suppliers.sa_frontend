@@ -5,7 +5,7 @@ import { AuthProvider } from "../lib/UserContext";
 import { Metadata } from "next";
 import "leaflet/dist/leaflet.css";
 import { ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 const pacifico = localFont({
   src: "./fonts/Pacifico-Regular.ttf",
   variable: "--font-pacifico",
@@ -124,7 +124,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" dir="rtl">
-      <body className={`${inter.variable} ${pacifico.variable} ${robotoMono.variable} font-sans`}>
+      <body
+        className={`${inter.variable} ${pacifico.variable} ${robotoMono.variable} font-sans`}
+      >
         <AuthProvider>
           <LanguageProvider>
             {children}
@@ -140,10 +142,10 @@ export default function RootLayout({
               pauseOnHover
               theme="light"
               toastStyle={{
-                fontFamily: 'var(--font-inter), sans-serif',
-                fontSize: '1rem',
-                direction: 'rtl',
-                textAlign: 'right',
+                fontFamily: "var(--font-inter), sans-serif",
+                fontSize: "1rem",
+                direction: "rtl",
+                textAlign: "right",
               }}
             />
           </LanguageProvider>

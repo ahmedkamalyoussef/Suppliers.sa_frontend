@@ -109,6 +109,7 @@ export default function BusinessProfile() {
   const { t } = useLanguage();
   const [businessProfile, setBusinessProfile] =
     useState<BusinessProfileType | null>(null);
+  const [businessPreferences, setBusinessPreferences] = useState<any>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showContact, setShowContact] = useState(false);
   const [showInquiryModal, setShowInquiryModal] = useState(false);
@@ -137,7 +138,39 @@ export default function BusinessProfile() {
       try {
         const profile = await apiService.getBusinessProfile(businessId);
         console.log("Fetched business profile:", profile);
-        console.log("Products:", profile?.profile?.products);
+
+        // Also fetch from public businesses API to get preferences
+        try {
+          const businessesResponse = await apiService.getBusinesses({
+            per_page: 100,
+          });
+          const businessWithPreferences = businessesResponse.data.find(
+            (b) => b.id.toString() === businessId
+          );
+
+          if (
+            businessWithPreferences?.preferences?.profile_visibility ===
+            "limited"
+          ) {
+            // Check if user is logged in
+            const userData = localStorage.getItem("supplier_user");
+            if (!userData) {
+              // Not logged in, redirect to businesses page
+              router.replace("/businesses");
+              return;
+            }
+            // Logged in - allow access to any profile
+          }
+
+          // Store preferences for use in UI
+          if (businessWithPreferences?.preferences) {
+            setBusinessPreferences(businessWithPreferences.preferences);
+          }
+        } catch (prefError) {
+          console.error("Error fetching preferences:", prefError);
+          // If we can't get preferences, allow access (fallback)
+        }
+
         setBusinessProfile(profile);
       } catch (error) {
         console.error("Error fetching business profile:", error);
@@ -145,7 +178,7 @@ export default function BusinessProfile() {
     };
 
     fetchBusinessProfile();
-  }, [businessId]);
+  }, [businessId, router]);
 
   useEffect(() => {
     const fetchFormUrl = async () => {
@@ -321,6 +354,7 @@ export default function BusinessProfile() {
         date: review.created_at,
         comment: review.comment,
         avatar: review.user?.avatar,
+        reply: review.reply,
       })) || [],
   };
 
@@ -538,14 +572,26 @@ export default function BusinessProfile() {
             {!isOwnProfile && (
               <div className="flex gap-3 mt-4 px-4 md:px-6 pb-6 md:pb-8">
                 <button
-                  onClick={() => setShowInquiryModal(true)}
-                  className="bg-yellow-400 hover:bg-yellow-500 text-white px-8 py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors"
+                  onClick={() => businessPreferences?.allow_direct_contact !== false && setShowInquiryModal(true)}
+                  disabled={businessPreferences?.allow_direct_contact === false}
+                  className={`px-8 py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors ${
+                    businessPreferences?.allow_direct_contact === false
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-yellow-400 hover:bg-yellow-500 text-white"
+                  }`}
                 >
                   <i className="ri-message-line mr-2"></i>
                   {t("publicProfile.buttons.message")}
                 </button>
 
-                <button className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white px-8 py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors border border-gray-300">
+                <button 
+                  disabled={businessPreferences?.allow_direct_contact === false}
+                  className={`px-8 py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors border ${
+                    businessPreferences?.allow_direct_contact === false
+                      ? "bg-gray-200 text-gray-400 cursor-not-allowed border-gray-300"
+                      : "bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border-gray-300"
+                  }`}
+                >
                   <i className="ri-phone-line mr-2"></i>
                   {t("publicProfile.buttons.call")}
                 </button>
@@ -874,9 +920,33 @@ export default function BusinessProfile() {
                             </div>
                           </div>
                         </div>
-                        <p className="text-gray-600 leading-relaxed text-sm md:text-base">
+                        <p className="text-gray-600 leading-relaxed text-sm md:text-base mb-3">
                           {review.comment}
                         </p>
+
+                        {/* Reply Section */}
+                        {review.reply && (
+                          <div className="bg-blue-50 rounded-lg p-3 md:p-4 border border-blue-100">
+                            <div className="flex items-start space-x-2">
+                              <i className="ri-reply-fill text-blue-500 mt-1"></i>
+                              <div className="flex-1">
+                                <div className="flex items-center space-x-2 mb-1">
+                                  <span className="font-medium text-blue-700 text-sm">
+                                    رد العمل
+                                  </span>
+                                  <span className="text-blue-500 text-xs">
+                                    {new Date(
+                                      review.reply.created_at
+                                    ).toLocaleDateString()}
+                                  </span>
+                                </div>
+                                <p className="text-blue-600 text-sm leading-relaxed">
+                                  {review.reply.reply}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -892,6 +962,7 @@ export default function BusinessProfile() {
                   </h3>
 
                   <div className="space-y-3 md:space-y-4 mb-4 md:mb-6">
+                    {businessPreferences?.show_phone_publicly !== false && (
                     <div className="flex items-center space-x-2 md:space-x-3">
                       <div className="w-8 h-8 md:w-10 md:h-10 bg-yellow-100 rounded-full flex items-center justify-center">
                         <i className="ri-phone-line text-yellow-600 text-sm md:text-base"></i>
@@ -905,7 +976,9 @@ export default function BusinessProfile() {
                         </p>
                       </div>
                     </div>
+                  )}
 
+                    {businessPreferences?.show_email_publicly !== false && (
                     <div className="flex items-center space-x-2 md:space-x-3">
                       <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-100 rounded-full flex items-center justify-center">
                         <i className="ri-mail-line text-blue-600 text-sm md:text-base"></i>
@@ -919,6 +992,7 @@ export default function BusinessProfile() {
                         </p>
                       </div>
                     </div>
+                  )}
 
                     <div className="flex items-center space-x-2 md:space-x-3">
                       <div className="w-8 h-8 md:w-10 md:h-10 bg-green-100 rounded-full flex items-center justify-center">
@@ -950,6 +1024,7 @@ export default function BusinessProfile() {
                   </div>
 
                   <div className="grid grid-cols-1 gap-2 md:gap-3">
+                    {businessPreferences?.allow_direct_contact !== false && (
                     <button
                       onClick={() => setShowInquiryModal(true)}
                       className="bg-yellow-400 text-white py-2 md:py-3 px-3 md:px-4 rounded-lg hover:bg-yellow-500 font-medium text-xs md:text-sm whitespace-nowrap cursor-pointer flex items-center justify-center space-x-1 md:space-x-2"
@@ -957,6 +1032,7 @@ export default function BusinessProfile() {
                       <i className="ri-message-line"></i>
                       <span>{t("businessProfile.messageRequest")}</span>
                     </button>
+                  )}
                   </div>
                 </div>
 

@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useLanguage } from "../lib/LanguageContext";
+import BusinessCard from "./BusinessCard";
 
 interface Business {
   id: number;
@@ -18,47 +18,73 @@ interface Business {
   businessImage: string;
   reviewsCount: number;
   status: string;
-  
-} 
+  preferences?: {
+    profile_visibility: "public" | "limited";
+  };
+  [key: string]: any; // For any additional properties
+}
 
 interface FeaturedBusinessesProps {
   businesses: Business[];
 }
 
-export default function FeaturedBusinesses({ businesses }: FeaturedBusinessesProps) {
+export default function FeaturedBusinesses({
+  businesses,
+}: FeaturedBusinessesProps) {
   const { t } = useLanguage();
-  
 
+  // Transform businesses data to match BusinessCard interface
+  const transformedBusinesses = businesses.map((business) => ({
+    ...business, // First spread the original business data to keep all fields
+    // Then override with our mapped fields
+    id: business.id,
+    name: business.name,
+    address: business.address || "Address not available",
+    location: business.address || "Address not available",
+    lat: parseFloat(business.latitude) || 0,
+    lng: parseFloat(business.longitude) || 0,
+    latitude: business.latitude,
+    longitude: business.longitude,
+    type: business.category,
+    category: business.category || "Other",
+    businessType: business.businessType || "Supplier",
+    // Use businessImage directly from the API response
+    businessImage: business.businessImage,
+    // For backward compatibility
+    image: business.businessImage || "",
+    profileImage: business.businessImage,
 
-  const getBusinessTypeIcon = (type: string) => {
-    switch (type) {
-      case "Supplier":
-        return "ri-truck-line";
-      case "Store":
-        return "ri-store-line";
-      case "Office":
-        return "ri-building-line";
-      case "Individual":
-        return "ri-user-line";
-      default:
-        return "ri-building-line";
-    }
-  };
-
-  const getBusinessTypeColor = (type: string) => {
-    switch (type) {
-      case "Supplier":
-        return "bg-blue-100 text-blue-700";
-      case "Store":
-        return "bg-green-100 text-green-700";
-      case "Office":
-        return "bg-purple-100 text-purple-700";
-      case "Individual":
-        return "bg-orange-100 text-orange-700";
-      default:
-        return "bg-gray-100 text-gray-700";
-    }
-  };
+    serviceDistance: business.serviceDistance || "",
+    rating: business.rating || 0,
+    reviewsCount: business.reviewsCount || 0,
+    reviews: business.reviewsCount || 0,
+    categories: Array.isArray(business.categories)
+      ? business.categories
+      : [business.category || "Other"],
+    phone: business.mainPhone || business.phone || "",
+    status: business.status || "pending",
+    contactEmail: business.contactEmail || "",
+    targetMarket: Array.isArray(business.targetMarket)
+      ? business.targetMarket
+      : [],
+    targetCustomers: Array.isArray(business.targetCustomers)
+      ? business.targetCustomers
+      : Array.isArray(business.targetMarket)
+      ? business.targetMarket
+      : [],
+    services: Array.isArray(business.services) ? business.services : [],
+    verified: business.verified || false,
+    openNow: business.openNow || false,
+    preferences: business.preferences,
+    // Additional fields for FeaturedBusinesses compatibility
+    business_name: business.name,
+    business_type: business.businessType,
+    target_market: business.targetMarket,
+    service_distance: business.serviceDistance,
+    reviews_count: business.reviewsCount,
+    profile_image: business.businessImage,
+    distance: business.serviceDistance,
+  }));
 
   return (
     <section className="py-8 sm:py-10 md:py-12 bg-white">
@@ -73,122 +99,12 @@ export default function FeaturedBusinesses({ businesses }: FeaturedBusinessesPro
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
-          {businesses.map((business) => (
-            <div
+          {transformedBusinesses.map((business) => (
+            <BusinessCard
               key={business.id}
-              className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 cursor-pointer h-full flex flex-col"
-            >
-              <div className="relative h-40 sm:h-48 overflow-hidden">
-                <img
-                  src={business.businessImage}
-                  alt={business.name}
-                  className="w-full h-full object-cover object-top"
-                />
-                <div className="absolute top-2 sm:top-4 right-2 sm:right-4 bg-white rounded-full px-2 sm:px-3 py-1 shadow-md">
-                  <span className="text-xs sm:text-sm font-medium text-gray-700">
-                    {business.serviceDistance} km
-                  </span>
-                </div>
-                <div className="absolute top-2 sm:top-4 left-2 sm:left-4">
-                  <div
-                    className={`${getBusinessTypeColor(
-                      business.businessType
-                    )} px-2 sm:px-3 py-1 rounded-full flex items-center space-x-1 shadow-md`}
-                  >
-                    <i
-                      className={`${getBusinessTypeIcon(
-                        business.businessType
-                      )} text-xs sm:text-sm`}
-                    ></i>
-                    <span className="text-xs font-medium">
-                      {business.businessType}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-4 sm:p-5 md:p-6 flex-1 flex flex-col">
-                <div className="mb-2 sm:mb-3">
-                  <h3 className="text-base sm:text-lg font-bold text-gray-800 mb-1">
-                    {business.name}
-                  </h3>
-                  <p className="text-yellow-600 font-medium text-xs sm:text-sm">
-                    {business.category}
-                  </p>
-                </div>
-
-                <div className="flex items-center mb-3 sm:mb-4">
-                  <div className="flex items-center space-x-1">
-                    {[...Array(5)].map((_, i) => (
-                      <i
-                        key={i}
-                        className={`text-xs sm:text-sm ${
-                          i < Math.floor(business.rating)
-                            ? "ri-star-fill text-yellow-400"
-                            : "ri-star-line text-gray-300"
-                        }`}
-                      ></i>
-                    ))}
-                  </div>
-                  <span className="text-xs sm:text-sm text-gray-600 ml-2">
-                    {business.rating} ({business.reviewsCount})
-                  </span>
-                </div>
-
-                {/* Service Information */}
-                <div className="mb-3 sm:mb-4 space-y-1 sm:space-y-2">
-                  <div className="flex items-center text-xs text-gray-600">
-                    <i className="ri-group-line w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center mr-1 sm:mr-2"></i>
-                    <span>
-                      {t("featuredBusinesses.serves")}{" "}
-                      {business.targetMarket.join(", ")}
-                    </span>
-                  </div>
-                  <div className="flex items-center text-xs text-gray-600">
-                    <i className="ri-map-pin-range-line w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center mr-1 sm:mr-2"></i>
-                    <span>
-                      {t("featuredBusinesses.serviceArea")}{" "}
-                      {business.status}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="mb-3 sm:mb-4 flex-1">
-                  <div className="flex flex-wrap gap-1 sm:gap-2">
-                    {business.services.slice(0, 2).map((service, index) => (
-                      <span
-                        key={index}
-                        className="bg-yellow-50 text-yellow-700 px-2 sm:px-3 py-1 rounded-full text-xs font-medium"
-                      >
-                        {service}
-                      </span>
-                    ))}
-                    {business.services.length > 2 && (
-                      <span className="bg-gray-100 text-gray-600 px-2 sm:px-3 py-1 rounded-full text-xs font-medium">
-                        {t("featuredBusinesses.more").replace(
-                          "{{count}}",
-                          String(business.services.length - 2)
-                        )}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Buttons - Always at bottom */}
-                <div className="flex space-x-1 sm:space-x-2 mt-auto">
-                  <button className="flex-1 bg-yellow-400 text-white py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg hover:bg-yellow-500 font-medium text-xs whitespace-nowrap cursor-pointer">
-                    <i className="ri-message-line mr-1 sm:mr-2"></i>
-                    {t("sendMassege")}
-                  </button>
-                  <Link
-                    href={`/business/${business.id}`}
-                    className="flex-1 border border-yellow-400 text-yellow-600 py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg hover:bg-yellow-50 font-medium text-xs whitespace-nowrap cursor-pointer text-center"
-                  >
-                    {t("viewProfile")}
-                  </Link>
-                </div>
-              </div>
-            </div>
+              business={business}
+              viewMode="grid"
+            />
           ))}
         </div>
 

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useLanguage } from "../lib/LanguageContext";
 import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 
 interface Business {
   id: number;
@@ -24,6 +25,9 @@ interface Business {
   businessImage?: string;
   reviewsCount?: number;
   status?: string;
+  preferences?: {
+    profile_visibility: "public" | "limited";
+  };
   [key: string]: any; // For any additional properties
 }
 
@@ -41,9 +45,39 @@ export default function BusinessCard({
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [message, setMessage] = useState("");
 
+  // Handle view profile click with visibility check
+  const handleViewProfile = (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    // Check if profile is limited and user is not the owner
+    if (business.preferences?.profile_visibility === "limited") {
+      const userData = localStorage.getItem("supplier_user");
+      if (userData) {
+        try {
+          const user = JSON.parse(userData);
+          if (user.id.toString() !== business.id.toString()) {
+            // Logged in but not the owner
+            toast.error("البروفايل خاص ولا يمكن مشاهدته");
+            return;
+          }
+          // Logged in and owner - allow access
+        } catch (error) {
+          toast.error("البروفايل خاص ولا يمكن مشاهدته");
+          return;
+        }
+      } else {
+        // Not logged in
+        toast.error("البروفايل خاص ولا يمكن مشاهدته");
+        return;
+      }
+    }
+
+    // If we reach here, allow navigation
+    window.location.href = `/business/${business.id}`;
+  };
+
   // Log business data when it changes
-  useEffect(() => {
-  }, [business]);
+  useEffect(() => {}, [business]);
 
   // Get the image URL with fallback
   const getImageUrl = (imgUrl?: string) => {
@@ -59,13 +93,13 @@ export default function BusinessCard({
 
   const getBusinessTypeIcon = (type: string): string => {
     switch (type) {
-      case "Supplier":
+      case "supplier":
         return "ri-truck-line";
-      case "Store":
+      case "store":
         return "ri-store-line";
-      case "Office":
+      case "office":
         return "ri-building-line";
-      case "Individual":
+      case "individual":
         return "ri-user-line";
       default:
         return "ri-building-line";
@@ -74,16 +108,50 @@ export default function BusinessCard({
 
   const getBusinessTypeColor = (type: string): string => {
     switch (type) {
-      case "Supplier":
+      case "supplier":
         return "bg-blue-100 text-blue-700";
-      case "Store":
+      case "store":
         return "bg-green-100 text-green-700";
-      case "Office":
+      case "office":
         return "bg-purple-100 text-purple-700";
-      case "Individual":
+      case "individual":
         return "bg-orange-100 text-orange-700";
       default:
         return "bg-gray-100 text-gray-700";
+    }
+  };
+
+  const getStatusColor = (status: string): string => {
+    switch (status?.toLowerCase()) {
+      case "approved":
+        return "bg-green-100 text-green-700";
+      case "pending":
+        return "bg-yellow-100 text-yellow-700";
+      case "rejected":
+        return "bg-red-100 text-red-700";
+      case "suspended":
+        return "bg-gray-100 text-gray-700";
+      case "unknown":
+        return "bg-gray-100 text-gray-700";
+      default:
+        return "bg-gray-100 text-gray-700";
+    }
+  };
+
+  const getStatusIcon = (status: string): string => {
+    switch (status?.toLowerCase()) {
+      case "approved":
+        return "ri-check-line";
+      case "pending":
+        return "ri-time-line";
+      case "rejected":
+        return "ri-close-line";
+      case "suspended":
+        return "ri-pause-line";
+      case "unknown":
+        return "ri-information-line";
+      default:
+        return "ri-information-line";
     }
   };
 
@@ -104,9 +172,21 @@ export default function BusinessCard({
                 }}
               />
               <div className="absolute top-2 right-2 bg-white rounded-full px-2 py-1 shadow-md">
-                <span className="text-xs font-medium text-gray-700">
-                  {business.status}
-                </span>
+                <div
+                  className={`${getStatusColor(
+                    business.status || "unknown"
+                  )} px-2 py-1 rounded-full flex items-center space-x-1`}
+                >
+                  <i
+                    className={`${getStatusIcon(
+                      business.status || "unknown"
+                    )} text-xs`}
+                  ></i>
+                  <span className="text-xs font-medium">
+                    {(business.status || "unknown")?.charAt(0).toUpperCase() +
+                      (business.status || "unknown")?.slice(1)}
+                  </span>
+                </div>
               </div>
               {business.status === "verified" && (
                 <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium shadow-md">
@@ -134,7 +214,8 @@ export default function BusinessCard({
                         )} text-xs`}
                       ></i>
                       <span className="text-xs font-medium">
-                        {business.businessType}
+                        {business.businessType?.charAt(0).toUpperCase() +
+                          business.businessType?.slice(1)}
                       </span>
                     </div>
                     {business.openNow && (
@@ -211,12 +292,12 @@ export default function BusinessCard({
                     <i className="ri-message-line mr-2"></i>
                     {t("businessCard.message")}
                   </button>
-                  <Link
-                    href={`/business/${business.id}`}
+                  <button
+                    onClick={handleViewProfile}
                     className="flex-1 md:w-full border border-yellow-400 text-yellow-600 py-2 px-3 rounded-lg hover:bg-yellow-50 font-medium text-xs whitespace-nowrap cursor-pointer text-center"
                   >
                     {t("businessCard.viewProfile")}
-                  </Link>
+                  </button>
                 </div>
               </div>
             </div>
@@ -234,10 +315,22 @@ export default function BusinessCard({
           alt={business.name}
           className="w-full h-full object-cover object-top"
         />
-        <div className="absolute top-4 right-4 bg-white rounded-full px-3 py-1 shadow-md">
-          <span className="text-sm font-medium text-gray-700">
-            {business.status}
-          </span>
+        <div className="absolute top-4 right-4  rounded-full shadow-md">
+          <div
+            className={`${getStatusColor(
+              business.status || "unknown"
+            )} px-3 py-1 rounded-full flex items-center space-x-1`}
+          >
+            <i
+              className={`${getStatusIcon(
+                business.status || "unknown"
+              )} text-xs`}
+            ></i>
+            <span className="text-xs font-medium">
+              {(business.status || "unknown")?.charAt(0).toUpperCase() +
+                (business.status || "unknown")?.slice(1)}
+            </span>
+          </div>
         </div>
         <div className="absolute top-4 left-4 flex items-center space-x-2">
           <div
@@ -250,7 +343,10 @@ export default function BusinessCard({
                 business.businessType
               )} text-sm`}
             ></i>
-            <span className="text-xs font-medium">{business.businessType}</span>
+            <span className="text-xs font-medium">
+              {business.businessType?.charAt(0).toUpperCase() +
+                business.businessType?.slice(1)}
+            </span>
           </div>
           {business.verified && (
             <div className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium shadow-md">
@@ -333,12 +429,12 @@ export default function BusinessCard({
             <i className="ri-message-line mr-2"></i>
             {t("businessCard.message")}
           </button>
-          <Link
-            href={`/business/${business.id}`}
+          <button
+            onClick={handleViewProfile}
             className="flex-1 border border-yellow-400 text-yellow-600 py-2 px-3 rounded-lg hover:bg-yellow-50 font-medium text-xs whitespace-nowrap cursor-pointer text-center"
           >
             {t("businessCard.viewProfile")}
-          </Link>
+          </button>
         </div>
       </div>
     </div>

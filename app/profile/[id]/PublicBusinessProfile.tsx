@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type React from "react";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
@@ -64,6 +64,12 @@ type Review = {
   rating: number;
   date: string;
   comment: string;
+  reply?: {
+    id: number;
+    reply: string;
+    type: string;
+    created_at: string;
+  };
 };
 
 type PublicBusinessProfileProps = {
@@ -94,11 +100,18 @@ export default function PublicBusinessProfile({
   });
   const [isSendingReply, setIsSendingReply] = useState(false);
   const [replyError, setReplyError] = useState("");
+  const [supplierState, setSupplierState] = useState(supplier);
   const { t } = useLanguage();
   const { user } = useAuth();
 
   // Check if the current user is viewing their own profile
   const isOwnProfile = user?.id?.toString() == businessId;
+
+  // Update supplier state when prop changes
+  useEffect(() => {
+    setSupplierState(supplier);
+  }, [supplier]);
+
   // Helper function to safely handle translations
   const safeT = (
     key: string,
@@ -293,12 +306,13 @@ export default function PublicBusinessProfile({
 
   // Get reviews from API response or use empty array if not available
   const reviews: Review[] =
-    supplier?.ratings?.reviews?.map((review) => ({
+    supplierState?.ratings?.reviews?.map((review) => ({
       id: review.id,
       customerName: review.user?.name || t("businessProfile.anonymous"),
       rating: review.rating,
       date: new Date(review.created_at).toISOString().split("T")[0], // Format date as YYYY-MM-DD
       comment: review.comment || t("businessProfile.noComment"),
+      reply: review.reply,
     })) || [];
 
   const handleInquirySubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -934,9 +948,31 @@ export default function PublicBusinessProfile({
                           Reply
                         </button>
                       </div>
-                      <p className="text-gray-600 leading-relaxed">
+                      <p className="text-gray-600 leading-relaxed mb-3">
                         {review.comment}
                       </p>
+                      
+                      {/* Reply Section */}
+                      {review.reply && (
+                        <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
+                          <div className="flex items-start space-x-2">
+                            <i className="ri-reply-fill text-blue-500 mt-1"></i>
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-2 mb-1">
+                                <span className="font-medium text-blue-700 text-sm">
+                                  رد العمل
+                                </span>
+                                <span className="text-blue-500 text-xs">
+                                  {new Date(review.reply.created_at).toLocaleDateString()}
+                                </span>
+                              </div>
+                              <p className="text-blue-600 text-sm leading-relaxed">
+                                {review.reply.reply}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -1353,11 +1389,37 @@ export default function PublicBusinessProfile({
                         setReplyError("");
                         
                         try {
-                          await apiService.replyToInboxItem({
+                          const replyResponse = await apiService.replyToInboxItem({
                             type: "supplier_rating",
                             id: selectedReview.id,
                             reply: replyForm.reply,
                           });
+                          
+                          // Update supplier state to show the new reply immediately
+                          if (supplierState) {
+                            setSupplierState(prev => {
+                              if (!prev) return prev;
+                              return {
+                                ...prev,
+                                ratings: {
+                                  ...prev.ratings,
+                                  reviews: prev.ratings.reviews.map(review => 
+                                    review.id === selectedReview.id 
+                                      ? { 
+                                          ...review, 
+                                          reply: {
+                                            id: (replyResponse as any)?.id || Date.now(),
+                                            reply: replyForm.reply,
+                                            type: "reviewReply",
+                                            created_at: new Date().toISOString()
+                                          }
+                                        }
+                                      : review
+                                  )
+                                }
+                              };
+                            });
+                          }
                           
                           // Success - close modal and reset form
                           setShowReplyModal(false);

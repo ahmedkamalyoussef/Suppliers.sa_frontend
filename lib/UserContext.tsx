@@ -57,6 +57,14 @@ export interface SupplierProfile {
     id: number;
     service_name: string;
   }>;
+  preferences: {
+    marketing_emails: boolean;
+    profile_visibility: "public" | "limited";
+    show_email_publicly: boolean;
+    show_phone_publicly: boolean;
+    allow_direct_contact: boolean;
+    allow_search_engine_indexing: boolean;
+  };
 }
 
 export interface User {

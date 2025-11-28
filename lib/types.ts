@@ -13,6 +13,15 @@ export interface AdditionalPhone {
   name: string;
 }
 
+export interface Preferences {
+  marketing_emails: boolean;
+  profile_visibility: "public" | "limited";
+  show_email_publicly: boolean;
+  show_phone_publicly: boolean;
+  allow_direct_contact: boolean;
+  allow_search_engine_indexing: boolean;
+}
+
 export type Branch = {
   id: string;
   name: string;
@@ -78,6 +87,29 @@ export interface CompleteProfileFormProps {
   nextStep: () => void;
   prevStep: () => void;
   goToStep: (step: number) => void;
+}
+
+export interface Business {
+  id: number;
+  name: string;
+  slug: string;
+  categories: string[];
+  reviewsCount: number;
+  status: string;
+  plan: string;
+  mainPhone: string;
+  contactEmail: string;
+  services: string[];
+  targetMarket: string[];
+  preferences: Preferences;
+  businessImage?: string;
+  category?: string;
+  businessType?: string;
+  address?: string;
+  serviceDistance?: number;
+  rating?: number;
+  latitude?: string;
+  longitude?: string;
 }
 
 // Inbox Interfaces
