@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useLanguage } from "../lib/LanguageContext";
+import { apiService } from "../lib/api";
 
 type InboxMessage = {
   id: number;
@@ -47,114 +48,55 @@ export default function DashboardMessages({
   const [composeTo, setComposeTo] = useState("");
   const [composeSubject, setComposeSubject] = useState("");
   const [composeBody, setComposeBody] = useState("");
-
-  const messages: { inbox: InboxMessage[]; sent: SentMessage[] } = {
-    inbox: [
-      {
-        id: 1,
-        from: "Sarah Johnson",
-        company: "Tech Solutions Co.",
-        subject: "Bulk order inquiry for LED TVs",
-        message:
-          "Hi, I am interested in placing a bulk order for LED TVs. We need approximately 50 units for our office setup. Could you please provide pricing and availability? We are looking for Samsung or LG models, 43-55 inch range.",
-        time: "2 hours ago",
-        unread: true,
-        type: "inquiry",
-        contact: "sarah.johnson@techsolutions.com",
-        phone: "+966 50 987 6543",
-      },
-      {
-        id: 2,
-        from: "Review System",
-        company: "Platform Notification",
-        subject: "New Customer Review Received",
-        message:
-          "You have received a new 5-star review from a customer! The review has been approved by our admin team and is now live on your business profile. The customer praised your excellent service and fast delivery.",
-        time: "4 hours ago",
-        unread: true,
-        type: "notification",
-        contact: "noreply@platform.com",
-        phone: null,
-      },
-      {
-        id: 3,
-        from: "Ahmed Al-Mansouri",
-        company: "Emirates Mall",
-        subject: "Partnership opportunity",
-        message:
-          "We are expanding our electronics section and would like to discuss a potential partnership. Are you interested in setting up a retail presence in our mall? Please let me know your thoughts.",
-        time: "5 hours ago",
-        unread: true,
-        type: "business",
-        contact: "ahmed.mansouri@emiratesmall.ae",
-        phone: "+971 50 123 4567",
-      },
-      {
-        id: 4,
-        from: "Review System",
-        company: "Platform Notification",
-        subject: "Review Notification - 4 Star Review",
-        message:
-          'A customer has left a 4-star review for your business. They appreciated your quality products and service. The review mentions: "Good quality products and reasonable prices. Professional service throughout."',
-        time: "1 day ago",
-        unread: false,
-        type: "notification",
-        contact: "noreply@platform.com",
-        phone: null,
-      },
-      {
-        id: 5,
-        from: "Michael Chen",
-        company: "Digital Innovations",
-        subject: "Request for quotation",
-        message:
-          "We need a quote for gaming computers and accessories. Our requirements include 20 high-end gaming PCs, mechanical keyboards, gaming mice, and monitors. Timeline is flexible.",
-        time: "2 days ago",
-        unread: false,
-        type: "quote",
-        contact: "michael.chen@digitalinnovations.com",
-        phone: "+966 55 456 7890",
-      },
-      {
-        id: 6,
-        from: "Lisa Rodriguez",
-        company: "StartUp Hub",
-        subject: "Office equipment needs",
-        message:
-          "Our startup is setting up a new office and we need various electronic equipment. Looking for laptops, printers, networking equipment, and audio/video conferencing setup.",
-        time: "3 days ago",
-        unread: false,
-        type: "inquiry",
-        contact: "lisa.rodriguez@startuphub.com",
-        phone: "+966 56 789 0123",
-      },
-    ],
-    sent: [
-      {
-        id: 7,
-        to: "David Park",
-        company: "Innovation Labs",
-        subject: "Re: Pricing inquiry for components",
-        message:
-          "Thank you for your inquiry. Please find attached our latest price list for electronic components. We offer bulk discounts for orders over $10,000. Let me know if you need any specific information.",
-        time: "3 hours ago",
-        type: "response",
-      },
-      {
-        id: 8,
-        to: "Maria Santos",
-        company: "Retail Solutions",
-        subject: "Product availability update",
-        message:
-          'The Samsung TV models you requested are now back in stock. We have 25 units of the 50" model and 15 units of the 55" model available. Please confirm your order by end of week.',
-        time: "1 day ago",
-        type: "update",
-      },
-    ],
-  };
+  const [isSending, setIsSending] = useState(false);
+  const [sendError, setSendError] = useState("");
+  const [inboxData, setInboxData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (selectedMessageId) {
+    const fetchInbox = async () => {
+      setIsLoading(true);
+      try {
+        const response = await apiService.getInbox();
+        console.log('Inbox API Response:', response);
+        setInboxData(response);
+      } catch (error) {
+        console.error('Failed to fetch inbox:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchInbox();
+  }, []);
+
+  const messages: { inbox: InboxMessage[]; sent: SentMessage[] } = inboxData ? {
+    inbox: inboxData.inbox.map((item: any) => ({
+      id: item.id,
+      from: item.sender.name,
+      company: item.sender.name,
+      subject: item.subject,
+      message: item.message,
+      time: item.time_ago,
+      unread: !item.is_read,
+      type: item.type === 'supplier_rating' ? 'notification' : 
+            item.type === 'supplier_to_supplier_inquiry' ? 'inquiry' : 'notification',
+      contact: item.sender_email || '',
+      phone: null,
+    })),
+    sent: inboxData.sent.map((item: any) => ({
+      id: item.id,
+      to: item.receiver.name,
+      company: item.receiver.name,
+      subject: item.subject,
+      message: item.message,
+      time: item.time_ago,
+      type: 'response',
+    }))
+  } : { inbox: [], sent: [] };
+
+  useEffect(() => {
+    if (selectedMessageId && inboxData) {
       const inboxMsg = messages.inbox.find((m) => m.id === selectedMessageId);
       const sentMsg = messages.sent.find((m) => m.id === selectedMessageId);
 
@@ -169,7 +111,7 @@ export default function DashboardMessages({
         }
       }
     }
-  }, [selectedMessageId]);
+  }, [selectedMessageId, inboxData]);
 
   const getMessageIcon = (type: MessageType): string => {
     switch (type) {
@@ -209,17 +151,77 @@ export default function DashboardMessages({
     }
   };
 
-  const handleReply = (messageId: number) => {
-    if (replyText.trim()) {
+  const handleReply = async (messageId: number) => {
+    if (!replyText.trim() || !inboxData) return;
+    
+    const message = inboxData.inbox.find((m: any) => m.id === messageId);
+    if (!message) return;
+    
+    try {
+      await apiService.replyToInboxItem({
+        type: message.type,
+        id: messageId,
+        reply: replyText
+      });
+      
+      // Clear reply text and close modal
       setReplyText("");
       setSelectedMessage(null);
+      
+      console.log('Reply sent successfully');
+      
+      // Refresh inbox data to show changes
+      const fetchInbox = async () => {
+        try {
+          const response = await apiService.getInbox();
+          console.log('Inbox API Response after reply:', response);
+          setInboxData(response);
+        } catch (error) {
+          console.error('Failed to refresh inbox:', error);
+        }
+      };
+      
+      fetchInbox();
+    } catch (error) {
+      console.error('Failed to send reply:', error);
     }
   };
 
-  const markAsRead = (messageId: number) => {
-    const message = messages.inbox.find((m) => m.id === messageId);
-    if (message) {
-      message.unread = false;
+  const markAsRead = async (messageId: number) => {
+    if (!inboxData) return;
+    
+    const message = inboxData.inbox.find((m: any) => m.id === messageId);
+    if (message && !message.is_read) {
+      try {
+        await apiService.markAsRead({
+          type: message.type,
+          id: messageId
+        });
+        
+        // Update local state
+        setInboxData((prev: any) => ({
+          ...prev,
+          inbox: prev.inbox.map((m: any) => 
+            m.id === messageId ? { ...m, is_read: true } : m
+          ),
+          unread_count: Math.max(0, prev.unread_count - 1)
+        }));
+        
+        // Emit custom event to notify header component
+        window.dispatchEvent(new CustomEvent('messageMarkedAsRead', {
+          detail: { messageId, unreadCount: Math.max(0, inboxData.unread_count - 1) }
+        }));
+        
+        console.log('DashboardMessages - Message marked as read and event emitted:', messageId);
+        
+        // Update messages object as well
+        const messageInMessages = messages.inbox.find((m) => m.id === messageId);
+        if (messageInMessages) {
+          messageInMessages.unread = false;
+        }
+      } catch (error) {
+        console.error('DashboardMessages - Failed to mark message as read:', error);
+      }
     }
   };
 
@@ -269,10 +271,10 @@ export default function DashboardMessages({
         </div>
 
         {/* Messages List */}
-        <div className="divide-y divide-gray-100">
+        <div className="max-h-96 overflow-y-auto divide-y divide-gray-100">
           {messages[activeTab].map((message: any, index: number) => (
             <div
-              key={message.id}
+              key={`${activeTab}-${message.id}-${index}`}
               className={`p-6 hover:bg-gray-50 cursor-pointer transition-colors ${
                 message.unread ? "bg-blue-50" : ""
               }`}
@@ -520,20 +522,39 @@ export default function DashboardMessages({
                 {t("messagesPage.cancel")}
               </button>
               <button
-                onClick={() => {
+                onClick={async () => {
                   if (
                     !composeTo.trim() ||
                     !composeSubject.trim() ||
                     !composeBody.trim()
                   )
                     return;
-                  // In a real app, send the message to backend here
-                  setShowCompose(false);
-                  setComposeTo("");
-                  setComposeSubject("");
-                  setComposeBody("");
+                  
+                  setIsSending(true);
+                  setSendError("");
+                  
+                  try {
+                    await apiService.sendMessage({
+                      receiver_email: composeTo,
+                      subject: composeSubject,
+                      message: composeBody,
+                    });
+                    
+                    // Success - close modal and reset form
+                    setShowCompose(false);
+                    setComposeTo("");
+                    setComposeSubject("");
+                    setComposeBody("");
+                    setSendError("");
+                  } catch (error) {
+                    console.error("Failed to send message:", error);
+                    setSendError(error instanceof Error ? error.message : "Failed to send message");
+                  } finally {
+                    setIsSending(false);
+                  }
                 }}
                 disabled={
+                  isSending ||
                   !composeTo.trim() ||
                   !composeSubject.trim() ||
                   !composeBody.trim()
@@ -541,15 +562,35 @@ export default function DashboardMessages({
                 className={`px-6 py-2 rounded-lg font-medium text-sm whitespace-nowrap cursor-pointer transition-all ${
                   composeTo.trim() &&
                   composeSubject.trim() &&
-                  composeBody.trim()
+                  composeBody.trim() &&
+                  !isSending
                     ? "bg-yellow-400 text-white hover:bg-yellow-500"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
               >
-                <i className="ri-send-plane-line mr-2"></i>
-                {t("messagesPage.send")}
+                {isSending ? (
+                  <>
+                    <i className="ri-loader-4-line animate-spin mr-2"></i>
+                    {t("messagesPage.sending")}
+                  </>
+                ) : (
+                  <>
+                    <i className="ri-send-plane-line mr-2"></i>
+                    {t("messagesPage.send")}
+                  </>
+                )}
               </button>
             </div>
+            
+            {/* Error Message */}
+            {sendError && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg mb-4">
+                <div className="flex items-center space-x-2">
+                  <i className="ri-error-warning-line text-red-600"></i>
+                  <span className="text-red-700 text-sm">{sendError}</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -563,7 +604,7 @@ export default function DashboardMessages({
             </div>
             <div>
               <h3 className="text-2xl font-bold text-gray-800">
-                {messages.inbox.filter((m) => m.unread).length}
+                {inboxData ? inboxData.unread_count : 0}
               </h3>
               <p className="text-gray-600 text-sm">
                 {t("messagesPage.unreadMessages")}
@@ -578,7 +619,9 @@ export default function DashboardMessages({
               <i className="ri-time-line text-green-600 text-xl"></i>
             </div>
             <div>
-              <h3 className="text-2xl font-bold text-gray-800">2.4h</h3>
+              <h3 className="text-2xl font-bold text-gray-800">
+                {inboxData ? inboxData.avg_response_time : '0h'}
+              </h3>
               <p className="text-gray-600 text-sm">
                 {t("messagesPage.avgResponseTime")}
               </p>
@@ -592,7 +635,9 @@ export default function DashboardMessages({
               <i className="ri-percent-line text-yellow-600 text-xl"></i>
             </div>
             <div>
-              <h3 className="text-2xl font-bold text-gray-800">94%</h3>
+              <h3 className="text-2xl font-bold text-gray-800">
+                {inboxData ? inboxData.response_rate : '0%'}
+              </h3>
               <p className="text-gray-600 text-sm">
                 {t("messagesPage.responseRate")}
               </p>

@@ -79,3 +79,45 @@ export interface CompleteProfileFormProps {
   prevStep: () => void;
   goToStep: (step: number) => void;
 }
+
+// Inbox Interfaces
+export interface InboxMessage {
+  id: number;
+  type: "supplier_to_supplier_inquiry" | "supplier_rating" | "message" | "review_reply";
+  subject: string;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+  time_ago: string;
+  direction: "received" | "sent";
+  sender: {
+    id: number | null;
+    name: string;
+  };
+  receiver: {
+    id: number;
+    name: string;
+  };
+  // Supplier to supplier inquiry fields
+  inquiry_type?: string;
+  is_reply?: boolean;
+  // Supplier rating fields
+  score?: number;
+  rating_type?: string;
+  has_reply?: boolean;
+  // Message fields
+  sender_email?: string;
+  receiver_email?: string;
+  // Review reply fields
+  reply_type?: string;
+  rating_id?: number;
+}
+
+export interface InboxResponse {
+  inbox: InboxMessage[];
+  sent: InboxMessage[];
+  all: InboxMessage[];
+  unread_count: number;
+  avg_response_time: string;
+  response_rate: string;
+}

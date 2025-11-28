@@ -20,7 +20,7 @@ const categoryOptions = [
   { en: "Electronics", ar: "إلكترونيات" },
   { en: "Printing", ar: "طباعة" },
   { en: "Furniture", ar: "أثاث" },
-  { en: "Technology", ar: "تكنولوجيا" }
+  { en: "Technology", ar: "تكنولوجيا" },
 ];
 
 // Categories with translations
@@ -1029,7 +1029,7 @@ export default function CompleteProfileForm({
         categories: formData.categories,
         productKeywords: formData.productKeywords,
         whoDoYouServe: formData.targetCustomers.join(", "), // Convert array to string for backend
-        serviceDistance: formData.serviceDistance,
+        serviceDistance: formData.serviceDistance.toString(),
         services: formData.services,
         website: formData.website,
         mainPhone: mainPhoneValue, // Use validated main phone value
@@ -1402,15 +1402,17 @@ export default function CompleteProfileForm({
                   Category *
                 </label>
                 <select
-                  value={formData.category || ''}
-                  onChange={(e) => handleInputChange("category", e.target.value)}
+                  value={formData.category || ""}
+                  onChange={(e) =>
+                    handleInputChange("category", e.target.value)
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
                   required
                 >
                   <option value="">Select a category</option>
                   {categoryOptions.map((option) => (
                     <option key={option.en} value={option.en}>
-                      {language === 'ar' ? option.ar : option.en}
+                      {language === "ar" ? option.ar : option.en}
                     </option>
                   ))}
                 </select>

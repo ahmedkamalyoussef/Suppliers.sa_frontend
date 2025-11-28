@@ -66,14 +66,16 @@ export default function DashboardAnalytics() {
       profile_views: number;
     };
   } | null>(null);
-  const [performanceMetrics, setPerformanceMetrics] = useState<Array<{
-    metric: string;
-    value: number;
-    target: number;
-    color: string;
-    unit?: string;
-    isRating?: boolean;
-  }>>([]);
+  const [performanceMetrics, setPerformanceMetrics] = useState<
+    Array<{
+      metric: string;
+      value: number;
+      target: number;
+      color: string;
+      unit?: string;
+      isRating?: boolean;
+    }>
+  >([]);
 
   // Fetch charts data when chartType or timeRange changes
   const fetchChartsData = async () => {
@@ -124,22 +126,23 @@ export default function DashboardAnalytics() {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const range = timeRange === "7days" ? 7 : timeRange === "30days" ? 30 : 90;
-        
+        const range =
+          timeRange === "7days" ? 7 : timeRange === "30days" ? 30 : 90;
+
         // 1. Get Performance Metrics
         const metricsResponse = await apiService.getPerformanceMetrics();
         console.log("Performance Metrics:", metricsResponse);
-        
+
         // Map the API response to the expected format
-        const mappedMetrics = metricsResponse.metrics.map(metric => ({
+        const mappedMetrics = metricsResponse.metrics.map((metric) => ({
           metric: metric.metric,
           value: metric.value,
           target: metric.target,
           color: getMetricColor(metric.metric),
           unit: metric.unit,
-          isRating: metric.isRating
+          isRating: metric.isRating,
         }));
-        
+
         setPerformanceMetrics(mappedMetrics);
 
         // 2. Get Charts Data
@@ -204,17 +207,17 @@ export default function DashboardAnalytics() {
 
   // Helper function to get color based on metric name
   const getMetricColor = (metricName: string): string => {
-    switch(metricName) {
-      case 'Profile Completion':
-        return 'bg-green-500';
-      case 'Response Rate':
-        return 'bg-yellow-500';
-      case 'Customer Satisfaction':
-        return 'bg-blue-500';
-      case 'Search Visibility':
-        return 'bg-purple-500';
+    switch (metricName) {
+      case "Profile Completion":
+        return "bg-green-500";
+      case "Response Rate":
+        return "bg-yellow-500";
+      case "Customer Satisfaction":
+        return "bg-blue-500";
+      case "Search Visibility":
+        return "bg-purple-500";
       default:
-        return 'bg-gray-500';
+        return "bg-gray-500";
     }
   };
 
@@ -296,9 +299,9 @@ export default function DashboardAnalytics() {
             </div>
             <div className="text-2xl font-bold">
               {metric.value}
-              {metric.unit === 'stars' || metric.isRating ? (
+              {metric.unit === "stars" || metric.isRating ? (
                 <span className="text-sm text-gray-500">/5</span>
-              ) : metric.unit === '%' ? (
+              ) : metric.unit === "%" ? (
                 <span className="text-sm text-gray-500">%</span>
               ) : null}
             </div>
@@ -415,7 +418,6 @@ export default function DashboardAnalytics() {
               </h3>
               {keywordsData?.period && (
                 <span className="text-xs text-gray-500">
-                  
                   {keywordsData.period}
                 </span>
               )}
@@ -455,9 +457,9 @@ export default function DashboardAnalytics() {
                         ></div>
                       </div>
                       <div className="flex justify-between text-xs text-gray-500">
-                        
                         <span className="text-gray-400 text-xs">
-                          Last search : {new Date(keyword.last_searched).toLocaleDateString()}
+                          Last search :{" "}
+                          {new Date(keyword.last_searched).toLocaleDateString()}
                         </span>
                       </div>
                     </div>

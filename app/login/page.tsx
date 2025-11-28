@@ -70,7 +70,6 @@ export default function LoginPage() {
         password: formData.password,
       };
 
-      console.log("Attempting login with:", loginData);
       const response = await apiService.login(loginData);
 
       // Check if user is a supplier
@@ -86,7 +85,6 @@ export default function LoginPage() {
       // Always redirect to homepage after login
       router.push("/");
     } catch (error: any) {
-      console.error("Login failed:", error);
       setLoginError(error.message || "Login failed. Please try again.");
     } finally {
       setIsSubmitting(false);

@@ -55,7 +55,6 @@ export default function EnhancedSearch({ onSearch }: EnhancedSearchProps) {
     };
 
     recognition.onerror = (event: any) => {
-      console.error("Speech recognition error:", event.error);
       setIsVoiceSearch(false);
       alert("Voice search failed. Please try again.");
     };

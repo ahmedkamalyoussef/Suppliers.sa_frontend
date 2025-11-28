@@ -244,7 +244,6 @@ export default function BusinessManagement() {
         updateData.contactEmail = businessData.email;
       }
 
-      console.log("Data sent successfully:", updateData);
 
       const { apiService } = await import("../lib/api");
       const response = await apiService.updateProfile(updateData);
@@ -265,7 +264,6 @@ export default function BusinessManagement() {
 
       setIsEditing(false);
     } catch (error) {
-      console.error("Error updating profile:", error);
     }
   };
 
@@ -291,9 +289,7 @@ export default function BusinessManagement() {
         };
         setBusinessImages([...businessImages, newImage]);
 
-        console.log("Image uploaded successfully:", response);
       } catch (error) {
-        console.error("Error uploading image:", error);
       }
     }
   };
@@ -309,9 +305,7 @@ export default function BusinessManagement() {
       // Remove the image from the state
       setBusinessImages(businessImages.filter((img) => img.id !== id));
 
-      console.log("Image deleted successfully:", id);
     } catch (error) {
-      console.error("Error deleting image:", error);
     }
   };
 

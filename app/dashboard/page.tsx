@@ -70,7 +70,6 @@ function DashboardContent() {
               profileImage = profile_image;
             }
           } catch (error) {
-            console.error("Error fetching profile picture:", error);
             // Fallback to the existing image if there's an error
           }
           
@@ -89,7 +88,6 @@ function DashboardContent() {
           });
         }
       } catch (error) {
-        console.error("Error fetching user data:", error);
       }
     };
 
@@ -118,6 +116,13 @@ function DashboardContent() {
         : null;
     if (savedAvatar) setAvatarUrl(savedAvatar);
   }, [searchParams]);
+
+  // Clear selectedMessageId when switching away from messages tab
+  useEffect(() => {
+    if (activeTab !== "messages") {
+      setSelectedMessageId(null);
+    }
+  }, [activeTab]);
 
   const tabs = [
     { id: "overview", name: "Overview", icon: "ri-dashboard-line" },
@@ -477,7 +482,6 @@ function DashboardContent() {
                                   }
                                 }
                               } catch (error) {
-                                console.error("Error refreshing profile picture:", error);
                                 // Continue with the preview URL if there's an error
                                 setAvatarUrl(previewUrl);
                               }
@@ -502,7 +506,6 @@ function DashboardContent() {
                                 : "حدث خطأ أثناء رفع الصورة";
                             alert(errorMessage);
 
-                            console.error("Error uploading image:", error);
                           } finally {
                             setIsUploading(false);
                             setShowPhotoUpload(false);

@@ -43,7 +43,6 @@ export default function ForgotPasswordPage() {
       
       setIsSubmitted(true);
     } catch (error: any) {
-      console.error("Forgot password failed:", error);
       setError(error.message || "Failed to send reset instructions. Please try again.");
     } finally {
       setIsSubmitting(false);

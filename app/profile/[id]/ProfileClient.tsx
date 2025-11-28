@@ -30,7 +30,6 @@ export default function ProfileClient({ id }: { id: string }) {
                 return; // This will unmount the component and remount with the new ID
               }
             } catch (e) {
-              console.error('Error parsing user data:', e);
               setError('خطأ في تحميل بيانات المستخدم');
               return;
             }
@@ -44,9 +43,7 @@ export default function ProfileClient({ id }: { id: string }) {
         // Fetch the profile data
         const data = await apiService.getSupplierProfile(profileId);
         setProfileData(data);
-        console.log('Profile Data:', data);
       } catch (err) {
-        console.error('Error fetching profile:', err);
         setError('حدث خطأ أثناء تحميل الملف الشخصي');
       } finally {
         setIsLoading(false);

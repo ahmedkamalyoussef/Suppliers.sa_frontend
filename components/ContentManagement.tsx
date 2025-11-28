@@ -102,7 +102,6 @@ export default function ContentManagement() {
       : businesses.filter((b) => b.status === filterStatus);
 
   const handleBulkAction = (action: string): void => {
-    console.log(`Bulk action: ${action} on items:`, selectedItems);
     setSelectedItems([]);
   };
 
@@ -142,17 +141,14 @@ export default function ContentManagement() {
     setPendingReviews((prev) =>
       prev.filter((review) => review.id !== reviewId)
     );
-    console.log(`Review ${action}ed:`, reviewId);
   };
 
   const handleDocumentAction = (action: string, docId: number): void => {
     if (action === "view") {
-      console.log("View document:", docId);
     } else {
       setDocumentVerifications((prev) =>
         prev.filter((doc) => doc.id !== docId)
       );
-      console.log(`Document ${action}ed:`, docId);
     }
   };
 
@@ -164,7 +160,6 @@ export default function ContentManagement() {
     setReportedContent((prev) =>
       prev.filter((report) => report.id !== reportId)
     );
-    console.log(`${type} ${action}ed:`, reportId);
   };
 
   return (

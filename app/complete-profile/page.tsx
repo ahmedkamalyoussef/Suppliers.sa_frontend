@@ -63,7 +63,6 @@ export default function CompleteProfilePage() {
         businessName: profileData.businessName || profileData.name || prev.businessName,
       }));
     } catch (error) {
-      console.error("Failed to load profile data:", error);
       // Continue with default data - don't block the user
     }
   }, []);

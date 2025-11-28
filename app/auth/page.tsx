@@ -66,7 +66,6 @@ export default function AuthPage() {
         });
       }
     } catch (err: any) {
-      console.error("Sign‑in error:", err);
       const errorMessage =
         err.response?.data?.message ||
         err.message ||
@@ -119,7 +118,6 @@ export default function AuthPage() {
         setErrors({ general: errorMsg });
       }
     } catch (err: any) {
-      console.error("Registration error:", err);
       const errorMessage =
         err.response?.data?.message ||
         err.message ||
@@ -155,7 +153,6 @@ export default function AuthPage() {
         setIsVerifying(false);
       }
     } catch (err: any) {
-      console.error("Send OTP error:", err);
       const errorMessage =
         err.response?.data?.message ||
         err.message ||
@@ -222,7 +219,6 @@ export default function AuthPage() {
         setErrors({ code: errorMsg });
       }
     } catch (err: any) {
-      console.error("Verify OTP error:", err);
       const errorMessage =
         err.response?.data?.message ||
         err.message ||

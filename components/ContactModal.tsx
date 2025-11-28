@@ -97,7 +97,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
 
       setIsSubmitted(true);
     } catch (error) {
-      console.error("Form submission error:", error);
     } finally {
       setIsSubmitting(false);
     }

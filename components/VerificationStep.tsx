@@ -38,7 +38,6 @@ export default function VerificationStep({
       await apiService.sendOtp({ email });
       setCurrentStep("code");
     } catch (error) {
-      console.error("Failed to send OTP:", error);
       setErrors({ general: "Failed to send verification code. Please try again." });
     } finally {
       setIsSubmitting(false);
@@ -122,7 +121,6 @@ export default function VerificationStep({
         setErrors({ code: response.message || "Invalid verification code" });
       }
     } catch (error: any) {
-      console.error("Failed to verify OTP:", error);
       
       // Check if the error message indicates success and has token
       if (error.accessToken || (error.supplier && error.message?.toLowerCase().includes("verified"))) {
@@ -146,7 +144,6 @@ export default function VerificationStep({
     try {
       await apiService.sendOtp({ email });
     } catch (error) {
-      console.error("Failed to resend OTP:", error);
       setErrors({ general: "Failed to resend verification code. Please try again." });
     } finally {
       setIsSubmitting(false);

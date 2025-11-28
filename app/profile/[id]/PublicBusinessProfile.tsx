@@ -6,7 +6,7 @@ import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 import Link from "next/link";
 import { useLanguage } from "@/lib/LanguageContext";
-import { SupplierProfile } from "@/lib/api";
+import { SupplierProfile, apiService } from "@/lib/api";
 import { useAuth } from "@/lib/UserContext";
 
 type WorkingDay = {
@@ -87,12 +87,18 @@ export default function PublicBusinessProfile({
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showReplyModal, setShowReplyModal] = useState(false);
+  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
+  const [replyForm, setReplyForm] = useState({
+    reply: "",
+  });
+  const [isSendingReply, setIsSendingReply] = useState(false);
+  const [replyError, setReplyError] = useState("");
   const { t } = useLanguage();
   const { user } = useAuth();
 
   // Check if the current user is viewing their own profile
   const isOwnProfile = user?.id?.toString() == businessId;
-  console.log("isOwnProfile", isOwnProfile);
   // Helper function to safely handle translations
   const safeT = (
     key: string,
@@ -330,7 +336,6 @@ export default function PublicBusinessProfile({
         throw new Error("Submission failed");
       }
     } catch (error) {
-      console.error("Form submission error:", error);
       alert("There was an error sending your message. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -918,6 +923,16 @@ export default function PublicBusinessProfile({
                             </span>
                           </div>
                         </div>
+                        <button
+                          onClick={() => {
+                            setSelectedReview(review);
+                            setShowReplyModal(true);
+                          }}
+                          className="text-yellow-600 hover:text-yellow-700 px-3 py-1 rounded-lg border border-yellow-300 hover:bg-yellow-50 text-sm font-medium cursor-pointer transition-colors"
+                        >
+                          <i className="ri-reply-line mr-1"></i>
+                          Reply
+                        </button>
                       </div>
                       <p className="text-gray-600 leading-relaxed">
                         {review.comment}
@@ -1230,6 +1245,160 @@ export default function PublicBusinessProfile({
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Reply Modal */}
+      {showReplyModal && selectedReview && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gray-50">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                  <i className="ri-reply-line text-yellow-600 text-xl"></i>
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-800">
+                    Reply to Review
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    From: {selectedReview.customerName}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setShowReplyModal(false);
+                  setSelectedReview(null);
+                  setReplyForm({ reply: "" });
+                }}
+                className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-full cursor-pointer"
+              >
+                <i className="ri-close-line text-xl"></i>
+              </button>
+            </div>
+
+            <div className="p-6">
+              {/* Original Review */}
+              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                <div className="flex items-center gap-2 mb-2">
+                  <h4 className="font-bold text-gray-800">
+                    {selectedReview.customerName}
+                  </h4>
+                  <div className="flex items-center">
+                    {[...Array(5)].map((_, i) => (
+                      <i
+                        key={i}
+                        className={`text-sm ${
+                          i < selectedReview.rating
+                            ? "ri-star-fill text-yellow-400"
+                            : "ri-star-line text-gray-300"
+                        }`}
+                      ></i>
+                    ))}
+                  </div>
+                  <span className="text-gray-500 text-sm">
+                    {new Date(selectedReview.date).toLocaleDateString()}
+                  </span>
+                </div>
+                <p className="text-gray-600">
+                  {selectedReview.comment}
+                </p>
+              </div>
+
+              {/* Reply Form */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <i className="ri-message-2-line mr-1"></i>
+                    Your Reply
+                  </label>
+                  <textarea
+                    value={replyForm.reply}
+                    onChange={(e) =>
+                      setReplyForm({ reply: e.target.value })
+                    }
+                    rows={6}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm resize-none"
+                    placeholder="Write your reply to this review..."
+                  ></textarea>
+                </div>
+
+                <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <i className="ri-information-line"></i>
+                      <span>Your reply will be publicly visible</span>
+                    </div>
+                  </div>
+
+                  <div className="flex space-x-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowReplyModal(false);
+                        setSelectedReview(null);
+                        setReplyForm({ reply: "" });
+                      }}
+                      className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (!replyForm.reply.trim()) return;
+                        
+                        setIsSendingReply(true);
+                        setReplyError("");
+                        
+                        try {
+                          await apiService.replyToInboxItem({
+                            type: "supplier_rating",
+                            id: selectedReview.id,
+                            reply: replyForm.reply,
+                          });
+                          
+                          // Success - close modal and reset form
+                          setShowReplyModal(false);
+                          setSelectedReview(null);
+                          setReplyForm({ reply: "" });
+                          setReplyError("");
+                        } catch (error) {
+                          setReplyError(error instanceof Error ? error.message : "Failed to send reply");
+                        } finally {
+                          setIsSendingReply(false);
+                        }
+                      }}
+                      disabled={!replyForm.reply.trim() || isSendingReply}
+                      className="px-8 py-2 bg-yellow-400 text-white rounded-lg hover:bg-yellow-500 font-medium cursor-pointer flex items-center space-x-2 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                    >
+                      {isSendingReply ? (
+                        <>
+                          <i className="ri-loader-4-line animate-spin"></i>
+                          <span>Sending...</span>
+                        </>
+                      ) : (
+                        <>
+                          <i className="ri-send-plane-line"></i>
+                          <span>Send Reply</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Error Message */}
+              {replyError && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg mb-4">
+                  <div className="flex items-center space-x-2">
+                    <i className="ri-error-warning-line text-red-600"></i>
+                    <span className="text-red-700 text-sm">{replyError}</span>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

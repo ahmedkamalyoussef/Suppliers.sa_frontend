@@ -98,7 +98,6 @@ export default function ResetPasswordPage() {
 
       setIsSuccess(true);
     } catch (error: any) {
-      console.error("Reset password failed:", error);
       
       // Show detailed validation errors if available
       if (error.errors && error.errors.password) {

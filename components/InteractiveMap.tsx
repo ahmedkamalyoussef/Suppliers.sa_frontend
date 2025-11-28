@@ -174,7 +174,6 @@ const InteractiveMap = ({
           setMap(mapInstance);
         }
       } catch (error) {
-        console.error("Error initializing map:", error);
       }
     };
 
@@ -187,7 +186,6 @@ const InteractiveMap = ({
         try {
           mapInstance.remove();
         } catch (error) {
-          console.error("Error removing map:", error);
         }
       }
     };
@@ -220,7 +218,6 @@ const InteractiveMap = ({
             // Small delay to ensure layer is fully removed before adding new one
             await new Promise((resolve) => setTimeout(resolve, 50));
           } catch (error) {
-            console.error("Error removing tile layer:", error);
           }
         }
 
@@ -241,7 +238,6 @@ const InteractiveMap = ({
         }
       } catch (error) {
         if (!(error instanceof Error && error.name === "AbortError")) {
-          console.error("Error updating tiles:", error);
         }
       }
     };

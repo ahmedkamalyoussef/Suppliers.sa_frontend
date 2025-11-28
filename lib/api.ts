@@ -1,5 +1,6 @@
 // services/api.ts
 import { DashboardResponse } from "../types/dashboard";
+import { InboxResponse } from "./types";
 
 const API_BASE_URL = "http://localhost:8000";
 
@@ -1206,6 +1207,70 @@ class ApiService {
     return this.request(
       "/api/supplier/analytics/recommendations",
       { method: "GET" },
+      true
+    );
+  }
+
+  // ====== MESSAGING ======
+  async getInbox(): Promise<InboxResponse> {
+    return this.request(
+      "/api/supplier/inbox",
+      {
+        method: "GET",
+      },
+      true
+    );
+  }
+
+  async sendMessage(data: {
+    receiver_email: string;
+    subject: string;
+    message: string;
+  }): Promise<{ message: string }> {
+    return this.request(
+      "/api/supplier/messages",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+      true
+    );
+  }
+
+  async markAsRead(data: {
+    type:
+      | "supplier_inquiry"
+      | "supplier_to_supplier_inquiry"
+      | "message"
+      | "supplier_rating";
+    id: number;
+  }): Promise<{ message: string }> {
+    return this.request(
+      "/api/supplier/inbox/mark-read",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+      true
+    );
+  }
+
+  async replyToInboxItem(data: {
+    type:
+      | "message"
+      | "supplier_to_supplier_inquiry"
+      | "supplier_inquiry"
+      | "supplier_rating"
+      | "message";
+    id: number;
+    reply: string;
+  }): Promise<{ message: string }> {
+    return this.request(
+      "/api/supplier/inbox/reply",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
       true
     );
   }

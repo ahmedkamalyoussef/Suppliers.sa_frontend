@@ -69,7 +69,6 @@ export default function SearchSection() {
         setBusinessLocations(locations);
         setBusinesses(response.data);
       } catch (error) {
-        console.error("Error fetching businesses in SearchSection:", error);
       }
     };
 

@@ -43,7 +43,6 @@ export default function BusinessCard({
 
   // Log business data when it changes
   useEffect(() => {
-    console.log("Business data in BusinessCard:", business);
   }, [business]);
 
   // Get the image URL with fallback

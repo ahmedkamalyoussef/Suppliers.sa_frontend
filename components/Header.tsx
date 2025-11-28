@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "../lib/LanguageContext";
 import { useAuth } from "../lib/UserContext";
+import { apiService } from "../lib/api";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ContactModal from "./ContactModal";
 import Image from "next/image";
@@ -17,11 +18,13 @@ export default function Header() {
   const [isMessagesOpen, setIsMessagesOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
+  const [inboxData, setInboxData] = useState<any>(null);
+  const [recentMessages, setRecentMessages] = useState<any[]>([]);
   const { t, isRTL } = useLanguage();
   const { user, isAuthenticated, logout, isLoading } = useAuth();
   const router = useRouter();
 
-  const unreadCount = 3;
+  const unreadCount = inboxData ? inboxData.unread_count : 0;
 
   // Get user data from auth context
   const userName = user?.name || "";
@@ -34,47 +37,67 @@ export default function Header() {
         .slice(0, 2)
     : "SU";
 
-  // Track auth state changes
+  // Track auth state changes and fetch inbox data
   useEffect(() => {
-    // Auth state changed
-  }, [isAuthenticated, userName, user]);
+    if (isAuthenticated) {
+      const fetchInbox = async () => {
+        try {
+          const response = await apiService.getInbox();
+          console.log('Header - Inbox API Response:', response);
+          setInboxData(response);
+          
+          // Map only received messages for recent messages display
+          const mappedMessages = response.inbox.slice(0, 3).map((item: any) => ({
+            id: item.id,
+            from: item.sender.name,
+            company: item.sender.name,
+            subject: item.subject,
+            preview: item.message.length > 60 ? item.message.substring(0, 60) + '...' : item.message,
+            time: item.time_ago,
+            unread: !item.is_read,
+            avatar: item.sender.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2),
+          }));
+          
+          setRecentMessages(mappedMessages);
+        } catch (error) {
+          console.error('Header - Failed to fetch inbox:', error);
+        }
+      };
 
-  // Sample messages for quick preview
-  const recentMessages = [
-    {
-      id: 1,
-      from: "Sarah Johnson",
-      company: "Tech Solutions Co.",
-      subject: "Bulk order inquiry for LED TVs",
-      preview:
-        "Hi, I am interested in placing a bulk order for LED TVs. We need approximately 50 units...",
-      time: "2h ago",
-      unread: true,
-      avatar: "SJ",
-    },
-    {
-      id: 2,
-      from: "Ahmed Al-Mansouri",
-      company: "Emirates Mall",
-      subject: "Partnership opportunity",
-      preview:
-        "We are expanding our electronics section and would like to discuss a potential partnership...",
-      time: "5h ago",
-      unread: true,
-      avatar: "AM",
-    },
-    {
-      id: 3,
-      from: "Michael Chen",
-      company: "Digital Innovations",
-      subject: "Request for quotation",
-      preview:
-        "We need a quote for gaming computers and accessories. Our requirements include 20 high-end...",
-      time: "1d ago",
-      unread: true,
-      avatar: "MC",
-    },
-  ];
+      fetchInbox();
+    }
+  }, [isAuthenticated]);
+
+  // Listen for message marked as read events
+  useEffect(() => {
+    const handleMessageMarkedAsRead = (event: CustomEvent) => {
+      const { messageId, unreadCount } = event.detail;
+      console.log('Header - Received messageMarkedAsRead event:', { messageId, unreadCount });
+      
+      // Update unread count
+      if (inboxData) {
+        setInboxData((prev: any) => ({
+          ...prev,
+          unread_count: unreadCount
+        }));
+      }
+      
+      // Update recent messages to remove unread status
+      setRecentMessages(prev => 
+        prev.map(msg => 
+          msg.id === messageId ? { ...msg, unread: false } : msg
+        )
+      );
+    };
+
+    // Add event listener
+    window.addEventListener('messageMarkedAsRead', handleMessageMarkedAsRead as EventListener);
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('messageMarkedAsRead', handleMessageMarkedAsRead as EventListener);
+    };
+  }, [inboxData]);
 
   const handleSignOut = async () => {
     setIsUserMenuOpen(false);
@@ -82,8 +105,42 @@ export default function Header() {
     router.push("/");
   };
 
-  const handleMessageClick = (messageId: number) => {
+  const handleMessageClick = async (messageId: number) => {
     setIsMessagesOpen(false);
+    
+    // Mark message as read if it's unread
+    if (inboxData) {
+      const message = inboxData.inbox.find((m: any) => m.id === messageId);
+      if (message && !message.is_read) {
+        try {
+          await apiService.markAsRead({
+            type: message.type,
+            id: messageId
+          });
+          
+          console.log('Header - Message marked as read:', messageId);
+          
+          // Update local state
+          setInboxData((prev: any) => ({
+            ...prev,
+            inbox: prev.inbox.map((m: any) => 
+              m.id === messageId ? { ...m, is_read: true } : m
+            ),
+            unread_count: Math.max(0, prev.unread_count - 1)
+          }));
+          
+          // Update recent messages as well
+          setRecentMessages(prev => 
+            prev.map(msg => 
+              msg.id === messageId ? { ...msg, unread: false } : msg
+            )
+          );
+        } catch (error) {
+          console.error('Header - Failed to mark message as read:', error);
+        }
+      }
+    }
+    
     router.push(`/dashboard?tab=messages&messageId=${messageId}`);
   };
 

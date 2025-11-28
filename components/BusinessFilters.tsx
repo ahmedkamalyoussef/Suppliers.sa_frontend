@@ -77,7 +77,6 @@ export default function BusinessFilters({
               const user = JSON.parse(userData);
               location = user.profile?.address || "Unknown";
             } catch (error) {
-              console.error("Error parsing user data:", error);
             }
           }
 
@@ -88,9 +87,7 @@ export default function BusinessFilters({
           });
           
           setLastTrackedSearch(value);
-          console.log(`Search tracked: ${value}`);
         } catch (error) {
-          console.error("Error tracking search:", error);
         }
       }, 2000); // 2 seconds delay
       
@@ -104,7 +101,6 @@ export default function BusinessFilters({
         const stats = await apiService.getStats();
         setStats(stats);
       } catch (error) {
-        console.error('Error fetching business stats:', error);
       }
     };
 

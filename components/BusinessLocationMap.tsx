@@ -114,7 +114,6 @@ export default function BusinessLocationMap({
           }
         },
         (error) => {
-          console.error("Error getting location:", error);
           alert(t("map.cannotGetLocation"));
         }
       );

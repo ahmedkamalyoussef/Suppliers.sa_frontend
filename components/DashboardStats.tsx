@@ -25,7 +25,6 @@ export default function DashboardStats() {
     setLoading(true);
     try {
       const response = await apiService.getDashboard(timeRange);
-      console.log('Dashboard data:', response);
       
       if (response.overview) {
         // Update stats
@@ -60,7 +59,6 @@ export default function DashboardStats() {
         }
       }
     } catch (error) {
-      console.error("Failed to fetch dashboard data:", error);
     } finally {
       setLoading(false);
     }
@@ -301,11 +299,11 @@ export default function DashboardStats() {
             </div>
           ) : (
             <div className="space-y-1">
-              {recentActivities.map((activity, index) => (
+              {recentActivities.slice(0, 5).map((activity, index) => (
                 <div
                   key={activity.id}
                   className={`p-4 sm:p-6 ${
-                    index !== recentActivities.length - 1
+                    index !== Math.min(4, recentActivities.length - 1)
                       ? "border-b border-gray-100"
                       : ""
                   }`}
@@ -336,7 +334,7 @@ export default function DashboardStats() {
             </div>
           )}
 
-          {recentActivities.length > 0 && (
+          {recentActivities.length > 5 && (
             <div className="p-3 sm:p-4 border-t border-gray-100">
               <button
                 onClick={() => setShowAllActivity(true)}

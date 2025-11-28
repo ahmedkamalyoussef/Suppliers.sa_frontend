@@ -63,7 +63,6 @@ type AIFilterPayload = {
 
 // Suspense wrapper for useSearchParams
 function BusinessesContent() {
-  console.log("BusinessesContent component rendered");
   const { t } = useLanguage();
   const searchParams = useSearchParams();
   const [selectedDistance, setSelectedDistance] = useState<string>("");
@@ -153,13 +152,11 @@ function BusinessesContent() {
 
   // Log when selectedCategory changes
   useEffect(() => {
-    console.log("Selected category changed:", selectedCategory);
   }, [selectedCategory]);
 
   // Fetch businesses from API
   useEffect(() => {
     const fetchBusinesses = async () => {
-      console.log("Starting API call to fetch businesses...");
       try {
         const params: any = {
           page: currentPage,
@@ -171,7 +168,6 @@ function BusinessesContent() {
         if (selectedCategory && selectedCategory !== "all") {
           // Don't encode here - the API service will handle proper encoding
           params.category = selectedCategory;
-          console.log("Setting category param:", selectedCategory);
         }
 
         // Add business type to params if selected
@@ -180,7 +176,6 @@ function BusinessesContent() {
           selectedBusinessType.toLowerCase() !== "all"
         ) {
           params.businessType = selectedBusinessType;
-          console.log("Setting business type param:", selectedBusinessType);
         }
 
         // Add search and address to params if they exist
@@ -224,14 +219,9 @@ function BusinessesContent() {
           params.ai = aiSearch;
         }
 
-        console.log("Fetching businesses with params:", params);
         const response = await apiService.getBusinesses(params);
-        console.log("📊 API Data:", response.data);
-        console.log("API Response:", response);
-
         // Map API response to Business type
         const apiBusinesses: Business[] = response.data.map((business: any) => {
-          console.log("API Business data:", business); // Debug log
 
           const mappedBusiness: Business = {
             // First spread the original business data to keep all fields
@@ -276,7 +266,6 @@ function BusinessesContent() {
             openNow: business.openNow || false,
           };
 
-          console.log("Mapped business:", mappedBusiness); // Debug log
           return mappedBusiness;
         });
 
@@ -313,7 +302,6 @@ function BusinessesContent() {
 
         setBusinessLocations(locations);
       } catch (error) {
-        console.error("Error fetching businesses:", error);
       }
     };
 
@@ -321,7 +309,6 @@ function BusinessesContent() {
 
     // Cleanup function
     return () => {
-      console.log("Cleaning up...");
     };
   }, [
     currentPage,
@@ -804,7 +791,6 @@ function BusinessesContent() {
   // Handle business click on map
   const handleBusinessClick = useCallback((business: any) => {
     // You can implement navigation or other actions when a business is clicked
-    console.log('Business clicked:', business);
   }, []);
 
   // Transform businesses to match InteractiveMap's expected format

@@ -66,7 +66,6 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
     const fetchPreferences = async () => {
       try {
         const preferences = await apiService.getPreferences();
-        console.log('=== Preferences Data ===', preferences);
         
         // Update settings with API data
         if (preferences) {
@@ -98,7 +97,6 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
           }));
         }
       } catch (error) {
-        console.error('Error fetching preferences:', error);
       }
     };
     
@@ -182,7 +180,6 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
 
       // Call the updatePreferences API
       const response = await apiService.updatePreferences(preferencesData);
-      console.log('Updated preferences:', response);
       
       // Show success message
       const isArabic = document.documentElement.dir === "rtl";
@@ -191,7 +188,6 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
       );
       
     } catch (error) {
-      console.error('Error saving preferences:', error);
       
       // Show error message
       const isArabic = document.documentElement.dir === "rtl";
@@ -505,7 +501,6 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                     <div className="md:col-span-3">
                       <div
                         onClick={() => {
-                          console.log("Button clicked!");
                           handlePasswordChange();
                         }}
                         className="bg-blue-500 text-white px-6 py-2 rounded-lg font-medium text-sm whitespace-nowrap text-center cursor-pointer hover:bg-blue-600"
