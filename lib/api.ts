@@ -1,5 +1,9 @@
 // services/api.ts
 import { DashboardResponse } from "../types/dashboard";
+import {
+  InquiryRequest,
+  InquiryResponse as PublicInquiryResponse,
+} from "../types/inquiry";
 import { InboxResponse } from "./types";
 
 const API_BASE_URL = "http://localhost:8000";
@@ -456,6 +460,18 @@ class ApiService {
         method: "GET",
       },
       true
+    );
+  }
+
+  // ====== PUBLIC INQUIRIES ======
+  async createInquiry(data: InquiryRequest): Promise<PublicInquiryResponse> {
+    return this.request(
+      "/api/supplier/inquiries",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+      true // doesn't require authentication
     );
   }
 

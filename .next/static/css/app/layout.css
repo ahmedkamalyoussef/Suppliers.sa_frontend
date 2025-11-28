@@ -3298,9 +3298,6 @@ video {
   .sm\:h-40{
     height: 10rem;
   }
-  .sm\:h-48{
-    height: 12rem;
-  }
   .sm\:h-6{
     height: 1.5rem;
   }
@@ -3465,9 +3462,6 @@ video {
   }
   .sm\:p-4{
     padding: 1rem;
-  }
-  .sm\:p-5{
-    padding: 1.25rem;
   }
   .sm\:p-6{
     padding: 1.5rem;

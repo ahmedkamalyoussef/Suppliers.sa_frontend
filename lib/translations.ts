@@ -158,6 +158,7 @@ export const translations = {
 
     // Business Profile Page (selected keys)
     businessProfile: {
+      name: "Business Name",
       ratingReviewsSuffix: "reviews",
       openNow: "Open Now",
       closed: "Closed",
@@ -2838,6 +2839,7 @@ export const translations = {
 
     // Business Profile Page (selected keys)
     businessProfile: {
+      name: "اسم النشاط",
       ratingReviewsSuffix: "تقييم",
       openNow: "مفتوح الآن",
       closed: "مغلق",

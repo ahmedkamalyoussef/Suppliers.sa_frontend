@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/lib/LanguageContext";
+import { apiService } from "@/lib/api";
 
 interface FormData {
   name: string;
   email: string;
   phone: string;
+  company: string;
   subject: string;
   message: string;
 }
@@ -26,19 +28,13 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     name: "",
     email: "",
     phone: "",
-    subject: "general",
+    company: "",
+    subject: "Business Partnership",
     message: "",
   });
   const [errors, setErrors] = useState<Errors>({});
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-  const [submitUrl, setSubmitUrl] = useState<string>("");
-
-  useEffect(() => {
-    if (isOpen && !submitUrl) {
-      setSubmitUrl("https://demo-form-handler.com/contact");
-    }
-  }, [isOpen, submitUrl]);
 
   const handleInputChange = (field: keyof FormData, value: string): void => {
     setFormData((prev) => ({
@@ -86,17 +82,18 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     setIsSubmitting(true);
 
     try {
-      const formDataToSubmit = new FormData();
-      formDataToSubmit.append("name", formData.name);
-      formDataToSubmit.append("email", formData.email);
-      formDataToSubmit.append("phone", formData.phone);
-      formDataToSubmit.append("subject", formData.subject);
-      formDataToSubmit.append("message", formData.message);
-
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await apiService.createInquiry({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        company: formData.company,
+        subject: formData.subject,
+        message: formData.message,
+      });
 
       setIsSubmitted(true);
     } catch (error) {
+      console.error("Failed to submit inquiry:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -107,7 +104,8 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
       name: "",
       email: "",
       phone: "",
-      subject: "general",
+      company: "",
+      subject: "Business Partnership",
       message: "",
     });
     setErrors({});
@@ -208,6 +206,20 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t("contactModal.form.companyLabel")}
+                </label>
+                <input
+                  type="text"
+                  name="company"
+                  value={formData.company}
+                  onChange={(e) => handleInputChange("company", e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
+                  placeholder={t("contactModal.form.companyPlaceholder")}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   {t("contactModal.form.subjectLabel")}
                 </label>
                 <div className="relative">
@@ -219,19 +231,19 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                     }
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm appearance-none bg-white pr-8"
                   >
-                    <option value="general">
+                    <option value="General Inquiry">
                       {t("contactModal.form.subjects.general")}
                     </option>
-                    <option value="business">
+                    <option value="Business Partnership">
                       {t("contactModal.form.subjects.business")}
                     </option>
-                    <option value="support">
+                    <option value="Technical Support">
                       {t("contactModal.form.subjects.support")}
                     </option>
-                    <option value="feedback">
+                    <option value="Feedback">
                       {t("contactModal.form.subjects.feedback")}
                     </option>
-                    <option value="other">
+                    <option value="Other">
                       {t("contactModal.form.subjects.other")}
                     </option>
                   </select>

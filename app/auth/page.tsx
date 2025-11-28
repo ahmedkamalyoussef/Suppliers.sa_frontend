@@ -414,17 +414,7 @@ export default function AuthPage() {
         </div>
       </div>
 
-      <div className="mt-6 bg-blue-50 p-4 rounded-lg">
-        <p className="text-sm text-blue-800 mb-2">
-          <i className="ri-information-line mr-2"></i>
-          <strong>{t("auth.demo.title")}</strong>
-        </p>
-        <p className="text-sm text-blue-700">
-          {t("auth.demo.email")} demo@supplier.sa
-          <br />
-          {t("auth.demo.password")} demo123
-        </p>
-      </div>
+      
     </div>
   );
 
@@ -465,17 +455,7 @@ export default function AuthPage() {
         </button>
       </div>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-        <div className="flex items-center space-x-2">
-          <i className="ri-information-line text-blue-600"></i>
-          <span className="text-blue-800 font-medium text-sm">
-            {t("auth.demoNotice.title")}
-          </span>
-        </div>
-        <p className="text-blue-700 text-sm mt-1">
-          {t("auth.demoNotice.message")}
-        </p>
-      </div>
+      
 
       <form onSubmit={handleStep1Submit} className="space-y-6">
         {errors.general && (
@@ -621,17 +601,7 @@ export default function AuthPage() {
         <p className="text-gray-600">{t("auth.signup.step2.subtitle")}</p>
       </div>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-        <div className="flex items-center space-x-2">
-          <i className="ri-information-line text-blue-600"></i>
-          <span className="text-blue-800 font-medium text-sm">
-            {t("auth.demoNotice.title")}
-          </span>
-        </div>
-        <p className="text-blue-700 text-sm mt-1">
-          {t("auth.signup.step2.demoMessage")}
-        </p>
-      </div>
+      
 
       <div className="space-y-4">
         <button
@@ -710,17 +680,7 @@ export default function AuthPage() {
         </p>
       </div>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-        <div className="flex items-center space-x-2">
-          <i className="ri-information-line text-blue-600"></i>
-          <span className="text-blue-800 font-medium text-sm">
-            {t("auth.demoNotice.title")}
-          </span>
-        </div>
-        <p className="text-blue-700 text-sm mt-1">
-          {t("auth.signup.step3.demoMessage")}
-        </p>
-      </div>
+      
 
       <div className="space-y-6">
         <div className="flex justify-center space-x-4">

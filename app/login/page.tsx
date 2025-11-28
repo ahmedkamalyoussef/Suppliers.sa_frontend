@@ -259,17 +259,7 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <div className="mt-6 bg-blue-50 p-4 rounded-lg">
-              <p className="text-sm text-blue-800 mb-2">
-                <i className="ri-information-line mr-2"></i>
-                <strong>{t("login.demoTitle")}</strong>
-              </p>
-              <p className="text-sm text-blue-700">
-                {t("login.demoEmail")} demo@supplier.sa
-                <br />
-                {t("login.demoPassword")} demo123
-              </p>
-            </div>
+            
           </div>
         </div>
       </main>

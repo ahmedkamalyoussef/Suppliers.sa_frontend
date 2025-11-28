@@ -1,14 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/lib/LanguageContext"; // عدل المسار حسب مكانك
-import {
-  ReactElement,
-  JSXElementConstructor,
-  ReactNode,
-  ReactPortal,
-  AwaitedReactNode,
-  Key,
-} from "react";
+import { ReactNode, Key } from "react";
 
 export default function SubscriptionFeatures() {
   const { t } = useLanguage();
@@ -58,20 +51,7 @@ export default function SubscriptionFeatures() {
                     {Array.isArray(feature.benefits) &&
                       feature.benefits.map(
                         (
-                          benefit:
-                            | string
-                            | number
-                            | bigint
-                            | boolean
-                            | ReactElement<
-                                any,
-                                string | JSXElementConstructor<any>
-                              >
-                            | Iterable<ReactNode>
-                            | ReactPortal
-                            | Promise<AwaitedReactNode>
-                            | null
-                            | undefined,
+                          benefit: ReactNode,
                           idx: Key | null | undefined
                         ) => (
                           <div

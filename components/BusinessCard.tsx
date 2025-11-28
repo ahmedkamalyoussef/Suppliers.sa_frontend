@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useLanguage } from "../lib/LanguageContext";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import MessageModal from "./MessageModal";
 
 interface Business {
   id: number;
@@ -27,6 +28,9 @@ interface Business {
   status?: string;
   preferences?: {
     profile_visibility: "public" | "limited";
+    show_phone_publicly?: boolean;
+    show_email_publicly?: boolean;
+    allow_direct_contact?: boolean;
   };
   [key: string]: any; // For any additional properties
 }
@@ -43,7 +47,6 @@ export default function BusinessCard({
   const { t } = useLanguage();
 
   const [showMessageModal, setShowMessageModal] = useState(false);
-  const [message, setMessage] = useState("");
 
   // Handle view profile click with visibility check
   const handleViewProfile = (e: React.MouseEvent) => {
@@ -288,7 +291,15 @@ export default function BusinessCard({
 
                 {/* Actions - Fixed positioning */}
                 <div className="flex flex-row md:flex-col gap-2 md:w-32 md:self-end md:mt-auto">
-                  <button className="flex-1 md:w-full bg-yellow-400 text-white py-2 px-3 rounded-lg hover:bg-yellow-500 font-medium text-xs whitespace-nowrap cursor-pointer">
+                  <button 
+                    onClick={() => business.preferences?.allow_direct_contact !== false && setShowMessageModal(true)}
+                    disabled={business.preferences?.allow_direct_contact === false}
+                    className={`flex-1 md:w-full py-2 px-3 rounded-lg font-medium text-xs whitespace-nowrap cursor-pointer ${
+                      business.preferences?.allow_direct_contact === false
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-yellow-400 text-white hover:bg-yellow-500"
+                    }`}
+                  >
                     <i className="ri-message-line mr-2"></i>
                     {t("businessCard.message")}
                   </button>
@@ -307,7 +318,7 @@ export default function BusinessCard({
     );
   }
 
-  return (
+  const businessCardElement = (
     <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 cursor-pointer h-full flex flex-col">
       <div className="relative h-48 overflow-hidden">
         <img
@@ -425,7 +436,15 @@ export default function BusinessCard({
 
         {/* Buttons - Always at bottom */}
         <div className="flex space-x-2 mt-auto">
-          <button className="flex-1 bg-yellow-400 text-white py-2 px-3 rounded-lg hover:bg-yellow-500 font-medium text-xs whitespace-nowrap cursor-pointer">
+          <button 
+            onClick={() => business.preferences?.allow_direct_contact !== false && setShowMessageModal(true)}
+            disabled={business.preferences?.allow_direct_contact === false}
+            className={`flex-1 py-2 px-3 rounded-lg font-medium text-xs whitespace-nowrap cursor-pointer ${
+              business.preferences?.allow_direct_contact === false
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-yellow-400 text-white hover:bg-yellow-500"
+            }`}
+          >
             <i className="ri-message-line mr-2"></i>
             {t("businessCard.message")}
           </button>
@@ -438,5 +457,17 @@ export default function BusinessCard({
         </div>
       </div>
     </div>
+  );
+
+  return (
+    <>
+      {businessCardElement}
+      <MessageModal
+        isOpen={showMessageModal}
+        onClose={() => setShowMessageModal(false)}
+        businessId={business.id}
+        businessName={business.name}
+      />
+    </>
   );
 }
