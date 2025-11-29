@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "@/lib/LanguageContext";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Business {
   id: number;
@@ -58,7 +59,10 @@ interface Tab {
 
 export default function ContentManagement() {
   const { t } = useLanguage();
-
+  const { user } = useAuth();
+  
+  const [accessDenied, setAccessDenied] = useState<boolean>(false);
+  const [permissions, setPermissions] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<string>("businesses");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
@@ -71,6 +75,57 @@ export default function ContentManagement() {
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [showEditBusiness, setShowEditBusiness] = useState<boolean>(false);
   const [editingBusiness, setEditingBusiness] = useState<Business | null>(null);
+
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      try {
+        const { apiService } = await import("@/lib/api");
+        const data = await apiService.getPermissions();
+        setPermissions(data.permissions);
+        
+        // Check if all content management permissions are false
+        const allContentPermissionsFalse = 
+          !data.permissions.content_management_view &&
+          !data.permissions.content_management_supervise &&
+          !data.permissions.content_management_delete;
+          
+        if (allContentPermissionsFalse && user?.role !== "super_admin") {
+          setAccessDenied(true);
+        }
+      } catch (error) {
+        console.error("Content Management - API Error:", error);
+      }
+    };
+
+    fetchPermissions();
+  }, []);
+
+  // Permission checking functions
+  const hasPermission = (permission: string) => {
+    // Super admin has all permissions
+    if (user?.role === "super_admin") return true;
+    
+    if (!user || !permissions) return false;
+    
+    return permissions[permission] === true;
+  };
+
+  const canViewContent = hasPermission("content_management_view") || hasPermission("content_management_supervise");
+  const canDeleteContent = hasPermission("content_management_delete") || hasPermission("content_management_supervise");
+  const canSuperviseContent = hasPermission("content_management_supervise");
+
+  // Show access denied if permissions are false
+  if (accessDenied) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16">
+        <div className="text-center">
+          <i className="ri-lock-line text-6xl text-gray-300 mb-4"></i>
+          <h3 className="text-xl font-semibold text-gray-600 mb-2">Access Denied</h3>
+          <p className="text-gray-500">You don't have permission to access Content Management</p>
+        </div>
+      </div>
+    );
+  }
 
   const tabs: Tab[] = [
     {
@@ -102,6 +157,12 @@ export default function ContentManagement() {
       : businesses.filter((b) => b.status === filterStatus);
 
   const handleBulkAction = (action: string): void => {
+    // Check permissions for delete actions
+    if (action === "reject" || action === "delete") {
+      if (!canDeleteContent && !canSuperviseContent) {
+        return;
+      }
+    }
     setSelectedItems([]);
   };
 
@@ -138,12 +199,24 @@ export default function ContentManagement() {
   };
 
   const handleReviewAction = (action: string, reviewId: number): void => {
+    // Check permissions for delete actions
+    if (action === "reject" || action === "delete") {
+      if (!canDeleteContent && !canSuperviseContent) {
+        return;
+      }
+    }
     setPendingReviews((prev) =>
       prev.filter((review) => review.id !== reviewId)
     );
   };
 
   const handleDocumentAction = (action: string, docId: number): void => {
+    // Check permissions for delete actions
+    if (action === "reject" || action === "delete") {
+      if (!canDeleteContent && !canSuperviseContent) {
+        return;
+      }
+    }
     if (action === "view") {
     } else {
       setDocumentVerifications((prev) =>
@@ -157,6 +230,12 @@ export default function ContentManagement() {
     reportId: number,
     type: string
   ): void => {
+    // Check permissions for delete actions
+    if (action === "reject" || action === "delete") {
+      if (!canDeleteContent && !canSuperviseContent) {
+        return;
+      }
+    }
     setReportedContent((prev) =>
       prev.filter((report) => report.id !== reportId)
     );
@@ -182,7 +261,12 @@ export default function ContentManagement() {
               </button>
               <button
                 onClick={() => handleBulkAction("reject")}
-                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 font-medium text-sm whitespace-nowrap cursor-pointer"
+                disabled={!canDeleteContent && !canSuperviseContent}
+                className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap ${
+                  !canDeleteContent && !canSuperviseContent
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
+                }`}
               >
                 <i className="ri-close-line mr-2"></i>
                 {t("contentManagement.buttons.reject")} ({selectedItems.length})
@@ -193,7 +277,12 @@ export default function ContentManagement() {
             onClick={() => {
               /* export logic */
             }}
-            className="bg-blue-500 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-blue-600 font-medium text-sm whitespace-nowrap cursor-pointer"
+            disabled={!canSuperviseContent}
+            className={`px-4 sm:px-6 py-2 rounded-lg font-medium text-sm whitespace-nowrap ${
+              !canSuperviseContent
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
+            }`}
           >
             <i className="ri-download-line mr-2"></i>
             {t("contentManagement.buttons.exportReport")}

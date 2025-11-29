@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
@@ -16,13 +16,13 @@ import { useAuth } from "../../hooks/useAuth";
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, logout, userType } = useAuth();
 
   const handleLogout = () => {
     logout();
   };
 
-  const tabs = [
+  const allTabs = [
     { id: "overview", name: "Overview", icon: "ri-dashboard-3-line" },
     { id: "users", name: "User Management", icon: "ri-user-settings-line" },
     { id: "employees", name: "Employee Management", icon: "ri-team-line" },
@@ -34,6 +34,27 @@ export default function AdminDashboard() {
     },
     { id: "settings", name: "System Settings", icon: "ri-settings-3-line" },
   ];
+
+  // Filter tabs based on user role
+  const tabs = allTabs.filter(tab => {
+    if (tab.id === "employees") {
+      return userType === "super_admin";
+    }
+    // User Management tab is always visible for admins (not super_admin)
+    if (tab.id === "users") {
+      return userType === "admin" || userType === "super_admin";
+    }
+    return true;
+  });
+
+  // Redirect to overview if active tab is not accessible
+  useEffect(() => {
+    if (activeTab === "employees" && userType !== "super_admin") {
+      setActiveTab("overview");
+    }
+    // User Management tab is always accessible for admins
+    // No redirect needed for users tab
+  }, [activeTab, userType]);
 
   return (
     <ProtectedRoute allowedRoles={["admin", "super_admin"]}>
@@ -47,11 +68,13 @@ export default function AdminDashboard() {
               <div className="bg-gradient-to-r from-red-500 to-red-600 rounded-2xl shadow-lg p-4 sm:p-6 md:p-8 mb-6 sm:mb-8 text-white">
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 sm:gap-6">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-                    <img
-                      src={user?.profileImage || "https://readdy.ai/api/search-image?query=Professional%20executive%20portrait%2C%20confident%20business%20leader%2C%20modern%20office%20background%2C%20corporate%20headshot%20style%2C%20clean%20professional%20lighting&width=100&height=100&seq=admin-avatar&orientation=squarish"}
-                      alt={user?.name || "Admin"}
-                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-4 border-white/20"
-                    />
+                    {user?.profileImage && (
+                      <img
+                        src={user.profileImage}
+                        alt={user?.name || "Admin"}
+                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-4 border-white/20"
+                      />
+                    )}
                     <div>
                       <h1 className="text-2xl sm:text-3xl font-bold">
                         Admin Control Panel
@@ -62,7 +85,11 @@ export default function AdminDashboard() {
                       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-red-100">
                         <span className="flex items-center">
                           <i className="ri-shield-check-line mr-1"></i>
-                          {user?.role === "super_admin" ? "Super Administrator" : "Administrator"}
+                          {user?.role === "super_admin"
+                            ? "Super Administrator"
+                            : user?.role === "admin"
+                            ? "Administrator"
+                            : "Admin"}
                         </span>
                         {user?.department && (
                           <span className="flex items-center">
@@ -83,7 +110,7 @@ export default function AdminDashboard() {
                   <div className="flex flex-wrap sm:flex-nowrap gap-2 sm:gap-3 w-full sm:w-auto">
                     <button className="bg-white/20 backdrop-blur text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-white/30 font-medium whitespace-nowrap cursor-pointer transition-all flex items-center justify-center">
                       <i className="ri-notification-3-line mr-2"></i>
-                      Alerts (3)
+                      Notifications
                     </button>
                     <button className="bg-white text-red-600 px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-red-50 font-medium whitespace-nowrap cursor-pointer transition-all flex items-center justify-center">
                       <i className="ri-backup-line mr-2"></i>

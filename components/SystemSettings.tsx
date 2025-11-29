@@ -1,10 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "@/lib/LanguageContext";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function SystemSettings() {
   const { t } = useLanguage();
+  const { user } = useAuth();
+  
+  const [accessDenied, setAccessDenied] = useState<boolean>(false);
+  const [permissions, setPermissions] = useState<any>(null);
   const [activeSection, setActiveSection] = useState("general");
   const [settings, setSettings] = useState({
     general: {
@@ -58,6 +63,57 @@ export default function SystemSettings() {
       documentationUrl: "https://api.businessdirectory.com/docs",
     },
   });
+
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      try {
+        const { apiService } = await import("@/lib/api");
+        const data = await apiService.getPermissions();
+        setPermissions(data.permissions);
+        
+        // Check if all system permissions are false
+        const allSystemPermissionsFalse = 
+          !data.permissions.system_manage &&
+          !data.permissions.system_settings &&
+          !data.permissions.system_backups;
+          
+        if (allSystemPermissionsFalse && user?.role !== "super_admin") {
+          setAccessDenied(true);
+        }
+      } catch (error) {
+        console.error("System Settings - API Error:", error);
+      }
+    };
+
+    fetchPermissions();
+  }, []);
+
+  // Permission checking functions
+  const hasPermission = (permission: string) => {
+    // Super admin has all permissions
+    if (user?.role === "super_admin") return true;
+    
+    if (!user || !permissions) return false;
+    
+    return permissions[permission] === true;
+  };
+
+  const canManageSystem = hasPermission("system_manage");
+  const canManageSettings = hasPermission("system_settings") || canManageSystem;
+  const canManageBackups = hasPermission("system_backups") || canManageSystem;
+
+  // Show access denied if permissions are false
+  if (accessDenied) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16">
+        <div className="text-center">
+          <i className="ri-lock-line text-6xl text-gray-300 mb-4"></i>
+          <h3 className="text-xl font-semibold text-gray-600 mb-2">Access Denied</h3>
+          <p className="text-gray-500">You don't have permission to access System Settings</p>
+        </div>
+      </div>
+    );
+  }
 
   const sections = [
     {
@@ -126,14 +182,24 @@ export default function SystemSettings() {
         <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={handleSystemBackup}
-            className="bg-blue-500 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-blue-600 font-medium text-sm whitespace-nowrap cursor-pointer"
+            disabled={!canManageBackups}
+            className={`px-4 sm:px-6 py-2 rounded-lg font-medium text-sm whitespace-nowrap ${
+              !canManageBackups
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
+            }`}
           >
             <i className="ri-backup-line mr-2"></i>
             {t("systemSettings.buttons.createBackup")}
           </button>
           <button
             onClick={handleSaveSettings}
-            className="bg-green-500 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-green-600 font-medium text-sm whitespace-nowrap cursor-pointer"
+            disabled={!canManageSettings}
+            className={`px-4 sm:px-6 py-2 rounded-lg font-medium text-sm whitespace-nowrap ${
+              !canManageSettings
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-green-500 text-white hover:bg-green-600 cursor-pointer"
+            }`}
           >
             <i className="ri-save-line mr-2"></i>
             {t("systemSettings.buttons.saveChanges")}

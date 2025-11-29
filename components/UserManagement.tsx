@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "../lib/LanguageContext";
+import { useAuth } from "../hooks/useAuth";
+import { apiService } from "../lib/api";
 
 type User = {
   id: number;
@@ -19,6 +21,114 @@ type User = {
 
 export default function UserManagement() {
   const { t } = useLanguage();
+  const { user, loading } = useAuth();
+  const [permissions, setPermissions] = useState<any>(null);
+  const [permissionsLoading, setPermissionsLoading] = useState(true);
+
+  // Fetch permissions when component mounts
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      if (user && (user.role === "admin" || user.role === "super_admin")) {
+        try {
+          try {
+            const data = await apiService.getPermissions();
+            setPermissions(data.permissions);
+          } catch (apiError) {
+            console.error("API Error:", apiError);
+
+            if (user.role === "admin") {
+              // For admin users, use basic permissions as fallback
+              setPermissions({
+                user_management_view: true,
+                user_management_edit: false,
+                user_management_delete: false,
+                user_management_full: false,
+                content_management_view: false,
+                content_management_supervise: false,
+                content_management_delete: false,
+                analytics_view: true,
+                analytics_export: false,
+                reports_view: false,
+                reports_create: false,
+                system_manage: false,
+                system_settings: true,
+                system_backups: false,
+                support_manage: false,
+              });
+            } else if (user.role === "super_admin") {
+              // For super admin, give all permissions as fallback
+              setPermissions({
+                user_management_view: true,
+                user_management_edit: true,
+                user_management_delete: true,
+                user_management_full: true,
+                content_management_view: true,
+                content_management_supervise: true,
+                content_management_delete: true,
+                analytics_view: true,
+                analytics_export: true,
+                reports_view: true,
+                reports_create: true,
+                system_manage: true,
+                system_settings: true,
+                system_backups: true,
+                support_manage: true,
+              });
+            }
+          }
+        } catch (error) {
+          console.error("Failed to fetch permissions:", error);
+        } finally {
+          setPermissionsLoading(false);
+        }
+      } else {
+        setPermissionsLoading(false);
+      }
+    };
+
+    fetchPermissions();
+  }, [user]);
+
+  // Permission checking functions
+  const hasPermission = (permission: string) => {
+    // Super admin has all permissions
+    if (user?.role === "super_admin") return true;
+
+    if (!user || !permissions) {
+      return false;
+    }
+
+    return permissions[permission] === true;
+  };
+
+  const canViewUsers =
+    hasPermission("user_management_view") ||
+    hasPermission("user_management_full");
+  const canEditUsers =
+    hasPermission("user_management_edit") ||
+    hasPermission("user_management_full");
+  const canDeleteUsers =
+    hasPermission("user_management_delete") ||
+    hasPermission("user_management_full");
+  const hasFullUserManagement = hasPermission("user_management_full");
+
+  console.log("Permission results:", {
+    canViewUsers,
+    canEditUsers,
+    canDeleteUsers,
+    hasFullUserManagement,
+    userRole: user?.role,
+    userPermissions: permissions,
+  });
+
+  // Check if user has any user management permissions (but not for super admin)
+  const hasAnyUserPermissions =
+    canViewUsers ||
+    canEditUsers ||
+    canDeleteUsers ||
+    hasFullUserManagement ||
+    user?.role === "super_admin";
+
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<"all" | User["status"]>(
     "all"
@@ -282,6 +392,37 @@ export default function UserManagement() {
     setSelectedUsers([]);
   };
 
+  // Show loading state while user or permissions are being fetched
+  if (loading || permissionsLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
+          <h3 className="text-xl font-semibold text-gray-600 mb-2">
+            Loading...
+          </h3>
+        </div>
+      </div>
+    );
+  }
+
+  // If user cannot view users, show access denied
+  if (!canViewUsers && user?.role !== "super_admin") {
+    return (
+      <div className="flex flex-col items-center justify-center py-16">
+        <div className="text-center">
+          <i className="ri-lock-line text-6xl text-gray-300 mb-4"></i>
+          <h3 className="text-xl font-semibold text-gray-600 mb-2">
+            Access Denied
+          </h3>
+          <p className="text-gray-500">
+            You don't have permission to access User Management
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -293,7 +434,20 @@ export default function UserManagement() {
             <div className="flex gap-2">
               <button
                 onClick={() => handleBulkAction("suspend")}
-                className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 font-medium text-sm whitespace-nowrap cursor-pointer"
+                disabled={!(canEditUsers || hasFullUserManagement)}
+                className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap cursor-pointer ${
+                  canEditUsers || hasFullUserManagement
+                    ? "bg-yellow-500 text-white hover:bg-yellow-600"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+                title={
+                  canEditUsers || hasFullUserManagement
+                    ? t("userManagement.bulkSuspend").replace(
+                        "{count}",
+                        selectedUsers.length.toString()
+                      )
+                    : "You need Edit Users or Full User Management permission to suspend users"
+                }
               >
                 <i className="ri-pause-circle-line mr-2"></i>
                 {t("userManagement.bulkSuspend").replace(
@@ -303,7 +457,20 @@ export default function UserManagement() {
               </button>
               <button
                 onClick={() => handleBulkAction("delete")}
-                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 font-medium text-sm whitespace-nowrap cursor-pointer"
+                disabled={!(canDeleteUsers || hasFullUserManagement)}
+                className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap cursor-pointer ${
+                  canDeleteUsers || hasFullUserManagement
+                    ? "bg-red-500 text-white hover:bg-red-600"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+                title={
+                  canDeleteUsers || hasFullUserManagement
+                    ? t("userManagement.bulkDelete").replace(
+                        "{count}",
+                        selectedUsers.length.toString()
+                      )
+                    : "You need Delete Users or Full User Management permission to delete users"
+                }
               >
                 <i className="ri-delete-bin-line mr-2"></i>
                 {t("userManagement.bulkDelete").replace(
@@ -314,8 +481,18 @@ export default function UserManagement() {
             </div>
           )}
           <button
-            onClick={openAddUser}
-            className="bg-green-500 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-green-600 font-medium text-sm whitespace-nowrap cursor-pointer"
+            onClick={hasFullUserManagement ? openAddUser : undefined}
+            disabled={!hasFullUserManagement}
+            className={`px-4 sm:px-6 py-2 rounded-lg font-medium text-sm whitespace-nowrap cursor-pointer ${
+              hasFullUserManagement
+                ? "bg-green-500 text-white hover:bg-green-600"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
+            title={
+              hasFullUserManagement
+                ? t("userManagement.addUser")
+                : "You need Full User Management permission to add users"
+            }
           >
             <i className="ri-add-line mr-2"></i>
             {t("userManagement.addUser")}
@@ -383,8 +560,18 @@ export default function UserManagement() {
 
           <div className="flex items-end">
             <button
-              onClick={exportData}
-              className="w-full bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 font-medium text-sm whitespace-nowrap cursor-pointer"
+              onClick={hasFullUserManagement ? exportData : undefined}
+              disabled={!hasFullUserManagement}
+              className={`w-full px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap cursor-pointer ${
+                hasFullUserManagement
+                  ? "bg-gray-500 text-white hover:bg-gray-600"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+              title={
+                hasFullUserManagement
+                  ? t("userManagement.exportData")
+                  : "You need Full User Management permission to export data"
+              }
             >
               <i className="ri-download-line mr-2"></i>
               {t("userManagement.exportData")}
@@ -526,22 +713,49 @@ export default function UserManagement() {
                       </button>
                       <button
                         onClick={() => handleUserAction("edit", user.id)}
-                        className="text-green-600 hover:text-green-700 cursor-pointer"
-                        title={t("userManagement.edit")}
+                        disabled={!(canEditUsers || hasFullUserManagement)}
+                        className={`text-sm sm:text-base cursor-pointer ${
+                          canEditUsers || hasFullUserManagement
+                            ? "text-green-600 hover:text-green-700"
+                            : "text-gray-400 cursor-not-allowed"
+                        }`}
+                        title={
+                          canEditUsers || hasFullUserManagement
+                            ? t("userManagement.edit")
+                            : "You need Edit Users or Full User Management permission to edit users"
+                        }
                       >
                         <i className="ri-edit-line text-sm sm:text-base"></i>
                       </button>
                       <button
                         onClick={() => handleUserAction("suspend", user.id)}
-                        className="text-yellow-600 hover:text-yellow-700 cursor-pointer"
-                        title={t("userManagement.suspendUser")}
+                        disabled={!(canEditUsers || hasFullUserManagement)}
+                        className={`text-sm sm:text-base cursor-pointer ${
+                          canEditUsers || hasFullUserManagement
+                            ? "text-yellow-600 hover:text-yellow-700"
+                            : "text-gray-400 cursor-not-allowed"
+                        }`}
+                        title={
+                          canEditUsers || hasFullUserManagement
+                            ? t("userManagement.suspendUser")
+                            : "You need Edit Users or Full User Management permission to suspend users"
+                        }
                       >
                         <i className="ri-pause-circle-line text-sm sm:text-base"></i>
                       </button>
                       <button
                         onClick={() => handleUserAction("delete", user.id)}
-                        className="text-red-600 hover:text-red-700 cursor-pointer"
-                        title={t("userManagement.deleteUser")}
+                        disabled={!(canDeleteUsers || hasFullUserManagement)}
+                        className={`text-sm sm:text-base cursor-pointer ${
+                          canDeleteUsers || hasFullUserManagement
+                            ? "text-red-600 hover:text-red-700"
+                            : "text-gray-400 cursor-not-allowed"
+                        }`}
+                        title={
+                          canDeleteUsers || hasFullUserManagement
+                            ? t("userManagement.deleteUser")
+                            : "You need Delete Users or Full User Management permission to delete users"
+                        }
                       >
                         <i className="ri-delete-bin-line text-sm sm:text-base"></i>
                       </button>

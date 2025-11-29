@@ -52,6 +52,26 @@ export interface Service {
   service_name: string;
 }
 
+export interface PermissionsResponse {
+  permissions: {
+    user_management_view: boolean;
+    user_management_edit: boolean;
+    user_management_delete: boolean;
+    user_management_full: boolean;
+    content_management_view: boolean;
+    content_management_supervise: boolean;
+    content_management_delete: boolean;
+    analytics_view: boolean;
+    analytics_export: boolean;
+    reports_view: boolean;
+    reports_create: boolean;
+    system_manage: boolean;
+    system_settings: boolean;
+    system_backups: boolean;
+    support_manage: boolean;
+  };
+}
+
 export interface Phone {
   id: number;
   type: string;
@@ -513,6 +533,30 @@ class ApiService {
         this.setCookie("user_type", "admin", 7);
       }
 
+      // Fetch and store permissions for admin users
+      if (response.userType === "admin" || response.userType === "super_admin") {
+        try {
+          const permissionsResponse = await this.getPermissions();
+          localStorage.setItem("admin_permissions", JSON.stringify(permissionsResponse.permissions));
+        } catch (error) {
+          console.warn("Failed to fetch permissions:", error);
+        }
+      }
+
+      return response;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  // =====================================
+  // Get Admin Permissions
+  // =====================================
+  async getPermissions(): Promise<PermissionsResponse> {
+    try {
+      const response = await this.request<PermissionsResponse>("/api/admin/permissions", {
+        method: "GET",
+      }, true);
       return response;
     } catch (error: any) {
       throw error;

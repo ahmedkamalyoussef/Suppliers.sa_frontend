@@ -21,7 +21,7 @@ export default function Header() {
   const [inboxData, setInboxData] = useState<any>(null);
   const [recentMessages, setRecentMessages] = useState<any[]>([]);
   const { t, isRTL } = useLanguage();
-  const { user, isAuthenticated, logout, loading } = useAuth();
+  const { user, isAuthenticated, logout, loading, userType } = useAuth();
   const router = useRouter();
 
   const unreadCount = inboxData ? inboxData.unread_count : 0;
@@ -284,7 +284,7 @@ export default function Header() {
               </div>
 
               {/* Logged In User Menu */}
-              {!loading && isAuthenticated ? (
+              {!loading && isAuthenticated && userType !== "admin" && userType !== "super_admin" ? (
                 <>
                   {/* Messages */}
                   <div className="relative">
@@ -482,21 +482,23 @@ export default function Header() {
                 </>
               ) : (
                 <>
-                  {/* If not logged in, show auth links */}
-                  <div className="hidden sm:flex items-center space-x-2 md:space-x-3">
-                    <Link
-                      href="/register"
-                      className="text-gray-700 hover:text-yellow-600 font-medium transition-colors text-sm"
-                    >
-                      {t("nav.register")}
-                    </Link>
-                    <Link
-                      href="/login"
-                      className="bg-yellow-400 text-white px-4 py-2 rounded-lg hover:bg-yellow-500 transition-colors text-sm font-medium"
-                    >
-                      {t("nav.login")}
-                    </Link>
-                  </div>
+                  {/* If not logged in, show auth links - but not for admin pages */}
+                  {!loading && !isAuthenticated && !window.location.pathname.startsWith('/admin') && (
+                    <div className="hidden sm:flex items-center space-x-2 md:space-x-3">
+                      <Link
+                        href="/register"
+                        className="text-gray-700 hover:text-yellow-600 font-medium transition-colors text-sm"
+                      >
+                        {t("nav.register")}
+                      </Link>
+                      <Link
+                        href="/login"
+                        className="bg-yellow-400 text-white px-4 py-2 rounded-lg hover:bg-yellow-500 transition-colors text-sm font-medium"
+                      >
+                        {t("nav.login")}
+                      </Link>
+                    </div>
+                  )}
 
                   {/* Mobile Menu Button for Guest */}
                   <button
@@ -557,8 +559,8 @@ export default function Header() {
                 {t("nav.contact")}
               </button>
 
-              {/* Show Auth Links for Guest on Mobile */}
-              {!loading && !isAuthenticated && (
+              {/* Show Auth Links for Guest on Mobile - but not for admin pages */}
+              {!loading && !isAuthenticated && !window.location.pathname.startsWith('/admin') && (
                 <div className="pt-4 border-t border-gray-200 space-y-4">
                   <Link
                     href="/register"

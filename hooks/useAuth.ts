@@ -103,12 +103,17 @@ export const useAuth = (): UseAuthReturn => {
       // Handle admin/super_admin
       if (userType === "admin") {
         const adminUserStr = localStorage.getItem("admin_user");
+        const permissionsStr = localStorage.getItem("admin_permissions");
+        
         if (adminUserStr) {
           try {
             const adminUserData: AdminUser = JSON.parse(adminUserStr);
+            const permissions = permissionsStr ? JSON.parse(permissionsStr) : null;
+            
             const adminUser = {
               ...adminUserData,
-              plan: adminUserData.plan || "Enterprise" // Default to Enterprise for admins
+              plan: adminUserData.plan || "Enterprise", // Default to Enterprise for admins
+              permissions: permissions // Add permissions to user object
             };
             setAuthState({
               isAuthenticated: true,
@@ -195,6 +200,7 @@ export const useAuth = (): UseAuthReturn => {
     localStorage.removeItem("user_type");
     localStorage.removeItem("supplier_user");
     localStorage.removeItem("admin_user");
+    localStorage.removeItem("admin_permissions");
 
     // Clear cookies
     deleteCookie("supplier_token");

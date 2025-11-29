@@ -52,12 +52,14 @@ export default function EmployeeManagement() {
     role: string;
     department: string;
     permissions: string[];
+    password: string;
   }>({
     name: "",
     email: "",
     role: "",
     department: "",
     permissions: [],
+    password: "",
   });
   const [showEditEmployee, setShowEditEmployee] = useState(false);
   const [editEmployee, setEditEmployee] = useState<{
@@ -322,8 +324,13 @@ const roles: RoleDef[] = [
   };
 
   const handleAddEmployee = async () => {
-    if (!newEmployee.name || !newEmployee.email || !newEmployee.role || !newEmployee.department) {
+    if (!newEmployee.name || !newEmployee.email || !newEmployee.role || !newEmployee.department || !newEmployee.password) {
       setError("Please fill all required fields");
+      return;
+    }
+
+    if (newEmployee.password.length < 6) {
+      setError("Password must be at least 6 characters long");
       return;
     }
 
@@ -340,7 +347,7 @@ const roles: RoleDef[] = [
       const adminData: CreateAdminRequest = {
         name: newEmployee.name,
         email: newEmployee.email,
-        password: "password123", // You might want to generate a random password or ask for it
+        password: newEmployee.password,
         role: "admin",
         department: newEmployee.department,
         job_role: newEmployee.role,
@@ -372,6 +379,7 @@ const roles: RoleDef[] = [
         role: "",
         department: "",
         permissions: [],
+        password: "",
       });
       setShowAddEmployee(false);
       await fetchAdmins();
@@ -779,6 +787,21 @@ const roles: RoleDef[] = [
                     }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
                     placeholder={t("employeeManagement.enterEmailAddress")}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    value={newEmployee.password}
+                    onChange={(e) =>
+                      setNewEmployee({ ...newEmployee, password: e.target.value })
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
+                    placeholder="Enter password"
                   />
                 </div>
 
