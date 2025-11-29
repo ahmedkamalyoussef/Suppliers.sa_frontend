@@ -12,6 +12,7 @@ export interface AdminUser {
   jobRole: string | null;
   profileImage: string | null;
   permissions?: any;
+  plan: string;
 }
 
 export interface SupplierUser {
@@ -101,7 +102,11 @@ export const useAuth = (): UseAuthReturn => {
         const adminUserStr = localStorage.getItem("admin_user");
         if (adminUserStr) {
           try {
-            const adminUser: AdminUser = JSON.parse(adminUserStr);
+            const adminUserData: AdminUser = JSON.parse(adminUserStr);
+            const adminUser = {
+              ...adminUserData,
+              plan: adminUserData.plan || "Enterprise" // Default to Enterprise for admins
+            };
             setAuthState({
               isAuthenticated: true,
               userType:
@@ -144,7 +149,10 @@ export const useAuth = (): UseAuthReturn => {
       const isAdminUser = (user as AdminUser).role !== undefined;
 
       if (isAdminUser) {
-        const adminUser = user as AdminUser;
+        const adminUser = {
+          ...user as AdminUser,
+          plan: (user as AdminUser).plan || "Enterprise" // Default to Enterprise for admins
+        };
         const userType =
           adminUser.role === "super_admin" ? "super_admin" : "admin";
 
@@ -158,7 +166,6 @@ export const useAuth = (): UseAuthReturn => {
           user: adminUser,
           loading: false,
         });
-
       } else {
         const supplierUser = user as SupplierUser;
 
@@ -172,7 +179,6 @@ export const useAuth = (): UseAuthReturn => {
           user: supplierUser,
           loading: false,
         });
-
       }
     } catch (error) {
       console.error("Error in login:", error);

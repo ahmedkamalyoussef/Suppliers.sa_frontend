@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useLanguage } from "../lib/LanguageContext";
+import { useAuth } from "../hooks/useAuth";
 import FeaturedBusinesses from "./FeaturedBusinesses";
 import InteractiveMap from "./InteractiveMap";
 import { apiService } from "../lib/api";
@@ -20,6 +21,7 @@ export default function SearchSection() {
   const [businesses, setBusinesses] = useState<any[]>([]);
   const [businessLocations, setBusinessLocations] = useState<any[]>([]);
   const { t, isRTL } = useLanguage();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
 
   // Fetch businesses from API 
@@ -445,9 +447,13 @@ export default function SearchSection() {
   const handleRequestSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Check if user is subscribed
-    const isSubscribed = localStorage.getItem("isSubscribed") === "true";
-    if (!isSubscribed) {
+    // Check if user has Premium or Enterprise plan
+    if (authLoading) {
+      setSubmitStatus("Loading user information...");
+      return;
+    }
+
+    if (!user || (user.plan !== "Premium" && user.plan !== "Enterprise")) {
       setShowSubscriptionModal(true);
       return;
     }
@@ -461,7 +467,6 @@ export default function SearchSection() {
     setSubmitStatus("");
 
     try {
-      const formData = new URLSearchParams();
       const nameType = (
         document.querySelector('select[name="nameType"]') as HTMLSelectElement
       ).value;
@@ -472,41 +477,82 @@ export default function SearchSection() {
         document.querySelector('select[name="distance"]') as HTMLSelectElement
       ).value;
 
-      formData.append("nameType", nameType);
-      formData.append("category", category);
-      formData.append("distance", distance);
-      formData.append("description", description);
+      // Map category value to industry name
+      const industryMap: { [key: string]: string } = {
+        "agriculture": "Agriculture",
+        "apparel-fashion": "Apparel & Fashion",
+        "automobile": "Automobile",
+        "brass-hardware": "Brass Hardware",
+        "business-services": "Business Services",
+        "chemicals": "Chemicals",
+        "computer-hardware-software": "Computer Hardware & Software",
+        "construction-real-estate": "Construction & Real Estate",
+        "consumer-electronics": "Consumer Electronics",
+        "electronics-electrical": "Electronics & Electrical",
+        "energy-power": "Energy & Power",
+        "environment-pollution": "Environment & Pollution",
+        "food-beverage": "Food & Beverage",
+        "furniture": "Furniture",
+        "gifts-crafts": "Gifts & Crafts",
+        "health-beauty": "Health & Beauty",
+        "home-supplies": "Home Supplies",
+        "home-textiles": "Home Textiles",
+        "hospital-medical": "Hospital & Medical",
+        "hotel-supplies": "Hotel Supplies",
+        "industrial-supplies": "Industrial Supplies",
+        "jewelry-gemstones": "Jewelry & Gemstones",
+        "leather-products": "Leather Products",
+        "machinery": "Machinery",
+        "mineral-metals": "Mineral & Metals",
+        "office-school": "Office & School",
+        "oil-gas": "Oil & Gas",
+        "packaging-paper": "Packaging & Paper",
+        "pharmaceuticals": "Pharmaceuticals",
+        "pipes-tubes": "Pipes, Tubes & Fittings",
+        "plastics-products": "Plastics & Products",
+        "printing-publishing": "Printing & Publishing",
+        "real-estate": "Real Estate",
+        "scientific-laboratory": "Scientific & Laboratory Instruments",
+        "security-protection": "Security & Protection",
+        "sports-entertainment": "Sports & Entertainment",
+        "telecommunications": "Telecommunications",
+        "textiles-fabrics": "Textiles & Fabrics",
+        "toys": "Toys",
+        "transportation": "Transportation",
+      };
 
-      const response = await fetch(
-        "https://readdy.ai/api/form/d2rfvq7frndo9ftj12l0",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: formData,
-        }
-      );
+      const industry = industryMap[category] || category;
 
-      if (response.ok) {
-        setSubmitStatus("Request submitted successfully!");
-        setDescription("");
-        setSentenceCount(0);
-        // Reset form
-        (
-          document.querySelector('select[name="nameType"]') as HTMLSelectElement
-        ).value = "profile";
-        (
-          document.querySelector('select[name="category"]') as HTMLSelectElement
-        ).value = "";
-        (
-          document.querySelector('select[name="distance"]') as HTMLSelectElement
-        ).value = "";
-        setTimeout(() => setSubmitStatus(""), 3000);
+      const businessRequest = {
+        appearance: (nameType === "anonymous" ? "anonymous" : "showName") as "showName" | "anonymous",
+        industry,
+        preferred_distance: distance === "anywhere" ? "anywhere" : distance,
+        description: description,
+      };
+
+      const response = await apiService.createBusinessRequest(businessRequest);
+      
+      if (response.inquiries_sent > 0) {
+        setSubmitStatus(`Request submitted successfully! Sent to ${response.inquiries_sent} supplier(s).`);
       } else {
-        setSubmitStatus("Failed to submit request. Please try again.");
+        setSubmitStatus(response.note || "No suppliers found matching your criteria.");
       }
+
+      // Reset form
+      setDescription("");
+      setSentenceCount(0);
+      (
+        document.querySelector('select[name="nameType"]') as HTMLSelectElement
+      ).value = "profile";
+      (
+        document.querySelector('select[name="category"]') as HTMLSelectElement
+      ).value = "";
+      (
+        document.querySelector('select[name="distance"]') as HTMLSelectElement
+      ).value = "";
+      setTimeout(() => setSubmitStatus(""), 5000);
     } catch (error) {
+      console.error("Error submitting business request:", error);
       setSubmitStatus("Failed to submit request. Please try again.");
     } finally {
       setIsSubmitting(false);

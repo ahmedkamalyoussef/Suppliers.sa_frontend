@@ -3,6 +3,8 @@ import { DashboardResponse } from "../types/dashboard";
 import {
   InquiryRequest,
   InquiryResponse as PublicInquiryResponse,
+  BusinessRequest,
+  BusinessRequestResponse,
 } from "../types/inquiry";
 import { LoginResponse, LoginRequest } from "../types/auth";
 import { InboxResponse } from "./types";
@@ -327,7 +329,6 @@ class ApiService {
       }
 
       if (!response.ok) {
-
         if (response.status === 422) {
           const validationError = new ValidationError(
             "Validation failed",
@@ -406,6 +407,20 @@ class ApiService {
       "/api/supplier/supplier-inquiries",
       {
         method: "GET",
+      },
+      true
+    );
+  }
+
+  async createBusinessRequest(request: BusinessRequest): Promise<BusinessRequestResponse> {
+    return this.request(
+      "/api/supplier/business-requests",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(request),
       },
       true
     );

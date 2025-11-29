@@ -7,6 +7,20 @@ export interface InquiryRequest {
   message: string;
 }
 
+export interface BusinessRequest {
+  appearance: "showName" | "anonymous";
+  industry: string;
+  preferred_distance: string;
+  description: string;
+}
+
+export interface BusinessRequestResponse {
+  message: string;
+  inquiries_sent: number;
+  matching_suppliers_count: number;
+  note?: string;
+}
+
 export interface InquiryResponse {
   message: string;
   data: {

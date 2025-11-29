@@ -92,7 +92,6 @@ export default function BusinessProfile() {
           duration: duration,
           session_id: sessionId,
         });
-        
       } catch (error) {
         console.error("Error tracking view:", error);
       }
@@ -564,7 +563,10 @@ export default function BusinessProfile() {
             {!isOwnProfile && (
               <div className="flex gap-3 mt-4 px-4 md:px-6 pb-6 md:pb-8">
                 <button
-                  onClick={() => businessPreferences?.allow_direct_contact !== false && setShowInquiryModal(true)}
+                  onClick={() =>
+                    businessPreferences?.allow_direct_contact !== false &&
+                    setShowInquiryModal(true)
+                  }
                   disabled={businessPreferences?.allow_direct_contact === false}
                   className={`px-8 py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors ${
                     businessPreferences?.allow_direct_contact === false
@@ -576,7 +578,7 @@ export default function BusinessProfile() {
                   {t("publicProfile.buttons.message")}
                 </button>
 
-                <button 
+                <button
                   disabled={businessPreferences?.allow_direct_contact === false}
                   className={`px-8 py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors border ${
                     businessPreferences?.allow_direct_contact === false
@@ -955,36 +957,36 @@ export default function BusinessProfile() {
 
                   <div className="space-y-3 md:space-y-4 mb-4 md:mb-6">
                     {businessPreferences?.show_phone_publicly !== false && (
-                    <div className="flex items-center space-x-2 md:space-x-3">
-                      <div className="w-8 h-8 md:w-10 md:h-10 bg-yellow-100 rounded-full flex items-center justify-center">
-                        <i className="ri-phone-line text-yellow-600 text-sm md:text-base"></i>
+                      <div className="flex items-center space-x-2 md:space-x-3">
+                        <div className="w-8 h-8 md:w-10 md:h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                          <i className="ri-phone-line text-yellow-600 text-sm md:text-base"></i>
+                        </div>
+                        <div>
+                          <p className="text-xs md:text-sm text-gray-600">
+                            {t("businessProfile.phone")}
+                          </p>
+                          <p className="font-medium text-gray-800 text-sm md:text-base">
+                            {business.phone}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-xs md:text-sm text-gray-600">
-                          {t("businessProfile.phone")}
-                        </p>
-                        <p className="font-medium text-gray-800 text-sm md:text-base">
-                          {business.phone}
-                        </p>
-                      </div>
-                    </div>
-                  )}
+                    )}
 
                     {businessPreferences?.show_email_publicly !== false && (
-                    <div className="flex items-center space-x-2 md:space-x-3">
-                      <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <i className="ri-mail-line text-blue-600 text-sm md:text-base"></i>
+                      <div className="flex items-center space-x-2 md:space-x-3">
+                        <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                          <i className="ri-mail-line text-blue-600 text-sm md:text-base"></i>
+                        </div>
+                        <div>
+                          <p className="text-xs md:text-sm text-gray-600">
+                            {t("businessProfile.email")}
+                          </p>
+                          <p className="font-medium text-gray-800 text-sm md:text-base">
+                            {business.email}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-xs md:text-sm text-gray-600">
-                          {t("businessProfile.email")}
-                        </p>
-                        <p className="font-medium text-gray-800 text-sm md:text-base">
-                          {business.email}
-                        </p>
-                      </div>
-                    </div>
-                  )}
+                    )}
 
                     <div className="flex items-center space-x-2 md:space-x-3">
                       <div className="w-8 h-8 md:w-10 md:h-10 bg-green-100 rounded-full flex items-center justify-center">
@@ -1017,14 +1019,14 @@ export default function BusinessProfile() {
 
                   <div className="grid grid-cols-1 gap-2 md:gap-3">
                     {businessPreferences?.allow_direct_contact !== false && (
-                    <button
-                      onClick={() => setShowInquiryModal(true)}
-                      className="bg-yellow-400 text-white py-2 md:py-3 px-3 md:px-4 rounded-lg hover:bg-yellow-500 font-medium text-xs md:text-sm whitespace-nowrap cursor-pointer flex items-center justify-center space-x-1 md:space-x-2"
-                    >
-                      <i className="ri-message-line"></i>
-                      <span>{t("businessProfile.messageRequest")}</span>
-                    </button>
-                  )}
+                      <button
+                        onClick={() => setShowInquiryModal(true)}
+                        className="bg-yellow-400 text-white py-2 md:py-3 px-3 md:px-4 rounded-lg hover:bg-yellow-500 font-medium text-xs md:text-sm whitespace-nowrap cursor-pointer flex items-center justify-center space-x-1 md:space-x-2"
+                      >
+                        <i className="ri-message-line"></i>
+                        <span>{t("businessProfile.messageRequest")}</span>
+                      </button>
+                    )}
                   </div>
                 </div>
 
