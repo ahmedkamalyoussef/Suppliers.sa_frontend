@@ -6,7 +6,14 @@ import {
   BusinessRequest,
   BusinessRequestResponse,
 } from "../types/inquiry";
-import { LoginResponse, LoginRequest } from "../types/auth";
+import {
+  LoginResponse,
+  LoginRequest,
+  CreateAdminRequest,
+  UpdateAdminRequest,
+  GetAdminsResponse,
+  AdminActionResponse,
+} from "../types/auth";
 import { InboxResponse } from "./types";
 
 const API_BASE_URL = "http://localhost:8000";
@@ -412,7 +419,9 @@ class ApiService {
     );
   }
 
-  async createBusinessRequest(request: BusinessRequest): Promise<BusinessRequestResponse> {
+  async createBusinessRequest(
+    request: BusinessRequest
+  ): Promise<BusinessRequestResponse> {
     return this.request(
       "/api/supplier/business-requests",
       {
@@ -1374,6 +1383,60 @@ class ApiService {
     document.body.removeChild(a);
 
     return { success: true, filename };
+  }
+  // ====== ADMIN MANAGEMENT ======
+
+  async createAdmin(
+    adminData: CreateAdminRequest
+  ): Promise<AdminActionResponse> {
+    return this.request(
+      "/api/admins",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(adminData),
+      },
+      true
+    );
+  }
+
+  async getAdmins(): Promise<GetAdminsResponse> {
+    return this.request(
+      "/api/admins",
+      {
+        method: "GET",
+      },
+      true
+    );
+  }
+
+  async updateAdmin(
+    id: number,
+    adminData: UpdateAdminRequest
+  ): Promise<AdminActionResponse> {
+    return this.request(
+      `/api/admins/${id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(adminData),
+      },
+      true
+    );
+  }
+
+  async deleteAdmin(id: number): Promise<AdminActionResponse> {
+    return this.request(
+      `/api/admins/${id}`,
+      {
+        method: "DELETE",
+      },
+      true
+    );
   }
 }
 

@@ -134,6 +134,7 @@ export interface AdminData {
   profileImage: string | null;
   emailVerifiedAt: string | null;
   permissions: AdminPermissions | null;
+  plan: string;
 }
 
 export interface BaseLoginResponse {
@@ -166,4 +167,98 @@ export type LoginResponse =
 export interface LoginRequest {
   email: string;
   password: string;
+}
+
+// Admin Management Interfaces
+export interface CreateAdminRequest {
+  name: string;
+  email: string;
+  password: string;
+  role: "admin" | "super_admin";
+  department: string;
+  job_role: string;
+  permissions: {
+    user_management_view: boolean;
+    user_management_edit: boolean;
+    user_management_delete: boolean;
+    user_management_full: boolean;
+    content_management_view: boolean;
+    content_management_supervise: boolean;
+    content_management_delete: boolean;
+    analytics_view: boolean;
+    analytics_export: boolean;
+    reports_view: boolean;
+    reports_create: boolean;
+    system_manage: boolean;
+    system_settings: boolean;
+    system_backups: boolean;
+    support_manage: boolean;
+  };
+}
+
+export interface UpdateAdminRequest {
+  name?: string;
+  email?: string;
+  password?: string;
+  role?: "admin" | "super_admin";
+  department?: string;
+  job_role?: string;
+  permissions?: {
+    user_management_view?: boolean;
+    user_management_edit?: boolean;
+    user_management_delete?: boolean;
+    user_management_full?: boolean;
+    content_management_view?: boolean;
+    content_management_supervise?: boolean;
+    content_management_delete?: boolean;
+    analytics_view?: boolean;
+    analytics_export?: boolean;
+    reports_view?: boolean;
+    reports_create?: boolean;
+    system_manage?: boolean;
+    system_settings?: boolean;
+    system_backups?: boolean;
+    support_manage?: boolean;
+  };
+}
+
+export interface AdminPermissions {
+  user_management_view: boolean;
+  user_management_edit: boolean;
+  user_management_delete: boolean;
+  user_management_full: boolean;
+  content_management_view: boolean;
+  content_management_supervise: boolean;
+  content_management_delete: boolean;
+  analytics_view: boolean;
+  analytics_export: boolean;
+  reports_view: boolean;
+  reports_create: boolean;
+  system_manage: boolean;
+  system_settings: boolean;
+  system_backups: boolean;
+  support_manage: boolean;
+}
+
+export interface AdminListItem {
+  id: number;
+  name: string;
+  email: string;
+  role: "admin" | "super_admin";
+  department: string;
+  job_role: string;
+  profile_image: string | null;
+  status: string | null;
+  last_login_at: string | null;
+  created_at: string;
+  updated_at: string;
+  permissions: AdminPermissions;
+}
+
+export interface GetAdminsResponse {
+  admins: AdminListItem[];
+}
+
+export interface AdminActionResponse {
+  message: string;
 }

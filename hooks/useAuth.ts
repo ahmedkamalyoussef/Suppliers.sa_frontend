@@ -25,6 +25,9 @@ export interface SupplierUser {
   status: string;
   plan: string;
   profileCompletion: number;
+  role?: "supplier";
+  department?: string | null;
+  jobRole?: string | null;
 }
 
 export type User = SupplierUser | AdminUser;

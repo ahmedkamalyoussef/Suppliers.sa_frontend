@@ -1,20 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "../lib/LanguageContext";
+import { apiService } from "../lib/api";
+import { AdminListItem as Employee, CreateAdminRequest, UpdateAdminRequest } from "../types/auth";
 
-type Employee = {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-  department: string;
-  status: "active" | "away" | "inactive";
-  joinDate: string;
-  lastActive: string;
-  permissions: string[];
-  avatar: string;
+// Toast notification helper
+  const showToast = (message: string, type: "success" | "error" = "success") => {
+    // Create toast element
+    const toast = document.createElement("div");
+    toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium ${
+      type === "success" ? "bg-green-500" : "bg-red-500"
+    }`;
+    toast.textContent = message;
+    
+    document.body.appendChild(toast);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.parentNode.removeChild(toast);
+      }
+    }, 3000);
+  };
+
+// Helper function to get full image URL
+const getImageUrl = (imagePath: string | null) => {
+  if (!imagePath) return "/icon.png";
+  if (imagePath.startsWith("http")) return imagePath;
+  return `${API_BASE_URL}/${imagePath}`;
 };
+
+const API_BASE_URL = "http://localhost:8000";
 type RoleDef = { name: string; permissions: string[]; description: string };
 type PermissionDef = { id: string; name: string; category: string };
 
@@ -25,6 +42,10 @@ export default function EmployeeManagement() {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
     null
   );
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [newEmployee, setNewEmployee] = useState<{
     name: string;
     email: string;
@@ -39,11 +60,22 @@ export default function EmployeeManagement() {
     permissions: [],
   });
   const [showEditEmployee, setShowEditEmployee] = useState(false);
-  const [editEmployee, setEditEmployee] = useState<Employee>({
+  const [editEmployee, setEditEmployee] = useState<{
+    id: number;
+    name: string;
+    email: string;
+    role: "admin" | "super_admin";
+    department: string;
+    permissions: string[];
+    status: string | null;
+    joinDate: string;
+    lastActive: string;
+    avatar: string | null;
+  }>({
     id: 0,
     name: "",
     email: "",
-    role: "",
+    role: "admin",
     department: "",
     permissions: [],
     status: "active",
@@ -52,99 +84,132 @@ export default function EmployeeManagement() {
     avatar: "",
   });
 
-  const [employees, setEmployees] = useState<Employee[]>([
-    {
-      id: 1,
-      name: "Sarah Johnson",
-      email: "sarah.johnson@company.com",
-      role: "Content Moderator",
-      department: "Content Management",
-      status: "active",
-      joinDate: "2024-01-10",
-      lastActive: "2024-01-20",
-      permissions: ["content.read", "content.moderate", "content.delete"],
-      avatar:
-        "https://readdy.ai/api/search-image?query=Professional%20female%20employee%20portrait%2C%20friendly%20smile%2C%20modern%20office%20background%2C%20business%20casual%20attire&width=60&height=60&seq=emp1&orientation=squarish",
-    },
-    {
-      id: 2,
-      name: "Michael Chen",
-      email: "michael.chen@company.com",
-      role: "User Support Manager",
-      department: "Customer Support",
-      status: "active",
-      joinDate: "2024-01-08",
-      lastActive: "2024-01-20",
-      permissions: [
-        "users.read",
-        "users.edit",
-        "support.manage",
-        "reports.view",
-      ],
-      avatar:
-        "https://readdy.ai/api/search-image?query=Professional%20asian%20male%20employee%20portrait%2C%20confident%20expression%2C%20modern%20workplace%2C%20business%20attire&width=60&height=60&seq=emp2&orientation=squarish",
-    },
-    {
-      id: 3,
-      name: "Emma Rodriguez",
-      email: "emma.rodriguez@company.com",
-      role: "Analytics Specialist",
-      department: "Data Analytics",
-      status: "active",
-      joinDate: "2024-01-05",
-      lastActive: "2024-01-19",
-      permissions: ["analytics.read", "analytics.export", "reports.create"],
-      avatar:
-        "https://readdy.ai/api/search-image?query=Professional%20latina%20female%20employee%20portrait%2C%20smart%20appearance%2C%20modern%20office%20setting%2C%20professional%20attire&width=60&height=60&seq=emp3&orientation=squarish",
-    },
-    {
-      id: 4,
-      name: "James Wilson",
-      email: "james.wilson@company.com",
-      role: "System Administrator",
-      department: "IT Operations",
-      status: "away",
-      joinDate: "2024-01-03",
-      lastActive: "2024-01-18",
-      permissions: [
-        "system.admin",
-        "users.manage",
-        "settings.modify",
-        "backup.manage",
-      ],
-      avatar:
-        "https://readdy.ai/api/search-image?query=Professional%20male%20IT%20administrator%20portrait%2C%20technical%20background%2C%20confident%20pose%2C%20business%20casual%20attire&width=60&height=60&seq=emp4&orientation=squarish",
-    },
-  ]);
+  // Create a proper permissions object for API calls
+  const createPermissionsObject = (permissionIds: string[]) => {
+    const permissions: any = {};
+    allPermissions.forEach((perm) => {
+      permissions[perm.id] = permissionIds.includes(perm.id);
+    });
+    return permissions;
+  };
 
-  const roles: RoleDef[] = [
+  // Convert AdminPermissions object to permission IDs array
+  const permissionsToArray = (permissions: any): string[] => {
+    const permissionIds: string[] = [];
+    
+    // Map API permission keys to frontend permission IDs
+    const permissionMap: { [key: string]: string } = {
+      user_management_view: "users.read",
+      user_management_edit: "users.edit", 
+      user_management_delete: "users.delete",
+      user_management_full: "users.manage",
+      content_management_view: "content.read",
+      content_management_supervise: "content.moderate",
+      content_management_delete: "content.delete",
+      analytics_view: "analytics.read",
+      analytics_export: "analytics.export",
+      reports_view: "reports.view",
+      reports_create: "reports.create",
+      system_manage: "system.admin",
+      system_settings: "settings.modify",
+      system_backups: "backup.manage",
+      support_manage: "support.manage"
+    };
+
+    Object.keys(permissionMap).forEach((apiKey) => {
+      if (permissions[apiKey]) {
+        permissionIds.push(permissionMap[apiKey]);
+      }
+    });
+    
+    return permissionIds;
+  };
+
+  // Display admin permissions directly from API
+  const displayAdminPermissions = (permissions: any) => {
+    const permissionDisplay: { [key: string]: string[] } = {
+      "User Management": [],
+      "Content Management": [],
+      "Analytics": [],
+      "Reporting": [],
+      "System": [],
+      "Support": []
+    };
+
+    // Map API permission keys to display categories
+    if (permissions.user_management_view) permissionDisplay["User Management"].push("View Users");
+    if (permissions.user_management_edit) permissionDisplay["User Management"].push("Edit Users");
+    if (permissions.user_management_delete) permissionDisplay["User Management"].push("Delete Users");
+    if (permissions.user_management_full) permissionDisplay["User Management"].push("Full Access");
+
+    if (permissions.content_management_view) permissionDisplay["Content Management"].push("View Content");
+    if (permissions.content_management_supervise) permissionDisplay["Content Management"].push("Supervise Content");
+    if (permissions.content_management_delete) permissionDisplay["Content Management"].push("Delete Content");
+
+    if (permissions.analytics_view) permissionDisplay["Analytics"].push("View Analytics");
+    if (permissions.analytics_export) permissionDisplay["Analytics"].push("Export Data");
+
+    if (permissions.reports_view) permissionDisplay["Reporting"].push("View Reports");
+    if (permissions.reports_create) permissionDisplay["Reporting"].push("Create Reports");
+
+    if (permissions.system_manage) permissionDisplay["System"].push("System Management");
+    if (permissions.system_settings) permissionDisplay["System"].push("System Settings");
+    if (permissions.system_backups) permissionDisplay["System"].push("Manage Backups");
+
+    if (permissions.support_manage) permissionDisplay["Support"].push("Manage Support");
+
+    return permissionDisplay;
+  };
+
+  // Fetch admins from API
+  const fetchAdmins = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      const response = await apiService.getAdmins();
+      setEmployees(response.admins);
+    } catch (err) {
+      console.error("Error fetching admins:", err);
+      setError("Failed to load employees");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAdmins();
+  }, []);
+
+  const getRoleDisplayName = (role: string) => {
+  switch (role) {
+    case "admin":
+      return "Administrator";
+    case "super_admin":
+      return "Super Administrator";
+    default:
+      return role;
+  }
+};
+
+const roles: RoleDef[] = [
     {
-      name: t("employeeManagement.roles.contentModerator"),
-      permissions: ["content.read", "content.moderate", "content.delete"],
-      description: "Review and moderate user-generated content",
+      name: "admin",
+      permissions: ["users.read", "users.edit", "support.manage", "reports.view"],
+      description: "Basic admin access",
     },
     {
-      name: t("employeeManagement.roles.userSupportManager"),
-      permissions: [
-        "users.read",
-        "users.edit",
-        "support.manage",
-        "reports.view",
-      ],
-      description: "Manage customer support and user issues",
-    },
-    {
-      name: t("employeeManagement.roles.analyticsSpecialist"),
-      permissions: ["analytics.read", "analytics.export", "reports.create"],
-      description: "Analyze data and create reports",
-    },
-    {
-      name: t("employeeManagement.roles.systemAdministrator"),
+      name: "super_admin",
       permissions: [
         "system.admin",
         "users.manage",
         "settings.modify",
         "backup.manage",
+        "content.read",
+        "content.moderate",
+        "content.delete",
+        "analytics.read",
+        "analytics.export",
+        "reports.create",
       ],
       description: "Full system administration access",
     },
@@ -229,6 +294,7 @@ export default function EmployeeManagement() {
   ];
 
   const getStatusColor = (status: Employee["status"]) => {
+    if (!status) return "bg-gray-100 text-gray-600";
     switch (status) {
       case "active":
         return "bg-green-100 text-green-600";
@@ -242,6 +308,7 @@ export default function EmployeeManagement() {
   };
 
   const getStatusText = (status: Employee["status"]) => {
+    if (!status) return "Inactive";
     switch (status) {
       case "active":
         return t("employeeManagement.active");
@@ -250,19 +317,72 @@ export default function EmployeeManagement() {
       case "inactive":
         return t("employeeManagement.inactive");
       default:
-        return status;
+        return status || "Inactive";
     }
   };
 
-  const handleAddEmployee = () => {
-    setShowAddEmployee(false);
-    setNewEmployee({
-      name: "",
-      email: "",
-      role: "",
-      department: "",
-      permissions: [],
-    });
+  const handleAddEmployee = async () => {
+    if (!newEmployee.name || !newEmployee.email || !newEmployee.role || !newEmployee.department) {
+      setError("Please fill all required fields");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setError("");
+
+      // Convert permissions array to permission object
+      const permissions: any = {};
+      allPermissions.forEach((perm) => {
+        permissions[perm.id] = newEmployee.permissions.includes(perm.id);
+      });
+
+      const adminData: CreateAdminRequest = {
+        name: newEmployee.name,
+        email: newEmployee.email,
+        password: "password123", // You might want to generate a random password or ask for it
+        role: "admin",
+        department: newEmployee.department,
+        job_role: newEmployee.role,
+        permissions: {
+          user_management_view: permissions["users.read"] || false,
+          user_management_edit: permissions["users.edit"] || false,
+          user_management_delete: permissions["users.delete"] || false,
+          user_management_full: permissions["users.manage"] || false,
+          content_management_view: permissions["content.read"] || false,
+          content_management_supervise: permissions["content.moderate"] || false,
+          content_management_delete: permissions["content.delete"] || false,
+          analytics_view: permissions["analytics.read"] || false,
+          analytics_export: permissions["analytics.export"] || false,
+          reports_view: permissions["reports.view"] || false,
+          reports_create: permissions["reports.create"] || false,
+          system_manage: permissions["system.admin"] || false,
+          system_settings: permissions["settings.modify"] || false,
+          system_backups: permissions["backup.manage"] || false,
+          support_manage: permissions["support.manage"] || false,
+        },
+      };
+
+      await apiService.createAdmin(adminData);
+      
+      // Reset form and refresh list
+      setNewEmployee({
+        name: "",
+        email: "",
+        role: "",
+        department: "",
+        permissions: [],
+      });
+      setShowAddEmployee(false);
+      await fetchAdmins();
+      showToast("Employee added successfully!");
+    } catch (err) {
+      console.error("Error creating admin:", err);
+      setError("Failed to create employee");
+      showToast("Failed to create employee", "error");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleRoleChange = (roleName: string) => {
@@ -277,17 +397,19 @@ export default function EmployeeManagement() {
   };
 
   const openEditEmployee = (emp: Employee) => {
+    const permissionsArray = permissionsToArray(emp.permissions);
+    
     setEditEmployee({
       id: emp.id,
       name: emp.name,
       email: emp.email,
       role: emp.role,
       department: emp.department,
-      permissions: emp.permissions,
+      permissions: permissionsArray,
       status: emp.status,
-      joinDate: emp.joinDate,
-      lastActive: emp.lastActive,
-      avatar: emp.avatar,
+      joinDate: emp.created_at,
+      lastActive: emp.last_login_at || "",
+      avatar: emp.profile_image || "",
     });
     setShowEditEmployee(true);
   };
@@ -297,25 +419,79 @@ export default function EmployeeManagement() {
     if (role) {
       setEditEmployee({
         ...editEmployee,
-        role: roleName,
+        role: roleName as "admin" | "super_admin",
         permissions: role.permissions,
       });
     }
   };
 
-  const saveEditedEmployee = () => {
+  const saveEditedEmployee = async () => {
     if (!editEmployee.name || !editEmployee.email || !editEmployee.role) return;
-    setEmployees(
-      employees.map((e: Employee) =>
-        e.id === editEmployee.id ? { ...e, ...editEmployee } : e
-      )
-    );
-    setShowEditEmployee(false);
+
+    try {
+      setSaving(true);
+      setError("");
+
+      // Convert permissions array to permission object
+      const permissions: any = {};
+      allPermissions.forEach((perm) => {
+        permissions[perm.id] = editEmployee.permissions.includes(perm.id);
+      });
+
+      const updateData: UpdateAdminRequest = {
+        name: editEmployee.name,
+        email: editEmployee.email,
+        role: "admin",
+        department: editEmployee.department,
+        job_role: editEmployee.role,
+        permissions: {
+          user_management_view: permissions["users.read"] || false,
+          user_management_edit: permissions["users.edit"] || false,
+          user_management_delete: permissions["users.delete"] || false,
+          user_management_full: permissions["users.manage"] || false,
+          content_management_view: permissions["content.read"] || false,
+          content_management_supervise: permissions["content.moderate"] || false,
+          content_management_delete: permissions["content.delete"] || false,
+          analytics_view: permissions["analytics.read"] || false,
+          analytics_export: permissions["analytics.export"] || false,
+          reports_view: permissions["reports.view"] || false,
+          reports_create: permissions["reports.create"] || false,
+          system_manage: permissions["system.admin"] || false,
+          system_settings: permissions["settings.modify"] || false,
+          system_backups: permissions["backup.manage"] || false,
+          support_manage: permissions["support.manage"] || false,
+        },
+      };
+
+      await apiService.updateAdmin(editEmployee.id, updateData);
+      setShowEditEmployee(false);
+      await fetchAdmins();
+      showToast("Employee updated successfully!");
+    } catch (err) {
+      console.error("Error updating admin:", err);
+      setError("Failed to update employee");
+      showToast("Failed to update employee", "error");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleDeleteEmployee = (id: number) => {
+  const handleDeleteEmployee = async (id: number) => {
     if (!confirm(t("employeeManagement.confirmDelete"))) return;
-    setEmployees(employees.filter((e: Employee) => e.id !== id));
+
+    try {
+      setSaving(true);
+      setError("");
+      await apiService.deleteAdmin(id);
+      await fetchAdmins();
+      showToast("Employee deleted successfully!");
+    } catch (err) {
+      console.error("Error deleting admin:", err);
+      setError("Failed to delete employee");
+      showToast("Failed to delete employee", "error");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const permissionsByCategory = allPermissions.reduce<
@@ -336,14 +512,34 @@ export default function EmployeeManagement() {
         </h2>
         <button
           onClick={() => setShowAddEmployee(true)}
-          className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 font-medium whitespace-nowrap cursor-pointer"
+          disabled={loading || saving}
+          className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 font-medium whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <i className="ri-add-line mr-2"></i>
           {t("employeeManagement.addEmployee")}
         </button>
       </div>
 
-      {/* Employee Stats */}
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          <div className="flex items-center">
+            <i className="ri-error-warning-line mr-2"></i>
+            {error}
+          </div>
+        </div>
+      )}
+
+      {/* Loading Display */}
+      {loading && (
+        <div className="flex justify-center py-8">
+          <i className="ri-loader-4-line animate-spin text-2xl text-blue-500"></i>
+        </div>
+      )}
+
+      {!loading && (
+        <>
+          {/* Employee Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <div className="flex items-center space-x-3">
@@ -395,15 +591,15 @@ export default function EmployeeManagement() {
 
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-              <i className="ri-briefcase-line text-purple-600 text-xl"></i>
+            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+              <i className="ri-user-unfollow-line text-gray-600 text-xl"></i>
             </div>
             <div>
               <h3 className="text-2xl font-bold text-gray-800">
-                {roles.length}
+                {employees.filter((e) => e.status === null || e.status === undefined).length}
               </h3>
               <p className="text-gray-600 text-sm">
-                {t("employeeManagement.rolesDefined")}
+                Inactive
               </p>
             </div>
           </div>
@@ -448,7 +644,7 @@ export default function EmployeeManagement() {
                   <td className="py-4 px-6">
                     <div className="flex items-center space-x-3">
                       <img
-                        src={employee.avatar}
+                        src={getImageUrl(employee.profile_image)}
                         alt={employee.name}
                         className="w-10 h-10 rounded-full object-cover"
                       />
@@ -479,7 +675,7 @@ export default function EmployeeManagement() {
                   </td>
                   <td className="py-4 px-6">
                     <div className="flex flex-wrap gap-1">
-                      {employee.permissions
+                      {permissionsToArray(employee.permissions)
                         .slice(0, 2)
                         .map((permission, index) => (
                           <span
@@ -489,16 +685,16 @@ export default function EmployeeManagement() {
                             {permission.split(".")[1]}
                           </span>
                         ))}
-                      {employee.permissions.length > 2 && (
+                      {permissionsToArray(employee.permissions).length > 2 && (
                         <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">
-                          +{employee.permissions.length - 2}
+                          +{permissionsToArray(employee.permissions).length - 2}
                         </span>
                       )}
                     </div>
                   </td>
                   <td className="py-4 px-6">
                     <span className="text-sm text-gray-600">
-                      {new Date(employee.lastActive).toLocaleDateString()}
+                      {employee.last_login_at ? new Date(employee.last_login_at).toLocaleDateString() : "Never"}
                     </span>
                   </td>
                   <td className="py-4 px-6">
@@ -507,20 +703,23 @@ export default function EmployeeManagement() {
                         onClick={() => setSelectedEmployee(employee)}
                         className="text-blue-600 hover:text-blue-700 cursor-pointer"
                         title={t("employeeManagement.viewDetails")}
+                        disabled={saving}
                       >
                         <i className="ri-eye-line"></i>
                       </button>
                       <button
                         onClick={() => openEditEmployee(employee)}
-                        className="text-green-600 hover:text-green-700 cursor-pointer"
+                        className="text-yellow-600 hover:text-yellow-700 cursor-pointer"
                         title={t("employeeManagement.editEmployee")}
+                        disabled={saving}
                       >
                         <i className="ri-edit-line"></i>
                       </button>
                       <button
                         onClick={() => handleDeleteEmployee(employee.id)}
                         className="text-red-600 hover:text-red-700 cursor-pointer"
-                        title={t("employeeManagement.removeEmployee")}
+                        title={t("employeeManagement.remove")}
+                        disabled={saving}
                       >
                         <i className="ri-delete-bin-line"></i>
                       </button>
@@ -597,7 +796,7 @@ export default function EmployeeManagement() {
                     </option>
                     {roles.map((role, index) => (
                       <option key={index} value={role.name}>
-                        {role.name}
+                        {getRoleDisplayName(role.name)}
                       </option>
                     ))}
                   </select>
@@ -788,7 +987,7 @@ export default function EmployeeManagement() {
                     </option>
                     {roles.map((role, index) => (
                       <option key={index} value={role.name}>
-                        {role.name}
+                        {getRoleDisplayName(role.name)}
                       </option>
                     ))}
                   </select>
@@ -934,18 +1133,39 @@ export default function EmployeeManagement() {
             <div className="p-6 space-y-6">
               <div className="flex items-center space-x-4">
                 <img
-                  src={selectedEmployee.avatar}
+                  src={getImageUrl(selectedEmployee.profile_image)}
                   alt={selectedEmployee.name}
                   className="w-16 h-16 rounded-full object-cover"
                 />
                 <div>
-                  <h4 className="text-xl font-semibold text-gray-800">
+                <h4 className="text-xl font-semibold text-gray-800">
                     {selectedEmployee.name}
                   </h4>
                   <p className="text-gray-600">{selectedEmployee.email}</p>
-                  <p className="text-sm text-gray-500">
-                    {selectedEmployee.role} • {selectedEmployee.department}
-                  </p>
+                  <div className="flex items-center space-x-3 mt-1">
+                    <span className="text-sm text-gray-500">
+                      {selectedEmployee.role} • {selectedEmployee.department}
+                    </span>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${getStatusColor(
+                        selectedEmployee.status
+                      )}`}
+                    >
+                      {getStatusText(selectedEmployee.status)}
+                    </span>
+                  </div>
+                  <div className="mt-2 flex items-center space-x-4 text-sm text-gray-500">
+                    <span className="flex items-center">
+                      <i className="ri-calendar-line mr-1"></i>
+                      Joined: {new Date(selectedEmployee.created_at).toLocaleDateString()}
+                    </span>
+                    {selectedEmployee.last_login_at && (
+                      <span className="flex items-center">
+                        <i className="ri-time-line mr-1"></i>
+                        Last login: {new Date(selectedEmployee.last_login_at).toLocaleDateString()}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -954,12 +1174,9 @@ export default function EmployeeManagement() {
                   {t("employeeManagement.permissions")}
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Object.entries(permissionsByCategory).map(
+                  {Object.entries(displayAdminPermissions(selectedEmployee.permissions)).map(
                     ([category, permissions]) => {
-                      const categoryPermissions = permissions.filter((p) =>
-                        selectedEmployee.permissions.includes(p.id)
-                      );
-                      if (categoryPermissions.length === 0) return null;
+                      if (permissions.length === 0) return null;
 
                       return (
                         <div
@@ -970,14 +1187,14 @@ export default function EmployeeManagement() {
                             {category}
                           </h5>
                           <div className="space-y-1">
-                            {categoryPermissions.map((permission) => (
+                            {permissions.map((permission, index) => (
                               <div
-                                key={permission.id}
+                                key={index}
                                 className="flex items-center space-x-2"
                               >
                                 <i className="ri-check-line text-green-500 text-sm"></i>
                                 <span className="text-sm text-gray-600">
-                                  {permission.name}
+                                  {permission}
                                 </span>
                               </div>
                             ))}
@@ -988,24 +1205,11 @@ export default function EmployeeManagement() {
                   )}
                 </div>
               </div>
-
-              <div className="flex space-x-3">
-                <button className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 font-medium text-sm whitespace-nowrap cursor-pointer">
-                  <i className="ri-edit-line mr-2"></i>
-                  {t("employeeManagement.editEmployee")}
-                </button>
-                <button className="bg-yellow-500 text-white px-6 py-2 rounded-lg hover:bg-yellow-600 font-medium text-sm whitespace-nowrap cursor-pointer">
-                  <i className="ri-lock-line mr-2"></i>
-                  {t("employeeManagement.changePermissions")}
-                </button>
-                <button className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 font-medium text-sm whitespace-nowrap cursor-pointer">
-                  <i className="ri-delete-bin-line mr-2"></i>
-                  {t("employeeManagement.remove")}
-                </button>
-              </div>
             </div>
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );
