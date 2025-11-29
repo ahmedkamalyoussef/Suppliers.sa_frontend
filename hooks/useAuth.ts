@@ -159,7 +159,6 @@ export const useAuth = (): UseAuthReturn => {
           loading: false,
         });
 
-        console.log(`✅ ${userType} logged in via hook:`, adminUser.email);
       } else {
         const supplierUser = user as SupplierUser;
 
@@ -174,7 +173,6 @@ export const useAuth = (): UseAuthReturn => {
           loading: false,
         });
 
-        console.log("✅ Supplier logged in via hook:", supplierUser.email);
       }
     } catch (error) {
       console.error("Error in login:", error);
@@ -200,8 +198,6 @@ export const useAuth = (): UseAuthReturn => {
       user: null,
       loading: false,
     });
-
-    console.log("✅ User logged out");
 
     // Redirect to login
     router.push("/login");

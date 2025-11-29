@@ -103,12 +103,6 @@ export default function DashboardAnalytics() {
           Array.from({ length: chartData.length }, (_, i) => `${i + 1}`)
         );
       }
-
-      console.log(`Fetched ${chartType} data:`, {
-        data: chartData,
-        labels: response.labels,
-        hasData: chartData.some((val) => val > 0),
-      });
     } catch (error) {
       console.error("Error fetching charts data:", error);
       // Set empty data on error
@@ -131,7 +125,6 @@ export default function DashboardAnalytics() {
 
         // 1. Get Performance Metrics
         const metricsResponse = await apiService.getPerformanceMetrics();
-        console.log("Performance Metrics:", metricsResponse);
 
         // Map the API response to the expected format
         const mappedMetrics = metricsResponse.metrics.map((metric) => ({
@@ -150,17 +143,14 @@ export default function DashboardAnalytics() {
 
         // 3. Get Keywords Analytics with range parameter
         const keywords = await apiService.getKeywordsAnalytics(range);
-        console.log("Keywords Analytics:", keywords);
         setKeywordsData(keywords);
 
         // 4. Get Customer Insights with range parameter
         const insights = await apiService.getCustomerInsights(range);
-        console.log("Customer Insights:", insights);
         setCustomerInsights(insights);
 
         // 5. Get Recommendations
         const recommendations = await apiService.getRecommendations();
-        console.log("Recommendations:", recommendations);
         setRecommendations(recommendations);
       } catch (error) {
         console.error("Error fetching initial data:", error);

@@ -71,9 +71,7 @@ export default function LoginPage() {
         password: formData.password,
       };
 
-      console.log("🔐 Starting login...");
       const response = await apiService.login(loginData);
-      console.log("✅ Login successful:", response.userType);
 
       // للـ suppliers - استخدم الـ hook
       if (response.userType === "supplier" && response.supplier) {
@@ -92,7 +90,6 @@ export default function LoginPage() {
       await new Promise((resolve) => setTimeout(resolve, 200));
 
       // Redirect بناءً على الـ user type
-      console.log("🔄 Redirecting...");
       if (
         response.userType === "admin" ||
         response.userType === "super_admin"
@@ -102,7 +99,6 @@ export default function LoginPage() {
         window.location.href = "/dashboard";
       }
     } catch (error: any) {
-      console.error("❌ Login error:", error);
       setLoginError(error.message || "Login failed. Please try again.");
       setIsSubmitting(false);
     }

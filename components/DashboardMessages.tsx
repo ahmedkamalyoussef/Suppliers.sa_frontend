@@ -58,7 +58,6 @@ export default function DashboardMessages({
       setIsLoading(true);
       try {
         const response = await apiService.getInbox();
-        console.log('Inbox API Response:', response);
         setInboxData(response);
       } catch (error) {
         console.error('Failed to fetch inbox:', error);
@@ -168,13 +167,10 @@ export default function DashboardMessages({
       setReplyText("");
       setSelectedMessage(null);
       
-      console.log('Reply sent successfully');
-      
       // Refresh inbox data to show changes
       const fetchInbox = async () => {
         try {
           const response = await apiService.getInbox();
-          console.log('Inbox API Response after reply:', response);
           setInboxData(response);
         } catch (error) {
           console.error('Failed to refresh inbox:', error);
@@ -211,8 +207,6 @@ export default function DashboardMessages({
         window.dispatchEvent(new CustomEvent('messageMarkedAsRead', {
           detail: { messageId, unreadCount: Math.max(0, inboxData.unread_count - 1) }
         }));
-        
-        console.log('DashboardMessages - Message marked as read and event emitted:', messageId);
         
         // Update messages object as well
         const messageInMessages = messages.inbox.find((m) => m.id === messageId);

@@ -278,9 +278,6 @@ class ApiService {
     requiresAuth: boolean = false
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
-    console.log(`[API] Preparing request to: ${url}`, {
-      method: options.method || "GET",
-    });
 
     // Convert HeadersInit to Record<string, string>
     const optionsHeaders: Record<string, string> = {};
@@ -307,58 +304,35 @@ class ApiService {
     if (requiresAuth) {
       const token = localStorage.getItem("supplier_token");
       const tokenType = localStorage.getItem("token_type") || "Bearer";
-      console.log("[API] Auth check - Token exists:", !!token);
       if (!token) {
-        console.error("[API] No auth token found in localStorage");
         throw new Error("No auth token found");
       }
       headers["Authorization"] = `${tokenType} ${token}`;
     }
 
-    console.log("[API] Request headers:", headers);
-    if (options.body) {
-      console.log("[API] Request body:", options.body);
-    }
-
     try {
-      console.log("[API] Sending request...");
       const response = await fetch(url, {
         ...options,
         credentials: "include",
         headers,
       });
 
-      console.log(
-        `[API] Received response: ${response.status} ${response.statusText}`
-      );
-
-      // Clone the response to read it as text first (for logging)
-      const responseClone = response.clone();
       const responseText = await response.text();
       let responseData;
 
       try {
         responseData = JSON.parse(responseText);
-        console.log("[API] Response data:", responseData);
       } catch (e) {
-        console.log("[API] Non-JSON response:", responseText);
         responseData = {};
       }
 
       if (!response.ok) {
-        console.error(`[API] Request failed with status ${response.status}:`, {
-          url,
-          status: response.status,
-          statusText: response.statusText,
-          response: responseData,
-        });
 
         if (response.status === 422) {
           const validationError = new ValidationError(
             "Validation failed",
             responseData.errors || responseData
           );
-          console.error("[API] Validation Error:", validationError.errors);
           throw validationError;
         }
 
@@ -369,7 +343,6 @@ class ApiService {
 
       return responseData;
     } catch (error) {
-      console.error("[API] Request failed:", error);
       throw error;
     }
   }
@@ -483,8 +456,6 @@ class ApiService {
         body: JSON.stringify(data),
       });
 
-      console.log("📦 Login response:", response);
-
       if (!response.accessToken) {
         throw new Error("No access token received");
       }
@@ -505,12 +476,10 @@ class ApiService {
           JSON.stringify(response.supplier)
         );
         this.setCookie("user_type", "supplier", 7);
-        console.log("✅ Supplier logged in");
       } else if (response.userType === "admin" && response.admin) {
         localStorage.setItem("user_type", "admin");
         localStorage.setItem("admin_user", JSON.stringify(response.admin));
         this.setCookie("user_type", "admin", 7);
-        console.log("✅ Admin logged in");
       } else if (response.userType === "super_admin" && response.super_admin) {
         localStorage.setItem("user_type", "admin");
         localStorage.setItem(
@@ -518,13 +487,10 @@ class ApiService {
           JSON.stringify(response.super_admin)
         );
         this.setCookie("user_type", "admin", 7);
-        console.log("✅ Super Admin logged in");
       }
 
-      console.log("🍪 Cookies set successfully");
       return response;
     } catch (error: any) {
-      console.error("❌ Login error:", error);
       throw error;
     }
   }
@@ -545,10 +511,6 @@ class ApiService {
             Authorization: `${tokenType} ${token}`,
           },
         });
-
-        if (!response.ok) {
-          console.warn("⚠️ Logout API call failed, clearing local data anyway");
-        }
       }
     } catch (error) {
       console.warn("⚠️ Logout request error:", error);
@@ -563,8 +525,6 @@ class ApiService {
       this.deleteCookie("supplier_token");
       this.deleteCookie("token_type");
       this.deleteCookie("user_type");
-
-      console.log("✅ Logged out successfully");
     }
   }
 
@@ -876,8 +836,6 @@ class ApiService {
     }
 
     try {
-      console.log(`[API] Fetching business profile for supplier ID: ${id}`);
-
       const response = await fetch(
         `${this.baseURL}/api/suppliers/${id}/business`,
         {
@@ -887,11 +845,8 @@ class ApiService {
         }
       );
 
-      console.log(`[API] Business profile response status: ${response.status}`);
-
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error("[API] Business profile error:", errorData);
         throw new Error(
           errorData.message ||
             `Failed to fetch business profile (${response.status})`
@@ -902,17 +857,10 @@ class ApiService {
 
       // Check if data is null or undefined
       if (!data) {
-        console.error(
-          "[API] Received null/undefined data from business profile endpoint"
-        );
         throw new Error("No data received from server");
       }
-
-      console.log("[API] Business profile data received:", data);
-
       // Validate essential properties exist
       if (!data.profile) {
-        console.warn("[API] Profile data is missing, using default structure");
         data.profile = {};
       }
 

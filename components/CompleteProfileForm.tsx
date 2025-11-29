@@ -697,11 +697,7 @@ export default function CompleteProfileForm({
 
   // Track step changes to prevent auto-submission
   useEffect(() => {
-    console.log("Step changed to:", currentStep);
     if (currentStep === 6) {
-      console.log(
-        "Reached step 6 - submission disabled, waiting for manual trigger"
-      );
       allowSubmissionRef.current = false;
     } else {
       allowSubmissionRef.current = false;
@@ -711,13 +707,11 @@ export default function CompleteProfileForm({
   // Sync crFile with formData.document
   useEffect(() => {
     if (crFile) {
-      console.log("Updating formData.document with crFile:", crFile.name);
       setFormData((prev) => ({
         ...prev,
         document: crFile,
       }));
     } else {
-      console.log("Clearing formData.document");
       setFormData((prev) => ({
         ...prev,
         document: null,
@@ -727,7 +721,6 @@ export default function CompleteProfileForm({
 
   // Function to manually allow submission
   const allowSubmission = () => {
-    console.log("Manually allowing submission");
     allowSubmissionRef.current = true;
   };
 
@@ -820,7 +813,6 @@ export default function CompleteProfileForm({
 
   const handleCRFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const file = e.target.files?.[0];
-    console.log("File selected:", file?.name, file?.type, file?.size);
 
     if (file) {
       const allowedTypes = [
@@ -830,7 +822,6 @@ export default function CompleteProfileForm({
         "application/pdf",
       ];
       if (!allowedTypes.includes(file.type)) {
-        console.log("Invalid file type:", file.type);
         setErrors((prev) => ({
           ...prev,
           crFile: "Please upload a valid file (JPG, PNG, or PDF)",
@@ -839,7 +830,6 @@ export default function CompleteProfileForm({
       }
 
       if (file.size > 5 * 1024 * 1024) {
-        console.log("File too large:", file.size);
         setErrors((prev) => ({
           ...prev,
           crFile: "File size must be less than 5MB",
@@ -847,7 +837,6 @@ export default function CompleteProfileForm({
         return;
       }
 
-      console.log("Setting crFile:", file.name);
       setCrFile(file);
 
       if (file.type.startsWith("image/")) {
@@ -872,7 +861,6 @@ export default function CompleteProfileForm({
   };
 
   const validateStep = (step: number): boolean => {
-    console.log(`Validating step ${step}`);
     const newErrors: Errors = {};
 
     switch (step) {
@@ -925,29 +913,18 @@ export default function CompleteProfileForm({
     }
 
     if (Object.keys(newErrors).length > 0) {
-      console.log("Validation errors:", newErrors);
       setErrors(newErrors);
       return false;
     }
 
-    console.log("Step validation passed");
     return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    console.log(
-      "handleSubmit called - currentStep:",
-      currentStep,
-      "allowSubmission:",
-      allowSubmissionRef.current
-    );
     e.preventDefault();
 
     // Only allow submission on the final step AND if manually triggered
     if (currentStep < 6 || !allowSubmissionRef.current) {
-      console.log(
-        "Cannot submit - not on final step or not manually triggered"
-      );
       return;
     }
 
@@ -958,12 +935,9 @@ export default function CompleteProfileForm({
       // Upload document first if exists
       let documentResponse = null;
       if (formData.document) {
-        console.log("Uploading document separately...");
         try {
           documentResponse = await apiService.uploadDocument(formData.document);
-          console.log("Document uploaded successfully:", documentResponse);
         } catch (uploadError: any) {
-          console.error("Document upload failed:", uploadError);
           setSubmitStatus(`Document upload failed: ${uploadError.message}`);
           setIsSubmitting(false);
           return;
@@ -1082,18 +1056,10 @@ export default function CompleteProfileForm({
         // Document already uploaded separately, don't include here
       };
 
-      console.log("Submitting profile data:", profileData);
-      console.log("Branches data:", branches);
-      console.log("Has branches:", branches && branches.length > 0);
-      console.log("Main phone value:", mainPhoneValue);
-      console.log("Document upload response:", documentResponse);
-
       // Update profile with data (document already uploaded)
       let profileResponse;
       // Always use regular JSON request since document is uploaded separately
       profileResponse = await apiService.updateProfile(profileData);
-
-      console.log("Profile update response:", profileResponse);
 
       setSubmitStatus("Profile submitted successfully!");
       setShowVerificationModal(true);
@@ -2638,7 +2604,6 @@ export default function CompleteProfileForm({
             <button
               type="submit"
               onClick={() => {
-                console.log("Submit button clicked - allowing submission");
                 allowSubmission();
               }}
               disabled={isSubmitting}

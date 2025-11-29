@@ -92,9 +92,7 @@ export default function BusinessProfile() {
           duration: duration,
           session_id: sessionId,
         });
-        console.log(
-          `View tracked for supplier ${businessId}: ${duration}s, type: ${customerType}`
-        );
+        
       } catch (error) {
         console.error("Error tracking view:", error);
       }
@@ -137,7 +135,6 @@ export default function BusinessProfile() {
     const fetchBusinessProfile = async () => {
       try {
         const profile = await apiService.getBusinessProfile(businessId);
-        console.log("Fetched business profile:", profile);
 
         // Also fetch from public businesses API to get preferences
         try {
@@ -277,9 +274,7 @@ export default function BusinessProfile() {
     productsAndServices: (() => {
       const products = (businessProfile as BusinessProfileWithProducts)
         ?.products;
-      console.log("Products in business object:", products);
       if (!products || !Array.isArray(products)) {
-        console.warn("No products found or invalid products data");
         return [];
       }
       return products.map((product) => product?.product_name).filter(Boolean);
@@ -287,7 +282,6 @@ export default function BusinessProfile() {
     // Product images from API
     galleryImages: (() => {
       const productImages = businessProfile?.product_images || [];
-      console.log("Product images:", productImages);
 
       // If there are no product images, return a default image
       if (productImages.length === 0) {
@@ -319,13 +313,11 @@ export default function BusinessProfile() {
 
       // If no working hours from API, return defaults
       if (!businessProfile?.profile?.working_hours) {
-        console.log("Using default working hours");
         return defaultWorkingHours;
       }
 
       // Map API working hours to the expected format
       const apiWorkingHours = businessProfile.profile.working_hours;
-      console.log("API Working Hours:", apiWorkingHours);
 
       // Convert API format to our format
       const mappedWorkingHours = {

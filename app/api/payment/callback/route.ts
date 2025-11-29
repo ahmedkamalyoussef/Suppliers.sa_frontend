@@ -38,12 +38,7 @@ export async function POST(request: NextRequest) {
       // 3. Send confirmation emails
       // 4. Log the transaction
 
-      console.log("Payment successful:", {
-        transactionId: transactionStatus.transaction_id,
-        amount: transactionStatus.cart_amount,
-        currency: transactionStatus.cart_currency,
-        customer: transactionStatus.customer_details,
-      });
+      
 
       return NextResponse.json({
         success: true,
@@ -51,12 +46,6 @@ export async function POST(request: NextRequest) {
         transactionId: transactionStatus.transaction_id,
       });
     } else {
-      console.log("Payment failed:", {
-        transactionId,
-        status: transactionStatus.transaction_status,
-        message: transactionStatus.response_message,
-      });
-
       return NextResponse.json({
         success: false,
         message: transactionStatus.response_message || "Payment failed",

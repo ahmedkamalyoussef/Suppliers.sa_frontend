@@ -8,18 +8,16 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get("supplier_token")?.value;
   const userType = request.cookies.get("user_type")?.value;
 
-  console.log(
-    `🔍 Middleware check: ${pathname} | Token: ${
-      token ? "✅" : "❌"
-    } | UserType: ${userType || "none"}`
-  );
-
   // ==========================================
   // 1. Redirect authenticated users from login/register
   // ==========================================
-  if (pathname === "/login" || pathname === "/register") {
+  if (
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname.startsWith("/reset-password") ||
+    pathname === "/forgot-password"
+  ) {
     if (token && userType) {
-      console.log(`🔀 User already logged in as ${userType}, redirecting...`);
 
       if (userType === "admin") {
         return NextResponse.redirect(new URL("/admin", request.url));
@@ -36,7 +34,6 @@ export function middleware(request: NextRequest) {
   if (pathname.startsWith("/admin")) {
     // Not authenticated
     if (!token) {
-      console.log("🚫 No token, redirecting to login");
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(loginUrl);
@@ -44,21 +41,18 @@ export function middleware(request: NextRequest) {
 
     // Authenticated but not admin
     if (userType !== "admin") {
-      console.log(`🚫 User type "${userType}" cannot access admin`);
       return NextResponse.redirect(new URL("/", request.url));
     }
 
-    console.log(`✅ Admin access granted: ${pathname}`);
     return NextResponse.next();
   }
 
   // ==========================================
   // 3. Protect supplier dashboard
   // ==========================================
-  if (pathname.startsWith("/dashboard")) {
+  if (pathname.startsWith("/dashboard")||pathname.startsWith("/profile") || pathname.startsWith("/complete-profile")) {
     // Not authenticated
     if (!token) {
-      console.log("🚫 No token, redirecting to login");
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(loginUrl);
@@ -66,11 +60,9 @@ export function middleware(request: NextRequest) {
 
     // Don't let admins access supplier dashboard
     if (userType === "admin") {
-      console.log("🚫 Admin trying to access supplier dashboard");
       return NextResponse.redirect(new URL("/admin", request.url));
     }
 
-    console.log(`✅ Supplier access granted: ${pathname}`);
     return NextResponse.next();
   }
 
@@ -78,5 +70,14 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/dashboard/:path*", "/login", "/register"],
+  matcher: [
+    "/admin/:path*", 
+    "/dashboard/:path*", 
+    "/login", 
+    "/register", 
+    "/reset-password/:path*", 
+    "/forgot-password",
+    "/profile/:path*",
+    "/complete-profile"
+  ],
 };

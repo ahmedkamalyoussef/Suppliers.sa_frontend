@@ -43,7 +43,6 @@ export default function Header() {
       const fetchInbox = async () => {
         try {
           const response = await apiService.getInbox();
-          console.log('Header - Inbox API Response:', response);
           setInboxData(response);
           
           // Map only received messages for recent messages display
@@ -72,7 +71,6 @@ export default function Header() {
   useEffect(() => {
     const handleMessageMarkedAsRead = (event: CustomEvent) => {
       const { messageId, unreadCount } = event.detail;
-      console.log('Header - Received messageMarkedAsRead event:', { messageId, unreadCount });
       
       // Update unread count
       if (inboxData) {
@@ -118,7 +116,6 @@ export default function Header() {
             id: messageId
           });
           
-          console.log('Header - Message marked as read:', messageId);
           
           // Update local state
           setInboxData((prev: any) => ({
