@@ -3,17 +3,17 @@
 import { useState } from "react";
 import type React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import { useLanguage } from "@/lib/LanguageContext"; // عدل المسار حسب مكانك
-import { useAuth } from "@/lib/UserContext";
-import { apiService, type LoginRequest } from "@/lib/api";
+import { useLanguage } from "@/lib/LanguageContext";
+import { useAuth } from "@/hooks/useAuth";
+import { apiService } from "@/lib/api";
+import { LoginRequest } from "../../types/auth";
 
 export default function LoginPage() {
   const { t } = useLanguage();
   const { login } = useAuth();
-  const router = useRouter();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -59,6 +59,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (isSubmitting) return;
     if (!validateForm()) return;
 
     setIsSubmitting(true);
@@ -70,23 +71,39 @@ export default function LoginPage() {
         password: formData.password,
       };
 
+      console.log("🔐 Starting login...");
       const response = await apiService.login(loginData);
+      console.log("✅ Login successful:", response.userType);
 
-      // Check if user is a supplier
-      if (response.userType !== "supplier") {
-        setLoginError("This account is not a supplier account");
-        setIsSubmitting(false);
-        return;
+      // للـ suppliers - استخدم الـ hook
+      if (response.userType === "supplier" && response.supplier) {
+        login(response.supplier, response.accessToken, response.tokenType);
+      }
+      // للـ admins - استخدم الـ hook كمان
+      else if (response.userType === "admin" && response.admin) {
+        login(response.admin, response.accessToken, response.tokenType);
+      }
+      // للـ super admins
+      else if (response.userType === "super_admin" && response.super_admin) {
+        login(response.super_admin, response.accessToken, response.tokenType);
       }
 
-      // Use AuthContext login
-      login(response.supplier, response.accessToken, response.tokenType);
+      // انتظر شوية عشان الـ cookies تتحفظ
+      await new Promise((resolve) => setTimeout(resolve, 200));
 
-      // Always redirect to homepage after login
-      router.push("/");
+      // Redirect بناءً على الـ user type
+      console.log("🔄 Redirecting...");
+      if (
+        response.userType === "admin" ||
+        response.userType === "super_admin"
+      ) {
+        window.location.href = "/admin";
+      } else {
+        window.location.href = "/dashboard";
+      }
     } catch (error: any) {
+      console.error("❌ Login error:", error);
       setLoginError(error.message || "Login failed. Please try again.");
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -110,8 +127,9 @@ export default function LoginPage() {
               </div>
 
               {loginError && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-red-700 text-sm">{loginError}</p>
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
+                  <i className="ri-error-warning-line text-red-500 text-xl mr-3 mt-0.5"></i>
+                  <p className="text-red-700 text-sm flex-1">{loginError}</p>
                 </div>
               )}
 
@@ -124,14 +142,20 @@ export default function LoginPage() {
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ${
-                      errors.email ? "border-red-300" : "border-gray-300"
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm transition-all ${
+                      errors.email
+                        ? "border-red-300 bg-red-50"
+                        : "border-gray-300"
                     }`}
                     placeholder={t("login.emailPlaceholder")}
                     required
+                    disabled={isSubmitting}
                   />
                   {errors.email && (
-                    <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                    <p className="text-red-500 text-xs mt-1 flex items-center">
+                      <i className="ri-error-warning-line mr-1"></i>
+                      {errors.email}
+                    </p>
                   )}
                 </div>
 
@@ -146,33 +170,39 @@ export default function LoginPage() {
                       onChange={(e) =>
                         handleInputChange("password", e.target.value)
                       }
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm pr-12 ${
-                        errors.password ? "border-red-300" : "border-gray-300"
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm pr-12 transition-all ${
+                        errors.password
+                          ? "border-red-300 bg-red-50"
+                          : "border-gray-300"
                       }`}
                       placeholder={t("login.passwordPlaceholder")}
                       required
+                      disabled={isSubmitting}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      disabled={isSubmitting}
+                      tabIndex={-1}
                     >
                       <i
                         className={`ri-${
                           showPassword ? "eye-off" : "eye"
-                        }-line`}
+                        }-line text-xl`}
                       ></i>
                     </button>
                   </div>
                   {errors.password && (
-                    <p className="text-red-500 text-xs mt-1">
+                    <p className="text-red-500 text-xs mt-1 flex items-center">
+                      <i className="ri-error-warning-line mr-1"></i>
                       {errors.password}
                     </p>
                   )}
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <label className="flex items-center cursor-pointer">
+                  <label className="flex items-center cursor-pointer group">
                     <input
                       type="checkbox"
                       checked={formData.rememberMe}
@@ -180,12 +210,13 @@ export default function LoginPage() {
                         handleInputChange("rememberMe", e.target.checked)
                       }
                       className="sr-only"
+                      disabled={isSubmitting}
                     />
                     <div
-                      className={`w-5 h-5 border-2 rounded flex items-center justify-center mr-3 ${
+                      className={`w-5 h-5 border-2 rounded flex items-center justify-center mr-3 transition-all ${
                         formData.rememberMe
-                          ? "bg-yellow-400 border-yellow-400"
-                          : "border-gray-300"
+                          ? "bg-yellow-400 border-yellow-400 scale-110"
+                          : "border-gray-300 group-hover:border-yellow-300"
                       }`}
                     >
                       {formData.rememberMe && (
@@ -199,7 +230,7 @@ export default function LoginPage() {
 
                   <Link
                     href="/forgot-password"
-                    className="text-sm text-yellow-600 hover:text-yellow-700 font-medium"
+                    className="text-sm text-yellow-600 hover:text-yellow-700 font-medium transition-colors"
                   >
                     {t("login.forgotPassword")}
                   </Link>
@@ -208,22 +239,22 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className={`w-full py-4 rounded-lg font-medium text-lg whitespace-nowrap cursor-pointer transition-all ${
+                  className={`w-full py-4 rounded-lg font-medium text-lg transition-all transform ${
                     isSubmitting
                       ? "bg-gray-400 text-white cursor-not-allowed"
-                      : "bg-yellow-400 text-white hover:bg-yellow-500"
+                      : "bg-yellow-400 text-white hover:bg-yellow-500 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
                   }`}
                 >
                   {isSubmitting ? (
-                    <>
-                      <i className="ri-loader-4-line animate-spin mr-2"></i>
+                    <span className="flex items-center justify-center">
+                      <i className="ri-loader-4-line animate-spin mr-2 text-xl"></i>
                       {t("login.signingIn")}
-                    </>
+                    </span>
                   ) : (
-                    <>
-                      <i className="ri-login-circle-line mr-2"></i>
+                    <span className="flex items-center justify-center">
+                      <i className="ri-login-circle-line mr-2 text-xl"></i>
                       {t("login.button")}
-                    </>
+                    </span>
                   )}
                 </button>
               </form>
@@ -234,7 +265,7 @@ export default function LoginPage() {
                     {t("login.noAccount")}{" "}
                     <Link
                       href="/register"
-                      className="text-yellow-600 hover:text-yellow-700 font-medium"
+                      className="text-yellow-600 hover:text-yellow-700 font-medium transition-colors"
                     >
                       {t("login.createAccountLink")}
                     </Link>
@@ -243,14 +274,14 @@ export default function LoginPage() {
                     {t("login.agreementText")}{" "}
                     <Link
                       href="/terms"
-                      className="text-yellow-600 hover:text-yellow-700"
+                      className="text-yellow-600 hover:text-yellow-700 transition-colors"
                     >
                       {t("login.termsLink")}
                     </Link>{" "}
                     {t("login.and")}{" "}
                     <Link
                       href="/privacy"
-                      className="text-yellow-600 hover:text-yellow-700"
+                      className="text-yellow-600 hover:text-yellow-700 transition-colors"
                     >
                       {t("login.privacyLink")}
                     </Link>
@@ -258,8 +289,6 @@ export default function LoginPage() {
                 </div>
               </div>
             </div>
-
-            
           </div>
         </div>
       </main>

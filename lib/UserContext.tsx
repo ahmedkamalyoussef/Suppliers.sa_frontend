@@ -195,3 +195,6 @@ export function useAuth() {
   }
   return context;
 }
+
+// Re-export the new useAuth hook for components that need it
+export { useAuth as useAuthHook } from "../hooks/useAuth";

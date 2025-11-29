@@ -4,6 +4,7 @@ import {
   InquiryRequest,
   InquiryResponse as PublicInquiryResponse,
 } from "../types/inquiry";
+import { LoginResponse, LoginRequest } from "../types/auth";
 import { InboxResponse } from "./types";
 
 const API_BASE_URL = "http://localhost:8000";
@@ -140,32 +141,6 @@ export interface ResetPasswordRequest {
   otp: string;
   password: string;
   password_confirmation: string;
-}
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface LoginResponse {
-  message: string;
-  userType: string;
-  supplier: {
-    id: number;
-    slug: string;
-    name: string;
-    email: string;
-    phone: string;
-    profileImage: string;
-    emailVerifiedAt: string;
-    status: string;
-    plan: string;
-    profileCompletion: number;
-    profile: any;
-    branches: any[];
-  };
-  accessToken: string;
-  tokenType: string;
 }
 
 export interface OtpResponse {
@@ -485,45 +460,112 @@ class ApiService {
     });
   }
 
-  async login(data: LoginRequest): Promise<LoginResponse> {
-    const response = await this.request<LoginResponse>("/api/auth/login", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+  // ضيف الـ helper functions دول في أول ملف api.ts (بعد الـ imports)
 
-    if (response.accessToken) {
+  // Helper function to set cookies
+  setCookie = (name: string, value: string, days: number = 1) => {
+    const maxAge = days * 24 * 60 * 60;
+    document.cookie = `${name}=${value}; path=/; max-age=${maxAge}; SameSite=Lax`;
+  };
+
+  // Helper function to delete cookies
+  deleteCookie = (name: string) => {
+    document.cookie = `${name}=; path=/; max-age=0; SameSite=Lax`;
+  };
+
+  // =====================================
+  // استبدل الـ login function بده:
+  // =====================================
+  async login(data: LoginRequest): Promise<LoginResponse> {
+    try {
+      const response = await this.request<LoginResponse>("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+
+      console.log("📦 Login response:", response);
+
+      if (!response.accessToken) {
+        throw new Error("No access token received");
+      }
+
+      // Save to localStorage
       localStorage.setItem("supplier_token", response.accessToken);
       localStorage.setItem("token_type", response.tokenType || "Bearer");
-    }
 
-    return response;
+      // Save to cookies (for middleware)
+      this.setCookie("supplier_token", response.accessToken, 7);
+      this.setCookie("token_type", response.tokenType || "Bearer", 7);
+
+      // Handle user type
+      if (response.userType === "supplier" && response.supplier) {
+        localStorage.setItem("user_type", "supplier");
+        localStorage.setItem(
+          "supplier_user",
+          JSON.stringify(response.supplier)
+        );
+        this.setCookie("user_type", "supplier", 7);
+        console.log("✅ Supplier logged in");
+      } else if (response.userType === "admin" && response.admin) {
+        localStorage.setItem("user_type", "admin");
+        localStorage.setItem("admin_user", JSON.stringify(response.admin));
+        this.setCookie("user_type", "admin", 7);
+        console.log("✅ Admin logged in");
+      } else if (response.userType === "super_admin" && response.super_admin) {
+        localStorage.setItem("user_type", "admin");
+        localStorage.setItem(
+          "admin_user",
+          JSON.stringify(response.super_admin)
+        );
+        this.setCookie("user_type", "admin", 7);
+        console.log("✅ Super Admin logged in");
+      }
+
+      console.log("🍪 Cookies set successfully");
+      return response;
+    } catch (error: any) {
+      console.error("❌ Login error:", error);
+      throw error;
+    }
   }
 
+  // =====================================
+  // استبدل الـ logout function بده:
+  // =====================================
   async logout(): Promise<void> {
     const token = localStorage.getItem("supplier_token");
     const tokenType = localStorage.getItem("token_type") || "Bearer";
 
-    if (!token) throw new Error("No auth token found");
+    try {
+      if (token) {
+        const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `${tokenType} ${token}`,
+          },
+        });
 
-    const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `${tokenType} ${token}`,
-      },
-    });
+        if (!response.ok) {
+          console.warn("⚠️ Logout API call failed, clearing local data anyway");
+        }
+      }
+    } catch (error) {
+      console.warn("⚠️ Logout request error:", error);
+    } finally {
+      // Always clear data
+      localStorage.removeItem("supplier_token");
+      localStorage.removeItem("token_type");
+      localStorage.removeItem("user_type");
+      localStorage.removeItem("supplier_user");
+      localStorage.removeItem("admin_user");
 
-    if (!response.ok) {
-      const error = await response
-        .json()
-        .catch(() => ({ message: "Logout failed" }));
-      throw new Error(error.message || "Logout failed");
+      this.deleteCookie("supplier_token");
+      this.deleteCookie("token_type");
+      this.deleteCookie("user_type");
+
+      console.log("✅ Logged out successfully");
     }
-
-    // Clear localStorage after successful logout
-    localStorage.removeItem("supplier_token");
-    localStorage.removeItem("token_type");
-    localStorage.removeItem("supplier_user");
   }
 
   async forgotPassword(

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "../lib/LanguageContext";
-import { useAuth } from "../lib/UserContext";
+import { useAuth } from "../hooks/useAuth";
 import { apiService } from "../lib/api";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ContactModal from "./ContactModal";
@@ -21,7 +21,7 @@ export default function Header() {
   const [inboxData, setInboxData] = useState<any>(null);
   const [recentMessages, setRecentMessages] = useState<any[]>([]);
   const { t, isRTL } = useLanguage();
-  const { user, isAuthenticated, logout, isLoading } = useAuth();
+  const { user, isAuthenticated, logout, loading } = useAuth();
   const router = useRouter();
 
   const unreadCount = inboxData ? inboxData.unread_count : 0;
@@ -287,7 +287,7 @@ export default function Header() {
               </div>
 
               {/* Logged In User Menu */}
-              {!isLoading && isAuthenticated ? (
+              {!loading && isAuthenticated ? (
                 <>
                   {/* Messages */}
                   <div className="relative">
@@ -561,7 +561,7 @@ export default function Header() {
               </button>
 
               {/* Show Auth Links for Guest on Mobile */}
-              {!isLoading && !isAuthenticated && (
+              {!loading && !isAuthenticated && (
                 <div className="pt-4 border-t border-gray-200 space-y-4">
                   <Link
                     href="/register"
