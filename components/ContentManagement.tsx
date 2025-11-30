@@ -60,7 +60,7 @@ interface Tab {
 export default function ContentManagement() {
   const { t } = useLanguage();
   const { user } = useAuth();
-  
+
   const [accessDenied, setAccessDenied] = useState<boolean>(false);
   const [permissions, setPermissions] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<string>("businesses");
@@ -77,19 +77,24 @@ export default function ContentManagement() {
   const [editingBusiness, setEditingBusiness] = useState<Business | null>(null);
 
   useEffect(() => {
+    // Skip all permission checks for super admin
+    if (user?.role === "super_admin") {
+      return;
+    }
+    
     const fetchPermissions = async () => {
       try {
-        const { apiService } = await import("@/lib/api");
+        const { apiService } = await import("../lib/api");
         const data = await apiService.getPermissions();
         setPermissions(data.permissions);
         
         // Check if all content management permissions are false
-        const allContentPermissionsFalse = 
+        const allContentPermissionsFalse =
           !data.permissions.content_management_view &&
           !data.permissions.content_management_supervise &&
           !data.permissions.content_management_delete;
           
-        if (allContentPermissionsFalse && user?.role !== "super_admin") {
+        if (allContentPermissionsFalse) {
           setAccessDenied(true);
         }
       } catch (error) {
@@ -98,30 +103,42 @@ export default function ContentManagement() {
     };
 
     fetchPermissions();
-  }, []);
+  }, [user?.role]);
 
   // Permission checking functions
   const hasPermission = (permission: string) => {
     // Super admin has all permissions
     if (user?.role === "super_admin") return true;
-    
+
     if (!user || !permissions) return false;
-    
+
     return permissions[permission] === true;
   };
 
-  const canViewContent = hasPermission("content_management_view") || hasPermission("content_management_supervise");
-  const canDeleteContent = hasPermission("content_management_delete") || hasPermission("content_management_supervise");
-  const canSuperviseContent = hasPermission("content_management_supervise");
+  const canViewContent =
+    user?.role === "super_admin" ||
+    hasPermission("content_management_view") ||
+    hasPermission("content_management_supervise");
+  const canDeleteContent =
+    user?.role === "super_admin" ||
+    hasPermission("content_management_delete") ||
+    hasPermission("content_management_supervise");
+  const canSuperviseContent =
+    user?.role === "super_admin" ||
+    hasPermission("content_management_supervise");
 
-  // Show access denied if permissions are false
-  if (accessDenied) {
+  // Show access denied if permissions are false (skip for super admin)
+  if (accessDenied && user?.role !== "super_admin") {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <div className="text-center">
           <i className="ri-lock-line text-6xl text-gray-300 mb-4"></i>
-          <h3 className="text-xl font-semibold text-gray-600 mb-2">Access Denied</h3>
-          <p className="text-gray-500">You don't have permission to access Content Management</p>
+          <h3 className="text-xl font-semibold text-gray-600 mb-2">
+            Access Denied
+          </h3>
+          <p className="text-gray-500">
+            You don't have permission to access Content Management
+          </p>
         </div>
       </div>
     );

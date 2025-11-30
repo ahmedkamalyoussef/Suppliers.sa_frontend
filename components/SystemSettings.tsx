@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 export default function SystemSettings() {
   const { t } = useLanguage();
   const { user } = useAuth();
-  
+
   const [accessDenied, setAccessDenied] = useState<boolean>(false);
   const [permissions, setPermissions] = useState<any>(null);
   const [activeSection, setActiveSection] = useState("general");
@@ -65,19 +65,24 @@ export default function SystemSettings() {
   });
 
   useEffect(() => {
+    // Skip all permission checks for super admin
+    if (user?.role === "super_admin") {
+      return;
+    }
+    
     const fetchPermissions = async () => {
       try {
-        const { apiService } = await import("@/lib/api");
+        const { apiService } = await import("../lib/api");
         const data = await apiService.getPermissions();
         setPermissions(data.permissions);
         
         // Check if all system permissions are false
-        const allSystemPermissionsFalse = 
+        const allSystemPermissionsFalse =
           !data.permissions.system_manage &&
           !data.permissions.system_settings &&
           !data.permissions.system_backups;
           
-        if (allSystemPermissionsFalse && user?.role !== "super_admin") {
+        if (allSystemPermissionsFalse) {
           setAccessDenied(true);
         }
       } catch (error) {
@@ -86,30 +91,34 @@ export default function SystemSettings() {
     };
 
     fetchPermissions();
-  }, []);
+  }, [user?.role]);
 
   // Permission checking functions
   const hasPermission = (permission: string) => {
     // Super admin has all permissions
     if (user?.role === "super_admin") return true;
-    
+
     if (!user || !permissions) return false;
-    
+
     return permissions[permission] === true;
   };
 
-  const canManageSystem = hasPermission("system_manage");
-  const canManageSettings = hasPermission("system_settings") || canManageSystem;
-  const canManageBackups = hasPermission("system_backups") || canManageSystem;
+  const canManageSystem = user?.role === "super_admin" || hasPermission("system_manage");
+  const canManageSettings = user?.role === "super_admin" || hasPermission("system_settings") || canManageSystem;
+  const canManageBackups = user?.role === "super_admin" || hasPermission("system_backups") || canManageSystem;
 
-  // Show access denied if permissions are false
-  if (accessDenied) {
+  // Show access denied if permissions are false (skip for super admin)
+  if (accessDenied && user?.role !== "super_admin") {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <div className="text-center">
           <i className="ri-lock-line text-6xl text-gray-300 mb-4"></i>
-          <h3 className="text-xl font-semibold text-gray-600 mb-2">Access Denied</h3>
-          <p className="text-gray-500">You don't have permission to access System Settings</p>
+          <h3 className="text-xl font-semibold text-gray-600 mb-2">
+            Access Denied
+          </h3>
+          <p className="text-gray-500">
+            You don't have permission to access System Settings
+          </p>
         </div>
       </div>
     );

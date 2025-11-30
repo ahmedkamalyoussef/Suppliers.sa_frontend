@@ -4,7 +4,12 @@ import { useState, useEffect } from "react";
 import { useLanguage } from "../lib/LanguageContext";
 import { useAuth } from "../hooks/useAuth";
 import { apiService } from "../lib/api";
-import { Supplier, SuppliersListResponse, UpdateSupplierRequest, CreateSupplierRequest } from "../lib/types";
+import {
+  Supplier,
+  SuppliersListResponse,
+  UpdateSupplierRequest,
+  CreateSupplierRequest,
+} from "../lib/types";
 
 export default function UserManagement() {
   const { t } = useLanguage();
@@ -99,7 +104,6 @@ export default function UserManagement() {
     hasPermission("user_management_full");
   const hasFullUserManagement = hasPermission("user_management_full");
 
-
   // Check if user has any user management permissions (but not for super admin)
   const hasAnyUserPermissions =
     canViewUsers ||
@@ -109,10 +113,12 @@ export default function UserManagement() {
     user?.role === "super_admin";
 
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [filterStatus, setFilterStatus] = useState<"all" | "active" | "suspended" | "pending" | "inactive" | "approved">(
-    "all"
-  );
-  const [filterPlan, setFilterPlan] = useState<"all" | "Basic" | "Premium" | "Enterprise">("all");
+  const [filterStatus, setFilterStatus] = useState<
+    "all" | "active" | "suspended" | "pending" | "inactive" | "approved"
+  >("all");
+  const [filterPlan, setFilterPlan] = useState<
+    "all" | "Basic" | "Premium" | "Enterprise"
+  >("all");
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [showUserDetails, setShowUserDetails] = useState<Supplier | null>(null);
   const [showUserModal, setShowUserModal] = useState<boolean>(false);
@@ -120,7 +126,13 @@ export default function UserManagement() {
   const [userForm, setUserForm] = useState<
     Omit<
       Supplier,
-      "id" | "joinDate" | "lastActive" | "revenue" | "profileCompletion" | "rating" | "reviewsCount"
+      | "id"
+      | "joinDate"
+      | "lastActive"
+      | "revenue"
+      | "profileCompletion"
+      | "rating"
+      | "reviewsCount"
     > & { password?: string }
   >({
     name: "",
@@ -137,7 +149,7 @@ export default function UserManagement() {
     currentPage: 1,
     perPage: 15,
     total: 0,
-    lastPage: 1
+    lastPage: 1,
   });
 
   // Fetch suppliers from API
@@ -149,15 +161,15 @@ export default function UserManagement() {
         plan: filterPlan === "all" ? undefined : filterPlan,
         page: pagination.currentPage,
         per_page: pagination.perPage,
-        search: searchTerm || undefined
+        search: searchTerm || undefined,
       });
-      
+
       setUsers(response.users);
       setPagination({
         currentPage: response.pagination.currentPage,
         perPage: response.pagination.perPage,
         total: response.pagination.total,
-        lastPage: response.pagination.lastPage
+        lastPage: response.pagination.lastPage,
       });
     } catch (error) {
       console.error("Failed to fetch suppliers:", error);
@@ -171,7 +183,14 @@ export default function UserManagement() {
     if (canViewUsers || user?.role === "super_admin") {
       fetchSuppliers();
     }
-  }, [filterStatus, filterPlan, searchTerm, pagination.currentPage, canViewUsers, user?.role]);
+  }, [
+    filterStatus,
+    filterPlan,
+    searchTerm,
+    pagination.currentPage,
+    canViewUsers,
+    user?.role,
+  ]);
 
   const openAddUser = () => {
     setEditingUser(null);
@@ -182,7 +201,7 @@ export default function UserManagement() {
       plan: "Basic",
       status: "active",
       avatar: "",
-      password: ""
+      password: "",
     });
     setShowUserModal(true);
   };
@@ -208,7 +227,7 @@ export default function UserManagement() {
       (!editingUser && !userForm.password?.trim())
     )
       return;
-    
+
     try {
       if (editingUser) {
         // Update existing supplier
@@ -217,9 +236,9 @@ export default function UserManagement() {
           email: userForm.email,
           businessName: userForm.businessName,
           plan: userForm.plan,
-          status: userForm.status
+          status: userForm.status,
         };
-        
+
         await apiService.updateSupplier(editingUser.id, updateData);
       } else {
         // Create new supplier
@@ -229,12 +248,12 @@ export default function UserManagement() {
           businessName: userForm.businessName,
           plan: userForm.plan,
           status: userForm.status,
-          password: userForm.password!
+          password: userForm.password!,
         };
-        
+
         await apiService.createSupplier(createData);
       }
-       
+
       // Refresh the suppliers list
       await fetchSuppliers();
       setShowUserModal(false);
@@ -249,7 +268,7 @@ export default function UserManagement() {
       await apiService.exportSuppliers({
         status: filterStatus === "all" ? undefined : filterStatus,
         plan: filterPlan === "all" ? undefined : filterPlan,
-        search: searchTerm || undefined
+        search: searchTerm || undefined,
       });
     } catch (error) {
       console.error("Failed to export suppliers:", error);
@@ -303,12 +322,13 @@ export default function UserManagement() {
   ) => {
     const target = users.find((u: Supplier) => u.id === userId);
     if (!target) return;
-    
+
     try {
       if (action === "edit") {
         openEditUser(target);
       } else if (action === "suspend") {
-        const newStatus = target.status === "suspended" ? "active" : "suspended";
+        const newStatus =
+          target.status === "suspended" ? "active" : "suspended";
         await apiService.updateSupplier(userId, { status: newStatus });
         await fetchSuppliers();
       } else if (action === "delete") {
@@ -458,7 +478,15 @@ export default function UserManagement() {
             <select
               value={filterStatus}
               onChange={(e) =>
-                setFilterStatus(e.target.value as "all" | "active" | "suspended" | "pending" | "inactive" | "approved")
+                setFilterStatus(
+                  e.target.value as
+                    | "all"
+                    | "active"
+                    | "suspended"
+                    | "pending"
+                    | "inactive"
+                    | "approved"
+                )
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
             >
@@ -467,7 +495,9 @@ export default function UserManagement() {
               <option value="suspended">{t("userManagement.suspended")}</option>
               <option value="pending">{t("userManagement.pending")}</option>
               <option value="inactive">{t("userManagement.inactive")}</option>
-              <option value="approved">{t("userManagement.approved") || "Approved"}</option>
+              <option value="approved">
+                {t("userManagement.approved") || "Approved"}
+              </option>
             </select>
           </div>
 
@@ -478,7 +508,9 @@ export default function UserManagement() {
             <select
               value={filterPlan}
               onChange={(e) =>
-                setFilterPlan(e.target.value as "all" | "Basic" | "Premium" | "Enterprise")
+                setFilterPlan(
+                  e.target.value as "all" | "Basic" | "Premium" | "Enterprise"
+                )
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
             >

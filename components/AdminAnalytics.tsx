@@ -37,13 +37,18 @@ type ActivityRow = {
 export default function AdminAnalytics() {
   const { t } = useLanguage();
   const { user } = useAuth();
-  
+
   const [accessDenied, setAccessDenied] = useState<boolean>(false);
   const [permissions, setPermissions] = useState<any>(null);
   const [timeRange, setTimeRange] = useState<TimeRange>("30days");
   const [chartType, setChartType] = useState<ChartKey>("revenue");
 
   useEffect(() => {
+    // Skip all permission checks for super admin
+    if (user?.role === "super_admin") {
+      return;
+    }
+    
     const fetchPermissions = async () => {
       try {
         const { apiService } = await import("../lib/api");
@@ -51,11 +56,11 @@ export default function AdminAnalytics() {
         setPermissions(data.permissions);
         
         // Check if all analytics permissions are false
-        const allAnalyticsPermissionsFalse = 
+        const allAnalyticsPermissionsFalse =
           !data.permissions.analytics_view &&
           !data.permissions.analytics_export;
           
-        if (allAnalyticsPermissionsFalse && user?.role !== "super_admin") {
+        if (allAnalyticsPermissionsFalse) {
           setAccessDenied(true);
         }
       } catch (error) {
@@ -64,29 +69,33 @@ export default function AdminAnalytics() {
     };
 
     fetchPermissions();
-  }, []);
+  }, [user?.role]);
 
   // Permission checking functions
   const hasPermission = (permission: string) => {
     // Super admin has all permissions
     if (user?.role === "super_admin") return true;
-    
+
     if (!user || !permissions) return false;
-    
+
     return permissions[permission] === true;
   };
 
-  const canViewAnalytics = hasPermission("analytics_view");
-  const canExportAnalytics = hasPermission("analytics_export");
+  const canViewAnalytics = user?.role === "super_admin" || hasPermission("analytics_view");
+  const canExportAnalytics = user?.role === "super_admin" || hasPermission("analytics_export");
 
-  // Show access denied if permissions are false
-  if (accessDenied) {
+  // Show access denied if permissions are false (skip for super admin)
+  if (accessDenied && user?.role !== "super_admin") {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <div className="text-center">
           <i className="ri-lock-line text-6xl text-gray-300 mb-4"></i>
-          <h3 className="text-xl font-semibold text-gray-600 mb-2">Access Denied</h3>
-          <p className="text-gray-500">You don't have permission to access Analytics Dashboard</p>
+          <h3 className="text-xl font-semibold text-gray-600 mb-2">
+            Access Denied
+          </h3>
+          <p className="text-gray-500">
+            You don't have permission to access Analytics Dashboard
+          </p>
         </div>
       </div>
     );
@@ -176,7 +185,7 @@ export default function AdminAnalytics() {
             <option value="90days">{t("adminAnalytics.timeRange90")}</option>
             <option value="1year">{t("adminAnalytics.timeRange1Year")}</option>
           </select>
-          <button 
+          <button
             disabled={!canExportAnalytics}
             className={`px-4 sm:px-6 py-2 rounded-lg font-medium text-sm whitespace-nowrap w-full sm:w-auto ${
               !canExportAnalytics
