@@ -126,14 +126,14 @@ export default function BusinessCard({
 
   const getStatusColor = (status: string): string => {
     switch (status?.toLowerCase()) {
-      case "approved":
+      case "active":
         return "bg-green-100 text-green-700";
       case "pending":
         return "bg-yellow-100 text-yellow-700";
-      case "rejected":
+      case "inactive":
         return "bg-red-100 text-red-700";
       case "suspended":
-        return "bg-gray-100 text-gray-700";
+        return "bg-red-100 text-red-700";
       case "unknown":
         return "bg-gray-100 text-gray-700";
       default:
@@ -143,11 +143,11 @@ export default function BusinessCard({
 
   const getStatusIcon = (status: string): string => {
     switch (status?.toLowerCase()) {
-      case "approved":
+      case "active":
         return "ri-check-line";
       case "pending":
         return "ri-time-line";
-      case "rejected":
+      case "inactive":
         return "ri-close-line";
       case "suspended":
         return "ri-pause-line";

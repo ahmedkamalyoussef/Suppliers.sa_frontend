@@ -14,7 +14,7 @@ import {
   GetAdminsResponse,
   AdminActionResponse,
 } from "../types/auth";
-import { InboxResponse } from "./types";
+import { InboxResponse, SuppliersListResponse, UpdateSupplierRequest, SupplierActionResponse, GetSuppliersParams, CreateSupplierRequest } from "./types";
 
 const API_BASE_URL = "http://localhost:8000";
 
@@ -1129,6 +1129,101 @@ class ApiService {
 
     // Return success for DELETE operations
     return { success: true, message: "Image deleted successfully" };
+  }
+
+  // ====== SUPPLIER MANAGEMENT ======
+  async getSuppliers(params?: GetSuppliersParams): Promise<SuppliersListResponse> {
+    const queryParams = new URLSearchParams();
+    
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "all") {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+
+    return this.request<SuppliersListResponse>(
+      `/api/admin/suppliers?${queryParams.toString()}`,
+      {
+        method: "GET",
+      },
+      true
+    );
+  }
+
+  async updateSupplier(supplierId: number, data: UpdateSupplierRequest): Promise<SupplierActionResponse> {
+    return this.request<SupplierActionResponse>(
+      `/api/admin/suppliers/${supplierId}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(data),
+      },
+      true
+    );
+  }
+
+  async deleteSupplier(supplierId: number): Promise<SupplierActionResponse> {
+    return this.request<SupplierActionResponse>(
+      `/api/admin/suppliers/${supplierId}`,
+      {
+        method: "DELETE",
+      },
+      true
+    );
+  }
+
+  async createSupplier(data: CreateSupplierRequest): Promise<SupplierActionResponse> {
+    return this.request<SupplierActionResponse>(
+      "/api/admin/suppliers",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+      true
+    );
+  }
+
+  async exportSuppliers(params?: GetSuppliersParams): Promise<void> {
+    const queryParams = new URLSearchParams();
+    
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "all") {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+
+    const token = localStorage.getItem("supplier_token");
+    const tokenType = localStorage.getItem("token_type") || "Bearer";
+
+    if (!token) throw new Error("No auth token found");
+
+    const response = await fetch(
+      `${this.baseURL}/api/admin/suppliers/export?${queryParams.toString()}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `${tokenType} ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Export failed: ${response.statusText}`);
+    }
+
+    // Create blob and download
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'suppliers.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   }
 
   async deleteAccount(): Promise<any> {

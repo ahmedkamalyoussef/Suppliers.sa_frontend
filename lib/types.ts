@@ -153,3 +153,62 @@ export interface InboxResponse {
   avg_response_time: string;
   response_rate: string;
 }
+
+// Supplier Management Interfaces
+export type SupplierStatus = "active" | "suspended" | "pending" | "inactive" | "approved";
+export type SupplierPlan = "Basic" | "Premium" | "Enterprise";
+
+export interface Supplier {
+  id: number;
+  name: string;
+  email: string;
+  businessName: string;
+  plan: SupplierPlan;
+  status: SupplierStatus;
+  joinDate: string;
+  lastActive: string;
+  revenue: string;
+  profileCompletion: number;
+  avatar: string;
+  rating?: number | null;
+  reviewsCount: number;
+}
+
+export interface SuppliersListResponse {
+  users: Supplier[];
+  pagination: {
+    currentPage: number;
+    perPage: number;
+    total: number;
+    lastPage: number;
+  };
+}
+
+export interface UpdateSupplierRequest {
+  plan?: SupplierPlan;
+  status?: SupplierStatus;
+  name?: string;
+  email?: string;
+  businessName?: string;
+}
+
+export interface SupplierActionResponse {
+  message: string;
+}
+
+export interface GetSuppliersParams {
+  status?: SupplierStatus | "all";
+  plan?: SupplierPlan | "all";
+  page?: number;
+  per_page?: number;
+  search?: string;
+}
+
+export interface CreateSupplierRequest {
+  name: string;
+  email: string;
+  businessName: string;
+  plan: SupplierPlan;
+  status: SupplierStatus;
+  password: string;
+}

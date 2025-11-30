@@ -4,20 +4,7 @@ import { useState, useEffect } from "react";
 import { useLanguage } from "../lib/LanguageContext";
 import { useAuth } from "../hooks/useAuth";
 import { apiService } from "../lib/api";
-
-type User = {
-  id: number;
-  name: string;
-  email: string;
-  businessName: string;
-  plan: "Basic" | "Premium" | "Enterprise";
-  status: "active" | "suspended" | "pending" | "inactive";
-  joinDate: string;
-  lastActive: string;
-  revenue: string;
-  profileCompletion: number;
-  avatar: string;
-};
+import { Supplier, SuppliersListResponse, UpdateSupplierRequest, CreateSupplierRequest } from "../lib/types";
 
 export default function UserManagement() {
   const { t } = useLanguage();
@@ -112,14 +99,6 @@ export default function UserManagement() {
     hasPermission("user_management_full");
   const hasFullUserManagement = hasPermission("user_management_full");
 
-  console.log("Permission results:", {
-    canViewUsers,
-    canEditUsers,
-    canDeleteUsers,
-    hasFullUserManagement,
-    userRole: user?.role,
-    userPermissions: permissions,
-  });
 
   // Check if user has any user management permissions (but not for super admin)
   const hasAnyUserPermissions =
@@ -130,19 +109,19 @@ export default function UserManagement() {
     user?.role === "super_admin";
 
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [filterStatus, setFilterStatus] = useState<"all" | User["status"]>(
+  const [filterStatus, setFilterStatus] = useState<"all" | "active" | "suspended" | "pending" | "inactive" | "approved">(
     "all"
   );
-  const [filterPlan, setFilterPlan] = useState<"all" | User["plan"]>("all");
+  const [filterPlan, setFilterPlan] = useState<"all" | "Basic" | "Premium" | "Enterprise">("all");
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
-  const [showUserDetails, setShowUserDetails] = useState<User | null>(null);
+  const [showUserDetails, setShowUserDetails] = useState<Supplier | null>(null);
   const [showUserModal, setShowUserModal] = useState<boolean>(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editingUser, setEditingUser] = useState<Supplier | null>(null);
   const [userForm, setUserForm] = useState<
     Omit<
-      User,
-      "id" | "joinDate" | "lastActive" | "revenue" | "profileCompletion"
-    >
+      Supplier,
+      "id" | "joinDate" | "lastActive" | "revenue" | "profileCompletion" | "rating" | "reviewsCount"
+    > & { password?: string }
   >({
     name: "",
     email: "",
@@ -152,78 +131,47 @@ export default function UserManagement() {
     avatar: "",
   });
 
-  const [users, setUsers] = useState<User[]>([
-    {
-      id: 1,
-      name: "Ahmed Al-Rashid",
-      email: "ahmed@metroelectronics.com",
-      businessName: "Metro Electronics Supply",
-      plan: "Premium",
-      status: "active",
-      joinDate: "2024-01-15",
-      lastActive: "2024-01-20",
-      revenue: "$290",
-      profileCompletion: 95,
-      avatar:
-        "https://readdy.ai/api/search-image?query=Professional%20middle%20eastern%20businessman%20portrait%2C%20clean%20background%2C%20modern%20business%20attire%2C%20confident%20smile&width=60&height=60&seq=user1&orientation=squarish",
-    },
-    {
-      id: 2,
-      name: "Sarah Johnson",
-      email: "sarah@techsolutions.com",
-      businessName: "Tech Solutions Co.",
-      plan: "Basic",
-      status: "active",
-      joinDate: "2024-01-12",
-      lastActive: "2024-01-19",
-      revenue: "$0",
-      profileCompletion: 78,
-      avatar:
-        "https://readdy.ai/api/search-image?query=Professional%20businesswoman%20portrait%2C%20confident%20smile%2C%20modern%20office%20background%2C%20professional%20headshot%20style&width=60&height=60&seq=user2&orientation=squarish",
-    },
-    {
-      id: 3,
-      name: "Michael Chen",
-      email: "michael@digitalinnovations.com",
-      businessName: "Digital Innovations",
-      plan: "Enterprise",
-      status: "suspended",
-      joinDate: "2024-01-10",
-      lastActive: "2024-01-18",
-      revenue: "$990",
-      profileCompletion: 88,
-      avatar:
-        "https://readdy.ai/api/search-image?query=Professional%20asian%20businessman%20portrait%2C%20modern%20business%20attire%2C%20clean%20background%2C%20confident%20expression&width=60&height=60&seq=user3&orientation=squarish",
-    },
-    {
-      id: 4,
-      name: "Lisa Rodriguez",
-      email: "lisa@startuphub.com",
-      businessName: "StartUp Hub",
-      plan: "Premium",
-      status: "pending",
-      joinDate: "2024-01-18",
-      lastActive: "2024-01-20",
-      revenue: "$290",
-      profileCompletion: 45,
-      avatar:
-        "https://readdy.ai/api/search-image?query=Professional%20latina%20businesswoman%20portrait%2C%20friendly%20smile%2C%20modern%20office%20setting%2C%20professional%20headshot%20style&width=60&height=60&seq=user4&orientation=squarish",
-    },
-    {
-      id: 5,
-      name: "David Park",
-      email: "david@innovationlabs.com",
-      businessName: "Innovation Labs",
-      plan: "Basic",
-      status: "inactive",
-      joinDate: "2024-01-05",
-      lastActive: "2024-01-15",
-      revenue: "$0",
-      profileCompletion: 62,
-      avatar:
-        "https://readdy.ai/api/search-image?query=Professional%20korean%20businessman%20portrait%2C%20modern%20business%20attire%2C%20clean%20white%20background%2C%20confident%20pose&width=60&height=60&seq=user5&orientation=squarish",
-    },
-  ]);
+  const [users, setUsers] = useState<Supplier[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(true);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    perPage: 15,
+    total: 0,
+    lastPage: 1
+  });
+
+  // Fetch suppliers from API
+  const fetchSuppliers = async () => {
+    try {
+      setLoadingUsers(true);
+      const response: SuppliersListResponse = await apiService.getSuppliers({
+        status: filterStatus === "all" ? undefined : filterStatus,
+        plan: filterPlan === "all" ? undefined : filterPlan,
+        page: pagination.currentPage,
+        per_page: pagination.perPage,
+        search: searchTerm || undefined
+      });
+      
+      setUsers(response.users);
+      setPagination({
+        currentPage: response.pagination.currentPage,
+        perPage: response.pagination.perPage,
+        total: response.pagination.total,
+        lastPage: response.pagination.lastPage
+      });
+    } catch (error) {
+      console.error("Failed to fetch suppliers:", error);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  // Fetch suppliers when component mounts or filters change
+  useEffect(() => {
+    if (canViewUsers || user?.role === "super_admin") {
+      fetchSuppliers();
+    }
+  }, [filterStatus, filterPlan, searchTerm, pagination.currentPage, canViewUsers, user?.role]);
 
   const openAddUser = () => {
     setEditingUser(null);
@@ -233,13 +181,13 @@ export default function UserManagement() {
       businessName: "",
       plan: "Basic",
       status: "active",
-      avatar:
-        "https://readdy.ai/api/search-image?query=generic%20avatar%20placeholder%2C%20rounded%20profile%20icon&width=60&height=60&orientation=squarish",
+      avatar: "",
+      password: ""
     });
     setShowUserModal(true);
   };
 
-  const openEditUser = (user: User) => {
+  const openEditUser = (user: Supplier) => {
     setEditingUser(user);
     setUserForm({
       name: user.name,
@@ -252,80 +200,63 @@ export default function UserManagement() {
     setShowUserModal(true);
   };
 
-  const saveUser = () => {
+  const saveUser = async () => {
     if (
       !userForm.name.trim() ||
       !userForm.email.trim() ||
-      !userForm.businessName.trim()
+      !userForm.businessName.trim() ||
+      (!editingUser && !userForm.password?.trim())
     )
       return;
-    if (editingUser) {
-      setUsers(
-        users.map((u: User) =>
-          u.id === editingUser.id ? ({ ...u, ...userForm } as User) : u
-        )
-      );
-    } else {
-      const nextId = users.length
-        ? Math.max(...users.map((u: User) => u.id)) + 1
-        : 1;
-      setUsers([
-        ...users,
-        {
-          id: nextId,
-          revenue: "$0",
-          profileCompletion: 0,
-          joinDate: new Date().toISOString().slice(0, 10),
-          lastActive: new Date().toISOString().slice(0, 10),
-          ...userForm,
-        },
-      ]);
+    
+    try {
+      if (editingUser) {
+        // Update existing supplier
+        const updateData: UpdateSupplierRequest = {
+          name: userForm.name,
+          email: userForm.email,
+          businessName: userForm.businessName,
+          plan: userForm.plan,
+          status: userForm.status
+        };
+        
+        await apiService.updateSupplier(editingUser.id, updateData);
+      } else {
+        // Create new supplier
+        const createData: CreateSupplierRequest = {
+          name: userForm.name,
+          email: userForm.email,
+          businessName: userForm.businessName,
+          plan: userForm.plan,
+          status: userForm.status,
+          password: userForm.password!
+        };
+        
+        await apiService.createSupplier(createData);
+      }
+       
+      // Refresh the suppliers list
+      await fetchSuppliers();
+      setShowUserModal(false);
+      setEditingUser(null);
+    } catch (error) {
+      console.error("Failed to save supplier:", error);
     }
-    setShowUserModal(false);
-    setEditingUser(null);
   };
 
-  const exportData = () => {
-    const headers = [
-      "ID",
-      "Name",
-      "Email",
-      "Business",
-      "Plan",
-      "Status",
-      "Revenue",
-      "Join Date",
-      "Last Active",
-      "Profile Completion",
-    ];
-    const rows = users.map((u) => [
-      u.id,
-      `"${u.name}"`,
-      u.email,
-      `"${u.businessName}"`,
-      u.plan,
-      u.status,
-      u.revenue,
-      u.joinDate,
-      u.lastActive,
-      u.profileCompletion,
-    ]);
-    const csv = [
-      "\ufeff" + headers.join(","),
-      ...rows.map((r) => r.join(",")),
-    ].join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", "users.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+  const exportData = async () => {
+    try {
+      await apiService.exportSuppliers({
+        status: filterStatus === "all" ? undefined : filterStatus,
+        plan: filterPlan === "all" ? undefined : filterPlan,
+        search: searchTerm || undefined
+      });
+    } catch (error) {
+      console.error("Failed to export suppliers:", error);
+    }
   };
 
-  const filteredUsers = users.filter((user: User) => {
+  const filteredUsers = users.filter((user: Supplier) => {
     const matchesSearch =
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -336,7 +267,7 @@ export default function UserManagement() {
     return matchesSearch && matchesStatus && matchesPlan;
   });
 
-  const getStatusColor = (status: User["status"]) => {
+  const getStatusColor = (status: Supplier["status"]) => {
     switch (status) {
       case "active":
         return "bg-green-100 text-green-600";
@@ -346,12 +277,14 @@ export default function UserManagement() {
         return "bg-yellow-100 text-yellow-600";
       case "inactive":
         return "bg-gray-100 text-gray-600";
+      case "approved":
+        return "bg-green-100 text-green-600";
       default:
         return "bg-gray-100 text-gray-600";
     }
   };
 
-  const getPlanColor = (plan: User["plan"]) => {
+  const getPlanColor = (plan: Supplier["plan"]) => {
     switch (plan) {
       case "Enterprise":
         return "bg-purple-100 text-purple-600";
@@ -364,27 +297,26 @@ export default function UserManagement() {
     }
   };
 
-  const handleUserAction = (
+  const handleUserAction = async (
     action: "edit" | "suspend" | "delete",
     userId: number
   ) => {
-    const target = users.find((u: User) => u.id === userId);
+    const target = users.find((u: Supplier) => u.id === userId);
     if (!target) return;
-    if (action === "edit") {
-      openEditUser(target);
-    } else if (action === "suspend") {
-      setUsers(
-        users.map((u: User) =>
-          u.id === userId
-            ? {
-                ...u,
-                status: u.status === "suspended" ? "active" : "suspended",
-              }
-            : u
-        )
-      );
-    } else if (action === "delete") {
-      setUsers(users.filter((u: User) => u.id !== userId));
+    
+    try {
+      if (action === "edit") {
+        openEditUser(target);
+      } else if (action === "suspend") {
+        const newStatus = target.status === "suspended" ? "active" : "suspended";
+        await apiService.updateSupplier(userId, { status: newStatus });
+        await fetchSuppliers();
+      } else if (action === "delete") {
+        await apiService.deleteSupplier(userId);
+        await fetchSuppliers();
+      }
+    } catch (error) {
+      console.error(`Failed to ${action} supplier:`, error);
     }
   };
 
@@ -393,7 +325,7 @@ export default function UserManagement() {
   };
 
   // Show loading state while user or permissions are being fetched
-  if (loading || permissionsLoading) {
+  if (loading || permissionsLoading || loadingUsers) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <div className="text-center">
@@ -526,7 +458,7 @@ export default function UserManagement() {
             <select
               value={filterStatus}
               onChange={(e) =>
-                setFilterStatus(e.target.value as "all" | User["status"])
+                setFilterStatus(e.target.value as "all" | "active" | "suspended" | "pending" | "inactive" | "approved")
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
             >
@@ -535,6 +467,7 @@ export default function UserManagement() {
               <option value="suspended">{t("userManagement.suspended")}</option>
               <option value="pending">{t("userManagement.pending")}</option>
               <option value="inactive">{t("userManagement.inactive")}</option>
+              <option value="approved">{t("userManagement.approved") || "Approved"}</option>
             </select>
           </div>
 
@@ -545,7 +478,7 @@ export default function UserManagement() {
             <select
               value={filterPlan}
               onChange={(e) =>
-                setFilterPlan(e.target.value as "all" | User["plan"])
+                setFilterPlan(e.target.value as "all" | "Basic" | "Premium" | "Enterprise")
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
             >
@@ -773,7 +706,7 @@ export default function UserManagement() {
             <div className="text-xs sm:text-sm text-gray-600">
               {t("userManagement.showingUsers")
                 .replace("{count}", filteredUsers.length.toString())
-                .replace("{total}", users.length.toString())}
+                .replace("{total}", pagination.total.toString())}
             </div>
             <div className="flex items-center space-x-2">
               <button className="px-3 py-1 border border-gray-300 rounded text-xs sm:text-sm hover:bg-gray-100 cursor-pointer">
@@ -984,7 +917,7 @@ export default function UserManagement() {
                     onChange={(e) =>
                       setUserForm({
                         ...userForm,
-                        plan: e.target.value as User["plan"],
+                        plan: e.target.value as Supplier["plan"],
                       })
                     }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
@@ -1007,7 +940,7 @@ export default function UserManagement() {
                     onChange={(e) =>
                       setUserForm({
                         ...userForm,
-                        status: e.target.value as User["status"],
+                        status: e.target.value as Supplier["status"],
                       })
                     }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
@@ -1025,20 +958,22 @@ export default function UserManagement() {
                   </select>
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t("userManagement.avatarUrl")}
-                </label>
-                <input
-                  type="text"
-                  value={userForm.avatar}
-                  onChange={(e) =>
-                    setUserForm({ ...userForm, avatar: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
-                  placeholder={t("userManagement.avatarUrl")}
-                />
-              </div>
+              {!editingUser && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {t("userManagement.password") || "Password"}
+                  </label>
+                  <input
+                    type="password"
+                    value={userForm.password || ""}
+                    onChange={(e) =>
+                      setUserForm({ ...userForm, password: e.target.value })
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
+                    placeholder={t("userManagement.password") || "Password"}
+                  />
+                </div>
+              )}
             </div>
             <div className="p-4 sm:p-6 border-t border-gray-200 flex flex-col sm:flex-row justify-end gap-3">
               <button
@@ -1055,12 +990,14 @@ export default function UserManagement() {
                 disabled={
                   !userForm.name.trim() ||
                   !userForm.email.trim() ||
-                  !userForm.businessName.trim()
+                  !userForm.businessName.trim() ||
+                  (!editingUser && !userForm.password?.trim())
                 }
                 className={`px-6 py-2 rounded-lg font-medium text-sm whitespace-nowrap cursor-pointer transition-all order-1 sm:order-2 ${
                   userForm.name.trim() &&
                   userForm.email.trim() &&
-                  userForm.businessName.trim()
+                  userForm.businessName.trim() &&
+                  (editingUser || userForm.password?.trim())
                     ? "bg-red-500 text-white hover:bg-red-600"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
