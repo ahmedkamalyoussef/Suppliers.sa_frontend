@@ -81,19 +81,19 @@ export default function ContentManagement() {
     if (user?.role === "super_admin") {
       return;
     }
-    
+
     const fetchPermissions = async () => {
       try {
         const { apiService } = await import("../lib/api");
         const data = await apiService.getPermissions();
         setPermissions(data.permissions);
-        
+
         // Check if all content management permissions are false
         const allContentPermissionsFalse =
           !data.permissions.content_management_view &&
           !data.permissions.content_management_supervise &&
           !data.permissions.content_management_delete;
-          
+
         if (allContentPermissionsFalse) {
           setAccessDenied(true);
         }

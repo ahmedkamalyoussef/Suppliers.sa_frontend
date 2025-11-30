@@ -66,18 +66,33 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // ==========================================
+  // 4. Restrict admin access to admin pages only
+  // ==========================================
+  if (token && (userType === "admin" || userType === "super_admin")) {
+    // Admins can only access admin pages
+    if (!pathname.startsWith("/admin") && 
+        !pathname.startsWith("/api") && 
+        !pathname.startsWith("/_next") &&
+        !pathname.includes(".") && // Skip static files
+        pathname !== "/favicon.ico") {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    "/admin/:path*", 
-    "/dashboard/:path*", 
-    "/login", 
-    "/register", 
-    "/reset-password/:path*", 
-    "/forgot-password",
-    "/profile/:path*",
-    "/complete-profile"
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public folder files
+     */
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.gif|.*\\.svg).*)",
   ],
 };

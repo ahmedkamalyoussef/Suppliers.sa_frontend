@@ -8,7 +8,6 @@ interface FormData {
   name: string;
   email: string;
   phone: string;
-  company: string;
   subject: string;
   message: string;
 }
@@ -28,7 +27,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     name: "",
     email: "",
     phone: "",
-    company: "",
     subject: "Business Partnership",
     message: "",
   });
@@ -86,7 +84,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        company: formData.company,
         subject: formData.subject,
         message: formData.message,
       });
@@ -104,7 +101,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
       name: "",
       email: "",
       phone: "",
-      company: "",
       subject: "Business Partnership",
       message: "",
     });
@@ -201,20 +197,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                   onChange={(e) => handleInputChange("phone", e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
                   placeholder={t("contactModal.form.phonePlaceholder")}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t("contactModal.form.companyLabel")}
-                </label>
-                <input
-                  type="text"
-                  name="company"
-                  value={formData.company}
-                  onChange={(e) => handleInputChange("company", e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
-                  placeholder={t("contactModal.form.companyPlaceholder")}
                 />
               </div>
 

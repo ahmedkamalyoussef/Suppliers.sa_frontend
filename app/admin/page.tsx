@@ -36,7 +36,7 @@ export default function AdminDashboard() {
   ];
 
   // Filter tabs based on user role
-  const tabs = allTabs.filter(tab => {
+  const tabs = allTabs.filter((tab) => {
     if (tab.id === "employees") {
       return userType === "super_admin";
     }
@@ -108,14 +108,6 @@ export default function AdminDashboard() {
                   </div>
 
                   <div className="flex flex-wrap sm:flex-nowrap gap-2 sm:gap-3 w-full sm:w-auto">
-                    <button className="bg-white/20 backdrop-blur text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-white/30 font-medium whitespace-nowrap cursor-pointer transition-all flex items-center justify-center">
-                      <i className="ri-notification-3-line mr-2"></i>
-                      Notifications
-                    </button>
-                    <button className="bg-white text-red-600 px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-red-50 font-medium whitespace-nowrap cursor-pointer transition-all flex items-center justify-center">
-                      <i className="ri-backup-line mr-2"></i>
-                      System Backup
-                    </button>
                     <button
                       onClick={handleLogout}
                       className="bg-red-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-red-800 font-medium whitespace-nowrap cursor-pointer transition-all flex items-center justify-center"

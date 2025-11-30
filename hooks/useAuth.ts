@@ -43,6 +43,8 @@ export interface UseAuthReturn extends AuthState {
   login: (user: User, token: string, tokenType?: string) => void;
   logout: () => void;
   refreshAuth: () => void;
+  canAccessCurrentPage: (currentPath: string) => boolean;
+  enforceAdminPageAccess: (currentPath: string) => boolean;
 }
 
 // Helper function to set cookies
@@ -222,14 +224,62 @@ export const useAuth = (): UseAuthReturn => {
     checkAuth();
   };
 
+  // Function to check if user can access current page
+  const canAccessCurrentPage = (currentPath: string): boolean => {
+    if (!authState.isAuthenticated || !authState.user) {
+      return false;
+    }
+
+    // If user is admin or super_admin, only allow admin pages
+    if (authState.userType === "admin" || authState.userType === "super_admin") {
+      const adminPaths = [
+        "/admin",
+        "/admin/",
+        "/admin/user-management",
+        "/admin/content-management", 
+        "/admin/system-settings",
+        "/admin/analytics"
+      ];
+      
+      // Check if current path starts with /admin
+      return currentPath.startsWith("/admin");
+    }
+
+    // For suppliers, they can access all non-admin pages
+    return !currentPath.startsWith("/admin");
+  };
+
+  // Function to redirect admin if they try to access non-admin pages
+  const enforceAdminPageAccess = (currentPath: string) => {
+    if (authState.isAuthenticated && (authState.userType === "admin" || authState.userType === "super_admin")) {
+      if (!canAccessCurrentPage(currentPath)) {
+        router.push("/admin");
+        return false;
+      }
+    }
+    return true;
+  };
+
   useEffect(() => {
     checkAuth();
   }, []);
+
+  // Client-side admin access restriction
+  useEffect(() => {
+    if (authState.isAuthenticated && (authState.userType === "admin" || authState.userType === "super_admin")) {
+      const currentPath = window.location.pathname;
+      if (!canAccessCurrentPage(currentPath)) {
+        router.push("/admin");
+      }
+    }
+  }, [authState.isAuthenticated, authState.userType, router]);
 
   return {
     ...authState,
     login,
     logout,
     refreshAuth,
+    canAccessCurrentPage,
+    enforceAdminPageAccess,
   };
 };

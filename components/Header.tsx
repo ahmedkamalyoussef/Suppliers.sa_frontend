@@ -44,22 +44,32 @@ export default function Header() {
         try {
           const response = await apiService.getInbox();
           setInboxData(response);
-          
+
           // Map only received messages for recent messages display
-          const mappedMessages = response.inbox.slice(0, 3).map((item: any) => ({
-            id: item.id,
-            from: item.sender.name,
-            company: item.sender.name,
-            subject: item.subject,
-            preview: item.message.length > 60 ? item.message.substring(0, 60) + '...' : item.message,
-            time: item.time_ago,
-            unread: !item.is_read,
-            avatar: item.sender.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2),
-          }));
-          
+          const mappedMessages = response.inbox
+            .slice(0, 3)
+            .map((item: any) => ({
+              id: item.id,
+              from: item.sender.name,
+              company: item.sender.name,
+              subject: item.subject,
+              preview:
+                item.message.length > 60
+                  ? item.message.substring(0, 60) + "..."
+                  : item.message,
+              time: item.time_ago,
+              unread: !item.is_read,
+              avatar: item.sender.name
+                .split(" ")
+                .map((n: string) => n[0])
+                .join("")
+                .toUpperCase()
+                .slice(0, 2),
+            }));
+
           setRecentMessages(mappedMessages);
         } catch (error) {
-          console.error('Header - Failed to fetch inbox:', error);
+          console.error("Header - Failed to fetch inbox:", error);
         }
       };
 
@@ -71,29 +81,35 @@ export default function Header() {
   useEffect(() => {
     const handleMessageMarkedAsRead = (event: CustomEvent) => {
       const { messageId, unreadCount } = event.detail;
-      
+
       // Update unread count
       if (inboxData) {
         setInboxData((prev: any) => ({
           ...prev,
-          unread_count: unreadCount
+          unread_count: unreadCount,
         }));
       }
-      
+
       // Update recent messages to remove unread status
-      setRecentMessages(prev => 
-        prev.map(msg => 
+      setRecentMessages((prev) =>
+        prev.map((msg) =>
           msg.id === messageId ? { ...msg, unread: false } : msg
         )
       );
     };
 
     // Add event listener
-    window.addEventListener('messageMarkedAsRead', handleMessageMarkedAsRead as EventListener);
-    
+    window.addEventListener(
+      "messageMarkedAsRead",
+      handleMessageMarkedAsRead as EventListener
+    );
+
     // Cleanup
     return () => {
-      window.removeEventListener('messageMarkedAsRead', handleMessageMarkedAsRead as EventListener);
+      window.removeEventListener(
+        "messageMarkedAsRead",
+        handleMessageMarkedAsRead as EventListener
+      );
     };
   }, [inboxData]);
 
@@ -105,7 +121,7 @@ export default function Header() {
 
   const handleMessageClick = async (messageId: number) => {
     setIsMessagesOpen(false);
-    
+
     // Mark message as read if it's unread
     if (inboxData) {
       const message = inboxData.inbox.find((m: any) => m.id === messageId);
@@ -113,31 +129,30 @@ export default function Header() {
         try {
           await apiService.markAsRead({
             type: message.type,
-            id: messageId
+            id: messageId,
           });
-          
-          
+
           // Update local state
           setInboxData((prev: any) => ({
             ...prev,
-            inbox: prev.inbox.map((m: any) => 
+            inbox: prev.inbox.map((m: any) =>
               m.id === messageId ? { ...m, is_read: true } : m
             ),
-            unread_count: Math.max(0, prev.unread_count - 1)
+            unread_count: Math.max(0, prev.unread_count - 1),
           }));
-          
+
           // Update recent messages as well
-          setRecentMessages(prev => 
-            prev.map(msg => 
+          setRecentMessages((prev) =>
+            prev.map((msg) =>
               msg.id === messageId ? { ...msg, unread: false } : msg
             )
           );
         } catch (error) {
-          console.error('Header - Failed to mark message as read:', error);
+          console.error("Header - Failed to mark message as read:", error);
         }
       }
     }
-    
+
     router.push(`/dashboard?tab=messages&messageId=${messageId}`);
   };
 
@@ -244,36 +259,40 @@ export default function Header() {
 
             {/* Navigation - Desktop Only */}
             <nav className="hidden lg:flex space-x-6 xl:space-x-8 gap-4">
-              <Link
-                href="/"
-                className="text-gray-700 hover:text-yellow-600 font-medium transition-colors text-sm xl:text-base"
-              >
-                {t("nav.home")}
-              </Link>
-              <Link
-                href="/businesses"
-                className="text-gray-700 hover:text-yellow-600 font-medium transition-colors text-sm xl:text-base"
-              >
-                {t("nav.allSuppliers")}
-              </Link>
-              <Link
-                href="/subscription"
-                className="text-gray-700 hover:text-yellow-600 font-medium transition-colors text-sm xl:text-base"
-              >
-                {t("nav.subscription")}
-              </Link>
-              <Link
-                href="/about"
-                className="text-gray-700 hover:text-yellow-600 font-medium transition-colors text-sm xl:text-base"
-              >
-                {t("nav.aboutUs")}
-              </Link>
-              <button
-                onClick={() => setShowContactModal(true)}
-                className="text-gray-700 hover:text-yellow-600 font-medium transition-colors cursor-pointer text-sm xl:text-base"
-              >
-                {t("nav.contact")}
-              </button>
+              {userType !== "admin" && userType !== "super_admin" && (
+                <>
+                  <Link
+                    href="/"
+                    className="text-gray-700 hover:text-yellow-600 font-medium transition-colors text-sm xl:text-base"
+                  >
+                    {t("nav.home")}
+                  </Link>
+                  <Link
+                    href="/businesses"
+                    className="text-gray-700 hover:text-yellow-600 font-medium transition-colors text-sm xl:text-base"
+                  >
+                    {t("nav.allSuppliers")}
+                  </Link>
+                  <Link
+                    href="/subscription"
+                    className="text-gray-700 hover:text-yellow-600 font-medium transition-colors text-sm xl:text-base"
+                  >
+                    {t("nav.subscription")}
+                  </Link>
+                  <Link
+                    href="/about"
+                    className="text-gray-700 hover:text-yellow-600 font-medium transition-colors text-sm xl:text-base"
+                  >
+                    {t("nav.aboutUs")}
+                  </Link>
+                  <button
+                    onClick={() => setShowContactModal(true)}
+                    className="text-gray-700 hover:text-yellow-600 font-medium transition-colors cursor-pointer text-sm xl:text-base"
+                  >
+                    {t("nav.contact")}
+                  </button>
+                </>
+              )}
             </nav>
 
             {/* Right Side */}
@@ -284,7 +303,10 @@ export default function Header() {
               </div>
 
               {/* Logged In User Menu */}
-              {!loading && isAuthenticated && userType !== "admin" && userType !== "super_admin" ? (
+              {!loading &&
+              isAuthenticated &&
+              userType !== "admin" &&
+              userType !== "super_admin" ? (
                 <>
                   {/* Messages */}
                   <div className="relative">
@@ -430,7 +452,7 @@ export default function Header() {
                           </div>
 
                           <Link
-                            href={`/profile/${user?.id || 'me'}`}
+                            href={`/profile/${user?.id || "me"}`}
                             className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
                             onClick={() => setIsUserMenuOpen(false)}
                           >
@@ -450,7 +472,6 @@ export default function Header() {
                               {t("userMenu.dashboard")}
                             </span>
                           </Link>
-                          
 
                           <div className="border-t border-gray-100 my-2"></div>
 
@@ -483,22 +504,24 @@ export default function Header() {
               ) : (
                 <>
                   {/* If not logged in, show auth links - but not for admin pages */}
-                  {!loading && !isAuthenticated && !window.location.pathname.startsWith('/admin') && (
-                    <div className="hidden sm:flex items-center space-x-2 md:space-x-3">
-                      <Link
-                        href="/register"
-                        className="text-gray-700 hover:text-yellow-600 font-medium transition-colors text-sm"
-                      >
-                        {t("nav.register")}
-                      </Link>
-                      <Link
-                        href="/login"
-                        className="bg-yellow-400 text-white px-4 py-2 rounded-lg hover:bg-yellow-500 transition-colors text-sm font-medium"
-                      >
-                        {t("nav.login")}
-                      </Link>
-                    </div>
-                  )}
+                  {!loading &&
+                    !isAuthenticated &&
+                    !window.location.pathname.startsWith("/admin") && (
+                      <div className="hidden sm:flex items-center space-x-2 md:space-x-3">
+                        <Link
+                          href="/register"
+                          className="text-gray-700 hover:text-yellow-600 font-medium transition-colors text-sm"
+                        >
+                          {t("nav.register")}
+                        </Link>
+                        <Link
+                          href="/login"
+                          className="bg-yellow-400 text-white px-4 py-2 rounded-lg hover:bg-yellow-500 transition-colors text-sm font-medium"
+                        >
+                          {t("nav.login")}
+                        </Link>
+                      </div>
+                    )}
 
                   {/* Mobile Menu Button for Guest */}
                   <button
@@ -521,63 +544,69 @@ export default function Header() {
         {mobileMenuOpen && (
           <div className="lg:hidden border-t border-gray-200 bg-white">
             <nav className="px-4 py-4 space-y-3">
-              <Link
-                href="/"
-                className="block text-gray-700 hover:text-yellow-600 hover:bg-gray-50 font-medium transition-colors py-2 px-3 rounded-lg"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {t("nav.home")}
-              </Link>
-              <Link
-                href="/businesses"
-                className="block text-gray-700 hover:text-yellow-600 hover:bg-gray-50 font-medium transition-colors py-2 px-3 rounded-lg"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {t("nav.allSuppliers")}
-              </Link>
-              <Link
-                href="/subscription"
-                className="block text-gray-700 hover:text-yellow-600 hover:bg-gray-50 font-medium transition-colors py-2 px-3 rounded-lg"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {t("nav.subscription")}
-              </Link>
-              <Link
-                href="/about"
-                className="block text-gray-700 hover:text-yellow-600 hover:bg-gray-50 font-medium transition-colors py-2 px-3 rounded-lg"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {t("nav.aboutUs")}
-              </Link>
-              <button
-                onClick={() => {
-                  setShowContactModal(true);
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full text-left text-gray-700 hover:text-yellow-600 hover:bg-gray-50 font-medium transition-colors py-2 px-3 rounded-lg cursor-pointer"
-              >
-                {t("nav.contact")}
-              </button>
+              {userType !== "admin" && userType !== "super_admin" && (
+                <>
+                  <Link
+                    href="/"
+                    className="block text-gray-700 hover:text-yellow-600 hover:bg-gray-50 font-medium transition-colors py-2 px-3 rounded-lg"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {t("nav.home")}
+                  </Link>
+                  <Link
+                    href="/businesses"
+                    className="block text-gray-700 hover:text-yellow-600 hover:bg-gray-50 font-medium transition-colors py-2 px-3 rounded-lg"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {t("nav.allSuppliers")}
+                  </Link>
+                  <Link
+                    href="/subscription"
+                    className="block text-gray-700 hover:text-yellow-600 hover:bg-gray-50 font-medium transition-colors py-2 px-3 rounded-lg"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {t("nav.subscription")}
+                  </Link>
+                  <Link
+                    href="/about"
+                    className="block text-gray-700 hover:text-yellow-600 hover:bg-gray-50 font-medium transition-colors py-2 px-3 rounded-lg"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {t("nav.aboutUs")}
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setShowContactModal(true);
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full text-left text-gray-700 hover:text-yellow-600 hover:bg-gray-50 font-medium transition-colors py-2 px-3 rounded-lg cursor-pointer"
+                  >
+                    {t("nav.contact")}
+                  </button>
+                </>
+              )}
 
               {/* Show Auth Links for Guest on Mobile - but not for admin pages */}
-              {!loading && !isAuthenticated && !window.location.pathname.startsWith('/admin') && (
-                <div className="pt-4 border-t border-gray-200 space-y-4">
-                  <Link
-                    href="/register"
-                    className="block w-full text-center text-gray-700 hover:text-yellow-600 border border-gray-300 font-medium transition-colors py-2 px-3 rounded-lg"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {t("nav.register")}
-                  </Link>
-                  <Link
-                    href="/login"
-                    className="block w-full text-center bg-yellow-400 text-white font-medium transition-colors py-2 px-3 rounded-lg hover:bg-yellow-500"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {t("nav.login")}
-                  </Link>
-                </div>
-              )}
+              {!loading &&
+                !isAuthenticated &&
+                !window.location.pathname.startsWith("/admin") && (
+                  <div className="pt-4 border-t border-gray-200 space-y-4">
+                    <Link
+                      href="/register"
+                      className="block w-full text-center text-gray-700 hover:text-yellow-600 border border-gray-300 font-medium transition-colors py-2 px-3 rounded-lg"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {t("nav.register")}
+                    </Link>
+                    <Link
+                      href="/login"
+                      className="block w-full text-center bg-yellow-400 text-white font-medium transition-colors py-2 px-3 rounded-lg hover:bg-yellow-500"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {t("nav.login")}
+                    </Link>
+                  </div>
+                )}
             </nav>
           </div>
         )}
