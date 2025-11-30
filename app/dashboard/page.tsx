@@ -61,24 +61,28 @@ function DashboardContent() {
         const userData = localStorage.getItem("supplier_user");
         if (userData) {
           const parsedUser = JSON.parse(userData);
-          
+
           // Fetch the latest profile picture
-          let profileImage = parsedUser.profileImage || "/images/default-avatar.png";
+          let profileImage =
+            parsedUser.profileImage || "/images/default-avatar.png";
           try {
-            const { profile_image } = await apiService.getProfilePicture(parsedUser.id);
+            const { profile_image } = await apiService.getProfilePicture(
+              parsedUser.id
+            );
             if (profile_image) {
               profileImage = profile_image;
             }
           } catch (error) {
             // Fallback to the existing image if there's an error
           }
-          
+
           setUser({
             id: parsedUser.id?.toString() || "",
             name: parsedUser.name || "User",
             email: parsedUser.email || "",
             phone: parsedUser.phone || "",
-            businessName: parsedUser.profile?.businessName || parsedUser.name || "Business",
+            businessName:
+              parsedUser.profile?.businessName || parsedUser.name || "Business",
             businessId: parsedUser.slug || parsedUser.id?.toString() || "",
             memberSince: parsedUser.emailVerifiedAt
               ? new Date(parsedUser.emailVerifiedAt).toLocaleDateString()
@@ -87,8 +91,7 @@ function DashboardContent() {
             avatar: profileImage,
           });
         }
-      } catch (error) {
-      }
+      } catch (error) {}
     };
 
     fetchUserData();
@@ -185,7 +188,7 @@ function DashboardContent() {
                     <img
                       alt={user?.name || "User"}
                       className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-yellow-100 shadow-lg"
-                      src={user?.avatar||avatarUrl}
+                      src={user?.avatar || avatarUrl}
                     />
                     <button
                       onClick={() => setShowPhotoUpload(true)}
@@ -371,11 +374,12 @@ function DashboardContent() {
                     <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-4 sm:space-y-0">
                       <div className="relative">
                         <img
-                          src={pendingAvatarPreview || user?.avatar || avatarUrl}
+                          src={
+                            pendingAvatarPreview || user?.avatar || avatarUrl
+                          }
                           alt="Avatar Preview"
                           className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-yellow-100 shadow"
                         />
-                        
                       </div>
                       <div className="flex-1">
                         <label className="inline-block bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded cursor-pointer">
@@ -403,7 +407,7 @@ function DashboardContent() {
                               // Show preview immediately
                               const objectUrl = URL.createObjectURL(file);
                               setPendingAvatarPreview(objectUrl);
-                              
+
                               // Also read as data URL for potential upload
                               const reader = new FileReader();
                               reader.onload = () => {
@@ -463,22 +467,33 @@ function DashboardContent() {
                                 "dashboardAvatar",
                                 previewUrl
                               );
-                              
+
                               // Fetch the latest profile picture from the API
                               try {
-                                const userData = localStorage.getItem("supplier_user");
+                                const userData =
+                                  localStorage.getItem("supplier_user");
                                 if (userData) {
                                   const parsedUser = JSON.parse(userData);
-                                  const { profile_image } = await apiService.getProfilePicture(parsedUser.id);
+                                  const { profile_image } =
+                                    await apiService.getProfilePicture(
+                                      parsedUser.id
+                                    );
                                   if (profile_image) {
                                     setAvatarUrl(profile_image);
-                                    localStorage.setItem("dashboardAvatar", profile_image);
-                                    
+                                    localStorage.setItem(
+                                      "dashboardAvatar",
+                                      profile_image
+                                    );
+
                                     // Update user avatar in the UI
-                                    setUser(prev => prev ? {
-                                      ...prev,
-                                      avatar: profile_image
-                                    } : null);
+                                    setUser((prev) =>
+                                      prev
+                                        ? {
+                                            ...prev,
+                                            avatar: profile_image,
+                                          }
+                                        : null
+                                    );
                                   }
                                 }
                               } catch (error) {
@@ -505,7 +520,6 @@ function DashboardContent() {
                                 ? error.message
                                 : "حدث خطأ أثناء رفع الصورة";
                             alert(errorMessage);
-
                           } finally {
                             setIsUploading(false);
                             setShowPhotoUpload(false);

@@ -951,7 +951,7 @@ export default function PublicBusinessProfile({
                       <p className="text-gray-600 leading-relaxed mb-3">
                         {review.comment}
                       </p>
-                      
+
                       {/* Reply Section */}
                       {review.reply && (
                         <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
@@ -963,7 +963,9 @@ export default function PublicBusinessProfile({
                                   رد العمل
                                 </span>
                                 <span className="text-blue-500 text-xs">
-                                  {new Date(review.reply.created_at).toLocaleDateString()}
+                                  {new Date(
+                                    review.reply.created_at
+                                  ).toLocaleDateString()}
                                 </span>
                               </div>
                               <p className="text-blue-600 text-sm leading-relaxed">
@@ -1338,9 +1340,7 @@ export default function PublicBusinessProfile({
                     {new Date(selectedReview.date).toLocaleDateString()}
                   </span>
                 </div>
-                <p className="text-gray-600">
-                  {selectedReview.comment}
-                </p>
+                <p className="text-gray-600">{selectedReview.comment}</p>
               </div>
 
               {/* Reply Form */}
@@ -1352,9 +1352,7 @@ export default function PublicBusinessProfile({
                   </label>
                   <textarea
                     value={replyForm.reply}
-                    onChange={(e) =>
-                      setReplyForm({ reply: e.target.value })
-                    }
+                    onChange={(e) => setReplyForm({ reply: e.target.value })}
                     rows={6}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm resize-none"
                     placeholder="Write your reply to this review..."
@@ -1384,50 +1382,58 @@ export default function PublicBusinessProfile({
                     <button
                       onClick={async () => {
                         if (!replyForm.reply.trim()) return;
-                        
+
                         setIsSendingReply(true);
                         setReplyError("");
-                        
+
                         try {
-                          const replyResponse = await apiService.replyToInboxItem({
-                            type: "supplier_rating",
-                            id: selectedReview.id,
-                            reply: replyForm.reply,
-                          });
-                          
+                          const replyResponse =
+                            await apiService.replyToInboxItem({
+                              type: "supplier_rating",
+                              id: selectedReview.id,
+                              reply: replyForm.reply,
+                            });
+
                           // Update supplier state to show the new reply immediately
                           if (supplierState) {
-                            setSupplierState(prev => {
+                            setSupplierState((prev) => {
                               if (!prev) return prev;
                               return {
                                 ...prev,
                                 ratings: {
                                   ...prev.ratings,
-                                  reviews: prev.ratings.reviews.map(review => 
-                                    review.id === selectedReview.id 
-                                      ? { 
-                                          ...review, 
+                                  reviews: prev.ratings.reviews.map((review) =>
+                                    review.id === selectedReview.id
+                                      ? {
+                                          ...review,
                                           reply: {
-                                            id: (replyResponse as any)?.id || Date.now(),
+                                            id:
+                                              (replyResponse as any)?.id ||
+                                              Date.now(),
                                             reply: replyForm.reply,
                                             type: "reviewReply",
-                                            created_at: new Date().toISOString()
-                                          }
+                                            created_at:
+                                              new Date().toISOString(),
+                                          },
                                         }
                                       : review
-                                  )
-                                }
+                                  ),
+                                },
                               };
                             });
                           }
-                          
+
                           // Success - close modal and reset form
                           setShowReplyModal(false);
                           setSelectedReview(null);
                           setReplyForm({ reply: "" });
                           setReplyError("");
                         } catch (error) {
-                          setReplyError(error instanceof Error ? error.message : "Failed to send reply");
+                          setReplyError(
+                            error instanceof Error
+                              ? error.message
+                              : "Failed to send reply"
+                          );
                         } finally {
                           setIsSendingReply(false);
                         }
@@ -1450,7 +1456,7 @@ export default function PublicBusinessProfile({
                   </div>
                 </div>
               </div>
-              
+
               {/* Error Message */}
               {replyError && (
                 <div className="p-4 bg-red-50 border border-red-200 rounded-lg mb-4">

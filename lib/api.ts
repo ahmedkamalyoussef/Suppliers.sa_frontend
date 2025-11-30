@@ -14,7 +14,15 @@ import {
   GetAdminsResponse,
   AdminActionResponse,
 } from "../types/auth";
-import { InboxResponse, SuppliersListResponse, UpdateSupplierRequest, SupplierActionResponse, GetSuppliersParams, CreateSupplierRequest } from "./types";
+import {
+  InboxResponse,
+  SuppliersListResponse,
+  UpdateSupplierRequest,
+  SupplierActionResponse,
+  GetSuppliersParams,
+  CreateSupplierRequest,
+} from "./types";
+import { TopRatedSuppliersResponse } from "./types/topRatedSuppliers";
 
 const API_BASE_URL = "http://localhost:8000";
 
@@ -534,10 +542,16 @@ class ApiService {
       }
 
       // Fetch and store permissions for admin users
-      if (response.userType === "admin" || response.userType === "super_admin") {
+      if (
+        response.userType === "admin" ||
+        response.userType === "super_admin"
+      ) {
         try {
           const permissionsResponse = await this.getPermissions();
-          localStorage.setItem("admin_permissions", JSON.stringify(permissionsResponse.permissions));
+          localStorage.setItem(
+            "admin_permissions",
+            JSON.stringify(permissionsResponse.permissions)
+          );
         } catch (error) {
           console.warn("Failed to fetch permissions:", error);
         }
@@ -554,9 +568,13 @@ class ApiService {
   // =====================================
   async getPermissions(): Promise<PermissionsResponse> {
     try {
-      const response = await this.request<PermissionsResponse>("/api/admin/permissions", {
-        method: "GET",
-      }, true);
+      const response = await this.request<PermissionsResponse>(
+        "/api/admin/permissions",
+        {
+          method: "GET",
+        },
+        true
+      );
       return response;
     } catch (error: any) {
       throw error;
@@ -1132,9 +1150,11 @@ class ApiService {
   }
 
   // ====== SUPPLIER MANAGEMENT ======
-  async getSuppliers(params?: GetSuppliersParams): Promise<SuppliersListResponse> {
+  async getSuppliers(
+    params?: GetSuppliersParams
+  ): Promise<SuppliersListResponse> {
     const queryParams = new URLSearchParams();
-    
+
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== "all") {
@@ -1152,7 +1172,10 @@ class ApiService {
     );
   }
 
-  async updateSupplier(supplierId: number, data: UpdateSupplierRequest): Promise<SupplierActionResponse> {
+  async updateSupplier(
+    supplierId: number,
+    data: UpdateSupplierRequest
+  ): Promise<SupplierActionResponse> {
     return this.request<SupplierActionResponse>(
       `/api/admin/suppliers/${supplierId}`,
       {
@@ -1173,7 +1196,9 @@ class ApiService {
     );
   }
 
-  async createSupplier(data: CreateSupplierRequest): Promise<SupplierActionResponse> {
+  async createSupplier(
+    data: CreateSupplierRequest
+  ): Promise<SupplierActionResponse> {
     return this.request<SupplierActionResponse>(
       "/api/admin/suppliers",
       {
@@ -1186,7 +1211,7 @@ class ApiService {
 
   async exportSuppliers(params?: GetSuppliersParams): Promise<void> {
     const queryParams = new URLSearchParams();
-    
+
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== "all") {
@@ -1217,9 +1242,9 @@ class ApiService {
     // Create blob and download
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'suppliers.csv';
+    a.download = "suppliers.csv";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -1575,6 +1600,17 @@ class ApiService {
         method: "DELETE",
       },
       true
+    );
+  }
+
+  // Get top-rated suppliers
+  async getTopRatedSuppliers(): Promise<TopRatedSuppliersResponse> {
+    return this.request<TopRatedSuppliersResponse>(
+      "/api/suppliers/top-rated",
+      {
+        method: "GET",
+      },
+      false // No auth required
     );
   }
 }

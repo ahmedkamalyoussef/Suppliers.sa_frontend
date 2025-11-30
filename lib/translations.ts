@@ -78,6 +78,8 @@ export const translations = {
     closed: "Closed",
     sendMassege: "Send Message",
     featuredBusinessesviewAll: "View All Businesses",
+    showMore: "Show More",
+    showLess: "Show Less",
     featuredBusinesses: {
       serves: "Serves",
       serviceArea: "Service Area",
@@ -2678,6 +2680,8 @@ export const translations = {
     closed: "مغلق",
     sendMassege: "إرسال رسالة",
     featuredBusinessesviewAll: "عرض الجميع",
+    showMore: "عرض المزيد",
+    showLess: "عرض أقل",
     featuredBusinesses: {
       serves: "يخدم",
       serviceArea: "مساحة الخدمة",

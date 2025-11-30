@@ -40,6 +40,12 @@ export default function BusinessProfile() {
     }
   }, [businessId, router]);
 
+  // Check if user is logged in
+  const isLoggedIn = () => {
+    const userData = localStorage.getItem("supplier_user");
+    return userData !== null;
+  };
+
   // Track view duration
   useEffect(() => {
     // Start timer when component mounts
@@ -59,30 +65,26 @@ export default function BusinessProfile() {
       }
     }
 
-    // Track view only once when component unmounts
-    let hasTracked = false;
+    // Track view when component mounts
+    // Get businessType from localStorage user data
+    let customerType = "Supplier";
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        customerType =
+          user.profile?.businessType || user.businessType || "Supplier";
+      } catch (error) {
+        console.error("Error parsing user data for business type:", error);
+      }
+    }
 
     const trackView = async () => {
-      if (hasTracked || !businessId) return;
-      hasTracked = true;
+      if (!businessId) return;
 
       const duration = Math.floor((Date.now() - startTime) / 1000);
 
       // Only track if duration is at least 1 second
       if (duration < 1) return;
-
-      // Get businessType from localStorage user data
-      let customerType = "Supplier";
-      const userData = localStorage.getItem("supplier_user");
-      if (userData) {
-        try {
-          const user = JSON.parse(userData);
-          customerType =
-            user.profile?.businessType || user.businessType || "Supplier";
-        } catch (error) {
-          console.error("Error parsing user data for business type:", error);
-        }
-      }
 
       try {
         await apiService.trackView({
@@ -97,9 +99,26 @@ export default function BusinessProfile() {
       }
     };
 
-    // Cleanup function - only runs once when component unmounts
-    return () => {
+    // Track view after 1 second to ensure minimum duration
+    setTimeout(() => {
       trackView();
+    }, 1000);
+
+    // Cleanup function - track duration when component unmounts
+    return () => {
+      // Track final duration when user leaves
+      const finalDuration = Math.floor((Date.now() - startTime) / 1000);
+      if (finalDuration >= 1) {
+        apiService
+          .trackView({
+            supplier_id: parseInt(businessId),
+            location: location,
+            customer_type: customerType,
+            duration: finalDuration,
+            session_id: sessionId,
+          })
+          .catch((error) => console.error("Error tracking final view:", error));
+      }
     };
   }, [businessId, sessionId]);
 
@@ -562,21 +581,16 @@ export default function BusinessProfile() {
             </div>
             {!isOwnProfile && (
               <div className="flex gap-3 mt-4 px-4 md:px-6 pb-6 md:pb-8">
-                <button
-                  onClick={() =>
-                    businessPreferences?.allow_direct_contact !== false &&
-                    setShowInquiryModal(true)
-                  }
-                  disabled={businessPreferences?.allow_direct_contact === false}
-                  className={`px-8 py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors ${
-                    businessPreferences?.allow_direct_contact === false
-                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                      : "bg-yellow-400 hover:bg-yellow-500 text-white"
-                  }`}
-                >
-                  <i className="ri-message-line mr-2"></i>
-                  {t("publicProfile.buttons.message")}
-                </button>
+                {businessPreferences?.allow_direct_contact !== false &&
+                  isLoggedIn() && (
+                    <button
+                      onClick={() => setShowInquiryModal(true)}
+                      className="px-8 py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors bg-yellow-400 hover:bg-yellow-500 text-white"
+                    >
+                      <i className="ri-message-line mr-2"></i>
+                      {t("publicProfile.buttons.message")}
+                    </button>
+                  )}
 
                 <button
                   disabled={businessPreferences?.allow_direct_contact === false}
@@ -802,13 +816,15 @@ export default function BusinessProfile() {
                     <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800">
                       {t("businessProfile.customerReviews")}
                     </h2>
-                    <button
-                      onClick={() => setShowReviewModal(true)}
-                      className="bg-yellow-400 text-white px-4 py-2 md:px-6 md:py-3 rounded-full hover:bg-yellow-500 font-medium whitespace-nowrap cursor-pointer flex items-center space-x-1 md:space-x-2 text-sm md:text-base"
-                    >
-                      <i className="ri-edit-line"></i>
-                      <span>{t("businessProfile.writeAReview")}</span>
-                    </button>
+                    {isLoggedIn() && (
+                      <button
+                        onClick={() => setShowReviewModal(true)}
+                        className="bg-yellow-400 text-white px-4 py-2 md:px-6 md:py-3 rounded-full hover:bg-yellow-500 font-medium whitespace-nowrap cursor-pointer flex items-center space-x-1 md:space-x-2 text-sm md:text-base"
+                      >
+                        <i className="ri-edit-line"></i>
+                        <span>{t("businessProfile.writeAReview")}</span>
+                      </button>
+                    )}
                   </div>
 
                   {/* Review Summary */}
@@ -950,85 +966,87 @@ export default function BusinessProfile() {
               {/* Right Column - Contact & Info */}
               <div className="space-y-6 md:space-y-8">
                 {/* Contact Information */}
-                <div className="bg-white rounded-xl md:rounded-2xl shadow-sm p-4 md:p-6 border border-gray-100">
-                  <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-3 md:mb-4">
-                    {t("businessProfile.contactInformation")}
-                  </h3>
+                {isLoggedIn() && (
+                  <div className="bg-white rounded-xl md:rounded-2xl shadow-sm p-4 md:p-6 border border-gray-100">
+                    <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-3 md:mb-4">
+                      {t("businessProfile.contactInformation")}
+                    </h3>
 
-                  <div className="space-y-3 md:space-y-4 mb-4 md:mb-6">
-                    {businessPreferences?.show_phone_publicly !== false && (
+                    <div className="space-y-3 md:space-y-4 mb-4 md:mb-6">
+                      {businessPreferences?.show_phone_publicly !== false && (
+                        <div className="flex items-center space-x-2 md:space-x-3">
+                          <div className="w-8 h-8 md:w-10 md:h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                            <i className="ri-phone-line text-yellow-600 text-sm md:text-base"></i>
+                          </div>
+                          <div>
+                            <p className="text-xs md:text-sm text-gray-600">
+                              {t("businessProfile.phone")}
+                            </p>
+                            <p className="font-medium text-gray-800 text-sm md:text-base">
+                              {business.phone}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {businessPreferences?.show_email_publicly !== false && (
+                        <div className="flex items-center space-x-2 md:space-x-3">
+                          <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i className="ri-mail-line text-blue-600 text-sm md:text-base"></i>
+                          </div>
+                          <div>
+                            <p className="text-xs md:text-sm text-gray-600">
+                              {t("businessProfile.email")}
+                            </p>
+                            <p className="font-medium text-gray-800 text-sm md:text-base">
+                              {business.email}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
                       <div className="flex items-center space-x-2 md:space-x-3">
-                        <div className="w-8 h-8 md:w-10 md:h-10 bg-yellow-100 rounded-full flex items-center justify-center">
-                          <i className="ri-phone-line text-yellow-600 text-sm md:text-base"></i>
+                        <div className="w-8 h-8 md:w-10 md:h-10 bg-green-100 rounded-full flex items-center justify-center">
+                          <i className="ri-global-line text-green-600 text-sm md:text-base"></i>
                         </div>
                         <div>
                           <p className="text-xs md:text-sm text-gray-600">
-                            {t("businessProfile.phone")}
+                            {t("businessProfile.website")}
                           </p>
                           <p className="font-medium text-gray-800 text-sm md:text-base">
-                            {business.phone}
+                            {business.website}
                           </p>
                         </div>
                       </div>
-                    )}
 
-                    {businessPreferences?.show_email_publicly !== false && (
                       <div className="flex items-center space-x-2 md:space-x-3">
-                        <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                          <i className="ri-mail-line text-blue-600 text-sm md:text-base"></i>
+                        <div className="w-8 h-8 md:w-10 md:h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                          <i className="ri-map-pin-line text-purple-600 text-sm md:text-base"></i>
                         </div>
                         <div>
                           <p className="text-xs md:text-sm text-gray-600">
-                            {t("businessProfile.email")}
+                            {t("businessProfile.address")}
                           </p>
                           <p className="font-medium text-gray-800 text-sm md:text-base">
-                            {business.email}
+                            {business.address}
                           </p>
                         </div>
                       </div>
-                    )}
-
-                    <div className="flex items-center space-x-2 md:space-x-3">
-                      <div className="w-8 h-8 md:w-10 md:h-10 bg-green-100 rounded-full flex items-center justify-center">
-                        <i className="ri-global-line text-green-600 text-sm md:text-base"></i>
-                      </div>
-                      <div>
-                        <p className="text-xs md:text-sm text-gray-600">
-                          {t("businessProfile.website")}
-                        </p>
-                        <p className="font-medium text-gray-800 text-sm md:text-base">
-                          {business.website}
-                        </p>
-                      </div>
                     </div>
 
-                    <div className="flex items-center space-x-2 md:space-x-3">
-                      <div className="w-8 h-8 md:w-10 md:h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                        <i className="ri-map-pin-line text-purple-600 text-sm md:text-base"></i>
-                      </div>
-                      <div>
-                        <p className="text-xs md:text-sm text-gray-600">
-                          {t("businessProfile.address")}
-                        </p>
-                        <p className="font-medium text-gray-800 text-sm md:text-base">
-                          {business.address}
-                        </p>
-                      </div>
+                    <div className="grid grid-cols-1 gap-2 md:gap-3">
+                      {businessPreferences?.allow_direct_contact !== false && (
+                        <button
+                          onClick={() => setShowInquiryModal(true)}
+                          className="bg-yellow-400 text-white py-2 md:py-3 px-3 md:px-4 rounded-lg hover:bg-yellow-500 font-medium text-xs md:text-sm whitespace-nowrap cursor-pointer flex items-center justify-center space-x-1 md:space-x-2"
+                        >
+                          <i className="ri-message-line"></i>
+                          <span>{t("businessProfile.messageRequest")}</span>
+                        </button>
+                      )}
                     </div>
                   </div>
-
-                  <div className="grid grid-cols-1 gap-2 md:gap-3">
-                    {businessPreferences?.allow_direct_contact !== false && (
-                      <button
-                        onClick={() => setShowInquiryModal(true)}
-                        className="bg-yellow-400 text-white py-2 md:py-3 px-3 md:px-4 rounded-lg hover:bg-yellow-500 font-medium text-xs md:text-sm whitespace-nowrap cursor-pointer flex items-center justify-center space-x-1 md:space-x-2"
-                      >
-                        <i className="ri-message-line"></i>
-                        <span>{t("businessProfile.messageRequest")}</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
+                )}
 
                 {/* Working Hours */}
                 <div className="bg-white rounded-xl md:rounded-2xl shadow-xl p-4 md:p-6 border border-gray-100">

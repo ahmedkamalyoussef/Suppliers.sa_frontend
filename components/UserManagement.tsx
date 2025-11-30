@@ -17,6 +17,15 @@ export default function UserManagement() {
   const [permissions, setPermissions] = useState<any>(null);
   const [permissionsLoading, setPermissionsLoading] = useState(true);
 
+  // Helper function to get avatar with fallback
+  const getAvatarUrl = (avatar: string | null | undefined, name: string) => {
+    if (avatar && avatar !== "") {
+      return avatar;
+    }
+    // Use local default avatar
+    return "/placeholder-avatar.jpg";
+  };
+
   // Fetch permissions when component mounts
   useEffect(() => {
     const fetchPermissions = async () => {
@@ -157,11 +166,8 @@ export default function UserManagement() {
     try {
       setLoadingUsers(true);
       const response: SuppliersListResponse = await apiService.getSuppliers({
-        status: filterStatus === "all" ? undefined : filterStatus,
-        plan: filterPlan === "all" ? undefined : filterPlan,
         page: pagination.currentPage,
         per_page: pagination.perPage,
-        search: searchTerm || undefined,
       });
 
       setUsers(response.users);
@@ -184,9 +190,6 @@ export default function UserManagement() {
       fetchSuppliers();
     }
   }, [
-    filterStatus,
-    filterPlan,
-    searchTerm,
     pagination.currentPage,
     canViewUsers,
     user?.role,
@@ -332,6 +335,14 @@ export default function UserManagement() {
         await apiService.updateSupplier(userId, { status: newStatus });
         await fetchSuppliers();
       } else if (action === "delete") {
+        // Add confirmation for single delete
+        if (
+          !window.confirm(
+            `Are you sure you want to delete ${target.name}? This action cannot be undone.`
+          )
+        ) {
+          return;
+        }
         await apiService.deleteSupplier(userId);
         await fetchSuppliers();
       }
@@ -340,8 +351,39 @@ export default function UserManagement() {
     }
   };
 
-  const handleBulkAction = (action: "suspend" | "delete") => {
-    setSelectedUsers([]);
+  const handleBulkAction = async (action: "suspend" | "delete") => {
+    if (selectedUsers.length === 0) return;
+
+    // Show confirmation
+    const confirmMessage =
+      action === "delete"
+        ? `Are you sure you want to delete ${selectedUsers.length} user(s)? This action cannot be undone.`
+        : `Are you sure you want to suspend ${selectedUsers.length} user(s)?`;
+
+    if (!window.confirm(confirmMessage)) {
+      return;
+    }
+
+    try {
+      if (action === "delete") {
+        // Delete suppliers one by one
+        await Promise.all(
+          selectedUsers.map((userId) => apiService.deleteSupplier(userId))
+        );
+      } else if (action === "suspend") {
+        // Suspend suppliers one by one
+        await Promise.all(
+          selectedUsers.map((userId) =>
+            apiService.updateSupplier(userId, { status: "suspended" })
+          )
+        );
+      }
+
+      setSelectedUsers([]);
+      await fetchSuppliers();
+    } catch (error) {
+      console.error(`Failed to ${action} suppliers:`, error);
+    }
   };
 
   // Show loading state while user or permissions are being fetched
@@ -608,11 +650,18 @@ export default function UserManagement() {
                   </td>
                   <td className="py-4 px-4 sm:px-6">
                     <div className="flex items-center space-x-3">
-                      <img
-                        src={user.avatar}
-                        alt={user.name}
-                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
-                      />
+                      <div className="relative flex-shrink-0">
+                        <img
+                          src={getAvatarUrl(user.avatar, user.name)}
+                          alt={user.name}
+                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-gray-200"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = "/placeholder-avatar.jpg";
+                          }}
+                        />
+                        <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 border border-white rounded-full"></div>
+                      </div>
                       <div className="min-w-0">
                         <p className="font-medium text-gray-800 text-sm sm:text-base truncate">
                           {user.name}
@@ -778,11 +827,21 @@ export default function UserManagement() {
 
             <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
               <div className="flex items-center space-x-3 sm:space-x-4">
-                <img
-                  src={showUserDetails.avatar}
-                  alt={showUserDetails.name}
-                  className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover"
-                />
+                <div className="relative flex-shrink-0">
+                  <img
+                    src={getAvatarUrl(
+                      showUserDetails.avatar,
+                      showUserDetails.name
+                    )}
+                    alt={showUserDetails.name}
+                    className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-gray-200 shadow-sm"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = "/placeholder-avatar.jpg";
+                    }}
+                  />
+                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-4 border-white rounded-full shadow-sm"></div>
+                </div>
                 <div className="min-w-0">
                   <h4 className="text-lg sm:text-xl font-semibold text-gray-800 truncate">
                     {showUserDetails.name}

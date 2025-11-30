@@ -48,6 +48,12 @@ export default function BusinessCard({
 
   const [showMessageModal, setShowMessageModal] = useState(false);
 
+  // Check if user is logged in
+  const isLoggedIn = () => {
+    const userData = localStorage.getItem("supplier_user");
+    return userData !== null;
+  };
+
   // Handle view profile click with visibility check
   const handleViewProfile = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -291,18 +297,16 @@ export default function BusinessCard({
 
                 {/* Actions - Fixed positioning */}
                 <div className="flex flex-row md:flex-col gap-2 md:w-32 md:self-end md:mt-auto">
-                  <button 
-                    onClick={() => business.preferences?.allow_direct_contact !== false && setShowMessageModal(true)}
-                    disabled={business.preferences?.allow_direct_contact === false}
-                    className={`flex-1 md:w-full py-2 px-3 rounded-lg font-medium text-xs whitespace-nowrap cursor-pointer ${
-                      business.preferences?.allow_direct_contact === false
-                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        : "bg-yellow-400 text-white hover:bg-yellow-500"
-                    }`}
-                  >
-                    <i className="ri-message-line mr-2"></i>
-                    {t("businessCard.message")}
-                  </button>
+                  {business.preferences?.allow_direct_contact !== false &&
+                    isLoggedIn() && (
+                      <button
+                        onClick={() => setShowMessageModal(true)}
+                        className={`flex-1 md:w-full py-2 px-3 rounded-lg font-medium text-xs whitespace-nowrap cursor-pointer bg-yellow-400 text-white hover:bg-yellow-500`}
+                      >
+                        <i className="ri-message-line mr-2"></i>
+                        {t("businessCard.message")}
+                      </button>
+                    )}
                   <button
                     onClick={handleViewProfile}
                     className="flex-1 md:w-full border border-yellow-400 text-yellow-600 py-2 px-3 rounded-lg hover:bg-yellow-50 font-medium text-xs whitespace-nowrap cursor-pointer text-center"
@@ -436,21 +440,18 @@ export default function BusinessCard({
 
         {/* Buttons - Always at bottom */}
         <div className="flex space-x-2 mt-auto">
-          <button 
-            onClick={() => business.preferences?.allow_direct_contact !== false && setShowMessageModal(true)}
-            disabled={business.preferences?.allow_direct_contact === false}
-            className={`flex-1 py-2 px-3 rounded-lg font-medium text-xs whitespace-nowrap cursor-pointer ${
-              business.preferences?.allow_direct_contact === false
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-yellow-400 text-white hover:bg-yellow-500"
-            }`}
-          >
-            <i className="ri-message-line mr-2"></i>
-            {t("businessCard.message")}
-          </button>
+          {business.preferences?.allow_direct_contact !== false && isLoggedIn() && (
+            <button
+              onClick={() => setShowMessageModal(true)}
+              className={`flex-1 py-2 px-3 rounded-lg font-medium text-xs whitespace-nowrap cursor-pointer bg-yellow-400 text-white hover:bg-yellow-500`}
+            >
+              <i className="ri-message-line mr-2"></i>
+              {t("businessCard.message")}
+            </button>
+          )}
           <button
             onClick={handleViewProfile}
-            className="flex-1 border border-yellow-400 text-yellow-600 py-2 px-3 rounded-lg hover:bg-yellow-50 font-medium text-xs whitespace-nowrap cursor-pointer text-center"
+            className={`${isLoggedIn() && business.preferences?.allow_direct_contact !== false ? 'flex-1' : 'w-full'} border border-yellow-400 text-yellow-600 py-2 px-3 rounded-lg hover:bg-yellow-50 font-medium text-xs whitespace-nowrap cursor-pointer text-center`}
           >
             {t("businessCard.viewProfile")}
           </button>

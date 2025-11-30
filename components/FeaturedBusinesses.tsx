@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useLanguage } from "../lib/LanguageContext";
 import BusinessCard from "./BusinessCard";
 
@@ -32,6 +33,7 @@ export default function FeaturedBusinesses({
   businesses,
 }: FeaturedBusinessesProps) {
   const { t } = useLanguage();
+  const [showAllBusinesses, setShowAllBusinesses] = useState(false);
 
   // Transform businesses data to match BusinessCard interface
   const transformedBusinesses = businesses.map((business) => ({
@@ -86,6 +88,11 @@ export default function FeaturedBusinesses({
     distance: business.serviceDistance,
   }));
 
+  // Display only first 4 businesses or all based on showAllBusinesses state
+  const displayedBusinesses = showAllBusinesses 
+    ? transformedBusinesses 
+    : transformedBusinesses.slice(0, 8);
+
   return (
     <section className="py-8 sm:py-10 md:py-12 bg-white">
       <div className="w-full px-3 sm:px-4 md:px-6">
@@ -99,7 +106,7 @@ export default function FeaturedBusinesses({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
-          {transformedBusinesses.map((business) => (
+          {displayedBusinesses.map((business) => (
             <BusinessCard
               key={business.id}
               business={business}
@@ -108,11 +115,17 @@ export default function FeaturedBusinesses({
           ))}
         </div>
 
-        <div className="text-center mt-8 sm:mt-10 md:mt-12">
-          <button className="bg-yellow-400 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full hover:bg-yellow-500 font-semibold text-base sm:text-lg whitespace-nowrap cursor-pointer">
-            {t("featuredBusinessesviewAll")}
-          </button>
-        </div>
+        {/* View More / Show Less Button */}
+        {transformedBusinesses.length > 8 && (
+          <div className="text-center mt-8 sm:mt-10 md:mt-12">
+            <button 
+              onClick={() => setShowAllBusinesses(!showAllBusinesses)}
+              className="bg-yellow-400 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full hover:bg-yellow-500 font-semibold text-base sm:text-lg whitespace-nowrap cursor-pointer"
+            >
+              {showAllBusinesses ? t("showLess") : t("showMore")}
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

@@ -20,6 +20,7 @@ export default function SearchSection() {
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [businesses, setBusinesses] = useState<any[]>([]);
   const [businessLocations, setBusinessLocations] = useState<any[]>([]);
+  const [showAllBusinesses, setShowAllBusinesses] = useState(false);
   const { t, isRTL } = useLanguage();
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();

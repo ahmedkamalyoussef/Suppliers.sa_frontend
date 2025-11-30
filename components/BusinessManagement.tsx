@@ -3,6 +3,7 @@
 import { profile } from "console";
 import { useState, useEffect } from "react";
 import { useAuth } from "../lib/UserContext";
+import { useLanguage } from "../lib/LanguageContext";
 
 interface WorkingHours {
   open: string;
@@ -23,6 +24,7 @@ interface BusinessData {
   serviceDistance: string;
   targetCustomers: string[];
   services: string[];
+  categories: string[];
   workingHours: {
     monday: WorkingHours;
     tuesday: WorkingHours;
@@ -46,6 +48,8 @@ interface ProductImage {
 }
 
 export default function BusinessManagement() {
+  const { user, updateUser } = useAuth();
+  const { isRTL } = useLanguage();
   const [activeSection, setActiveSection] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [businessData, setBusinessData] = useState<BusinessData>({
@@ -61,6 +65,7 @@ export default function BusinessManagement() {
     serviceDistance: "",
     targetCustomers: [],
     services: [],
+    categories: [],
     workingHours: {
       monday: { open: "08:00", close: "18:00", closed: false },
       tuesday: { open: "08:00", close: "18:00", closed: false },
@@ -72,7 +77,6 @@ export default function BusinessManagement() {
     },
   });
 
-  const { user, updateUser } = useAuth();
   const [businessImages, setBusinessImages] = useState<ProductImage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [productKeywords, setProductKeywords] = useState<string[]>([]);
@@ -142,6 +146,9 @@ export default function BusinessManagement() {
         : [],
       services: Array.isArray(parsedUser.profile?.services)
         ? parsedUser.profile.services
+        : [],
+      categories: Array.isArray(parsedUser.profile?.categories)
+        ? parsedUser.profile.categories
         : [],
       workingHours: workingHours,
     });
@@ -234,6 +241,11 @@ export default function BusinessManagement() {
         updateData.services = businessData.services;
       }
       
+      // Compare categories
+      if (JSON.stringify(businessData.categories.sort()) !== JSON.stringify((originalProfile.categories || []).sort())) {
+        updateData.categories = businessData.categories;
+      }
+      
       // Compare working hours
       if (JSON.stringify(businessData.workingHours) !== JSON.stringify(originalProfile.workingHours || {})) {
         updateData.workingHours = businessData.workingHours;
@@ -309,7 +321,57 @@ export default function BusinessManagement() {
     }
   };
 
-  const availableServices = [
+  // Categories from CompleteProfileForm
+const categories = [
+  { en: "Agriculture", ar: "الزراعة" },
+  { en: "Apparel & Fashion", ar: "الملابس والموضة" },
+  { en: "Automobile", ar: "السيارات" },
+  { en: "Brass Hardware & Components", ar: "أدوات ومكونات النحاس" },
+  { en: "Business Services", ar: "الخدمات التجارية" },
+  { en: "Chemicals", ar: "المواد الكيميائية" },
+  { en: "Computer Hardware & Software", ar: "أجهزة وبرامج الكمبيوتر" },
+  { en: "Construction & Real Estate", ar: "البناء والعقارات" },
+  { en: "Consumer Electronics", ar: "الإلكترونيات الاستهلاكية" },
+  {
+    en: "Electronics & Electrical Supplies",
+    ar: "الإلكترونيات والمستلزمات الكهربائية",
+  },
+  { en: "Energy & Power", ar: "الطاقة والطاقة الكهربائية" },
+  { en: "Environment & Pollution", ar: "البيئة والتلوث" },
+  { en: "Food & Beverage", ar: "الطعام والمشروبات" },
+  { en: "Furniture", ar: "الأثاث" },
+  { en: "Gifts & Crafts", ar: "الهدايا والحرف اليدوية" },
+  { en: "Health & Beauty", ar: "الصحة والجمال" },
+  { en: "Home Supplies", ar: "مستلزمات المنزل" },
+  { en: "Home Textiles & Furnishings", ar: "منسوجات وتجهيزات المنزل" },
+  { en: "Hospital & Medical Supplies", ar: "المستشفيات والمستلزمات الطبية" },
+  { en: "Hotel Supplies & Equipment", ar: "مستلزمات ومعدات الفنادق" },
+  { en: "Industrial Supplies", ar: "المستلزمات الصناعية" },
+  { en: "Jewelry & Gemstones", ar: "المجوهرات والأحجار الكريمة" },
+  { en: "Leather & Leather Products", ar: "الجلد والمنتجات الجلدية" },
+  { en: "Machinery", ar: "المعدات والآلات" },
+  { en: "Mineral & Metals", ar: "المعادن والمعادن" },
+  { en: "Office & School Supplies", ar: "مستلزمات المكتب والمدرسة" },
+  { en: "Oil and Gas", ar: "النفط والغاز" },
+  { en: "Packaging & Paper", ar: "التغليف والورق" },
+  { en: "Pharmaceuticals", ar: "الأدوية" },
+  { en: "Pipes, Tubes & Fittings", ar: "الأنابيب والوصلات" },
+  { en: "Plastics & Products", ar: "اللدائن والمنتجات" },
+  { en: "Printing & Publishing", ar: "الطباعة والنشر" },
+  { en: "Real Estate", ar: "العقارات" },
+  {
+    en: "Scientific & Laboratory Instruments",
+    ar: "الأدوات العلمية والمخبرية",
+  },
+  { en: "Security & Protection", ar: "الأمن والحماية" },
+  { en: "Sports & Entertainment", ar: "الرياضة والترفيه" },
+  { en: "Telecommunications", ar: "الاتصالات" },
+  { en: "Textiles & Fabrics", ar: "المنسوجات والأقمشة" },
+  { en: "Toys", ar: "الألعاب" },
+  { en: "Transportation", ar: "النقل" },
+];
+
+const availableServices = [
     "Wholesale",
     "Retail",
     "Repair Services",
@@ -674,6 +736,82 @@ export default function BusinessManagement() {
                         {keyword}
                       </span>
                     ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 p-6 rounded-xl border border-blue-200">
+                <div className="flex items-center space-x-3 mb-4">
+                  <i className="ri-price-tag-3-line text-blue-600 text-xl"></i>
+                  <h3 className="text-lg font-semibold text-blue-800">
+                    Business Categories
+                  </h3>
+                </div>
+
+                <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-white">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {categories.map((category) => (
+                      <label
+                        key={category.en}
+                        className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={businessData.categories.some(
+                            (c) => c === category.en || c === category.ar
+                          )}
+                          disabled={!isEditing}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setBusinessData({
+                                ...businessData,
+                                categories: [...businessData.categories, category.en],
+                              });
+                            } else {
+                              setBusinessData({
+                                ...businessData,
+                                categories: businessData.categories.filter(
+                                  (c) => c !== category.en && c !== category.ar
+                                ),
+                              });
+                            }
+                          }}
+                          className="w-4 h-4 text-blue-400 border-gray-300 rounded focus:ring-blue-400"
+                        />
+                        <span className="text-sm text-gray-700">
+                          {isRTL ? category.ar : category.en}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                  {categories.length > 15 && (
+                    <div className="text-center py-2 text-xs text-gray-500 border-t mt-2">
+                      {isRTL 
+                        ? `${categories.length} فئة متاحة`
+                        : `${categories.length} categories available`
+                      }
+                    </div>
+                  )}
+                </div>
+
+                <div className="bg-white p-4 rounded-lg border border-blue-200 mt-4">
+                  <h4 className="font-medium text-gray-800 mb-3">
+                    Selected Categories
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {businessData.categories.map((category, index) => (
+                      <span
+                        key={index}
+                        className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium"
+                      >
+                        {category}
+                      </span>
+                    ))}
+                    {businessData.categories.length === 0 && (
+                      <span className="text-gray-500 text-sm">
+                        No categories selected
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
