@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/lib/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "react-toastify";
 
 interface Business {
   id: number;
@@ -24,6 +25,8 @@ interface Review {
   submissionDate: string;
   status: string;
   flagged: boolean;
+  customerProfileImage?: string;
+  businessProfileImage?: string;
 }
 
 interface DocumentVerification {
@@ -38,6 +41,7 @@ interface DocumentVerification {
   status: string;
   reviewer: string | null;
   notes: string | null;
+  documentLink?: string;
 }
 
 interface ReportedContent {
@@ -72,9 +76,15 @@ export default function ContentManagement() {
     DocumentVerification[]
   >([]);
   const [reportedContent, setReportedContent] = useState<ReportedContent[]>([]);
+  const [approvedToday, setApprovedToday] = useState<number>(0);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [showEditBusiness, setShowEditBusiness] = useState<boolean>(false);
   const [editingBusiness, setEditingBusiness] = useState<Business | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState<{
+    [key: string]: boolean;
+  }>({});
 
   useEffect(() => {
     // Skip all permission checks for super admin
@@ -127,6 +137,73 @@ export default function ContentManagement() {
     user?.role === "super_admin" ||
     hasPermission("content_management_supervise");
 
+  // Fetch ratings and documents data
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!canViewContent) return;
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const { apiService } = await import("../lib/api");
+
+        // Fetch ratings
+        const ratingsResponse = await apiService.getRatings("all");
+        const formattedRatings = ratingsResponse.data.map((rating: any) => ({
+          id: rating.id,
+          businessName:
+            rating.supplier?.profile?.business_name ||
+            rating.supplier?.name ||
+            "Unknown Business",
+          customerName:
+            rating.raterSupplier?.profile?.business_name ||
+            rating.raterSupplier?.name ||
+            "Anonymous",
+          rating: rating.score,
+          reviewText: rating.comment || "",
+          submissionDate: rating.createdAt,
+          status: rating.status,
+          flagged: rating.status === "flagged",
+          customerProfileImage: rating.raterSupplier?.profile_image,
+          businessProfileImage:
+            rating.supplier?.profile?.business_image ||
+            rating.supplier?.profile_image,
+        }));
+        setPendingReviews(formattedRatings);
+
+        // Fetch documents
+        const documentsResponse = await apiService.getDocuments("all");
+        const formattedDocuments = documentsResponse.data.map((doc: any) => ({
+          id: doc.id,
+          businessName: doc.business?.name || "Unknown Business",
+          ownerName: doc.business?.owner_name || "Unknown Owner",
+          documentType: doc.document_type || "Unknown",
+          crNumber: doc.cr_number || "",
+          uploadDate: doc.created_at,
+          issueDate: doc.issue_date || doc.created_at,
+          expiryDate: doc.expiry_date || "",
+          status: doc.status,
+          reviewer: doc.reviewer?.name || null,
+          notes: doc.notes || null,
+          documentLink: doc.document_link,
+        }));
+        setDocumentVerifications(formattedDocuments);
+
+        // Fetch approved today count
+        const approvedTodayResponse = await apiService.getApprovedToday();
+        setApprovedToday(approvedTodayResponse.approvedToday);
+      } catch (err) {
+        console.error("Failed to fetch data:", err);
+        setError("Failed to load data. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [canViewContent]);
+
   // Show access denied if permissions are false (skip for super admin)
   if (accessDenied && user?.role !== "super_admin") {
     return (
@@ -173,14 +250,124 @@ export default function ContentManagement() {
       ? businesses
       : businesses.filter((b) => b.status === filterStatus);
 
-  const handleBulkAction = (action: string): void => {
+  const filteredReviews =
+    filterStatus === "all"
+      ? pendingReviews
+      : pendingReviews.filter((r) => r.status === filterStatus);
+
+  // Helper function to refresh approved today count
+  const refreshApprovedToday = async () => {
+    try {
+      const { apiService } = await import("../lib/api");
+      const approvedTodayResponse = await apiService.getApprovedToday();
+      setApprovedToday(approvedTodayResponse.approvedToday);
+    } catch (error) {
+      console.error("Failed to refresh approved today count:", error);
+    }
+  };
+
+  const handleBulkAction = async (action: string): Promise<void> => {
     // Check permissions for delete actions
     if (action === "reject" || action === "delete") {
       if (!canDeleteContent && !canSuperviseContent) {
         return;
       }
     }
-    setSelectedItems([]);
+
+    if (selectedItems.length === 0) return;
+
+    try {
+      const { apiService } = await import("../lib/api");
+
+      if (action === "approve") {
+        // For bulk approval, we need to determine the type based on active tab
+        if (activeTab === "businesses") {
+          // Approve businesses
+          await Promise.all(
+            selectedItems.map((itemId) =>
+              apiService.updateSupplier(itemId, { status: "approved" })
+            )
+          );
+          
+          // Update local state
+          setBusinesses((prev) =>
+            prev.map((b) =>
+              selectedItems.includes(b.id)
+                ? { ...b, status: "approved" }
+                : b
+            )
+          );
+        } else if (activeTab === "reviews") {
+          // Approve reviews
+          await Promise.all(
+            selectedItems.map((itemId) => apiService.approveRating(itemId))
+          );
+          
+          // Refresh reviews data
+          const ratingsResponse = await apiService.getRatings("all");
+          const formattedRatings = ratingsResponse.data.map((rating: any) => ({
+            id: rating.id,
+            businessName:
+              rating.supplier?.profile?.business_name ||
+              rating.supplier?.name ||
+              "Unknown Business",
+            customerName:
+              rating.raterSupplier?.profile?.business_name ||
+              rating.raterSupplier?.name ||
+              "Anonymous",
+            rating: rating.score,
+            reviewText: rating.comment || "",
+            submissionDate: rating.createdAt,
+            status: rating.status,
+            flagged: rating.status === "flagged",
+            customerProfileImage: rating.raterSupplier?.profile_image,
+            businessProfileImage:
+              rating.supplier?.profile?.business_image ||
+              rating.supplier?.profile_image,
+          }));
+          setPendingReviews(formattedRatings);
+        } else if (activeTab === "documents") {
+          // Approve documents
+          await Promise.all(
+            selectedItems.map((itemId) => apiService.approveDocument(itemId))
+          );
+          
+          // Refresh documents data
+          const documentsResponse = await apiService.getDocuments("all");
+          const formattedDocuments = documentsResponse.data.map((doc: any) => ({
+            id: doc.id,
+            businessName: doc.business?.name || "Unknown Business",
+            ownerName: doc.business?.owner_name || "Unknown Owner",
+            documentType: doc.document_type || "Unknown",
+            crNumber: doc.cr_number || "",
+            uploadDate: doc.created_at,
+            issueDate: doc.issue_date || doc.created_at,
+            expiryDate: doc.expiry_date || "",
+            status: doc.status,
+            reviewer: doc.reviewer?.name || null,
+            notes: doc.notes || null,
+            documentLink: doc.document_link,
+          }));
+          setDocumentVerifications(formattedDocuments);
+        }
+
+        // Refresh approved today count for approve actions
+        await refreshApprovedToday();
+        
+        toast.success(
+          t("contentManagement.notifications.bulkApproved").replace("{count}", selectedItems.length.toString())
+        );
+      } else if (action === "reject") {
+        // Handle bulk reject if needed
+        // Implementation depends on what reject should do for each type
+        toast.info("Bulk reject action not implemented yet");
+      }
+
+      setSelectedItems([]);
+    } catch (error) {
+      console.error(`Failed to perform bulk ${action}:`, error);
+      toast.error(t("contentManagement.notifications.bulkActionError"));
+    }
   };
 
   const getStatusColor = (status: string): string => {
@@ -215,30 +402,162 @@ export default function ContentManagement() {
     }
   };
 
-  const handleReviewAction = (action: string, reviewId: number): void => {
+  const handleReviewAction = async (
+    action: string,
+    reviewId: number
+  ): Promise<void> => {
     // Check permissions for delete actions
     if (action === "reject" || action === "delete") {
       if (!canDeleteContent && !canSuperviseContent) {
         return;
       }
     }
-    setPendingReviews((prev) =>
-      prev.filter((review) => review.id !== reviewId)
-    );
+
+    const actionKey = `${action}-${reviewId}`;
+    setActionLoading((prev) => ({ ...prev, [actionKey]: true }));
+
+    try {
+      const { apiService } = await import("../lib/api");
+
+      switch (action) {
+        case "approve":
+          await apiService.approveRating(reviewId);
+          break;
+        case "reject":
+          await apiService.rejectRating(reviewId);
+          break;
+        case "flag":
+          await apiService.flagRating(reviewId);
+          break;
+        default:
+          return;
+      }
+
+      // Refresh data after action
+      const ratingsResponse = await apiService.getRatings("all");
+      const formattedRatings = ratingsResponse.data.map((rating: any) => ({
+        id: rating.id,
+        businessName:
+          rating.supplier?.profile?.business_name ||
+          rating.supplier?.name ||
+          "Unknown Business",
+        customerName:
+          rating.raterSupplier?.profile?.business_name ||
+          rating.raterSupplier?.name ||
+          "Anonymous",
+        rating: rating.score,
+        reviewText: rating.comment || "",
+        submissionDate: rating.createdAt,
+        status: rating.status,
+        flagged: rating.status === "flagged",
+        customerProfileImage: rating.raterSupplier?.profile_image,
+        businessProfileImage:
+          rating.supplier?.profile?.business_image ||
+          rating.supplier?.profile_image,
+      }));
+      setPendingReviews(formattedRatings);
+
+      // Refresh approved today count if action was approve
+      if (action === "approve") {
+        await refreshApprovedToday();
+      }
+
+      // Show success toast based on action
+      const actionMessages = {
+        approve: t("contentManagement.notifications.reviewApproved"),
+        reject: t("contentManagement.notifications.reviewRejected"),
+        flag: t("contentManagement.notifications.reviewFlagged"),
+      };
+
+      toast.success(
+        actionMessages[action as keyof typeof actionMessages] ||
+          t("contentManagement.notifications.reviewActionCompleted")
+      );
+    } catch (error) {
+      console.error(`Failed to ${action} review:`, error);
+      setError(`Failed to ${action} review. Please try again.`);
+    } finally {
+      setActionLoading((prev) => ({ ...prev, [actionKey]: false }));
+    }
   };
 
-  const handleDocumentAction = (action: string, docId: number): void => {
+  const handleDocumentAction = async (
+    action: string,
+    docId: number
+  ): Promise<void> => {
     // Check permissions for delete actions
     if (action === "reject" || action === "delete") {
       if (!canDeleteContent && !canSuperviseContent) {
         return;
       }
     }
-    if (action === "view") {
-    } else {
-      setDocumentVerifications((prev) =>
-        prev.filter((doc) => doc.id !== docId)
+
+    const actionKey = `doc-${action}-${docId}`;
+    setActionLoading((prev) => ({ ...prev, [actionKey]: true }));
+
+    try {
+      const { apiService } = await import("../lib/api");
+
+      switch (action) {
+        case "approve":
+          await apiService.approveDocument(docId);
+          break;
+        case "reject":
+          await apiService.rejectDocument(docId);
+          break;
+        case "view":
+          // Handle view action - open document link
+          const document = documentVerifications.find(
+            (doc) => doc.id === docId
+          );
+          if (document?.documentLink) {
+            window.open(document.documentLink, "_blank");
+          }
+          setActionLoading((prev) => ({ ...prev, [actionKey]: false }));
+          return;
+        default:
+          setActionLoading((prev) => ({ ...prev, [actionKey]: false }));
+          return;
+      }
+
+      // Refresh data after action
+      const documentsResponse = await apiService.getDocuments("all");
+      const formattedDocuments = documentsResponse.data.map((doc: any) => ({
+        id: doc.id,
+        businessName: doc.business?.name || "Unknown Business",
+        ownerName: doc.business?.owner_name || "Unknown Owner",
+        documentType: doc.document_type || "Unknown",
+        crNumber: doc.cr_number || "",
+        uploadDate: doc.created_at,
+        issueDate: doc.issue_date || doc.created_at,
+        expiryDate: doc.expiry_date || "",
+        status: doc.status,
+        reviewer: doc.reviewer?.name || null,
+        notes: doc.notes || null,
+        documentLink: doc.document_link,
+      }));
+      setDocumentVerifications(formattedDocuments);
+
+      // Refresh approved today count if action was approve
+      if (action === "approve") {
+        await refreshApprovedToday();
+      }
+
+      // Show success toast based on action
+      const actionMessages = {
+        approve: t("contentManagement.notifications.documentApproved"),
+        reject: t("contentManagement.notifications.documentRejected"),
+      };
+
+      toast.success(
+        actionMessages[action as keyof typeof actionMessages] ||
+          t("contentManagement.notifications.documentActionCompleted")
       );
+    } catch (error) {
+      console.error(`Failed to ${action} document:`, error);
+      setError(`Failed to ${action} document. Please try again.`);
+    } finally {
+      setActionLoading((prev) => ({ ...prev, [actionKey]: false }));
     }
   };
 
@@ -260,17 +579,41 @@ export default function ContentManagement() {
 
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-center space-x-2">
+            <i className="ri-alert-line text-red-600"></i>
+            <span className="text-red-800 font-medium">{error}</span>
+            <button
+              onClick={() => setError(null)}
+              className="ml-auto text-red-600 hover:text-red-800"
+            >
+              <i className="ri-close-line"></i>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Loading Indicator */}
+      {loading && (
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
+          <span className="ml-3 text-gray-600">Loading data...</span>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
           {t("contentManagement.title")}
         </h2>
         <div className="flex flex-col sm:flex-row gap-3">
-          {selectedItems.length > 0 && (
+          {selectedItems.length > 0 && canSuperviseContent && (
             <div className="flex gap-2">
               <button
                 onClick={() => handleBulkAction("approve")}
-                className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 font-medium text-sm whitespace-nowrap cursor-pointer"
+                className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2.5 rounded-lg hover:from-green-600 hover:to-emerald-700 font-medium text-sm whitespace-nowrap cursor-pointer transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
               >
                 <i className="ri-check-line mr-2"></i>
                 {t("contentManagement.buttons.approve")} ({selectedItems.length}
@@ -278,52 +621,30 @@ export default function ContentManagement() {
               </button>
               <button
                 onClick={() => handleBulkAction("reject")}
-                disabled={!canDeleteContent && !canSuperviseContent}
-                className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap ${
-                  !canDeleteContent && !canSuperviseContent
-                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    : "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
-                }`}
+                className="bg-gradient-to-r from-red-500 to-rose-600 text-white px-4 py-2.5 rounded-lg hover:from-red-600 hover:to-rose-700 font-medium text-sm whitespace-nowrap cursor-pointer transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
               >
                 <i className="ri-close-line mr-2"></i>
                 {t("contentManagement.buttons.reject")} ({selectedItems.length})
               </button>
             </div>
           )}
-          <button
-            onClick={() => {
-              /* export logic */
-            }}
-            disabled={!canSuperviseContent}
-            className={`px-4 sm:px-6 py-2 rounded-lg font-medium text-sm whitespace-nowrap ${
-              !canSuperviseContent
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
-            }`}
-          >
-            <i className="ri-download-line mr-2"></i>
-            {t("contentManagement.buttons.exportReport")}
-          </button>
+          {canSuperviseContent && (
+            <button
+              onClick={() => {
+                /* export logic */
+              }}
+              className="px-4 sm:px-6 py-2 rounded-lg font-medium text-sm whitespace-nowrap bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
+            >
+              <i className="ri-download-line mr-2"></i>
+              {t("contentManagement.buttons.exportReport")}
+            </button>
+          )}
         </div>
       </div>
 
       {/* Content Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
-        <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
-          <div className="flex items-center space-x-2 sm:space-x-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-              <i className="ri-store-line text-blue-600 text-lg sm:text-xl"></i>
-            </div>
-            <div className="min-w-0">
-              <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800">
-                {businessListings.length}
-              </h3>
-              <p className="text-gray-600 text-xs sm:text-sm">
-                {t("contentManagement.stats.totalBusinesses")}
-              </p>
-            </div>
-          </div>
-        </div>
+        
 
         <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
           <div className="flex items-center space-x-2 sm:space-x-3">
@@ -380,7 +701,7 @@ export default function ContentManagement() {
             </div>
             <div className="min-w-0">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800">
-                {businessListings.filter((b) => b.status === "approved").length}
+                {approvedToday}
               </h3>
               <p className="text-gray-600 text-xs sm:text-sm">
                 {t("contentManagement.stats.approvedToday")}
@@ -569,68 +890,86 @@ export default function ContentManagement() {
                             >
                               <i className="ri-eye-line text-sm sm:text-base"></i>
                             </button>
-                            <button
-                              onClick={() => {
-                                setEditingBusiness(business);
-                                setShowEditBusiness(true);
-                              }}
-                              className="text-indigo-600 hover:text-indigo-700 cursor-pointer"
-                              title={t("contentManagement.actions.edit")}
-                            >
-                              <i className="ri-edit-line text-sm sm:text-base"></i>
-                            </button>
-                            <button
-                              onClick={() => {
-                                setBusinesses((prev) =>
-                                  prev.map((b) =>
-                                    b.id === business.id
-                                      ? { ...b, status: "approved" }
-                                      : b
-                                  )
-                                );
-                              }}
-                              className="text-green-600 hover:text-green-700 cursor-pointer"
-                              title={t("contentManagement.actions.approve")}
-                            >
-                              <i className="ri-check-line text-sm sm:text-base"></i>
-                            </button>
-                            <button
-                              onClick={() => {
-                                setBusinesses((prev) =>
-                                  prev.map((b) =>
-                                    b.id === business.id
-                                      ? { ...b, status: "flagged" }
-                                      : b
-                                  )
-                                );
-                              }}
-                              className="text-yellow-600 hover:text-yellow-700 cursor-pointer"
-                              title={t("contentManagement.actions.flag")}
-                            >
-                              <i className="ri-flag-line text-sm sm:text-base"></i>
-                            </button>
-                            <button
-                              onClick={() => {
-                                if (
-                                  !confirm(
-                                    t(
-                                      "contentManagement.messages.deleteConfirm"
+                            {canSuperviseContent && (
+                              <>
+                                <button
+                                  onClick={() => {
+                                    setEditingBusiness(business);
+                                    setShowEditBusiness(true);
+                                  }}
+                                  className="text-indigo-600 hover:text-indigo-700 cursor-pointer"
+                                  title={t("contentManagement.actions.edit")}
+                                >
+                                  <i className="ri-edit-line text-sm sm:text-base"></i>
+                                </button>
+                                <button
+                                  onClick={async () => {
+                                    try {
+                                      const { apiService } = await import("../lib/api");
+                                      await apiService.updateSupplier(business.id, { status: "approved" });
+                                      
+                                      // Update local state
+                                      setBusinesses((prev) =>
+                                        prev.map((b) =>
+                                          b.id === business.id
+                                            ? { ...b, status: "approved" }
+                                            : b
+                                        )
+                                      );
+                                      
+                                      // Refresh approved today count
+                                      await refreshApprovedToday();
+                                      
+                                      toast.success(t("contentManagement.notifications.businessApproved"));
+                                    } catch (error) {
+                                      console.error("Failed to approve business:", error);
+                                      toast.error(t("contentManagement.notifications.businessActionError"));
+                                    }
+                                  }}
+                                  className="text-green-600 hover:text-green-700 cursor-pointer"
+                                  title={t("contentManagement.actions.approve")}
+                                >
+                                  <i className="ri-check-line text-sm sm:text-base"></i>
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setBusinesses((prev) =>
+                                      prev.map((b) =>
+                                        b.id === business.id
+                                          ? { ...b, status: "flagged" }
+                                          : b
+                                      )
+                                    );
+                                  }}
+                                  className="text-yellow-600 hover:text-yellow-700 cursor-pointer"
+                                  title={t("contentManagement.actions.flag")}
+                                >
+                                  <i className="ri-flag-line text-sm sm:text-base"></i>
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    if (
+                                      !confirm(
+                                        t(
+                                          "contentManagement.messages.deleteConfirm"
+                                        )
+                                      )
                                     )
-                                  )
-                                )
-                                  return;
-                                setBusinesses((prev) =>
-                                  prev.filter((b) => b.id !== business.id)
-                                );
-                                setSelectedItems((prev) =>
-                                  prev.filter((id) => id !== business.id)
-                                );
-                              }}
-                              className="text-red-600 hover:text-red-700 cursor-pointer"
-                              title={t("contentManagement.actions.delete")}
-                            >
-                              <i className="ri-delete-bin-line text-sm sm:text-base"></i>
-                            </button>
+                                      return;
+                                    setBusinesses((prev) =>
+                                      prev.filter((b) => b.id !== business.id)
+                                    );
+                                    setSelectedItems((prev) =>
+                                      prev.filter((id) => id !== business.id)
+                                    );
+                                  }}
+                                  className="text-red-600 hover:text-red-700 cursor-pointer"
+                                  title={t("contentManagement.actions.delete")}
+                                >
+                                  <i className="ri-delete-bin-line text-sm sm:text-base"></i>
+                                </button>
+                              </>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -655,13 +994,13 @@ export default function ContentManagement() {
                 </div>
                 <div className="flex items-center space-x-4">
                   <span className="text-xs sm:text-sm text-gray-600">
-                    {pendingReviews.filter((r) => r.flagged).length}{" "}
+                    {filteredReviews.filter((r) => r.flagged).length}{" "}
                     {t("contentManagement.reviews.flagged")}
                   </span>
                 </div>
               </div>
 
-              {pendingReviews.map((review) => (
+              {filteredReviews.map((review) => (
                 <div
                   key={review.id}
                   className={`border rounded-lg p-4 sm:p-6 ${
@@ -673,8 +1012,18 @@ export default function ContentManagement() {
                   <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start space-x-3 mb-4">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <i className="ri-star-line text-orange-600 text-lg sm:text-xl"></i>
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                          {review.businessProfileImage ? (
+                            <img
+                              src={review.businessProfileImage}
+                              alt={review.businessName}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-orange-100 flex items-center justify-center">
+                              <i className="ri-store-line text-orange-600 text-lg sm:text-xl"></i>
+                            </div>
+                          )}
                         </div>
                         <div className="min-w-0 flex-1">
                           <h4 className="font-semibold text-gray-800 text-sm sm:text-base truncate">
@@ -721,9 +1070,11 @@ export default function ContentManagement() {
                             {t("contentManagement.reviews.submissionDate")}:
                           </span>
                           <p className="text-gray-600 text-sm">
-                            {new Date(
-                              review.submissionDate
-                            ).toLocaleDateString()}
+                            {review.submissionDate
+                              ? new Date(
+                                  review.submissionDate
+                                ).toLocaleDateString()
+                              : "N/A"}
                           </p>
                         </div>
                         <div>
@@ -744,59 +1095,64 @@ export default function ContentManagement() {
                           {review.reviewText}
                         </p>
                       </div>
-
-                      {review.flagged && (
-                        <div className="bg-red-100 border border-red-200 rounded-lg p-3 mb-4">
-                          <div className="flex items-center space-x-2">
-                            <i className="ri-alert-line text-red-600"></i>
-                            <span className="font-medium text-red-800 text-sm">
-                              {t("contentManagement.reviews.flaggedTitle")}
-                            </span>
-                          </div>
-                          <p className="text-xs sm:text-sm text-red-700 mt-1">
-                            {t("contentManagement.reviews.flaggedDescription")}
-                          </p>
-                        </div>
-                      )}
                     </div>
 
                     <div className="flex flex-col space-y-2 lg:ml-4 lg:w-auto w-full">
                       <button
                         onClick={() => setSelectedReview(review)}
-                        className="bg-blue-500 text-white px-3 sm:px-4 py-2 rounded hover:bg-blue-600 text-xs sm:text-sm cursor-pointer whitespace-nowrap"
+                        className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2.5 rounded-lg hover:from-blue-600 hover:to-blue-700 text-xs sm:text-sm font-medium cursor-pointer whitespace-nowrap transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                       >
                         <i className="ri-eye-line mr-2"></i>
                         {t("contentManagement.actions.viewDetails")}
                       </button>
-                      <button
-                        onClick={() => handleReviewAction("approve", review.id)}
-                        className="bg-green-500 text-white px-3 sm:px-4 py-2 rounded hover:bg-green-600 text-xs sm:text-sm cursor-pointer whitespace-nowrap"
-                      >
-                        <i className="ri-check-line mr-2"></i>
-                        {t("contentManagement.actions.approve")}
-                      </button>
-                      <button
-                        onClick={() => handleReviewAction("reject", review.id)}
-                        className="bg-red-500 text-white px-3 sm:px-4 py-2 rounded hover:bg-red-600 text-xs sm:text-sm cursor-pointer whitespace-nowrap"
-                      >
-                        <i className="ri-close-line mr-2"></i>
-                        {t("contentManagement.actions.reject")}
-                      </button>
-                      {!review.flagged && (
-                        <button
-                          onClick={() => handleReviewAction("flag", review.id)}
-                          className="bg-orange-500 text-white px-3 sm:px-4 py-2 rounded hover:bg-orange-600 text-xs sm:text-sm cursor-pointer whitespace-nowrap"
-                        >
-                          <i className="ri-flag-line mr-2"></i>
-                          {t("contentManagement.actions.flag")}
-                        </button>
+                      {canSuperviseContent && (
+                        <>
+                          <button
+                            onClick={() => handleReviewAction("approve", review.id)}
+                            disabled={actionLoading[`approve-${review.id}`]}
+                            className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2.5 rounded-lg hover:from-green-600 hover:to-emerald-700 text-xs sm:text-sm font-medium cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:transform-none disabled:shadow-sm"
+                          >
+                            {actionLoading[`approve-${review.id}`] ? (
+                              <i className="ri-loader-4-line animate-spin mr-2"></i>
+                            ) : (
+                              <i className="ri-check-line mr-2"></i>
+                            )}
+                            {t("contentManagement.actions.approve")}
+                          </button>
+                          <button
+                            onClick={() => handleReviewAction("reject", review.id)}
+                            disabled={actionLoading[`reject-${review.id}`]}
+                            className="bg-gradient-to-r from-red-500 to-rose-600 text-white px-4 py-2.5 rounded-lg hover:from-red-600 hover:to-rose-700 text-xs sm:text-sm font-medium cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:transform-none disabled:shadow-sm"
+                          >
+                            {actionLoading[`reject-${review.id}`] ? (
+                              <i className="ri-loader-4-line animate-spin mr-2"></i>
+                            ) : (
+                              <i className="ri-close-line mr-2"></i>
+                            )}
+                            {t("contentManagement.actions.reject")}
+                          </button>
+                          {!review.flagged && (
+                            <button
+                              onClick={() => handleReviewAction("flag", review.id)}
+                              disabled={actionLoading[`flag-${review.id}`]}
+                              className="bg-gradient-to-r from-amber-500 to-orange-600 text-white px-4 py-2.5 rounded-lg hover:from-amber-600 hover:to-orange-700 text-xs sm:text-sm font-medium cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:transform-none disabled:shadow-sm"
+                            >
+                              {actionLoading[`flag-${review.id}`] ? (
+                                <i className="ri-loader-4-line animate-spin mr-2"></i>
+                              ) : (
+                                <i className="ri-flag-line mr-2"></i>
+                              )}
+                              {t("contentManagement.actions.flag")}
+                            </button>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
                 </div>
               ))}
 
-              {pendingReviews.length === 0 && (
+              {filteredReviews.length === 0 && (
                 <div className="text-center py-8 sm:py-12 text-gray-500">
                   <i className="ri-star-line text-3xl sm:text-4xl mb-3 sm:mb-4"></i>
                   <p className="text-sm sm:text-base">
@@ -842,98 +1198,53 @@ export default function ContentManagement() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4">
                         <div>
                           <span className="font-medium text-gray-700 text-sm">
-                            {t("contentManagement.verification.documentType")}:
-                          </span>
-                          <p className="text-gray-600 text-sm">
-                            {doc.documentType}
-                          </p>
-                        </div>
-                        <div>
-                          <span className="font-medium text-gray-700 text-sm">
-                            {t("contentManagement.verification.crNumber")}:
-                          </span>
-                          <p className="text-gray-600 text-sm">
-                            {doc.crNumber}
-                          </p>
-                        </div>
-                        <div>
-                          <span className="font-medium text-gray-700 text-sm">
                             {t("contentManagement.verification.uploadDate")}:
                           </span>
                           <p className="text-gray-600 text-sm">
                             {new Date(doc.uploadDate).toLocaleDateString()}
                           </p>
                         </div>
-                        <div>
-                          <span className="font-medium text-gray-700 text-sm">
-                            {t("contentManagement.verification.issueDate")}:
-                          </span>
-                          <p className="text-gray-600 text-sm">
-                            {new Date(doc.issueDate).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <div>
-                          <span className="font-medium text-gray-700 text-sm">
-                            {t("contentManagement.verification.expiryDate")}:
-                          </span>
-                          <p className="text-gray-600 text-sm">
-                            {new Date(doc.expiryDate).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <div>
-                          <span className="font-medium text-gray-700 text-sm">
-                            {t("contentManagement.verification.reviewer")}:
-                          </span>
-                          <p className="text-gray-600 text-sm">
-                            {doc.reviewer ||
-                              t("contentManagement.verification.notAssigned")}
-                          </p>
-                        </div>
                       </div>
-
-                      {doc.notes && (
-                        <div className="bg-white p-3 rounded border border-yellow-200 mb-4">
-                          <span className="font-medium text-gray-700 text-sm">
-                            {t("contentManagement.verification.reviewNotes")}:
-                          </span>
-                          <p className="text-gray-600 mt-1 text-sm">
-                            {doc.notes}
-                          </p>
-                        </div>
-                      )}
                     </div>
 
                     <div className="flex flex-col space-y-2 lg:ml-4 lg:w-auto w-full">
                       <button
                         onClick={() => handleDocumentAction("view", doc.id)}
-                        className="bg-blue-500 text-white px-3 sm:px-4 py-2 rounded hover:bg-blue-600 text-xs sm:text-sm cursor-pointer whitespace-nowrap"
+                        disabled={actionLoading[`doc-view-${doc.id}`]}
+                        className="text-blue-600 p-2.5 rounded-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:-translate-y-0.5 disabled:transform-none "
                       >
-                        <i className="ri-eye-line mr-2"></i>
-                        {t("contentManagement.actions.viewDocument")}
+                        {actionLoading[`doc-view-${doc.id}`] ? (
+                          <i className="ri-loader-4-line animate-spin text-lg"></i>
+                        ) : (
+                          <i className="ri-eye-line text-lg"></i>
+                        )}
                       </button>
-                      <button
-                        onClick={() => handleDocumentAction("approve", doc.id)}
-                        className="bg-green-500 text-white px-3 sm:px-4 py-2 rounded hover:bg-green-600 text-xs sm:text-sm cursor-pointer whitespace-nowrap"
-                      >
-                        <i className="ri-check-line mr-2"></i>
-                        {t("contentManagement.actions.approve")}
-                      </button>
-                      <button
-                        onClick={() => handleDocumentAction("reject", doc.id)}
-                        className="bg-red-500 text-white px-3 sm:px-4 py-2 rounded hover:bg-red-600 text-xs sm:text-sm cursor-pointer whitespace-nowrap"
-                      >
-                        <i className="ri-close-line mr-2"></i>
-                        {t("contentManagement.actions.reject")}
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleDocumentAction("request_resubmit", doc.id)
-                        }
-                        className="bg-orange-500 text-white px-3 sm:px-4 py-2 rounded hover:bg-orange-600 text-xs sm:text-sm cursor-pointer whitespace-nowrap"
-                      >
-                        <i className="ri-refresh-line mr-2"></i>
-                        {t("contentManagement.actions.requestResubmit")}
-                      </button>
+                      {canSuperviseContent && (
+                        <>
+                          <button
+                            onClick={() => handleDocumentAction("approve", doc.id)}
+                            disabled={actionLoading[`doc-approve-${doc.id}`]}
+                            className="text-green-600 p-2.5 rounded-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:-translate-y-0.5 disabled:transform-none "
+                          >
+                            {actionLoading[`doc-approve-${doc.id}`] ? (
+                              <i className="ri-loader-4-line animate-spin text-lg"></i>
+                            ) : (
+                              <i className="ri-check-line text-lg"></i>
+                            )}
+                          </button>
+                          <button
+                            onClick={() => handleDocumentAction("reject", doc.id)}
+                            disabled={actionLoading[`doc-reject-${doc.id}`]}
+                            className="text-red-600 p-2.5 rounded-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:-translate-y-0.5 disabled:transform-none "
+                          >
+                            {actionLoading[`doc-reject-${doc.id}`] ? (
+                              <i className="ri-loader-4-line animate-spin text-lg"></i>
+                            ) : (
+                              <i className="ri-close-line text-lg"></i>
+                            )}
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1008,22 +1319,26 @@ export default function ContentManagement() {
                       </div>
                     </div>
                     <div className="flex items-center space-x-2 lg:ml-4 lg:flex-col lg:space-x-0 lg:space-y-2 w-full lg:w-auto">
-                      <button
-                        onClick={() =>
-                          handleContentAction("approve", report.id, "report")
-                        }
-                        className="bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600 text-xs sm:text-sm cursor-pointer w-full lg:w-auto"
-                      >
-                        {t("contentManagement.actions.approve")}
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleContentAction("takedown", report.id, "report")
-                        }
-                        className="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 text-xs sm:text-sm cursor-pointer w-full lg:w-auto"
-                      >
-                        {t("contentManagement.actions.takeDown")}
-                      </button>
+                      {canSuperviseContent && (
+                        <>
+                          <button
+                            onClick={() =>
+                              handleContentAction("approve", report.id, "report")
+                            }
+                            className="bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600 text-xs sm:text-sm cursor-pointer w-full lg:w-auto"
+                          >
+                            {t("contentManagement.actions.approve")}
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleContentAction("takedown", report.id, "report")
+                            }
+                            className="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 text-xs sm:text-sm cursor-pointer w-full lg:w-auto"
+                          >
+                            {t("contentManagement.actions.takeDown")}
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1067,17 +1382,47 @@ export default function ContentManagement() {
                   <label className="text-sm font-medium text-gray-700">
                     {t("contentManagement.reviewModal.business")}
                   </label>
-                  <p className="text-gray-800 text-sm sm:text-base">
-                    {selectedReview.businessName}
-                  </p>
+                  <div className="flex items-center space-x-3 mt-1">
+                    <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                      {selectedReview.businessProfileImage ? (
+                        <img
+                          src={selectedReview.businessProfileImage}
+                          alt={selectedReview.businessName}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                          <i className="ri-store-line text-gray-400 text-lg"></i>
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-gray-800 text-sm sm:text-base">
+                      {selectedReview.businessName}
+                    </p>
+                  </div>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-700">
                     {t("contentManagement.reviewModal.submittedBy")}
                   </label>
-                  <p className="text-gray-800 text-sm sm:text-base">
-                    {selectedReview.customerName}
-                  </p>
+                  <div className="flex items-center space-x-3 mt-1">
+                    <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                      {selectedReview.customerProfileImage ? (
+                        <img
+                          src={selectedReview.customerProfileImage}
+                          alt={selectedReview.customerName}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                          <i className="ri-user-line text-gray-400 text-lg"></i>
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-gray-800 text-sm sm:text-base">
+                      {selectedReview.customerName}
+                    </p>
+                  </div>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-700">
@@ -1106,9 +1451,11 @@ export default function ContentManagement() {
                     {t("contentManagement.reviewModal.submissionDate")}
                   </label>
                   <p className="text-gray-800 text-sm sm:text-base">
-                    {new Date(
-                      selectedReview.submissionDate
-                    ).toLocaleDateString()}
+                    {selectedReview?.submissionDate
+                      ? new Date(
+                          selectedReview.submissionDate
+                        ).toLocaleDateString()
+                      : "N/A"}
                   </p>
                 </div>
               </div>
@@ -1177,7 +1524,7 @@ export default function ContentManagement() {
                     handleReviewAction("reject", selectedReview.id);
                     setSelectedReview(null);
                   }}
-                  className="px-4 sm:px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-medium text-sm cursor-pointer w-full sm:w-auto order-3 sm:order-2"
+                  className="px-4 sm:px-6 py-2.5 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-lg hover:from-red-600 hover:to-rose-700 font-medium text-sm cursor-pointer w-full sm:w-auto order-3 sm:order-2 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                 >
                   <i className="ri-close-line mr-2"></i>
                   {t("contentManagement.actions.rejectReview")}
@@ -1187,7 +1534,7 @@ export default function ContentManagement() {
                     handleReviewAction("approve", selectedReview.id);
                     setSelectedReview(null);
                   }}
-                  className="px-4 sm:px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 font-medium text-sm cursor-pointer w-full sm:w-auto order-1 sm:order-3"
+                  className="px-4 sm:px-6 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 font-medium text-sm cursor-pointer w-full sm:w-auto order-1 sm:order-3 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                 >
                   <i className="ri-check-line mr-2"></i>
                   {t("contentManagement.actions.approveReview")}

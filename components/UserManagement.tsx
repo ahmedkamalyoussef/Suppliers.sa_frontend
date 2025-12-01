@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useLanguage } from "../lib/LanguageContext";
 import { useAuth } from "../hooks/useAuth";
 import { apiService } from "../lib/api";
+import { toast } from "react-toastify";
 import {
   Supplier,
   SuppliersListResponse,
@@ -243,6 +244,7 @@ export default function UserManagement() {
         };
 
         await apiService.updateSupplier(editingUser.id, updateData);
+        toast.success(t("userManagement.notifications.userUpdated"));
       } else {
         // Create new supplier
         const createData: CreateSupplierRequest = {
@@ -255,6 +257,7 @@ export default function UserManagement() {
         };
 
         await apiService.createSupplier(createData);
+        toast.success(t("userManagement.notifications.userCreated"));
       }
 
       // Refresh the suppliers list
@@ -263,6 +266,7 @@ export default function UserManagement() {
       setEditingUser(null);
     } catch (error) {
       console.error("Failed to save supplier:", error);
+      toast.error(t("userManagement.notifications.saveError"));
     }
   };
 
@@ -273,8 +277,10 @@ export default function UserManagement() {
         plan: filterPlan === "all" ? undefined : filterPlan,
         search: searchTerm || undefined,
       });
+      toast.success(t("userManagement.notifications.exportSuccess"));
     } catch (error) {
       console.error("Failed to export suppliers:", error);
+      toast.error(t("userManagement.notifications.exportError"));
     }
   };
 
@@ -334,6 +340,11 @@ export default function UserManagement() {
           target.status === "suspended" ? "active" : "suspended";
         await apiService.updateSupplier(userId, { status: newStatus });
         await fetchSuppliers();
+        
+        const message = newStatus === "suspended" 
+          ? t("userManagement.notifications.userSuspended")
+          : t("userManagement.notifications.userActivated");
+        toast.success(message);
       } else if (action === "delete") {
         // Add confirmation for single delete
         if (
@@ -345,9 +356,11 @@ export default function UserManagement() {
         }
         await apiService.deleteSupplier(userId);
         await fetchSuppliers();
+        toast.success(t("userManagement.notifications.userDeleted"));
       }
     } catch (error) {
       console.error(`Failed to ${action} supplier:`, error);
+      toast.error(t("userManagement.notifications.actionError"));
     }
   };
 
@@ -370,6 +383,7 @@ export default function UserManagement() {
         await Promise.all(
           selectedUsers.map((userId) => apiService.deleteSupplier(userId))
         );
+        toast.success(t("userManagement.notifications.usersDeleted").replace("{count}", selectedUsers.length.toString()));
       } else if (action === "suspend") {
         // Suspend suppliers one by one
         await Promise.all(
@@ -377,12 +391,14 @@ export default function UserManagement() {
             apiService.updateSupplier(userId, { status: "suspended" })
           )
         );
+        toast.success(t("userManagement.notifications.usersSuspended").replace("{count}", selectedUsers.length.toString()));
       }
 
       setSelectedUsers([]);
       await fetchSuppliers();
     } catch (error) {
       console.error(`Failed to ${action} suppliers:`, error);
+      toast.error(t("userManagement.notifications.bulkActionError"));
     }
   };
 

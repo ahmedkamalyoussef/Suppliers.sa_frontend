@@ -26,6 +26,8 @@ import { TopRatedSuppliersResponse } from "./types/topRatedSuppliers";
 import { AdminDashboardResponse } from "./types/adminDashboard";
 import { AnalyticsResponse } from "./types/analytics";
 import { SystemSettings, SystemSettingsResponse, UpdateSystemSettingsRequest, UpdateSystemSettingsResponse } from "./types/systemSettings";
+import { RatingsResponse, RatingActionResponse } from "./types/ratings";
+import { DocumentsResponse, DocumentActionResponse } from "./types/documents";
 
 const API_BASE_URL = "http://localhost:8000";
 
@@ -1787,6 +1789,105 @@ class ApiService {
       // Return default values on error
       return { success: false, maintenance_mode: false };
     }
+  }
+
+  // =====================================
+  // Ratings API
+  // =====================================
+  async getRatings(status: string = "all", page: number = 1, perPage: number = 15): Promise<RatingsResponse> {
+    const params = new URLSearchParams({
+      status,
+      page: page.toString(),
+      per_page: perPage.toString(),
+    });
+    
+    return this.request<RatingsResponse>(
+      `/api/admin/ratings?${params.toString()}`,
+      {
+        method: "GET",
+      },
+      true // Requires authentication
+    );
+  }
+
+  async approveRating(ratingId: number): Promise<RatingActionResponse> {
+    return this.request<RatingActionResponse>(
+      `/api/admin/ratings/${ratingId}/approve`,
+      {
+        method: "POST",
+      },
+      true // Requires authentication
+    );
+  }
+
+  async rejectRating(ratingId: number): Promise<RatingActionResponse> {
+    return this.request<RatingActionResponse>(
+      `/api/admin/ratings/${ratingId}/reject`,
+      {
+        method: "POST",
+      },
+      true // Requires authentication
+    );
+  }
+
+  async flagRating(ratingId: number): Promise<RatingActionResponse> {
+    return this.request<RatingActionResponse>(
+      `/api/admin/ratings/${ratingId}/flag`,
+      {
+        method: "POST",
+      },
+      true // Requires authentication
+    );
+  }
+
+  // =====================================
+  // Documents API
+  // =====================================
+  async getDocuments(status: string = "all", page: number = 1, perPage: number = 15): Promise<DocumentsResponse> {
+    const params = new URLSearchParams({
+      status,
+      page: page.toString(),
+      per_page: perPage.toString(),
+    });
+    
+    return this.request<DocumentsResponse>(
+      `/api/admin/documents?${params.toString()}`,
+      {
+        method: "GET",
+      },
+      true // Requires authentication
+    );
+  }
+
+  async approveDocument(documentId: number): Promise<DocumentActionResponse> {
+    return this.request<DocumentActionResponse>(
+      `/api/admin/documents/${documentId}/approve`,
+      {
+        method: "POST",
+      },
+      true // Requires authentication
+    );
+  }
+
+  async rejectDocument(documentId: number, reason?: string): Promise<DocumentActionResponse> {
+    return this.request<DocumentActionResponse>(
+      `/api/admin/documents/${documentId}/reject`,
+      {
+        method: "POST",
+        body: JSON.stringify({ reason }),
+      },
+      true // Requires authentication
+    );
+  }
+
+  async getApprovedToday(): Promise<{ approvedToday: number }> {
+    return this.request<{ approvedToday: number }>(
+      "/api/admin/content/approved-today",
+      {
+        method: "GET",
+      },
+      true // Requires authentication
+    );
   }
 
 }
