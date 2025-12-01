@@ -25,6 +25,7 @@ import {
 import { TopRatedSuppliersResponse } from "./types/topRatedSuppliers";
 import { AdminDashboardResponse } from "./types/adminDashboard";
 import { AnalyticsResponse } from "./types/analytics";
+import { SystemSettings, SystemSettingsResponse, UpdateSystemSettingsRequest, UpdateSystemSettingsResponse } from "./types/systemSettings";
 
 const API_BASE_URL = "http://localhost:8000";
 
@@ -1676,6 +1677,71 @@ class ApiService {
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
+  }
+
+  // Get system settings
+  async getSystemSettings(): Promise<SystemSettingsResponse> {
+    return this.request<SystemSettingsResponse>(
+      "/api/admin/system/settings",
+      {
+        method: "GET",
+      },
+      true // Requires authentication
+    );
+  }
+
+  // Update system settings
+  async updateSystemSettings(settings: UpdateSystemSettingsRequest): Promise<UpdateSystemSettingsResponse> {
+    return this.request<UpdateSystemSettingsResponse>(
+      "/api/admin/system/settings",
+      {
+        method: "PUT",
+        body: JSON.stringify(settings),
+      },
+      true // Requires authentication
+    );
+  }
+
+  // Restore system settings to default
+  async restoreSystemSettings(): Promise<{ success: boolean; message: string }> {
+    return this.request<{ success: boolean; message: string }>(
+      "/api/admin/system/settings/restore",
+      {
+        method: "POST",
+      },
+      true // Requires authentication
+    );
+  }
+
+  // Create system backup
+  async createSystemBackup(): Promise<{ 
+    success: boolean; 
+    message: string; 
+    backup?: {
+      filename: string;
+      path: string;
+      size: number;
+      created_at: string;
+      size_formatted: string;
+    };
+  }> {
+    return this.request<{ 
+      success: boolean; 
+      message: string; 
+      backup?: {
+        filename: string;
+        path: string;
+        size: number;
+        created_at: string;
+        size_formatted: string;
+      };
+    }>(
+      "/api/admin/system/backup",
+      {
+        method: "POST",
+      },
+      true // Requires authentication
+    );
   }
 
 }
