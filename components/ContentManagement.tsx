@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useLanguage } from "@/lib/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-toastify";
+import { AdminInquiry } from "@/lib/types";
 
 interface Business {
   id: number;
@@ -14,6 +15,7 @@ interface Business {
   crStatus: string;
   views: number;
   createdDate: string;
+  read: boolean;
 }
 
 interface Review {
@@ -69,6 +71,7 @@ export default function ContentManagement() {
   const [permissions, setPermissions] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<string>("businesses");
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterReadStatus, setFilterReadStatus] = useState<string>("false");
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [pendingReviews, setPendingReviews] = useState<Review[]>([]);
@@ -76,6 +79,11 @@ export default function ContentManagement() {
     DocumentVerification[]
   >([]);
   const [reportedContent, setReportedContent] = useState<ReportedContent[]>([]);
+  const [inquiries, setInquiries] = useState<AdminInquiry[]>([]);
+  const [selectedInquiry, setSelectedInquiry] = useState<AdminInquiry | null>(
+    null
+  );
+  const [showInquiryModal, setShowInquiryModal] = useState<boolean>(false);
   const [approvedToday, setApprovedToday] = useState<number>(0);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [showEditBusiness, setShowEditBusiness] = useState<boolean>(false);
@@ -204,6 +212,51 @@ export default function ContentManagement() {
     fetchData();
   }, [canViewContent]);
 
+  // Separate useEffect for inquiries that depends on filterReadStatus
+  useEffect(() => {
+    const fetchInquiries = async () => {
+      if (!canViewContent) return;
+
+      try {
+        const { apiService } = await import("../lib/api");
+
+        // Fetch inquiries with read status filter
+        const inquiriesResponse = await apiService.getInquiries();
+
+        // Try different ways to access the data
+        let inquiriesData: any[] = [];
+        if (inquiriesResponse) {
+          if (Array.isArray(inquiriesResponse)) {
+            inquiriesData = inquiriesResponse;
+          } else if (
+            (inquiriesResponse as any).inquiries &&
+            Array.isArray((inquiriesResponse as any).inquiries)
+          ) {
+            inquiriesData = (inquiriesResponse as any).inquiries;
+          } else if (
+            (inquiriesResponse as any).data &&
+            Array.isArray((inquiriesResponse as any).data)
+          ) {
+            inquiriesData = (inquiriesResponse as any).data;
+          }
+        }
+
+        // Filter based on read status
+        const filteredInquiries = inquiriesData.filter((inquiry) => {
+          return inquiry.is_read.toString() === filterReadStatus;
+        });
+
+        setInquiries(filteredInquiries);
+      } catch (err) {
+        console.error("Failed to fetch inquiries:", err);
+      }
+    };
+
+    // Only fetch when on inquiries tab
+    if (activeTab === "inquiries") {
+      fetchInquiries();
+    }
+  }, [canViewContent, filterReadStatus, activeTab]);
   // Show access denied if permissions are false (skip for super admin)
   if (accessDenied && user?.role !== "super_admin") {
     return (
@@ -238,6 +291,11 @@ export default function ContentManagement() {
       icon: "ri-shield-check-line",
     },
     {
+      id: "inquiries",
+      name: t("contentManagement.tabs.inquiries"),
+      icon: "ri-message-3-line",
+    },
+    {
       id: "reports",
       name: t("contentManagement.tabs.reports"),
       icon: "ri-flag-line",
@@ -245,10 +303,22 @@ export default function ContentManagement() {
   ];
 
   const businessListings = businesses;
-  const filteredBusinesses =
-    filterStatus === "all"
-      ? businesses
-      : businesses.filter((b) => b.status === filterStatus);
+  const filteredBusinesses = businesses.filter((b) => {
+    return b.read.toString() === filterReadStatus;
+  });
+
+  // Combine business data with inquiries data
+  const businessesWithInquiries = filteredBusinesses.map((business) => {
+    const businessInquiries = (inquiries || []).filter(
+      (inquiry) => inquiry.from === "supplier" && inquiry.sender_id !== null
+    );
+    return {
+      ...business,
+      inquiries: businessInquiries,
+      hasInquiries: businessInquiries.length > 0,
+      unreadInquiries: businessInquiries.filter((inq) => !inq.is_read).length,
+    };
+  });
 
   const filteredReviews =
     filterStatus === "all"
@@ -264,6 +334,48 @@ export default function ContentManagement() {
     } catch (error) {
       console.error("Failed to refresh approved today count:", error);
     }
+  };
+
+  // Handler for marking inquiry as read
+  const handleMarkAsRead = async (inquiryId: number) => {
+    try {
+      const { apiService } = await import("../lib/api");
+      await apiService.markAsRead({
+        type: "supplier_inquiry",
+        id: inquiryId,
+      });
+
+      // Refresh inquiries data
+      const inquiriesResponse = await apiService.getInquiries();
+      let inquiriesData: any[] = [];
+      if (inquiriesResponse) {
+        if (Array.isArray(inquiriesResponse)) {
+          inquiriesData = inquiriesResponse;
+        } else if (
+          (inquiriesResponse as any).inquiries &&
+          Array.isArray((inquiriesResponse as any).inquiries)
+        ) {
+          inquiriesData = (inquiriesResponse as any).inquiries;
+        } else if (
+          (inquiriesResponse as any).data &&
+          Array.isArray((inquiriesResponse as any).data)
+        ) {
+          inquiriesData = (inquiriesResponse as any).data;
+        }
+      }
+      setInquiries(inquiriesData);
+
+      toast.success("Inquiry marked as read successfully");
+    } catch (error) {
+      console.error("Failed to mark inquiry as read:", error);
+      toast.error("Failed to mark inquiry as read");
+    }
+  };
+
+  // Handler for viewing inquiry details
+  const handleViewInquiry = (inquiry: AdminInquiry) => {
+    setSelectedInquiry(inquiry);
+    setShowInquiryModal(true);
   };
 
   const handleBulkAction = async (action: string): Promise<void> => {
@@ -288,13 +400,11 @@ export default function ContentManagement() {
               apiService.updateSupplier(itemId, { status: "approved" })
             )
           );
-          
+
           // Update local state
           setBusinesses((prev) =>
             prev.map((b) =>
-              selectedItems.includes(b.id)
-                ? { ...b, status: "approved" }
-                : b
+              selectedItems.includes(b.id) ? { ...b, status: "approved" } : b
             )
           );
         } else if (activeTab === "reviews") {
@@ -302,7 +412,7 @@ export default function ContentManagement() {
           await Promise.all(
             selectedItems.map((itemId) => apiService.approveRating(itemId))
           );
-          
+
           // Refresh reviews data
           const ratingsResponse = await apiService.getRatings("all");
           const formattedRatings = ratingsResponse.data.map((rating: any) => ({
@@ -331,7 +441,7 @@ export default function ContentManagement() {
           await Promise.all(
             selectedItems.map((itemId) => apiService.approveDocument(itemId))
           );
-          
+
           // Refresh documents data
           const documentsResponse = await apiService.getDocuments("all");
           const formattedDocuments = documentsResponse.data.map((doc: any) => ({
@@ -353,9 +463,12 @@ export default function ContentManagement() {
 
         // Refresh approved today count for approve actions
         await refreshApprovedToday();
-        
+
         toast.success(
-          t("contentManagement.notifications.bulkApproved").replace("{count}", selectedItems.length.toString())
+          t("contentManagement.notifications.bulkApproved").replace(
+            "{count}",
+            selectedItems.length.toString()
+          )
         );
       } else if (action === "reject") {
         // Handle bulk reject if needed
@@ -644,8 +757,6 @@ export default function ContentManagement() {
 
       {/* Content Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
-        
-
         <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
           <div className="flex items-center space-x-2 sm:space-x-3">
             <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -743,21 +854,15 @@ export default function ContentManagement() {
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                 <select
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
+                  value={filterReadStatus}
+                  onChange={(e) => setFilterReadStatus(e.target.value)}
                   className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm w-full sm:w-auto"
                 >
-                  <option value="all">
-                    {t("contentManagement.filters.allStatus")}
+                  <option value="true">
+                    {t("contentManagement.filters.read")}
                   </option>
-                  <option value="approved">
-                    {t("contentManagement.filters.approved")}
-                  </option>
-                  <option value="pending_verification">
-                    {t("contentManagement.filters.pendingVerification")}
-                  </option>
-                  <option value="flagged">
-                    {t("contentManagement.filters.flagged")}
+                  <option value="false">
+                    {t("contentManagement.filters.unread")}
                   </option>
                 </select>
               </div>
@@ -773,7 +878,7 @@ export default function ContentManagement() {
                           onChange={(e) => {
                             if (e.target.checked) {
                               setSelectedItems(
-                                filteredBusinesses.map((b) => b.id)
+                                businessesWithInquiries.map((b) => b.id)
                               );
                             } else {
                               setSelectedItems([]);
@@ -781,8 +886,8 @@ export default function ContentManagement() {
                           }}
                           checked={
                             selectedItems.length ===
-                              filteredBusinesses.length &&
-                            filteredBusinesses.length > 0
+                              businessesWithInquiries.length &&
+                            businessesWithInquiries.length > 0
                           }
                         />
                       </th>
@@ -799,10 +904,10 @@ export default function ContentManagement() {
                         {t("contentManagement.table.status")}
                       </th>
                       <th className="text-left py-3 px-4 sm:px-6 text-sm font-medium text-gray-700">
-                        {t("contentManagement.table.crStatus")}
+                        {t("contentManagement.table.views")}
                       </th>
                       <th className="text-left py-3 px-4 sm:px-6 text-sm font-medium text-gray-700">
-                        {t("contentManagement.table.views")}
+                        {t("contentManagement.table.created")}
                       </th>
                       <th className="text-left py-3 px-4 sm:px-6 text-sm font-medium text-gray-700">
                         {t("contentManagement.table.actions")}
@@ -810,7 +915,7 @@ export default function ContentManagement() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {filteredBusinesses.map((business) => (
+                    {businessesWithInquiries.map((business) => (
                       <tr key={business.id} className="hover:bg-gray-50">
                         <td className="py-4 px-4 sm:px-6">
                           <input
@@ -843,6 +948,16 @@ export default function ContentManagement() {
                               business.createdDate
                             ).toLocaleDateString()}
                           </p>
+                          {business.hasInquiries && (
+                            <div className="mt-1">
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                <i className="ri-message-3-line mr-1"></i>
+                                {business.unreadInquiries > 0
+                                  ? `${business.unreadInquiries} unread`
+                                  : `${business.inquiries.length} inquiries`}
+                              </span>
+                            </div>
+                          )}
                         </td>
                         <td className="py-4 px-4 sm:px-6">
                           <p className="text-gray-800 text-sm sm:text-base">
@@ -864,23 +979,16 @@ export default function ContentManagement() {
                           </span>
                         </td>
                         <td className="py-4 px-4 sm:px-6">
-                          <div className="flex items-center space-x-2">
-                            <i
-                              className={getCRStatusIcon(business.crStatus)}
-                            ></i>
-                            <span
-                              className={`text-xs font-medium capitalize ${getStatusColor(
-                                business.crStatus
-                              )}`}
-                            >
-                              {business.crStatus.replace("_", " ")}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="py-4 px-4 sm:px-6">
                           <span className="font-medium text-gray-800 text-sm sm:text-base">
                             {business.views}
                           </span>
+                        </td>
+                        <td className="py-4 px-4 sm:px-6">
+                          <p className="text-gray-800 text-sm sm:text-base">
+                            {new Date(
+                              business.createdDate
+                            ).toLocaleDateString()}
+                          </p>
                         </td>
                         <td className="py-4 px-4 sm:px-6">
                           <div className="flex items-center space-x-1 sm:space-x-2">
@@ -905,9 +1013,14 @@ export default function ContentManagement() {
                                 <button
                                   onClick={async () => {
                                     try {
-                                      const { apiService } = await import("../lib/api");
-                                      await apiService.updateSupplier(business.id, { status: "approved" });
-                                      
+                                      const { apiService } = await import(
+                                        "../lib/api"
+                                      );
+                                      await apiService.updateSupplier(
+                                        business.id,
+                                        { status: "approved" }
+                                      );
+
                                       // Update local state
                                       setBusinesses((prev) =>
                                         prev.map((b) =>
@@ -916,14 +1029,25 @@ export default function ContentManagement() {
                                             : b
                                         )
                                       );
-                                      
+
                                       // Refresh approved today count
                                       await refreshApprovedToday();
-                                      
-                                      toast.success(t("contentManagement.notifications.businessApproved"));
+
+                                      toast.success(
+                                        t(
+                                          "contentManagement.notifications.businessApproved"
+                                        )
+                                      );
                                     } catch (error) {
-                                      console.error("Failed to approve business:", error);
-                                      toast.error(t("contentManagement.notifications.businessActionError"));
+                                      console.error(
+                                        "Failed to approve business:",
+                                        error
+                                      );
+                                      toast.error(
+                                        t(
+                                          "contentManagement.notifications.businessActionError"
+                                        )
+                                      );
                                     }
                                   }}
                                   className="text-green-600 hover:text-green-700 cursor-pointer"
@@ -968,6 +1092,38 @@ export default function ContentManagement() {
                                 >
                                   <i className="ri-delete-bin-line text-sm sm:text-base"></i>
                                 </button>
+                              </>
+                            )}
+                            {/* Inquiries actions */}
+                            {business.hasInquiries && (
+                              <>
+                                <div className="border-l border-gray-300 h-4 mx-1"></div>
+                                {business.inquiries.map((inquiry) => (
+                                  <div
+                                    key={inquiry.id}
+                                    className="flex items-center space-x-1"
+                                  >
+                                    {!inquiry.is_read && (
+                                      <button
+                                        onClick={() =>
+                                          handleMarkAsRead(inquiry.id)
+                                        }
+                                        className="text-green-600 hover:text-green-700 cursor-pointer"
+                                        title="Mark as read"
+                                      >
+                                        <i className="ri-check-line text-sm sm:text-base"></i>
+                                      </button>
+                                    )}
+                                    {inquiry.sender_id !== null && (
+                                      <button
+                                        className="text-blue-600 hover:text-blue-700 cursor-pointer"
+                                        title="Reply to inquiry"
+                                      >
+                                        <i className="ri-reply-line text-sm sm:text-base"></i>
+                                      </button>
+                                    )}
+                                  </div>
+                                ))}
                               </>
                             )}
                           </div>
@@ -1108,7 +1264,9 @@ export default function ContentManagement() {
                       {canSuperviseContent && (
                         <>
                           <button
-                            onClick={() => handleReviewAction("approve", review.id)}
+                            onClick={() =>
+                              handleReviewAction("approve", review.id)
+                            }
                             disabled={actionLoading[`approve-${review.id}`]}
                             className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2.5 rounded-lg hover:from-green-600 hover:to-emerald-700 text-xs sm:text-sm font-medium cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:transform-none disabled:shadow-sm"
                           >
@@ -1120,7 +1278,9 @@ export default function ContentManagement() {
                             {t("contentManagement.actions.approve")}
                           </button>
                           <button
-                            onClick={() => handleReviewAction("reject", review.id)}
+                            onClick={() =>
+                              handleReviewAction("reject", review.id)
+                            }
                             disabled={actionLoading[`reject-${review.id}`]}
                             className="bg-gradient-to-r from-red-500 to-rose-600 text-white px-4 py-2.5 rounded-lg hover:from-red-600 hover:to-rose-700 text-xs sm:text-sm font-medium cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:transform-none disabled:shadow-sm"
                           >
@@ -1133,7 +1293,9 @@ export default function ContentManagement() {
                           </button>
                           {!review.flagged && (
                             <button
-                              onClick={() => handleReviewAction("flag", review.id)}
+                              onClick={() =>
+                                handleReviewAction("flag", review.id)
+                              }
                               disabled={actionLoading[`flag-${review.id}`]}
                               className="bg-gradient-to-r from-amber-500 to-orange-600 text-white px-4 py-2.5 rounded-lg hover:from-amber-600 hover:to-orange-700 text-xs sm:text-sm font-medium cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:transform-none disabled:shadow-sm"
                             >
@@ -1222,7 +1384,9 @@ export default function ContentManagement() {
                       {canSuperviseContent && (
                         <>
                           <button
-                            onClick={() => handleDocumentAction("approve", doc.id)}
+                            onClick={() =>
+                              handleDocumentAction("approve", doc.id)
+                            }
                             disabled={actionLoading[`doc-approve-${doc.id}`]}
                             className="text-green-600 p-2.5 rounded-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:-translate-y-0.5 disabled:transform-none "
                           >
@@ -1233,7 +1397,9 @@ export default function ContentManagement() {
                             )}
                           </button>
                           <button
-                            onClick={() => handleDocumentAction("reject", doc.id)}
+                            onClick={() =>
+                              handleDocumentAction("reject", doc.id)
+                            }
                             disabled={actionLoading[`doc-reject-${doc.id}`]}
                             className="text-red-600 p-2.5 rounded-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:-translate-y-0.5 disabled:transform-none "
                           >
@@ -1255,6 +1421,165 @@ export default function ContentManagement() {
                   <i className="ri-file-check-line text-3xl sm:text-4xl mb-3 sm:mb-4"></i>
                   <p className="text-sm sm:text-base">
                     {t("contentManagement.verification.noPending")}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Inquiries Tab */}
+          {activeTab === "inquiries" && (
+            <div className="space-y-4">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-gray-800">
+                    {t("contentManagement.tabs.inquiries")}
+                  </h3>
+                  <select
+                    value={filterReadStatus}
+                    onChange={(e) => setFilterReadStatus(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
+                  >
+                    <option value="true">
+                      {t("contentManagement.filters.read")}
+                    </option>
+                    <option value="false">
+                      {t("contentManagement.filters.unread")}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[800px]">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="text-left py-3 px-4 sm:px-6 text-sm font-medium text-gray-700">
+                        {t("contentManagement.inquiries.sender")}
+                      </th>
+                      <th className="text-left py-3 px-4 sm:px-6 text-sm font-medium text-gray-700">
+                        {t("contentManagement.inquiries.subject")}
+                      </th>
+                      <th className="text-left py-3 px-4 sm:px-6 text-sm font-medium text-gray-700">
+                        {t("contentManagement.inquiries.type")}
+                      </th>
+                      <th className="text-left py-3 px-4 sm:px-6 text-sm font-medium text-gray-700">
+                        {t("contentManagement.inquiries.from")}
+                      </th>
+                      <th className="text-left py-3 px-4 sm:px-6 text-sm font-medium text-gray-700">
+                        {t("contentManagement.inquiries.status")}
+                      </th>
+                      <th className="text-left py-3 px-4 sm:px-6 text-sm font-medium text-gray-700">
+                        {t("contentManagement.inquiries.date")}
+                      </th>
+                      <th className="text-left py-3 px-4 sm:px-6 text-sm font-medium text-gray-700">
+                        {t("contentManagement.table.actions")}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {(inquiries || []).map((inquiry) => (
+                      <tr key={inquiry.id} className="hover:bg-gray-50">
+                        <td className="py-4 px-4 sm:px-6">
+                          <div>
+                            <p className="font-medium text-gray-800 text-sm sm:text-base">
+                              {inquiry.full_name}
+                            </p>
+                            <p className="text-xs sm:text-sm text-gray-600">
+                              {inquiry.email_address}
+                            </p>
+                            {inquiry.phone_number && (
+                              <p className="text-xs sm:text-sm text-gray-600">
+                                {inquiry.phone_number}
+                              </p>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-4 px-4 sm:px-6">
+                          <p className="text-gray-800 text-sm sm:text-base font-medium">
+                            {inquiry.subject}
+                          </p>
+                          <p className="text-xs sm:text-sm text-gray-600 truncate max-w-xs">
+                            {inquiry.message}
+                          </p>
+                        </td>
+                        <td className="py-4 px-4 sm:px-6">
+                          <span
+                            className={`px-2 py-1 rounded text-xs sm:text-sm ${
+                              inquiry.type === "inquiry"
+                                ? "bg-blue-100 text-blue-600"
+                                : "bg-green-100 text-green-600"
+                            }`}
+                          >
+                            {t(
+                              `contentManagement.inquiries.types.${inquiry.type}`
+                            )}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4 sm:px-6">
+                          <span
+                            className={`px-2 py-1 rounded text-xs sm:text-sm ${
+                              inquiry.from === "supplier"
+                                ? "bg-purple-100 text-purple-600"
+                                : "bg-orange-100 text-orange-600"
+                            }`}
+                          >
+                            {t(
+                              `contentManagement.inquiries.fromTypes.${inquiry.from}`
+                            )}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4 sm:px-6">
+                          <span
+                            className={`px-2 py-1 rounded text-xs sm:text-sm ${
+                              inquiry.is_read
+                                ? "bg-gray-100 text-gray-600"
+                                : "bg-yellow-100 text-yellow-600"
+                            }`}
+                          >
+                            {t(
+                              `contentManagement.inquiries.statusTypes.${
+                                inquiry.is_read ? "read" : "unread"
+                              }`
+                            )}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4 sm:px-6">
+                          <p className="text-gray-800 text-sm sm:text-base">
+                            {new Date(inquiry.created_at).toLocaleDateString()}
+                          </p>
+                        </td>
+                        <td className="py-4 px-4 sm:px-6">
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => handleViewInquiry(inquiry)}
+                              className="text-blue-600 hover:text-blue-700 cursor-pointer"
+                              title={t("contentManagement.actions.view")}
+                            >
+                              <i className="ri-eye-line text-lg"></i>
+                            </button>
+                            {!inquiry.is_read && (
+                              <button
+                                className="text-green-600 hover:text-green-700 cursor-pointer"
+                                title={t(
+                                  "contentManagement.inquiries.markAsRead"
+                                )}
+                              >
+                                <i className="ri-check-line text-lg"></i>
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {(inquiries || []).length === 0 && (
+                <div className="text-center py-8 sm:py-12 text-gray-500">
+                  <i className="ri-message-3-line text-3xl sm:text-4xl mb-3 sm:mb-4"></i>
+                  <p className="text-sm sm:text-base">
+                    {t("contentManagement.inquiries.noInquiries")}
                   </p>
                 </div>
               )}
@@ -1323,7 +1648,11 @@ export default function ContentManagement() {
                         <>
                           <button
                             onClick={() =>
-                              handleContentAction("approve", report.id, "report")
+                              handleContentAction(
+                                "approve",
+                                report.id,
+                                "report"
+                              )
                             }
                             className="bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600 text-xs sm:text-sm cursor-pointer w-full lg:w-auto"
                           >
@@ -1331,7 +1660,11 @@ export default function ContentManagement() {
                           </button>
                           <button
                             onClick={() =>
-                              handleContentAction("takedown", report.id, "report")
+                              handleContentAction(
+                                "takedown",
+                                report.id,
+                                "report"
+                              )
                             }
                             className="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 text-xs sm:text-sm cursor-pointer w-full lg:w-auto"
                           >
@@ -1705,6 +2038,192 @@ export default function ContentManagement() {
               >
                 {t("contentManagement.actions.save")}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Inquiry Details Modal */}
+      {showInquiryModal && selectedInquiry && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-6">
+                <h2 className="text-xl font-semibold text-gray-800">
+                  {t("contentManagement.inquiries.inquiryDetails")}
+                </h2>
+                <button
+                  onClick={() => {
+                    setShowInquiryModal(false);
+                    setSelectedInquiry(null);
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <i className="ri-close-line text-2xl"></i>
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {/* Sender Information */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h3 className="font-medium text-gray-700 mb-3">
+                    {t("contentManagement.inquiries.senderInfo")}
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-gray-600">
+                        {t("contentManagement.inquiries.name")}
+                      </p>
+                      <p className="font-medium text-gray-800">
+                        {selectedInquiry.full_name}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">
+                        {t("contentManagement.inquiries.email")}
+                      </p>
+                      <p className="font-medium text-gray-800">
+                        {selectedInquiry.email_address}
+                      </p>
+                    </div>
+                    {selectedInquiry.phone_number && (
+                      <div>
+                        <p className="text-sm text-gray-600">
+                          {t("contentManagement.inquiries.phone")}
+                        </p>
+                        <p className="font-medium text-gray-800">
+                          {selectedInquiry.phone_number}
+                        </p>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-sm text-gray-600">
+                        {t("contentManagement.inquiries.senderId")}
+                      </p>
+                      <p className="font-medium text-gray-800">
+                        {selectedInquiry.sender_id || "N/A"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Inquiry Details */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h3 className="font-medium text-gray-700 mb-3">
+                    {t("contentManagement.inquiries.inquiryInfo")}
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-gray-600">
+                        {t("contentManagement.inquiries.subject")}
+                      </p>
+                      <p className="font-medium text-gray-800">
+                        {selectedInquiry.subject}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">
+                        {t("contentManagement.inquiries.type")}
+                      </p>
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-medium ${
+                          selectedInquiry.type === "inquiry"
+                            ? "bg-blue-100 text-blue-600"
+                            : "bg-green-100 text-green-600"
+                        }`}
+                      >
+                        {t(
+                          `contentManagement.inquiries.types.${selectedInquiry.type}`
+                        )}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">
+                        {t("contentManagement.inquiries.from")}
+                      </p>
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-medium ${
+                          selectedInquiry.from === "supplier"
+                            ? "bg-purple-100 text-purple-600"
+                            : "bg-orange-100 text-orange-600"
+                        }`}
+                      >
+                        {t(
+                          `contentManagement.inquiries.fromTypes.${selectedInquiry.from}`
+                        )}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">
+                        {t("contentManagement.inquiries.status")}
+                      </p>
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-medium ${
+                          selectedInquiry.is_read
+                            ? "bg-gray-100 text-gray-600"
+                            : "bg-yellow-100 text-yellow-600"
+                        }`}
+                      >
+                        {t(
+                          `contentManagement.inquiries.statusTypes.${
+                            selectedInquiry.is_read ? "read" : "unread"
+                          }`
+                        )}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">
+                        {t("contentManagement.inquiries.date")}
+                      </p>
+                      <p className="font-medium text-gray-800">
+                        {new Date(
+                          selectedInquiry.created_at
+                        ).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Message */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h3 className="font-medium text-gray-700 mb-3">
+                    {t("contentManagement.inquiries.message")}
+                  </h3>
+                  <p className="text-gray-800 whitespace-pre-wrap">
+                    {selectedInquiry.message}
+                  </p>
+                </div>
+
+                {/* Actions */}
+                <div className="flex justify-end space-x-3 pt-4 border-t">
+                  {!selectedInquiry.is_read && (
+                    <button
+                      onClick={() => {
+                        handleMarkAsRead(selectedInquiry.id);
+                        setShowInquiryModal(false);
+                        setSelectedInquiry(null);
+                      }}
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                    >
+                      {t("contentManagement.inquiries.markAsRead")}
+                    </button>
+                  )}
+                  {selectedInquiry.sender_id !== null && (
+                    <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                      {t("contentManagement.inquiries.reply")}
+                    </button>
+                  )}
+                  <button
+                    onClick={() => {
+                      setShowInquiryModal(false);
+                      setSelectedInquiry(null);
+                    }}
+                    className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                  >
+                    {t("contentManagement.actions.close")}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

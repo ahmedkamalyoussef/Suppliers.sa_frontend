@@ -212,3 +212,22 @@ export interface CreateSupplierRequest {
   status: SupplierStatus;
   password: string;
 }
+
+// Admin Inquiry Interfaces
+export interface AdminInquiry {
+  id: number;
+  sender_id: number;
+  full_name: string;
+  email_address: string;
+  phone_number: string | null;
+  subject: string;
+  message: string;
+  type: "inquiry" | "reply";
+  is_read: boolean;
+  from: "supplier" | "admin";
+  created_at: string;
+}
+
+export interface AdminInquiryListResponse {
+  inquiries: AdminInquiry[];
+}

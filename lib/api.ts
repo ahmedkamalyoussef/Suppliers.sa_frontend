@@ -21,6 +21,8 @@ import {
   SupplierActionResponse,
   GetSuppliersParams,
   CreateSupplierRequest,
+  AdminInquiry,
+  AdminInquiryListResponse,
 } from "./types";
 import { TopRatedSuppliersResponse } from "./types/topRatedSuppliers";
 import { AdminDashboardResponse } from "./types/adminDashboard";
@@ -476,7 +478,7 @@ class ApiService {
         method: "POST",
         body: JSON.stringify(data),
       },
-      true // doesn't require authentication
+      false // doesn't require authentication
     );
   }
 
@@ -1883,6 +1885,28 @@ class ApiService {
   async getApprovedToday(): Promise<{ approvedToday: number }> {
     return this.request<{ approvedToday: number }>(
       "/api/admin/content/approved-today",
+      {
+        method: "GET",
+      },
+      true // Requires authentication
+    );
+  }
+
+  // =====================================
+  // Admin Inquiries API
+  // =====================================
+  async getInquiries(isRead?: boolean): Promise<AdminInquiryListResponse> {
+    const params = new URLSearchParams();
+    
+    if (isRead !== undefined) {
+      params.append('isread', isRead.toString());
+    }
+    
+    const queryString = params.toString();
+    const url = `/api/admin/inquiries/list${queryString ? '?' + queryString : ''}`;
+    
+    return this.request<AdminInquiryListResponse>(
+      url,
       {
         method: "GET",
       },

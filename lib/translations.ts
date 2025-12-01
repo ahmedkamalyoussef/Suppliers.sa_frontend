@@ -989,7 +989,7 @@ export const translations = {
         searches: "Searches",
         contacts: "Contacts",
         change: "Change",
-        totalSearches: "Total Searches"
+        totalSearches: "Total Searches",
       },
       insights: {
         title: "Customer Insights",
@@ -997,11 +997,12 @@ export const translations = {
         customerTypes: "Customer Types",
         topLocations: "Top Locations",
         totalCustomers: "Total Customers",
-        totalVisitors: "Total Visitors"
+        totalVisitors: "Total Visitors",
       },
       recommendations: {
         title: "Recommendations to Improve Performance",
-        subtitle: "Personalized suggestions to enhance your business performance",
+        subtitle:
+          "Personalized suggestions to enhance your business performance",
         items: [
           'Add more product keywords related to "gaming computers" - high search volume with 22% growth',
           "Improve response rate to reach 90% target - currently at 88%",
@@ -1011,7 +1012,7 @@ export const translations = {
         highPriority: "High Priority",
         mediumPriority: "Medium Priority",
         lowPriority: "Low Priority",
-        lastUpdated: "Last updated"
+        lastUpdated: "Last updated",
       },
       period: "Last 30 days",
     },
@@ -1269,10 +1270,13 @@ export const translations = {
         emailInvalid: "Please enter a valid email address",
         passwordRequired: "Password is required",
         passwordTooShort: "Password must be at least 6 characters",
-        tooManyAttempts: "Too many login attempts. Please try again in {seconds} seconds.",
-        maxAttemptsReached: "Maximum login attempts ({max_attempts}) reached. Please try again later.",
+        tooManyAttempts:
+          "Too many login attempts. Please try again in {seconds} seconds.",
+        maxAttemptsReached:
+          "Maximum login attempts ({max_attempts}) reached. Please try again later.",
         invalidCredentials: "Invalid email or password. Please try again.",
-        accountLocked: "Account temporarily locked due to security reasons. Please contact support.",
+        accountLocked:
+          "Account temporarily locked due to security reasons. Please contact support.",
       },
     },
     adminAnalytics: {
@@ -1829,6 +1833,7 @@ export const translations = {
         view: "View",
         takeDown: "Take Down",
         requestResubmit: "Request Resubmit",
+        close: "Close",
       },
       actions: {
         approve: "Approve",
@@ -1857,6 +1862,7 @@ export const translations = {
         businesses: "Business Listings",
         reviews: "Pending Reviews",
         verification: "Document Verification",
+        inquiries: "Inquiries",
         reports: "Reported Content",
       },
       table: {
@@ -1874,10 +1880,45 @@ export const translations = {
         approved: "Approved",
         pendingVerification: "Pending Verification",
         flagged: "Flagged",
+        allReadStatus: "All Read Status",
+        read: "Read",
+        unread: "Unread",
+      },
+      inquiries: {
+        sender: "Sender",
+        subject: "Subject",
+        type: "Type",
+        from: "From",
+        status: "Status",
+        date: "Date",
+        markAsRead: "Mark as Read",
+        noInquiries: "No inquiries found",
+        inquiryDetails: "Inquiry Details",
+        senderInfo: "Sender Information",
+        inquiryInfo: "Inquiry Information",
+        name: "Name",
+        email: "Email",
+        phone: "Phone",
+        senderId: "Sender ID",
+        message: "Message",
+        reply: "Reply",
+        types: {
+          inquiry: "Inquiry",
+          reply: "Reply",
+        },
+        fromTypes: {
+          supplier: "Supplier",
+          admin: "Admin",
+        },
+        statusTypes: {
+          read: "Read",
+          unread: "Unread",
+        },
       },
       reviews: {
         title: "Pending Reviews",
-        description: "Reviews awaiting admin approval before appearing on business profiles",
+        description:
+          "Reviews awaiting admin approval before appearing on business profiles",
         flagged: "flagged for review",
         noPending: "No pending reviews to review",
         queueTitle: "Review Approval Queue",
@@ -1947,24 +1988,27 @@ export const translations = {
         submissionDate: "Submission Date",
         reviewContent: "Review Content",
         approvalProcess: "Approval Process",
-        approvedAppear: "Approved reviews will appear on the business public profile",
+        approvedAppear:
+          "Approved reviews will appear on the business public profile",
         ownerNotification: "Business owner will receive an email notification",
         contributeRating: "Review will contribute to overall business rating",
         actionPermanent: "Action is permanent and cannot be easily undone",
         flaggedTitle: "Review Flagged",
-        flaggedDescription: "This review has been flagged for potential policy violations. Please review carefully before approval.",
+        flaggedDescription:
+          "This review has been flagged for potential policy violations. Please review carefully before approval.",
         checkLanguage: "Check for inappropriate language",
         verifyAuthenticity: "Verify review authenticity",
         ensureCompliance: "Ensure compliance with community guidelines",
       },
       notifications: {
         reviewApproved: "Review approved successfully",
-        reviewRejected: "Review rejected successfully", 
+        reviewRejected: "Review rejected successfully",
         reviewFlagged: "Review flagged successfully",
         reviewActionCompleted: "Review action completed successfully",
         documentApproved: "Document approved successfully",
         documentRejected: "Document rejected successfully",
-        documentResubmitRequested: "Document resubmission requested successfully",
+        documentResubmitRequested:
+          "Document resubmission requested successfully",
         documentActionCompleted: "Document action completed successfully",
       },
       editBusiness: {
@@ -3654,6 +3698,7 @@ export const translations = {
       clearFilters: "مسح الفلاتر",
       loadMore: "تحميل المزيد من الأنشطة",
       showLess: "عرض عدد أقل",
+      showing: "عرض",
       loading: "جاري تحميل الأنشطة...",
     },
 
@@ -3837,7 +3882,7 @@ export const translations = {
           confirmPasswordLabel: "تأكيد كلمة المرور *",
           confirmPasswordPlaceholder: "قم بتأكيد كلمة المرور",
           button: "متابعة التجربة",
-          haveAccount: "لديك حساب بالفعل؟",
+          haveAccount: "ل��يك حساب بالفعل؟",
           signinLink: "سجل دخولك من هنا",
         },
         step2: {
@@ -3847,7 +3892,7 @@ export const translations = {
           phoneTitle: "التحقق عبر الهاتف",
           phoneSubtitle: "إرسال الرمز إلى +966 50 123 4567",
           emailTitle: "التحقق عبر البريد",
-          emailSubtitle: "إرسال الرمز إلى demo@business.com",
+          emailSubtitle: "إرسال ا��رمز إلى demo@business.com",
           sending: "جارٍ إرسال رمز التحقق...",
           backButton: "العودة للتسجيل",
         },
@@ -3891,8 +3936,8 @@ export const translations = {
       exportButton: "تصدير",
       timeRange: {
         last7days: "آخر 7 أيام",
-        last30days: "آخر 30 يوماً",
-        last90days: "آخر 90 يوماً",
+        last30days: "آخر 30 يوم",
+        last90days: "آخر 90 يوم",
       },
       metrics: {
         profilecompletion: "اكتمال الملف",
@@ -3916,7 +3961,7 @@ export const translations = {
         searches: "عمليات البحث",
         contacts: "جهات الاتصال",
         change: "التغيير",
-        totalSearches: "إجمالي عمليات البحث"
+        totalSearches: "إجمالي عمليات البحث",
       },
       insights: {
         title: "رؤى العملاء",
@@ -3924,7 +3969,7 @@ export const translations = {
         customerTypes: "أنواع العملاء",
         topLocations: "أهم المواقع",
         totalCustomers: "إجمالي العملاء",
-        totalVisitors: "إجمالي الزوار"
+        totalVisitors: "إجمالي الزوار",
       },
       recommendations: {
         title: "توصيات لتحسين الأداء",
@@ -3938,7 +3983,7 @@ export const translations = {
         highPriority: "أولوية عالية",
         mediumPriority: "أولوية متوسطة",
         lowPriority: "أولوية منخفضة",
-        lastUpdated: "آخر تحديث"
+        lastUpdated: "آخر تحديث",
       },
       period: "آخر 30 يوماً",
     },
@@ -4205,10 +4250,14 @@ export const translations = {
         emailInvalid: "يرجى إدخال بريد إلكتروني صالح",
         passwordRequired: "كلمة المرور مطلوبة",
         passwordTooShort: "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
-        tooManyAttempts: "محاولات دخول كثيرة جداً. يرجى المحاولة مرة أخرى خلال {seconds} ثانية.",
-        maxAttemptsReached: "تم الوصول إلى الحد الأقصى لمحاولات الدخول ({max_attempts}). يرجى المحاولة لاحقاً.",
-        invalidCredentials: "البريد الإلكتروني أو كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى.",
-        accountLocked: "الحساب مغلق مؤقتاً لأسباب أمنية. يرجى التواصل مع الدعم الفني.",
+        tooManyAttempts:
+          "محاولات دخول كثيرة جداً. يرجى المحاولة مرة أخرى خلال {seconds} ثانية.",
+        maxAttemptsReached:
+          "تم الوصول إلى الحد الأقصى لمحاولات الدخول ({max_attempts}). يرجى المحاولة لاحقاً.",
+        invalidCredentials:
+          "البريد الإلكتروني أو كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى.",
+        accountLocked:
+          "الحساب مغلق مؤقتاً لأسباب أمنية. يرجى التواصل مع الدعم الفني.",
       },
     },
 
@@ -4228,52 +4277,51 @@ export const translations = {
         title: "سجل نشاطك التجاري",
         subtitle: "ابدأ بتقديم معلومات نشاطك التجاري الأساسية",
         businessNameLabel: "اسم النشاط التجاري *",
-        businessNamePlaceholder: "أدخل اسم نشاطك التجاري",
         phoneLabel: "رقم الهاتف *",
         phonePlaceholder: "+966 50 123 4567",
         emailLabel: "البريد الإلكتروني *",
-        emailPlaceholder: "business@example.com",
-        button: "متابعة التجربة",
-        haveAccount: "ل��يك حساب بالفعل؟",
-        signinLink: "سجل الدخول هنا",
-      },
-      step2: {
-        title: "تحقق من حسابك",
-        subtitle: "اختر كيف تريد استلام رمز التحقق",
-        demoMessage: "اضغط على أي طريقة تحقق لمتابعة التجربة",
-        phoneTitle: "التحقق عبر الهاتف",
-        phoneSubtitle: "إرسال الرمز إلى +966 50 123 4567",
-        emailTitle: "التحقق عبر البريد",
-        emailSubtitle: "إرسال ا��رمز إلى demo@business.com",
-        sending: "جارٍ إرسال رمز التحقق...",
-        backButton: "العودة للتسجيل",
-      },
-      step3: {
-        title: "أدخل رمز التحقق",
-        subtitle: "أرسلنا رمزاً مكوناً من 4 أرقام إلى",
-        phone: "هاتفك",
-        email: "بريدك الإلكتروني",
-        demoMessage: "اضغط 'تعبئة الرمز تلقائياً' للمتابعة تلقائياً",
-        autoFillButton: "تعبئة الرمز تلقائياً",
-        verifyButton: "تحقق من الرمز",
+        referralCodeLabel: "كود الإحالة (اختياري)",
+        referralCodePlaceholder:
+          "أدخل رقم الهاتف أو رقم السجل التجاري للشخص الذي أحالك",
+        referralCodeHint:
+          "أدخل رقم الهاتف أو رقم السجل التجاري للشخص الذي أحالك. هذا سيعطيك كلاكما خصومات على الاشتراك.",
+        continueButton: "الانتقال للتحقق",
+        continueButtonSubmitting: "جارٍ الإرسال...",
+        alreadyAccount: "هل لديك حساب بالفعل؟",
+        signIn: "تسجيل الدخول",
+        verifyAccountTitle: "تحقق من حسابك",
+        verifyAccountSubtitle:
+          "أرسلنا لك رمز تحقق مكون من 4 أرقام للت��قق من هويتك",
+        chooseVerification: "اختر طريقة التحقق:",
+        demoCode: "رمز التجربة:",
+        phone: "الهاتف",
+        email: "البريد الإلكتروني",
+        enterVerificationCode: "أدخل رمز التحقق المكون من 4 أرقام",
+        verifyButton: "تحقق من الحساب",
+        verifying: "جارٍ التحقق...",
         resendCode: "لم تستلم الرمز؟ أعد الإرسال",
-        backButton: "تغيير طريقة التحقق",
-      },
-      step4: {
-        title: "تم التحقق من الحساب!",
-        subtitle: "تهانينا! تم التحقق من حسابك بنجاح.",
-        completeTitle: "أكمل ملف نشاطك التجاري",
+        backToRegistration: "العودة للتسجيل",
+        accountVerified: "تم التحقق من الحساب!",
+        successMessage:
+          "رائع! تم التحقق من حسابك بنجاح. الآن أكمل ملف نشاطك التجاري لمساعدة العملاء على العثور عليك.",
+        completeProfileTitle: "أكمل ملف نشاطك التجاري",
         completeSubtitle:
-          "للحصول على أقصى استفادة من منصتنا، ننصح بإكمال ملف نشاطك التجاري الكامل مع:",
-        checklist: [
-          "فئة ووصف النشاط التجاري",
-          "العملاء المستهدفين ومنطقة الخدمة",
-          "عنوان النشاط وساعات العمل",
-          "الخدمات المقدمة وبيانات التواصل",
+          "للحصول على أقصى استفادة من منصتنا، يرجى تقديم المعلومات التالية:",
+        profileChecklist: [
+          "معلومات النشاط التجاري",
+          "بيانات التواصل",
+          "الحساب البنكي",
+          "المستندات المطلوبة",
         ],
-        completeButton: "إكمال الملف الآن",
-        skipButton: "تخطي الآن",
-        note: "يمكنك إكمال ملفك في أي وقت من لوحة التحكم",
+        completeProfileButton: "إكمال ملف النشاط التجاري",
+        skipButton: "تخطي الآن - الذهاب للصفحة الرئيسية",
+        whyCompleteTitle: "لماذا تكمل ملف��؟",
+        whyCompleteItems: [
+          "اكتشف من قبل المزيد من العملاء المحتملين",
+          "اظهر أعلى في نتائج البحث",
+          "ابنِ الثقة بمعلومات نشاط مفصلة",
+          "تلقّ استفسارات وطلبات تواصل مباشرة",
+        ],
       },
       errors: {
         codeIncomplete: "يرجى إدخال الأرقام الأربعة بالكامل",
@@ -4317,7 +4365,7 @@ export const translations = {
         successMessage:
           "رائع! تم التحقق من حسابك بنجاح. الآن أكمل ملف نشاطك التجاري لمساعدة العملاء على العثور عليك.",
         completeProfileTitle: "أكمل ملف نشاطك التجاري",
-        completeProfileSubtitle:
+        completeSubtitle:
           "للحصول على أقصى استفادة من منصتنا، يرجى تقديم المعلومات التالية:",
         profileChecklist: [
           "معلومات النشاط التجاري",
@@ -4551,13 +4599,16 @@ export const translations = {
       buttons: {
         approve: "موافقة",
         reject: "رفض",
-        exportReport: "تصدير التقرير",
-        viewDetails: "عرض التفاصيل",
-        edit: "تعديل",
-        flag: "تمييز",
-        delete: "حذف",
-        view: "عرض",
-        takeDown: "إزالة",
+        exportReporactions: {
+          view: "عرض",
+          viewDetails: "عرض التفاصيل",
+          edit: "تعديل",
+          approve: "موافقة",
+          reject: "رفض",
+          delete: "حذف",
+          flag: "تمييز",
+          close: "إغلاق",
+        },
         requestResubmit: "طلب إعادة إرسال",
       },
       actions: {
@@ -4587,6 +4638,7 @@ export const translations = {
         businesses: "قوائم الأنشطة",
         reviews: "التقييمات المعلقة",
         verification: "التحقق من المستندات",
+        inquiries: "الاستفسارات",
         reports: "المحتوى المبلغ عنه",
       },
       table: {
@@ -4604,10 +4656,45 @@ export const translations = {
         approved: "موافق عليه",
         pendingVerification: "قيد التحقق",
         flagged: "مميز",
+        allReadStatus: "جميع حالات القراءة",
+        read: "مقروء",
+        unread: "غير مقروء",
+      },
+      inquiries: {
+        sender: "المرسل",
+        subject: "الموضوع",
+        type: "النوع",
+        from: "من",
+        status: "الحالة",
+        date: "التاريخ",
+        markAsRead: "تعيين كمقروء",
+        noInquiries: "لا توجد استفسارات",
+        inquiryDetails: "تفاصيل الاستفسار",
+        senderInfo: "معلومات المرسل",
+        inquiryInfo: "معلومات الاستفسار",
+        name: "الاسم",
+        email: "البريد الإلكتروني",
+        phone: "رقم الهاتف",
+        senderId: "رقم المرسل",
+        message: "الرسالة",
+        reply: "رد",
+        types: {
+          inquiry: "استفسار",
+          reply: "رد",
+        },
+        fromTypes: {
+          supplier: "المورد",
+          admin: "المشرف",
+        },
+        statusTypes: {
+          read: "مقروء",
+          unread: "غير مقروء",
+        },
       },
       reviews: {
         title: "التقييمات المعلقة",
-        description: "تقييمات في انتظار موافقة المشرف قبل ظهورها على ملفات الأنشطة",
+        description:
+          "تقييمات في انتظار موافقة المشرف قبل ظهورها على ملفات الأنشطة",
         flagged: "مميز للمراجعة",
         noPending: "لا توجد تقييمات معلقة لمراجعتها",
         queueTitle: "قائمة انتظار موافقة التقييمات",
@@ -4682,14 +4769,15 @@ export const translations = {
         contributeRating: "سيساهم التقييم في التقييم الإجمالي للنشاط",
         actionPermanent: "الإجراء دائم ولا يمكن التراجع عنه بسهولة",
         flaggedTitle: "تقييم مميز",
-        flaggedDescription: "تم تمييز هذا التقييم لانتهاكات محتملة للسياسة. يرجى المراجعة بعناية قبل الموافقة.",
+        flaggedDescription:
+          "تم تمييز هذا التقييم لانتهاكات محتملة للسياسة. يرجى المراجعة بعناية قبل الموافقة.",
         checkLanguage: "تحقق من اللغة غير المناسبة",
         verifyAuthenticity: "تحقق من أصالة التقييم",
         ensureCompliance: "تأكد من الامتثال لإرشادات المجتمع",
       },
       notifications: {
         reviewApproved: "تمت الموافقة على التقييم بنجاح",
-        reviewRejected: "تم رفض التقييم بنجاح", 
+        reviewRejected: "تم رفض التقييم بنجاح",
         reviewFlagged: "تم تمييز التقييم بنجاح",
         reviewActionCompleted: "تم إجراء التقييم بنجاح",
         documentApproved: "تمت الموافقة على المستند بنجاح",
