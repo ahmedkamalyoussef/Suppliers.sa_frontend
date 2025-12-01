@@ -11,7 +11,7 @@ import { apiService } from "@/lib/api";
 import { LoginRequest } from "../../types/auth";
 
 export default function LoginPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { login } = useAuth();
 
   const [formData, setFormData] = useState({
@@ -99,7 +99,58 @@ export default function LoginPage() {
         window.location.href = "/dashboard";
       }
     } catch (error: any) {
-      setLoginError(error.message || "Login failed. Please try again.");
+      console.error("Login error:", error);
+      
+      // Handle specific error messages
+      let errorMessage = "Login failed. Please try again.";
+      
+      if (error.message) {
+        // Use Arabic messages if language is Arabic (RTL)
+        const isRTL = language === "ar";
+        
+        // Check for rate limiting errors
+        if (error.message.includes("Too many login attempts") || error.message.includes("Too Many Attempts")) {
+          const match = error.message.match(/(\d+)/);
+          const seconds = match ? match[1] : "60";
+          if (isRTL) {
+            errorMessage = `محاولات دخول كثيرة جداً. يرجى المحاولة مرة أخرى خلال ${seconds} ثانية.`;
+          } else {
+            errorMessage = `Too many login attempts. Please try again in ${seconds} seconds.`;
+          }
+        }
+        // Check for max attempts reached
+        else if (error.message.includes("max_attempts")) {
+          const match = error.message.match(/(\d+)/);
+          const maxAttempts = match ? match[1] : "3";
+          if (isRTL) {
+            errorMessage = `تم الوصول إلى الحد الأقصى لمحاولات الدخول (${maxAttempts}). يرجى المحاولة لاحقاً.`;
+          } else {
+            errorMessage = `Maximum login attempts (${maxAttempts}) reached. Please try again later.`;
+          }
+        }
+        // Check for invalid credentials
+        else if (error.message.includes("Invalid") || error.message.includes("credentials")) {
+          if (isRTL) {
+            errorMessage = "البريد الإلكتروني أو كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى.";
+          } else {
+            errorMessage = "Invalid email or password. Please try again.";
+          }
+        }
+        // Check for account locked
+        else if (error.message.includes("locked") || error.message.includes("suspended")) {
+          if (isRTL) {
+            errorMessage = "الحساب مغلق مؤقتاً لأسباب أمنية. يرجى التواصل مع الدعم الفني.";
+          } else {
+            errorMessage = "Account temporarily locked due to security reasons. Please contact support.";
+          }
+        }
+        // Use the original message if it's a known error
+        else {
+          errorMessage = error.message;
+        }
+      }
+      
+      setLoginError(errorMessage);
       setIsSubmitting(false);
     }
   };

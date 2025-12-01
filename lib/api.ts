@@ -562,6 +562,26 @@ class ApiService {
 
       return response;
     } catch (error: any) {
+      // Handle specific error responses
+      if (error.message) {
+        // If the error message is already in the right format, pass it through
+        if (error.message.includes("Too many login attempts") || 
+            error.message.includes("max_attempts") ||
+            error.message.includes("Invalid") ||
+            error.message.includes("locked")) {
+          throw new Error(error.message);
+        }
+      }
+      
+      // For other errors, create a more user-friendly message
+      if (error.status === 429) {
+        throw new Error("Too many login attempts. Please try again later.");
+      } else if (error.status === 401) {
+        throw new Error("Invalid email or password. Please try again.");
+      } else if (error.status === 423) {
+        throw new Error("Account temporarily locked due to security reasons. Please contact support.");
+      }
+      
       throw error;
     }
   }
@@ -1742,6 +1762,31 @@ class ApiService {
       },
       true // Requires authentication
     );
+  }
+
+  // Get maintenance status (no authentication required)
+  async getMaintenanceStatus(): Promise<{ success: boolean; maintenance_mode: boolean }> {
+    try {
+      const response = await fetch(`${this.baseURL}/api/maintenance/status`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching maintenance status:", error);
+      // Return default values on error
+      return { success: false, maintenance_mode: false };
+    }
   }
 
 }

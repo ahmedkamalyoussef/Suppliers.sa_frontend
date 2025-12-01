@@ -1463,6 +1463,10 @@ video {
   --tw-border-opacity: 1;
   border-color: rgb(202 138 4 / var(--tw-border-opacity, 1));
 }
+.border-blue-500{
+  --tw-border-opacity: 1;
+  border-color: rgb(59 130 246 / var(--tw-border-opacity, 1));
+}
 .border-t-red-500{
   --tw-border-opacity: 1;
   border-top-color: rgb(239 68 68 / var(--tw-border-opacity, 1));
@@ -2005,6 +2009,9 @@ video {
 }
 .to-yellow-600{
   --tw-gradient-to: #ca8a04 var(--tw-gradient-to-position);
+}
+.to-gray-100{
+  --tw-gradient-to: #f3f4f6 var(--tw-gradient-to-position);
 }
 .bg-cover{
   background-size: cover;

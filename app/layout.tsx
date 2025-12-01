@@ -6,6 +6,7 @@ import { Metadata } from "next";
 import "leaflet/dist/leaflet.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import MaintenanceChecker from "../components/MaintenanceChecker";
 const pacifico = localFont({
   src: "./fonts/Pacifico-Regular.ttf",
   variable: "--font-pacifico",
@@ -129,7 +130,9 @@ export default function RootLayout({
       >
         <AuthProvider>
           <LanguageProvider>
-            {children}
+            <MaintenanceChecker>
+              {children}
+            </MaintenanceChecker>
             <ToastContainer
               position="top-center"
               autoClose={5000}

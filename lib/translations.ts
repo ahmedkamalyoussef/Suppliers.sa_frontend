@@ -1269,6 +1269,10 @@ export const translations = {
         emailInvalid: "Please enter a valid email address",
         passwordRequired: "Password is required",
         passwordTooShort: "Password must be at least 6 characters",
+        tooManyAttempts: "Too many login attempts. Please try again in {seconds} seconds.",
+        maxAttemptsReached: "Maximum login attempts ({max_attempts}) reached. Please try again later.",
+        invalidCredentials: "Invalid email or password. Please try again.",
+        accountLocked: "Account temporarily locked due to security reasons. Please contact support.",
       },
     },
     adminAnalytics: {
@@ -4102,6 +4106,10 @@ export const translations = {
         emailInvalid: "يرجى إدخال بريد إلكتروني صالح",
         passwordRequired: "كلمة المرور مطلوبة",
         passwordTooShort: "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+        tooManyAttempts: "محاولات دخول كثيرة جداً. يرجى المحاولة مرة أخرى خلال {seconds} ثانية.",
+        maxAttemptsReached: "تم الوصول إلى الحد الأقصى لمحاولات الدخول ({max_attempts}). يرجى المحاولة لاحقاً.",
+        invalidCredentials: "البريد الإلكتروني أو كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى.",
+        accountLocked: "الحساب مغلق مؤقتاً لأسباب أمنية. يرجى التواصل مع الدعم الفني.",
       },
     },
 
