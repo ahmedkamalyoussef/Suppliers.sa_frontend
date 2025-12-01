@@ -1,122 +1,90 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "../lib/LanguageContext";
+import { apiService } from "../lib/api";
+import { AdminDashboardResponse } from "../lib/types/adminDashboard";
 
 export default function AdminStats() {
   const { t } = useLanguage();
   const [timeRange, setTimeRange] = useState("30days");
+  const [dashboardData, setDashboardData] = useState<AdminDashboardResponse | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const systemStats = [
+  useEffect(() => {
+    const fetchAdminDashboard = async () => {
+      try {
+        setLoading(true);
+        const range = timeRange === "7days" ? 7 : timeRange === "30days" ? 30 : 90;
+        const response = await apiService.getAdminDashboard(range);
+        setDashboardData(response);
+      } catch (error) {
+        console.error("Error fetching admin dashboard:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAdminDashboard();
+  }, [timeRange]);
+
+  const systemStats = dashboardData ? [
     {
       title: t("adminStats.totalUsers"),
-      value: "2,847",
-      change: "+12.5%",
-      trend: "up",
+      value: dashboardData.totalUsers.count.toString(),
+      change: dashboardData.totalUsers.change,
+      trend: dashboardData.totalUsers.trend,
       icon: "ri-user-line",
       color: "bg-blue-500",
     },
     {
       title: t("adminStats.activeBusinesses"),
-      value: "1,234",
-      change: "+8.2%",
-      trend: "up",
+      value: dashboardData.activeBusinesses.count.toString(),
+      change: dashboardData.activeBusinesses.change,
+      trend: dashboardData.activeBusinesses.trend,
       icon: "ri-store-line",
       color: "bg-green-500",
     },
     {
       title: t("adminStats.monthlyRevenue"),
-      value: "$45,678",
-      change: "+15.3%",
-      trend: "up",
+      value: `$${dashboardData.revenue.current.toLocaleString()}`,
+      change: dashboardData.revenue.change,
+      trend: dashboardData.revenue.trend,
       icon: "ri-money-dollar-circle-line",
       color: "bg-yellow-500",
     },
     {
       title: t("adminStats.systemHealth"),
-      value: "99.8%",
-      change: "+0.1%",
-      trend: "up",
+      value: dashboardData.system_health.current,
+      change: dashboardData.system_health.change,
+      trend: dashboardData.system_health.trend,
       icon: "ri-pulse-line",
       color: "bg-purple-500",
     },
-  ];
+  ] : [];
 
-  const recentActivities = [
-    {
-      type: "user_registration",
-      message: t("adminStats.newBusinessRegistered").replace(
-        "{{name}}",
-        "Tech Solutions Co."
-      ),
-      time: "5 minutes ago",
-      icon: "ri-user-add-line",
-      color: "bg-green-100 text-green-600",
-    },
-    {
-      type: "payment",
-      message: t("adminStats.premiumPaymentReceived").replace(
-        "{{name}}",
-        "Metro Electronics"
-      ),
-      time: "12 minutes ago",
-      icon: "ri-bank-card-line",
-      color: "bg-blue-100 text-blue-600",
-    },
-    {
-      type: "content_report",
-      message: t("adminStats.contentReported").replace(
-        "{{reason}}",
-        "Inappropriate business description"
-      ),
-      time: "25 minutes ago",
-      icon: "ri-flag-line",
-      color: "bg-red-100 text-red-600",
-    },
-    {
-      type: "system",
-      message: t("adminStats.databaseBackupCompleted"),
-      time: "1 hour ago",
-      icon: "ri-database-2-line",
-      color: "bg-purple-100 text-purple-600",
-    },
-    {
-      type: "employee",
-      message: t("adminStats.newEmployeeAdded")
-        .replace("{{name}}", "Sarah Johnson")
-        .replace("{{role}}", "Content Moderator"),
-      time: "2 hours ago",
-      icon: "ri-team-line",
-      color: "bg-yellow-100 text-yellow-600",
-    },
-  ];
+  const recentActivities = dashboardData ? dashboardData.recentActivity.map(activity => ({
+    type: activity.type,
+    message: activity.message,
+    time: activity.time,
+    icon: activity.icon,
+    color: activity.color,
+  })) : [];
 
-  const pendingActions = [
+  const pendingActions = dashboardData ? [
     {
       title: t("adminStats.businessVerification"),
-      count: 12,
-      priority: "high",
+      count: dashboardData.businessVerification.pending,
+      priority: "high" as const,
       action: t("adminStats.reviewNow"),
     },
     {
       title: t("adminStats.contentReports"),
-      count: 8,
-      priority: "medium",
+      count: dashboardData.content_reports_count,
+      priority: "medium" as const,
       action: t("adminStats.moderate"),
     },
-    {
-      title: t("adminStats.paymentDisputes"),
-      count: 3,
-      priority: "high",
-      action: t("adminStats.resolve"),
-    },
-    {
-      title: t("adminStats.systemUpdates"),
-      count: 2,
-      priority: "low",
-      action: t("adminStats.schedule"),
-    },
-  ];
+  ] : [];
 
   const quickActions = [
     {
@@ -316,36 +284,36 @@ export default function AdminStats() {
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
           <div className="text-center">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-3 sm:mb-4">
-              <i className="ri-server-line text-green-600 text-xl sm:text-2xl"></i>
+            <div className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto ${dashboardData?.healthChecks.serverStatus.status === "ok" ? "bg-green-100" : "bg-red-100"} rounded-full flex items-center justify-center mb-3 sm:mb-4`}>
+              <i className={`ri-server-line ${dashboardData?.healthChecks.serverStatus.status === "ok" ? "text-green-600" : "text-red-600"} text-xl sm:text-2xl`}></i>
             </div>
             <h4 className="font-medium text-gray-800 text-sm sm:text-base">
               {t("adminStats.serverStatus")}
             </h4>
-            <p className="text-xs sm:text-sm text-green-600 font-medium">
-              {t("adminStats.online")}
+            <p className={`text-xs sm:text-sm font-medium ${dashboardData?.healthChecks.serverStatus.status === "ok" ? "text-green-600" : "text-red-600"}`}>
+              {dashboardData?.healthChecks.serverStatus.status === "ok" ? dashboardData.healthChecks.serverStatus.uptime : "Offline"}
             </p>
           </div>
           <div className="text-center">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-blue-100 rounded-full flex items-center justify-center mb-3 sm:mb-4">
-              <i className="ri-database-2-line text-blue-600 text-xl sm:text-2xl"></i>
+            <div className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto ${dashboardData?.healthChecks.database.status === "ok" ? "bg-blue-100" : "bg-red-100"} rounded-full flex items-center justify-center mb-3 sm:mb-4`}>
+              <i className={`ri-database-2-line ${dashboardData?.healthChecks.database.status === "ok" ? "text-blue-600" : "text-red-600"} text-xl sm:text-2xl`}></i>
             </div>
             <h4 className="font-medium text-gray-800 text-sm sm:text-base">
               {t("adminStats.database")}
             </h4>
-            <p className="text-xs sm:text-sm text-blue-600 font-medium">
-              {t("adminStats.healthy")}
+            <p className={`text-xs sm:text-sm font-medium ${dashboardData?.healthChecks.database.status === "ok" ? "text-blue-600" : "text-red-600"}`}>
+              {dashboardData?.healthChecks.database.message}
             </p>
           </div>
           <div className="text-center">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-yellow-100 rounded-full flex items-center justify-center mb-3 sm:mb-4">
-              <i className="ri-shield-check-line text-yellow-600 text-xl sm:text-2xl"></i>
+            <div className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto ${dashboardData?.healthChecks.security.status === "ok" ? "bg-yellow-100" : "bg-red-100"} rounded-full flex items-center justify-center mb-3 sm:mb-4`}>
+              <i className={`ri-shield-check-line ${dashboardData?.healthChecks.security.status === "ok" ? "text-yellow-600" : "text-red-600"} text-xl sm:text-2xl`}></i>
             </div>
             <h4 className="font-medium text-gray-800 text-sm sm:text-base">
               {t("adminStats.security")}
             </h4>
-            <p className="text-xs sm:text-sm text-yellow-600 font-medium">
-              {t("adminStats.protected")}
+            <p className={`text-xs sm:text-sm font-medium ${dashboardData?.healthChecks.security.status === "ok" ? "text-yellow-600" : "text-red-600"}`}>
+              {dashboardData?.healthChecks.security.message}
             </p>
           </div>
         </div>

@@ -23,6 +23,8 @@ import {
   CreateSupplierRequest,
 } from "./types";
 import { TopRatedSuppliersResponse } from "./types/topRatedSuppliers";
+import { AdminDashboardResponse } from "./types/adminDashboard";
+import { AnalyticsResponse } from "./types/analytics";
 
 const API_BASE_URL = "http://localhost:8000";
 
@@ -1613,6 +1615,69 @@ class ApiService {
       false // No auth required
     );
   }
+
+  // Get admin dashboard data
+  async getAdminDashboard(range?: number): Promise<AdminDashboardResponse> {
+    const queryParams = range ? `?range=${range}` : "";
+    return this.request<AdminDashboardResponse>(
+      `/api/admin/dashboard${queryParams}`,
+      {
+        method: "GET",
+      },
+      true // Requires authentication
+    );
+  }
+
+  // Get analytics data
+  async getAnalytics(range?: number): Promise<AnalyticsResponse> {
+    const queryParams = range ? `?range=${range}` : "";
+    return this.request<AnalyticsResponse>(
+      `/api/admin/dashboard/analytics/v2${queryParams}`,
+      {
+        method: "GET",
+      },
+      true // Requires authentication
+    );
+  }
+
+  async exportAdminAnalytics(range?: number): Promise<void> {
+    const queryParams = new URLSearchParams();
+    
+    if (range) {
+      queryParams.append('range', range.toString());
+    }
+
+    const token = localStorage.getItem("supplier_token");
+    const tokenType = localStorage.getItem("token_type") || "Bearer";
+
+    if (!token) throw new Error("No auth token found");
+
+    const response = await fetch(
+      `${this.baseURL}/api/admin/dashboard/analytics/export?${queryParams.toString()}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `${tokenType} ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Export failed: ${response.statusText}`);
+    }
+
+    // Create blob and download
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "analytics.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }
+
 }
 
 // Supplier Inquiry Interfaces
