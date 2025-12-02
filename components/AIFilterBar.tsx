@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type React from "react";
 import { useAISearch } from "../contexts/AISearchContext";
 
@@ -24,6 +24,13 @@ export default function AIFilterBar({ onFilterChange }: AIFilterBarProps) {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const { setAISearchQuery } = useAISearch();
+
+  // Clear AI search query when input field becomes empty
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setAISearchQuery("");
+    }
+  }, [searchQuery, setAISearchQuery]);
 
   const handleAISearch = async () => {
     if (!searchQuery.trim()) return;
