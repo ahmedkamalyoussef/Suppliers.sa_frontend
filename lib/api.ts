@@ -1497,6 +1497,27 @@ class ApiService {
     );
   }
 
+  async markAsReadForAdmin(inquiryId: number): Promise<{ message: string }> {
+    return this.request(
+      `/api/admin/inquiries/${inquiryId}/read`,
+      {
+        method: "POST"
+      },
+      true
+    );
+  }
+
+  async replyToInquiryAdmin(data: { id: number; message: string }): Promise<{ message: string }> {
+    return this.request(
+      "/api/admin/inquiries/reply",
+      {
+        method: "POST",
+        body: JSON.stringify(data)
+      },
+      true
+    );
+  }
+
   async replyToInboxItem(data: {
     type:
       | "message"

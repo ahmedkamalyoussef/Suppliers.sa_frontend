@@ -1902,6 +1902,12 @@ export const translations = {
         senderId: "Sender ID",
         message: "Message",
         reply: "Reply",
+        replyPlaceholder: "Type your reply here...",
+        replySuccess: "Reply sent successfully",
+        replyError: "Failed to send reply. Please try again.",
+        sending: "Sending...",
+        sendReply: "Send Reply",
+        cancel: "Cancel",
         types: {
           inquiry: "Inquiry",
           reply: "Reply",
@@ -1909,6 +1915,7 @@ export const translations = {
         fromTypes: {
           supplier: "Supplier",
           admin: "Admin",
+          anonymous: "Anonymous",
         },
         statusTypes: {
           read: "Read",
@@ -4678,6 +4685,12 @@ export const translations = {
         senderId: "رقم المرسل",
         message: "الرسالة",
         reply: "رد",
+        replyPlaceholder: "اكتب ردك هنا...",
+        replySuccess: "تم إرسال الرد بنجاح",
+        replyError: "فشل إرسال الرد. يرجى المحاولة مرة أخرى.",
+        sending: "جاري الإرسال...",
+        sendReply: "إرسال الرد",
+        cancel: "إلغاء",
         types: {
           inquiry: "استفسار",
           reply: "رد",

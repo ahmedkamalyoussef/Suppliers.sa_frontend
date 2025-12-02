@@ -83,7 +83,9 @@ export default function ContentManagement() {
   const [selectedInquiry, setSelectedInquiry] = useState<AdminInquiry | null>(
     null
   );
-  const [showInquiryModal, setShowInquiryModal] = useState<boolean>(false);
+  const [showInquiryModal, setShowInquiryModal] = useState(false);
+  const [replyMessage, setReplyMessage] = useState("");
+  const [isReplying, setIsReplying] = useState(false);
   const [approvedToday, setApprovedToday] = useState<number>(0);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [showEditBusiness, setShowEditBusiness] = useState<boolean>(false);
@@ -336,46 +338,90 @@ export default function ContentManagement() {
     }
   };
 
-  // Handler for marking inquiry as read
-  const handleMarkAsRead = async (inquiryId: number) => {
-    try {
-      const { apiService } = await import("../lib/api");
-      await apiService.markAsRead({
-        type: "supplier_inquiry",
-        id: inquiryId,
-      });
-
-      // Refresh inquiries data
-      const inquiriesResponse = await apiService.getInquiries();
-      let inquiriesData: any[] = [];
-      if (inquiriesResponse) {
-        if (Array.isArray(inquiriesResponse)) {
-          inquiriesData = inquiriesResponse;
-        } else if (
-          (inquiriesResponse as any).inquiries &&
-          Array.isArray((inquiriesResponse as any).inquiries)
-        ) {
-          inquiriesData = (inquiriesResponse as any).inquiries;
-        } else if (
-          (inquiriesResponse as any).data &&
-          Array.isArray((inquiriesResponse as any).data)
-        ) {
-          inquiriesData = (inquiriesResponse as any).data;
-        }
-      }
-      setInquiries(inquiriesData);
-
-      toast.success("Inquiry marked as read successfully");
-    } catch (error) {
-      console.error("Failed to mark inquiry as read:", error);
-      toast.error("Failed to mark inquiry as read");
-    }
-  };
-
   // Handler for viewing inquiry details
   const handleViewInquiry = (inquiry: AdminInquiry) => {
     setSelectedInquiry(inquiry);
     setShowInquiryModal(true);
+  };
+
+  // Handler for closing inquiry modal with automatic mark as read
+  const handleCloseInquiryModal = async () => {
+    setReplyMessage("");
+    setIsReplying(false);
+
+    if (selectedInquiry) {
+      try {
+        if (!selectedInquiry.is_read) {
+          const { apiService } = await import("../lib/api");
+          console.log("Marking inquiry as read:", selectedInquiry.id);
+
+          // Use the new markAsReadForAdmin method
+          const response = await apiService.markAsReadForAdmin(
+            selectedInquiry.id
+          );
+          console.log("Mark as read response:", response);
+
+          // Update the local state to mark the inquiry as read
+          setInquiries((prevInquiries) =>
+            prevInquiries.map((inquiry) =>
+              inquiry.id === selectedInquiry.id
+                ? { ...inquiry, is_read: true }
+                : inquiry
+            )
+          );
+        }
+      } catch (error) {
+        console.error("Failed to mark inquiry as read:", error);
+      }
+    }
+    setShowInquiryModal(false);
+    setSelectedInquiry(null);
+  };
+
+  const handleReplyToInquiry = async () => {
+    if (!selectedInquiry || !replyMessage.trim()) return;
+
+    setIsReplying(true);
+
+    try {
+      const { apiService } = await import("../lib/api");
+      console.log("Replying to inquiry:", selectedInquiry.id);
+
+      const response = await apiService.replyToInquiryAdmin({
+        id: selectedInquiry.id,
+        message: replyMessage.trim(),
+      });
+
+      console.log("Reply response:", response);
+
+      // Show success message
+      toast.success(t("contentManagement.inquiries.replySuccess"));
+
+      // Close the modal and reset form
+      setReplyMessage("");
+      setShowInquiryModal(false);
+      setSelectedInquiry(null);
+
+      // Refresh the inquiries list
+      const inquiriesResponse = await apiService.getInquiries();
+      if (inquiriesResponse) {
+        let inquiriesData: any[] = [];
+        if (Array.isArray(inquiriesResponse)) {
+          inquiriesData = inquiriesResponse;
+        } else if (
+          inquiriesResponse.inquiries &&
+          Array.isArray(inquiriesResponse.inquiries)
+        ) {
+          inquiriesData = inquiriesResponse.inquiries;
+        }
+        setInquiries(inquiriesData);
+      }
+    } catch (error) {
+      console.error("Failed to send reply:", error);
+      toast.error(t("contentManagement.inquiries.replyError"));
+    } finally {
+      setIsReplying(false);
+    }
   };
 
   const handleBulkAction = async (action: string): Promise<void> => {
@@ -1103,25 +1149,23 @@ export default function ContentManagement() {
                                     key={inquiry.id}
                                     className="flex items-center space-x-1"
                                   >
-                                    {!inquiry.is_read && (
-                                      <button
-                                        onClick={() =>
-                                          handleMarkAsRead(inquiry.id)
-                                        }
-                                        className="text-green-600 hover:text-green-700 cursor-pointer"
-                                        title="Mark as read"
+                                    {!inquiry.is_read ? (
+                                      <span
+                                        className="text-yellow-500"
+                                        title="Unread"
                                       >
-                                        <i className="ri-check-line text-sm sm:text-base"></i>
-                                      </button>
-                                    )}
-                                    {inquiry.sender_id !== null && (
+                                        <i className="ri-circle-fill text-sm"></i>
+                                      </span>
+                                    ) : null}
+                                    {inquiry.sender_id &&
+                                    inquiry.sender_id !== 0 ? (
                                       <button
                                         className="text-blue-600 hover:text-blue-700 cursor-pointer"
                                         title="Reply to inquiry"
                                       >
                                         <i className="ri-reply-line text-sm sm:text-base"></i>
                                       </button>
-                                    )}
+                                    ) : null}
                                   </div>
                                 ))}
                               </>
@@ -1558,14 +1602,9 @@ export default function ContentManagement() {
                               <i className="ri-eye-line text-lg"></i>
                             </button>
                             {!inquiry.is_read && (
-                              <button
-                                className="text-green-600 hover:text-green-700 cursor-pointer"
-                                title={t(
-                                  "contentManagement.inquiries.markAsRead"
-                                )}
-                              >
-                                <i className="ri-check-line text-lg"></i>
-                              </button>
+                              <span className="text-yellow-500" title="Unread">
+                                <i className="ri-circle-fill text-sm"></i>
+                              </span>
                             )}
                           </div>
                         </td>
@@ -2053,10 +2092,7 @@ export default function ContentManagement() {
                   {t("contentManagement.inquiries.inquiryDetails")}
                 </h2>
                 <button
-                  onClick={() => {
-                    setShowInquiryModal(false);
-                    setSelectedInquiry(null);
-                  }}
+                  onClick={handleCloseInquiryModal}
                   className="text-gray-400 hover:text-gray-600"
                 >
                   <i className="ri-close-line text-2xl"></i>
@@ -2194,30 +2230,64 @@ export default function ContentManagement() {
                   </p>
                 </div>
 
+                {/* Reply Form */}
+                {selectedInquiry.sender_id &&
+                  selectedInquiry.sender_id !== 0 && (
+                    <div className="mt-4 pt-4 border-t">
+                      <h4 className="font-medium text-gray-700 mb-2">
+                        {t("contentManagement.inquiries.reply")}
+                      </h4>
+                      <textarea
+                        value={replyMessage}
+                        onChange={(e) => setReplyMessage(e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded-lg mb-2"
+                        rows={3}
+                        placeholder={t(
+                          "contentManagement.inquiries.replyPlaceholder"
+                        )}
+                      />
+                      <div className="flex justify-end space-x-3">
+                        <button
+                          onClick={handleReplyToInquiry}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+                          disabled={!replyMessage.trim() || isReplying}
+                        >
+                          {isReplying ? (
+                            <>
+                              <svg
+                                className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                              >
+                                <circle
+                                  className="opacity-25"
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  strokeWidth="4"
+                                ></circle>
+                                <path
+                                  className="opacity-75"
+                                  fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                ></path>
+                              </svg>
+                              {t("contentManagement.inquiries.sending")}
+                            </>
+                          ) : (
+                            t("contentManagement.inquiries.sendReply")
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                 {/* Actions */}
                 <div className="flex justify-end space-x-3 pt-4 border-t">
-                  {!selectedInquiry.is_read && (
-                    <button
-                      onClick={() => {
-                        handleMarkAsRead(selectedInquiry.id);
-                        setShowInquiryModal(false);
-                        setSelectedInquiry(null);
-                      }}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                    >
-                      {t("contentManagement.inquiries.markAsRead")}
-                    </button>
-                  )}
-                  {selectedInquiry.sender_id !== null && (
-                    <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                      {t("contentManagement.inquiries.reply")}
-                    </button>
-                  )}
                   <button
-                    onClick={() => {
-                      setShowInquiryModal(false);
-                      setSelectedInquiry(null);
-                    }}
+                    onClick={handleCloseInquiryModal}
                     className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
                   >
                     {t("contentManagement.actions.close")}
