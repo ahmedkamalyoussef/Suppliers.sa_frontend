@@ -27,7 +27,12 @@ import {
 import { TopRatedSuppliersResponse } from "./types/topRatedSuppliers";
 import { AdminDashboardResponse } from "./types/adminDashboard";
 import { AnalyticsResponse } from "./types/analytics";
-import { SystemSettings, SystemSettingsResponse, UpdateSystemSettingsRequest, UpdateSystemSettingsResponse } from "./types/systemSettings";
+import {
+  SystemSettings,
+  SystemSettingsResponse,
+  UpdateSystemSettingsRequest,
+  UpdateSystemSettingsResponse,
+} from "./types/systemSettings";
 import { RatingsResponse, RatingActionResponse } from "./types/ratings";
 import { DocumentsResponse, DocumentActionResponse } from "./types/documents";
 
@@ -569,23 +574,27 @@ class ApiService {
       // Handle specific error responses
       if (error.message) {
         // If the error message is already in the right format, pass it through
-        if (error.message.includes("Too many login attempts") || 
-            error.message.includes("max_attempts") ||
-            error.message.includes("Invalid") ||
-            error.message.includes("locked")) {
+        if (
+          error.message.includes("Too many login attempts") ||
+          error.message.includes("max_attempts") ||
+          error.message.includes("Invalid") ||
+          error.message.includes("locked")
+        ) {
           throw new Error(error.message);
         }
       }
-      
+
       // For other errors, create a more user-friendly message
       if (error.status === 429) {
         throw new Error("Too many login attempts. Please try again later.");
       } else if (error.status === 401) {
         throw new Error("Invalid email or password. Please try again.");
       } else if (error.status === 423) {
-        throw new Error("Account temporarily locked due to security reasons. Please contact support.");
+        throw new Error(
+          "Account temporarily locked due to security reasons. Please contact support."
+        );
       }
-      
+
       throw error;
     }
   }
@@ -697,6 +706,19 @@ class ApiService {
     category?: string; // Add category as a separate parameter
     ai?: string; // Add AI parameter for advanced filtering
   }): Promise<BusinessListResponse> {
+    console.log(
+      "getBusinesses called with params:",
+      JSON.stringify(params, null, 2)
+    );
+    console.log("Timestamp:", new Date().toISOString());
+
+    // Log each parameter separately for better readability
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        console.log(`Parameter - ${key}:`, value);
+      });
+    }
+
     const queryParams = new URLSearchParams();
 
     const options: RequestInit = { method: "GET" };
@@ -1501,18 +1523,21 @@ class ApiService {
     return this.request(
       `/api/admin/inquiries/${inquiryId}/read`,
       {
-        method: "POST"
+        method: "POST",
       },
       true
     );
   }
 
-  async replyToInquiryAdmin(data: { id: number; message: string }): Promise<{ message: string }> {
+  async replyToInquiryAdmin(data: {
+    id: number;
+    message: string;
+  }): Promise<{ message: string }> {
     return this.request(
       "/api/admin/inquiries/reply",
       {
         method: "POST",
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       },
       true
     );
@@ -1688,9 +1713,9 @@ class ApiService {
 
   async exportAdminAnalytics(range?: number): Promise<void> {
     const queryParams = new URLSearchParams();
-    
+
     if (range) {
-      queryParams.append('range', range.toString());
+      queryParams.append("range", range.toString());
     }
 
     const token = localStorage.getItem("supplier_token");
@@ -1699,7 +1724,9 @@ class ApiService {
     if (!token) throw new Error("No auth token found");
 
     const response = await fetch(
-      `${this.baseURL}/api/admin/dashboard/analytics/export?${queryParams.toString()}`,
+      `${
+        this.baseURL
+      }/api/admin/dashboard/analytics/export?${queryParams.toString()}`,
       {
         method: "GET",
         headers: {
@@ -1736,7 +1763,9 @@ class ApiService {
   }
 
   // Update system settings
-  async updateSystemSettings(settings: UpdateSystemSettingsRequest): Promise<UpdateSystemSettingsResponse> {
+  async updateSystemSettings(
+    settings: UpdateSystemSettingsRequest
+  ): Promise<UpdateSystemSettingsResponse> {
     return this.request<UpdateSystemSettingsResponse>(
       "/api/admin/system/settings",
       {
@@ -1748,7 +1777,10 @@ class ApiService {
   }
 
   // Restore system settings to default
-  async restoreSystemSettings(): Promise<{ success: boolean; message: string }> {
+  async restoreSystemSettings(): Promise<{
+    success: boolean;
+    message: string;
+  }> {
     return this.request<{ success: boolean; message: string }>(
       "/api/admin/system/settings/restore",
       {
@@ -1759,9 +1791,9 @@ class ApiService {
   }
 
   // Create system backup
-  async createSystemBackup(): Promise<{ 
-    success: boolean; 
-    message: string; 
+  async createSystemBackup(): Promise<{
+    success: boolean;
+    message: string;
     backup?: {
       filename: string;
       path: string;
@@ -1770,9 +1802,9 @@ class ApiService {
       size_formatted: string;
     };
   }> {
-    return this.request<{ 
-      success: boolean; 
-      message: string; 
+    return this.request<{
+      success: boolean;
+      message: string;
       backup?: {
         filename: string;
         path: string;
@@ -1790,7 +1822,10 @@ class ApiService {
   }
 
   // Get maintenance status (no authentication required)
-  async getMaintenanceStatus(): Promise<{ success: boolean; maintenance_mode: boolean }> {
+  async getMaintenanceStatus(): Promise<{
+    success: boolean;
+    maintenance_mode: boolean;
+  }> {
     try {
       const response = await fetch(`${this.baseURL}/api/maintenance/status`, {
         method: "GET",
@@ -1817,13 +1852,17 @@ class ApiService {
   // =====================================
   // Ratings API
   // =====================================
-  async getRatings(status: string = "all", page: number = 1, perPage: number = 15): Promise<RatingsResponse> {
+  async getRatings(
+    status: string = "all",
+    page: number = 1,
+    perPage: number = 15
+  ): Promise<RatingsResponse> {
     const params = new URLSearchParams({
       status,
       page: page.toString(),
       per_page: perPage.toString(),
     });
-    
+
     return this.request<RatingsResponse>(
       `/api/admin/ratings?${params.toString()}`,
       {
@@ -1866,13 +1905,17 @@ class ApiService {
   // =====================================
   // Documents API
   // =====================================
-  async getDocuments(status: string = "all", page: number = 1, perPage: number = 15): Promise<DocumentsResponse> {
+  async getDocuments(
+    status: string = "all",
+    page: number = 1,
+    perPage: number = 15
+  ): Promise<DocumentsResponse> {
     const params = new URLSearchParams({
       status,
       page: page.toString(),
       per_page: perPage.toString(),
     });
-    
+
     return this.request<DocumentsResponse>(
       `/api/admin/documents?${params.toString()}`,
       {
@@ -1892,7 +1935,10 @@ class ApiService {
     );
   }
 
-  async rejectDocument(documentId: number, reason?: string): Promise<DocumentActionResponse> {
+  async rejectDocument(
+    documentId: number,
+    reason?: string
+  ): Promise<DocumentActionResponse> {
     return this.request<DocumentActionResponse>(
       `/api/admin/documents/${documentId}/reject`,
       {
@@ -1918,14 +1964,16 @@ class ApiService {
   // =====================================
   async getInquiries(isRead?: boolean): Promise<AdminInquiryListResponse> {
     const params = new URLSearchParams();
-    
+
     if (isRead !== undefined) {
-      params.append('isread', isRead.toString());
+      params.append("isread", isRead.toString());
     }
-    
+
     const queryString = params.toString();
-    const url = `/api/admin/inquiries/list${queryString ? '?' + queryString : ''}`;
-    
+    const url = `/api/admin/inquiries/list${
+      queryString ? "?" + queryString : ""
+    }`;
+
     return this.request<AdminInquiryListResponse>(
       url,
       {
@@ -1934,7 +1982,6 @@ class ApiService {
       true // Requires authentication
     );
   }
-
 }
 
 // Supplier Inquiry Interfaces

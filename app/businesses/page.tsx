@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense, useCallback, useMemo } from "react";
 import type React from "react";
 import { useSearchParams } from "next/navigation";
+import { AISearchProvider, useAISearch } from "../../contexts/AISearchContext";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { useLanguage } from "../../lib/LanguageContext";
@@ -64,6 +65,7 @@ type AIFilterPayload = {
 // Suspense wrapper for useSearchParams
 function BusinessesContent() {
   const { t } = useLanguage();
+  const { aiSearchQuery } = useAISearch();
   const searchParams = useSearchParams();
   const [selectedDistance, setSelectedDistance] = useState<string>("");
   const [filteredBusinesses, setFilteredBusinesses] = useState<Business[]>([]);
@@ -151,8 +153,7 @@ function BusinessesContent() {
   ]);
 
   // Log when selectedCategory changes
-  useEffect(() => {
-  }, [selectedCategory]);
+  useEffect(() => {}, [selectedCategory]);
 
   // Fetch businesses from API
   useEffect(() => {
@@ -208,7 +209,7 @@ function BusinessesContent() {
         // Handle URL parameters if they exist
         const category = searchParams.get("category");
         const aiSearch = searchParams.get("search");
-        
+
         if (category) {
           params.category = category;
           setSelectedCategory(category);
@@ -218,11 +219,15 @@ function BusinessesContent() {
         if (aiSearch && aiSearch.trim()) {
           params.ai = aiSearch;
         }
+        
+        // Also check if we have an AI search query from context
+        if (aiSearchQuery && aiSearchQuery.trim()) {
+          params.ai = aiSearchQuery.trim();
+        }
 
         const response = await apiService.getBusinesses(params);
         // Map API response to Business type
         const apiBusinesses: Business[] = response.data.map((business: any) => {
-
           const mappedBusiness: Business = {
             // First spread the original business data to keep all fields
             ...business,
@@ -301,27 +306,26 @@ function BusinessesContent() {
         }));
 
         setBusinessLocations(locations);
-      } catch (error) {
-      }
+      } catch (error) {}
     };
 
     fetchBusinesses();
 
     // Cleanup function
-    return () => {
-    };
+    return () => {};
   }, [
     currentPage,
-    itemsPerPage,
+    showAllBusinesses,
     sortBy,
     selectedCategory,
     selectedBusinessType,
     debouncedSearch,
     debouncedAddress,
-    searchParams,
+    selectedDistance,
     verifiedOnly,
     openNow,
-    openNow,
+    searchParams,
+    aiSearchQuery,
   ]);
 
   // Apply filters from URL parameters when component mounts
@@ -795,17 +799,24 @@ function BusinessesContent() {
 
   // Transform businesses to match InteractiveMap's expected format
   const mapBusinesses = useMemo(() => {
-    return filteredBusinesses.map(business => {
-      const serviceDistance = typeof business.serviceDistance === 'string' 
-        ? parseFloat(business.serviceDistance) 
-        : business.serviceDistance || 0;
-        
+    return filteredBusinesses.map((business) => {
+      const serviceDistance =
+        typeof business.serviceDistance === "string"
+          ? parseFloat(business.serviceDistance)
+          : business.serviceDistance || 0;
+
       return {
         id: business.id,
         name: business.name,
-        address: business.location || 'Address not available',
-        lat: typeof business.lat === 'string' ? parseFloat(business.lat) : business.lat || 0,
-        lng: typeof business.lng === 'string' ? parseFloat(business.lng) : business.lng || 0,
+        address: business.location || "Address not available",
+        lat:
+          typeof business.lat === "string"
+            ? parseFloat(business.lat)
+            : business.lat || 0,
+        lng:
+          typeof business.lng === "string"
+            ? parseFloat(business.lng)
+            : business.lng || 0,
         type: business.businessType,
         category: business.category,
         categories: business.categories || [],
@@ -815,9 +826,9 @@ function BusinessesContent() {
         rating: business.rating || 0,
         reviewsCount: business.reviewsCount || 0,
         status: business.status,
-        phone: business.phone || '',
-        contactEmail: business.contactEmail || '',
-        description: business.description || ''
+        phone: business.phone || "",
+        contactEmail: business.contactEmail || "",
+        description: business.description || "",
       };
     });
   }, [filteredBusinesses]);
@@ -958,7 +969,7 @@ function BusinessesContent() {
                       </div>
 
                       <div className="h-[500px] w-full rounded-lg overflow-hidden">
-                        <InteractiveMap 
+                        <InteractiveMap
                           businesses={mapBusinesses}
                           onBusinessClick={handleBusinessClick}
                         />
@@ -1052,7 +1063,9 @@ export default function BusinessesPage() {
         </div>
       }
     >
-      <BusinessesContent />
+      <AISearchProvider>
+        <BusinessesContent />
+      </AISearchProvider>
     </Suspense>
   );
 }

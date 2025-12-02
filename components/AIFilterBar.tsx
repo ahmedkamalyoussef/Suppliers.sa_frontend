@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type React from "react";
+import { useAISearch } from "../contexts/AISearchContext";
 
 type AISuggestions = {
   categories: string[];
@@ -22,26 +23,17 @@ export default function AIFilterBar({ onFilterChange }: AIFilterBarProps) {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const { setAISearchQuery } = useAISearch();
 
   const handleAISearch = async () => {
     if (!searchQuery.trim()) return;
 
     setIsProcessing(true);
 
-    // Update URL with search query to trigger API call
-    const url = new URL(window.location.href);
-    url.searchParams.set('search', searchQuery.trim());
-    window.history.pushState({}, '', url.toString());
-
-    // Simulate AI processing
-    setTimeout(() => {
-      const suggestions = generateAdvancedAISuggestions(searchQuery);
-      onFilterChange({
-        query: searchQuery,
-        filters: suggestions,
-      });
-      setIsProcessing(false);
-    }, 1500);
+    // Store the AI search query in context
+    setAISearchQuery(searchQuery.trim());
+    
+    setIsProcessing(false);
   };
 
   const generateAdvancedAISuggestions = (query: string): AISuggestions => {
