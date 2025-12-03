@@ -38,7 +38,6 @@ export default function AuthPage() {
     }
   };
 
-
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -51,7 +50,8 @@ export default function AuthPage() {
       });
 
       // Handle different response structures
-      const token = response?.data?.token || response?.token || response?.access_token;
+      const token =
+        response?.data?.token || response?.token || response?.access_token;
       const success = response?.success !== false && (token || response?.data);
 
       if (success && token) {
@@ -62,7 +62,10 @@ export default function AuthPage() {
         router.push("/dashboard");
       } else {
         setErrors({
-          general: response?.message || response?.data?.message || t("auth.errors.loginFailed"),
+          general:
+            response?.message ||
+            response?.data?.message ||
+            t("auth.errors.loginFailed"),
         });
       }
     } catch (err: any) {
@@ -96,25 +99,31 @@ export default function AuthPage() {
 
     setIsSubmitting(true);
     try {
-      const response: any = await api.post(API_CONFIG.registration.supplierRegister, {
-        businessName: formData.businessName,
-        email: formData.email,
-        phone: formData.phone,
-        password: formData.password,
-        password_confirmation: formData.password,
-      });
+      const response: any = await api.post(
+        API_CONFIG.registration.supplierRegister,
+        {
+          businessName: formData.businessName,
+          email: formData.email,
+          phone: formData.phone,
+          password: formData.password,
+          password_confirmation: formData.password,
+        }
+      );
 
       // Handle different response structures
       const success = response?.success !== false && !response?.error;
-      
+
       if (success) {
         setStep(2);
       } else {
-        const errorMsg = response?.message || 
-                        response?.data?.message || 
-                        response?.error?.message ||
-                        (Array.isArray(response?.errors) ? response.errors.join(", ") : null) ||
-                        t("auth.errors.registrationFailed");
+        const errorMsg =
+          response?.message ||
+          response?.data?.message ||
+          response?.error?.message ||
+          (Array.isArray(response?.errors)
+            ? response.errors.join(", ")
+            : null) ||
+          t("auth.errors.registrationFailed");
         setErrors({ general: errorMsg });
       }
     } catch (err: any) {
@@ -141,14 +150,15 @@ export default function AuthPage() {
 
       // Handle different response structures
       const success = response?.success !== false && !response?.error;
-      
+
       if (success) {
         setStep(3);
       } else {
-        const errorMsg = response?.message || 
-                        response?.data?.message || 
-                        response?.error?.message ||
-                        t("auth.errors.otpSendFailed");
+        const errorMsg =
+          response?.message ||
+          response?.data?.message ||
+          response?.error?.message ||
+          t("auth.errors.otpSendFailed");
         setErrors({ general: errorMsg });
         setIsVerifying(false);
       }
@@ -161,7 +171,6 @@ export default function AuthPage() {
       setIsVerifying(false);
     }
   };
-
 
   const handleCodeChange = (index: number, value: string) => {
     if (value.length <= 1 && /^\d*$/.test(value)) {
@@ -203,19 +212,21 @@ export default function AuthPage() {
       });
 
       // Handle different response structures
-      const token = response?.data?.token || response?.token || response?.access_token;
+      const token =
+        response?.data?.token || response?.token || response?.access_token;
       const success = response?.success !== false && !response?.error;
-      
+
       if (success) {
         if (token) {
           api.setToken(token);
         }
         setStep(4);
       } else {
-        const errorMsg = response?.message || 
-                        response?.data?.message || 
-                        response?.error?.message ||
-                        t("auth.errors.invalidCode");
+        const errorMsg =
+          response?.message ||
+          response?.data?.message ||
+          response?.error?.message ||
+          t("auth.errors.invalidCode");
         setErrors({ code: errorMsg });
       }
     } catch (err: any) {
@@ -413,8 +424,6 @@ export default function AuthPage() {
           </div>
         </div>
       </div>
-
-      
     </div>
   );
 
@@ -454,8 +463,6 @@ export default function AuthPage() {
           {t("auth.tabs.signup")}
         </button>
       </div>
-
-      
 
       <form onSubmit={handleStep1Submit} className="space-y-6">
         {errors.general && (
@@ -601,8 +608,6 @@ export default function AuthPage() {
         <p className="text-gray-600">{t("auth.signup.step2.subtitle")}</p>
       </div>
 
-      
-
       <div className="space-y-4">
         <button
           onClick={() => handleVerificationMethodSelect("phone")}
@@ -679,8 +684,6 @@ export default function AuthPage() {
             : t("auth.signup.step3.email")}
         </p>
       </div>
-
-      
 
       <div className="space-y-6">
         <div className="flex justify-center space-x-4">

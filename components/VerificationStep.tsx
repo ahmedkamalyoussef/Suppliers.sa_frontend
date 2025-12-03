@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { useLanguage } from "../lib/LanguageContext";
 import { useAuth } from "../lib/UserContext";
-import { apiService, type SendOtpRequest, type VerifyOtpRequest } from "../lib/api";
+import {
+  apiService,
+  type SendOtpRequest,
+  type VerifyOtpRequest,
+} from "../lib/api";
 
 interface VerificationStepProps {
   phone: string;
@@ -12,33 +16,37 @@ interface VerificationStepProps {
   onBack: () => void;
 }
 
-export default function VerificationStep({ 
-  phone, 
-  email, 
-  onVerificationSuccess, 
-  onBack 
+export default function VerificationStep({
+  phone,
+  email,
+  onVerificationSuccess,
+  onBack,
 }: VerificationStepProps) {
   const { t } = useLanguage();
   const { login } = useAuth();
   const [currentStep, setCurrentStep] = useState<"method" | "code">("method");
-  const CODE_LENGTH = 6; // عدد أرقام الكود
+  const CODE_LENGTH = 4; // عدد أرقام الكود
   const [verificationCode, setVerificationCode] = useState<string[]>(
     Array(CODE_LENGTH).fill("")
   );
-  const [verificationMethod, setVerificationMethod] = useState<"phone" | "email">("phone");
+  const [verificationMethod, setVerificationMethod] = useState<
+    "phone" | "email"
+  >("phone");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const handleVerificationMethodSelect = async (method: "phone" | "email") => {
     setVerificationMethod(method);
     setIsSubmitting(true);
-    
+
     try {
       // Send OTP via email API
       await apiService.sendOtp({ email });
       setCurrentStep("code");
     } catch (error) {
-      setErrors({ general: "Failed to send verification code. Please try again." });
+      setErrors({
+        general: "Failed to send verification code. Please try again.",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -76,7 +84,10 @@ export default function VerificationStep({
     }
   };
 
-  const handleCodeKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleCodeKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
     if (e.key === "Backspace") {
       if (verificationCode[index]) {
         const newCode = [...verificationCode];
@@ -92,44 +103,69 @@ export default function VerificationStep({
   const handleVerifyCode = async () => {
     const enteredCode = verificationCode.join("");
     if (enteredCode.length !== CODE_LENGTH) {
-      setErrors({ code: t("register.errors.codeIncomplete") || "Please enter a complete verification code" });
+      setErrors({
+        code:
+          t("register.errors.codeIncomplete") ||
+          "Please enter a complete verification code",
+      });
       return;
     }
-    
+
     setIsSubmitting(true);
     setErrors({});
-    
+
     try {
       // Verify OTP via API
-      const response = await apiService.verifyOtp({ 
-        email, 
-        otp: enteredCode 
+      const response = await apiService.verifyOtp({
+        email,
+        otp: enteredCode,
       });
-      
+
       // Check if verification was successful and token was stored
-      if (response.accessToken || (response.supplier && response.message?.toLowerCase().includes("verified"))) {
+      if (
+        response.accessToken ||
+        (response.supplier &&
+          response.message?.toLowerCase().includes("verified"))
+      ) {
         // Use AuthContext login if user data is available
         if (response.supplier && response.accessToken) {
-          login(response.supplier, response.accessToken, response.tokenType || "Bearer");
+          login(
+            response.supplier,
+            response.accessToken,
+            response.tokenType || "Bearer"
+          );
         }
-        
+
         // Store verification data in localStorage for complete profile page
-        localStorage.setItem('verificationData', JSON.stringify(response));
-        
+        localStorage.setItem("verificationData", JSON.stringify(response));
+
         onVerificationSuccess();
       } else {
         setErrors({ code: response.message || "Invalid verification code" });
       }
     } catch (error: any) {
-      
-      // Check if the error message indicates success and has token
-      if (error.accessToken || (error.supplier && error.message?.toLowerCase().includes("verified"))) {
+      // Check if the error response contains successful login data
+      if (
+        error.accessToken ||
+        (error.supplier && error.message?.toLowerCase().includes("verified"))
+      ) {
+        // Use AuthContext login if user data is available
+        if (error.supplier && error.accessToken) {
+          login(
+            error.supplier,
+            error.accessToken,
+            error.tokenType || "Bearer"
+          );
+        }
+
         // Store verification data in localStorage for complete profile page
-        localStorage.setItem('verificationData', JSON.stringify(error));
-        
+        localStorage.setItem("verificationData", JSON.stringify(error));
+
         onVerificationSuccess();
       } else {
-        setErrors({ code: error.message || "Invalid verification code. Please try again." });
+        setErrors({
+          code: error.message || "Invalid verification code. Please try again.",
+        });
       }
     } finally {
       setIsSubmitting(false);
@@ -140,11 +176,13 @@ export default function VerificationStep({
     setVerificationCode(Array(CODE_LENGTH).fill(""));
     setErrors({});
     setIsSubmitting(true);
-    
+
     try {
       await apiService.sendOtp({ email });
     } catch (error) {
-      setErrors({ general: "Failed to resend verification code. Please try again." });
+      setErrors({
+        general: "Failed to resend verification code. Please try again.",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -251,7 +289,11 @@ export default function VerificationStep({
               </span>
             </div>
             <p className="text-blue-700 text-sm mt-1">
-              We've sent a verification code to your {verificationMethod === "phone" ? "phone number" : "email address"}: {verificationMethod === "phone" ? phone : email}
+              We've sent a verification code to your{" "}
+              {verificationMethod === "phone"
+                ? "phone number"
+                : "email address"}
+              : {verificationMethod === "phone" ? phone : email}
             </p>
           </div>
 
@@ -266,7 +308,9 @@ export default function VerificationStep({
                   pattern="[0-9]*"
                   maxLength={CODE_LENGTH}
                   value={digit}
-                  onChange={(e) => handleVerificationCodeChange(index, e.target.value)}
+                  onChange={(e) =>
+                    handleVerificationCodeChange(index, e.target.value)
+                  }
                   onKeyDown={(e) => handleCodeKeyDown(index, e)}
                   className="w-12 h-12 text-center text-2xl font-bold border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400"
                 />
@@ -283,7 +327,9 @@ export default function VerificationStep({
                 disabled={isSubmitting}
                 className="w-full bg-yellow-400 text-white py-3 px-6 rounded-lg hover:bg-yellow-500 font-semibold whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? "Verifying..." : t("register.step3.verifyButton")}
+                {isSubmitting
+                  ? "Verifying..."
+                  : t("register.step3.verifyButton")}
               </button>
             </div>
 

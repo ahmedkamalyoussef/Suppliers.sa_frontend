@@ -440,18 +440,24 @@ export default function BusinessCard({
 
         {/* Buttons - Always at bottom */}
         <div className="flex space-x-2 mt-auto">
-          {business.preferences?.allow_direct_contact !== false && isLoggedIn() && (
-            <button
-              onClick={() => setShowMessageModal(true)}
-              className={`flex-1 py-2 px-3 rounded-lg font-medium text-xs whitespace-nowrap cursor-pointer bg-yellow-400 text-white hover:bg-yellow-500`}
-            >
-              <i className="ri-message-line mr-2"></i>
-              {t("businessCard.message")}
-            </button>
-          )}
+          {business.preferences?.allow_direct_contact !== false &&
+            isLoggedIn() && (
+              <button
+                onClick={() => setShowMessageModal(true)}
+                className={`flex-1 py-2 px-3 rounded-lg font-medium text-xs whitespace-nowrap cursor-pointer bg-yellow-400 text-white hover:bg-yellow-500`}
+              >
+                <i className="ri-message-line mr-2"></i>
+                {t("businessCard.message")}
+              </button>
+            )}
           <button
             onClick={handleViewProfile}
-            className={`${isLoggedIn() && business.preferences?.allow_direct_contact !== false ? 'flex-1' : 'w-full'} border border-yellow-400 text-yellow-600 py-2 px-3 rounded-lg hover:bg-yellow-50 font-medium text-xs whitespace-nowrap cursor-pointer text-center`}
+            className={`${
+              isLoggedIn() &&
+              business.preferences?.allow_direct_contact !== false
+                ? "flex-1"
+                : "w-full"
+            } border border-yellow-400 text-yellow-600 py-2 px-3 rounded-lg hover:bg-yellow-50 font-medium text-xs whitespace-nowrap cursor-pointer text-center`}
           >
             {t("businessCard.viewProfile")}
           </button>

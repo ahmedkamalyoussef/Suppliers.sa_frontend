@@ -18,7 +18,6 @@ export function middleware(request: NextRequest) {
     pathname === "/forgot-password"
   ) {
     if (token && userType) {
-
       if (userType === "admin") {
         return NextResponse.redirect(new URL("/admin", request.url));
       } else if (userType === "supplier") {
@@ -50,7 +49,11 @@ export function middleware(request: NextRequest) {
   // ==========================================
   // 3. Protect supplier dashboard
   // ==========================================
-  if (pathname.startsWith("/dashboard")||pathname.startsWith("/profile") || pathname.startsWith("/complete-profile")) {
+  if (
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/profile") ||
+    pathname.startsWith("/complete-profile")
+  ) {
     // Not authenticated
     if (!token) {
       const loginUrl = new URL("/login", request.url);
@@ -71,11 +74,13 @@ export function middleware(request: NextRequest) {
   // ==========================================
   if (token && (userType === "admin" || userType === "super_admin")) {
     // Admins can only access admin pages
-    if (!pathname.startsWith("/admin") && 
-        !pathname.startsWith("/api") && 
-        !pathname.startsWith("/_next") &&
-        !pathname.includes(".") && // Skip static files
-        pathname !== "/favicon.ico") {
+    if (
+      !pathname.startsWith("/admin") &&
+      !pathname.startsWith("/api") &&
+      !pathname.startsWith("/_next") &&
+      !pathname.includes(".") && // Skip static files
+      pathname !== "/favicon.ico"
+    ) {
       return NextResponse.redirect(new URL("/admin", request.url));
     }
   }

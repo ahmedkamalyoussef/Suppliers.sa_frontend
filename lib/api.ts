@@ -196,8 +196,11 @@ export interface OtpResponse {
   message: string;
   success: boolean;
   supplier?: any;
+  admin?: any;
+  super_admin?: any;
   accessToken?: string;
   tokenType?: string;
+  userType?: "supplier" | "admin" | "super_admin";
 }
 
 export interface ProfileUpdateData {
@@ -682,8 +685,28 @@ class ApiService {
     });
 
     if (response.accessToken) {
+      // Save to localStorage
       localStorage.setItem("supplier_token", response.accessToken);
       localStorage.setItem("token_type", response.tokenType || "Bearer");
+
+      // Save to cookies (for middleware)
+      this.setCookie("supplier_token", response.accessToken, 7);
+      this.setCookie("token_type", response.tokenType || "Bearer", 7);
+
+      // Handle user type and user data
+      if (response.userType === "supplier" && response.supplier) {
+        localStorage.setItem("user_type", "supplier");
+        localStorage.setItem("supplier_user", JSON.stringify(response.supplier));
+        this.setCookie("user_type", "supplier", 7);
+      } else if (response.userType === "admin" && response.admin) {
+        localStorage.setItem("user_type", "admin");
+        localStorage.setItem("admin_user", JSON.stringify(response.admin));
+        this.setCookie("user_type", "admin", 7);
+      } else if (response.userType === "super_admin" && response.super_admin) {
+        localStorage.setItem("user_type", "admin");
+        localStorage.setItem("admin_user", JSON.stringify(response.super_admin));
+        this.setCookie("user_type", "admin", 7);
+      }
     }
 
     return response;
