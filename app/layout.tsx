@@ -2,6 +2,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { LanguageProvider } from "../lib/LanguageContext";
 import { AuthProvider } from "../lib/UserContext";
+import { AISearchProvider } from "../contexts/AISearchContext";
 import { Metadata } from "next";
 import "leaflet/dist/leaflet.css";
 import { ToastContainer } from "react-toastify";
@@ -129,29 +130,31 @@ export default function RootLayout({
         className={`${inter.variable} ${pacifico.variable} ${robotoMono.variable} font-sans`}
       >
         <AuthProvider>
-          <LanguageProvider>
-            <MaintenanceChecker>
-              {children}
-            </MaintenanceChecker>
-            <ToastContainer
-              position="top-center"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop
-              closeOnClick
-              rtl={true}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme="light"
-              toastStyle={{
-                fontFamily: "var(--font-inter), sans-serif",
-                fontSize: "1rem",
-                direction: "rtl",
-                textAlign: "right",
-              }}
-            />
-          </LanguageProvider>
+          <AISearchProvider>
+            <LanguageProvider>
+              <MaintenanceChecker>
+                {children}
+              </MaintenanceChecker>
+              <ToastContainer
+                position="top-center"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop
+                closeOnClick
+                rtl={true}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+                toastStyle={{
+                  fontFamily: "var(--font-inter), sans-serif",
+                  fontSize: "1rem",
+                  direction: "rtl",
+                  textAlign: "right",
+                }}
+              />
+            </LanguageProvider>
+          </AISearchProvider>
         </AuthProvider>
       </body>
     </html>

@@ -23,7 +23,7 @@ export default function AIFilterBar({ onFilterChange }: AIFilterBarProps) {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
-  const { setAISearchQuery } = useAISearch();
+  const { aiSearchQuery, setAISearchQuery } = useAISearch();
 
   // Clear AI search query when input field becomes empty
   useEffect(() => {
@@ -32,6 +32,18 @@ export default function AIFilterBar({ onFilterChange }: AIFilterBarProps) {
     }
   }, [searchQuery, setAISearchQuery]);
 
+  // Handle AI search query from context (set by AIChatWidget)
+  useEffect(() => {
+    if (aiSearchQuery && aiSearchQuery.trim() && aiSearchQuery !== searchQuery) {
+      setSearchQuery(aiSearchQuery);
+      setIsVisible(true);
+      // Automatically trigger the search
+      setTimeout(() => {
+        handleAISearchWithQuery(aiSearchQuery);
+      }, 100);
+    }
+  }, [aiSearchQuery]);
+
   const handleAISearch = async () => {
     if (!searchQuery.trim()) return;
 
@@ -39,6 +51,32 @@ export default function AIFilterBar({ onFilterChange }: AIFilterBarProps) {
 
     // Store the AI search query in context
     setAISearchQuery(searchQuery.trim());
+    
+    // Generate AI suggestions and apply filters
+    const suggestions = generateAdvancedAISuggestions(searchQuery);
+    
+    // Call the onFilterChange prop to update the businesses list
+    onFilterChange({
+      query: searchQuery,
+      filters: suggestions
+    });
+    
+    setIsProcessing(false);
+  };
+
+  const handleAISearchWithQuery = async (query: string) => {
+    if (!query.trim()) return;
+
+    setIsProcessing(true);
+
+    // Generate AI suggestions and apply filters
+    const suggestions = generateAdvancedAISuggestions(query);
+    
+    // Call the onFilterChange prop to update the businesses list
+    onFilterChange({
+      query: query,
+      filters: suggestions
+    });
     
     setIsProcessing(false);
   };

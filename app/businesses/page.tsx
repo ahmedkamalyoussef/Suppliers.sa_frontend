@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense, useCallback, useMemo } from "react";
 import type React from "react";
 import { useSearchParams } from "next/navigation";
-import { AISearchProvider, useAISearch } from "../../contexts/AISearchContext";
+import { useAISearch } from "../../contexts/AISearchContext";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { useLanguage } from "../../lib/LanguageContext";
@@ -1065,9 +1065,7 @@ export default function BusinessesPage() {
         </div>
       }
     >
-      <AISearchProvider>
-        <BusinessesContent />
-      </AISearchProvider>
+      <BusinessesContent />
     </Suspense>
   );
 }

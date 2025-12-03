@@ -4,6 +4,20 @@ import { useState, useRef, useEffect } from "react";
 import type React from "react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "../lib/LanguageContext";
+import { useAISearch } from "../contexts/AISearchContext";
+
+// Helper hook to safely use AISearch context
+function useAISearchSafe() {
+  try {
+    return useAISearch();
+  } catch (error) {
+    // Return a no-op fallback when context is not available
+    return {
+      aiSearchQuery: null,
+      setAISearchQuery: () => {},
+    };
+  }
+}
 
 type ChatSender = "ai" | "user";
 type ChatMessage = {
@@ -24,6 +38,7 @@ type AISuggestions = {
 
 export default function AIChatWidget() {
   const { t } = useLanguage();
+  const { setAISearchQuery } = useAISearchSafe();
   const [isMinimized, setIsMinimized] = useState<boolean>(true);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -209,30 +224,13 @@ export default function AIChatWidget() {
   };
 
   const navigateAndFilter = (suggestions: AISuggestions, query: string) => {
-    // Create URL with search parameters for filtering
-    const params = new URLSearchParams();
-
-    if (suggestions.categories.length > 0) {
-      params.set("category", suggestions.categories[0]);
+    // Set the AI search query in context to be used by AIFilterBar
+    setAISearchQuery(query);
+    
+    // Optionally navigate to businesses page if not already there
+    if (window.location.pathname !== '/businesses') {
+      router.push('/businesses');
     }
-    if (suggestions.locations.length > 0) {
-      params.set("location", suggestions.locations[0]);
-    }
-    if (suggestions.businessTypes.length > 0) {
-      params.set("type", suggestions.businessTypes[0]);
-    }
-    if (suggestions.rating) {
-      params.set("rating", suggestions.rating.toString());
-    }
-    if (suggestions.features.length > 0) {
-      params.set("features", suggestions.features.join(","));
-    }
-
-    params.set("search", query);
-    params.set("ai_filtered", "true");
-
-    // Navigate to businesses page with filters
-    router.push(`/businesses?${params.toString()}`);
   };
 
   const simulateAIResponse = (userMessage: string): string => {
@@ -248,7 +246,7 @@ export default function AIChatWidget() {
       suggestions.locations.length > 0;
 
     if (hasEnoughInfo) {
-      // Navigate to businesses page with filters after a short delay
+      // Set AI search query and navigate after a short delay
       setTimeout(() => {
         navigateAndFilter(suggestions, userMessage);
       }, 2000);
