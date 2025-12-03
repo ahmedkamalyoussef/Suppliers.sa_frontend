@@ -36,285 +36,18 @@ import {
 import { RatingsResponse, RatingActionResponse } from "./types/ratings";
 import { DocumentsResponse, DocumentActionResponse } from "./types/documents";
 
+// Import extracted interfaces
+import { Review, Certification, Product, Service } from "./types/common";
+import { PermissionsResponse } from "./types/permissions";
+import { Phone, WorkingHour, SupplierProfileData, SupplierProfile, BusinessProfile } from "./types/supplier";
+import { RegistrationData, RegistrationResponse, SendOtpRequest, VerifyOtpRequest, ForgotPasswordRequest, ResetPasswordRequest, OtpResponse } from "./types/auth";
+import { ProfileUpdateData, ProfileUpdateResponse, DocumentUploadResponse } from "./types/profile";
+import { Business, BusinessListResponse } from "./types/business";
+import { ApiError, ValidationError } from "./types/errors";
+import { Inquiry, InquiryResponse as SupplierInquiryResponse, InquiryListResponse, ReadStatusResponse } from "./types/inquiries";
+
 const API_BASE_URL = "http://localhost:8000";
 
-export interface Review {
-  id: number;
-  rating: number;
-  comment: string;
-  created_at: string;
-  user: {
-    name: string;
-    avatar?: string;
-  };
-  reply?: {
-    id: number;
-    reply: string;
-    type: string;
-    created_at: string;
-  };
-}
-
-export interface Certification {
-  id: number;
-  certification_name: string;
-}
-
-export interface Product {
-  id: number;
-  product_name: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Service {
-  id: number;
-  service_name: string;
-}
-
-export interface PermissionsResponse {
-  permissions: {
-    user_management_view: boolean;
-    user_management_edit: boolean;
-    user_management_delete: boolean;
-    user_management_full: boolean;
-    content_management_view: boolean;
-    content_management_supervise: boolean;
-    content_management_delete: boolean;
-    analytics_view: boolean;
-    analytics_export: boolean;
-    reports_view: boolean;
-    reports_create: boolean;
-    system_manage: boolean;
-    system_settings: boolean;
-    system_backups: boolean;
-    support_manage: boolean;
-  };
-}
-
-export interface Phone {
-  id: number;
-  type: string;
-  number: string;
-  name: string;
-}
-
-export interface WorkingHour {
-  open: string;
-  close: string;
-  closed: boolean;
-}
-
-export interface SupplierProfileData {
-  business_type: string;
-  category: string;
-  business_image: string;
-  website: string;
-  contact_email: string;
-  description: string | null;
-  service_distance: string;
-  target_market: string[];
-  main_phone: string;
-  additional_phones: Phone[];
-  business_address: string;
-  latitude: string;
-  longitude: string;
-  working_hours: Record<string, WorkingHour>;
-  services_offered: string[];
-  products?: Product[];
-}
-
-export interface SupplierProfile {
-  id: number;
-  name: string;
-  status: string;
-  profile: SupplierProfileData;
-  profile_image: string;
-  ratings: {
-    average: number | null;
-    count: number;
-    reviews: Review[];
-  };
-  certifications: Certification[];
-  product_images: Array<{
-    id: number;
-    image_url: string;
-    name: string;
-  }>;
-  services: Service[];
-  preferences?: {
-    marketing_emails: boolean;
-    profile_visibility: "public" | "limited";
-    show_email_publicly: boolean;
-    show_phone_publicly: boolean;
-    allow_direct_contact: boolean;
-    allow_search_engine_indexing: boolean;
-  };
-}
-
-// BusinessProfile extends SupplierProfile with explicit products in profile
-export interface BusinessProfile extends Omit<SupplierProfile, "profile"> {
-  profile: SupplierProfileData & {
-    products: Product[]; // Company products inside profile
-  };
-}
-
-export interface RegistrationData {
-  businessName: string;
-  email: string;
-  phone: string;
-  password: string;
-  password_confirmation: string;
-}
-
-export interface RegistrationResponse {
-  message: string;
-  supplier: any;
-}
-
-export interface SendOtpRequest {
-  email: string;
-}
-
-export interface VerifyOtpRequest {
-  email: string;
-  otp: string;
-}
-
-export interface ForgotPasswordRequest {
-  email: string;
-}
-
-export interface ResetPasswordRequest {
-  email: string;
-  otp: string;
-  password: string;
-  password_confirmation: string;
-}
-
-export interface OtpResponse {
-  message: string;
-  success: boolean;
-  supplier?: any;
-  admin?: any;
-  super_admin?: any;
-  accessToken?: string;
-  tokenType?: string;
-  userType?: "supplier" | "admin" | "super_admin";
-}
-
-export interface ProfileUpdateData {
-  businessName?: string;
-  businessType?: string;
-  categories?: string[];
-  productKeywords?: string[];
-  whoDoYouServe?: string;
-  serviceDistance?: string;
-  services?: string[];
-  website?: string;
-  mainPhone?: string;
-  additionalPhones?: Array<{
-    number: string;
-    name: string;
-    type: string;
-  }>;
-  address?: string;
-  location?: { lat: number; lng: number };
-  description?: string;
-  workingHours?: {
-    [key: string]: {
-      closed?: boolean;
-      open?: string;
-      close?: string;
-    };
-  };
-  hasBranches?: boolean;
-  branches?: Array<{
-    name: string;
-    phone?: string;
-    email?: string;
-    address?: string;
-    manager?: string;
-    location?: { lat: number; lng: number };
-    workingHours?: {
-      [key: string]: {
-        closed?: boolean;
-        open?: string;
-        close?: string;
-      };
-    };
-    specialServices?: string[];
-    isMainBranch?: boolean;
-  }>;
-  contactEmail?: string; // From verification/login
-  contactPhone?: string; // From verification/login
-  category?: string;
-  document?: File; // Include document in main request
-}
-
-export interface ProfileUpdateResponse {
-  message: string;
-  supplier: any;
-}
-
-export interface DocumentUploadResponse {
-  message: string;
-  data: any;
-}
-
-export interface Business {
-  id: number;
-  name: string;
-  businessImage: string;
-  slug: string;
-  category: string;
-  categories: string[];
-  targetMarket: string[];
-  services: string[];
-  businessType: string;
-  address: string;
-  serviceDistance: number;
-  rating?: number;
-  reviewsCount: number;
-  status: string;
-  plan: string;
-  latitude: string;
-  longitude: string;
-  mainPhone: string;
-  contactEmail: string;
-  preferences: {
-    marketing_emails: boolean;
-    profile_visibility: "public" | "limited";
-    show_email_publicly: boolean;
-    show_phone_publicly: boolean;
-    allow_direct_contact: boolean;
-    allow_search_engine_indexing: boolean;
-  };
-}
-
-export interface BusinessListResponse {
-  data: Business[];
-  meta: {
-    current_page: number;
-    per_page: number;
-    total: number;
-    last_page: number;
-  };
-}
-
-export interface ApiError {
-  [key: string]: string[];
-}
-
-export class ValidationError extends Error {
-  public errors: ApiError;
-
-  constructor(message: string, errors: ApiError) {
-    super(message);
-    this.name = "ValidationError";
-    this.errors = errors;
-  }
-}
 
 class ApiService {
   private baseURL: string;
@@ -407,7 +140,7 @@ class ApiService {
     phone: string;
     subject: string;
     message: string;
-  }): Promise<InquiryResponse> {
+  }): Promise<SupplierInquiryResponse> {
     return this.request(
       "/api/supplier/supplier-inquiries",
       {
@@ -421,7 +154,7 @@ class ApiService {
   async replyToInquiry(
     inquiryId: number,
     data: { message: string }
-  ): Promise<InquiryResponse> {
+  ): Promise<SupplierInquiryResponse> {
     return this.request(
       `/api/supplier/supplier-inquiries/${inquiryId}/reply`,
       {
@@ -2007,42 +1740,6 @@ class ApiService {
   }
 }
 
-// Supplier Inquiry Interfaces
-export interface Inquiry {
-  id: number;
-  subject: string;
-  message: string;
-  email: string;
-  phone: string;
-  company: string | null;
-  sender: {
-    id: number;
-    name: string;
-  };
-  receiver: {
-    id: number;
-    name: string;
-  };
-  is_read: boolean;
-  type: "inquiry" | "reply";
-  created_at: string;
-  time_ago: string;
-  is_reply: boolean;
-}
-
-export interface InquiryResponse {
-  message: string;
-  data: Inquiry;
-}
-
-export interface InquiryListResponse {
-  data: Inquiry[];
-}
-
-export interface ReadStatusResponse {
-  success: boolean;
-  message: string;
-}
 
 // Interface for business statistics
 interface BusinessStats {
