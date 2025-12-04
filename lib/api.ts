@@ -39,15 +39,37 @@ import { DocumentsResponse, DocumentActionResponse } from "./types/documents";
 // Import extracted interfaces
 import { Review, Certification, Product, Service } from "./types/common";
 import { PermissionsResponse } from "./types/permissions";
-import { Phone, WorkingHour, SupplierProfileData, SupplierProfile, BusinessProfile } from "./types/supplier";
-import { RegistrationData, RegistrationResponse, SendOtpRequest, VerifyOtpRequest, ForgotPasswordRequest, ResetPasswordRequest, OtpResponse } from "./types/auth";
-import { ProfileUpdateData, ProfileUpdateResponse, DocumentUploadResponse } from "./types/profile";
+import {
+  Phone,
+  WorkingHour,
+  SupplierProfileData,
+  SupplierProfile,
+  BusinessProfile,
+} from "./types/supplier";
+import {
+  RegistrationData,
+  RegistrationResponse,
+  SendOtpRequest,
+  VerifyOtpRequest,
+  ForgotPasswordRequest,
+  ResetPasswordRequest,
+  OtpResponse,
+} from "./types/auth";
+import {
+  ProfileUpdateData,
+  ProfileUpdateResponse,
+  DocumentUploadResponse,
+} from "./types/profile";
 import { Business, BusinessListResponse } from "./types/business";
 import { ApiError, ValidationError } from "./types/errors";
-import { Inquiry, InquiryResponse as SupplierInquiryResponse, InquiryListResponse, ReadStatusResponse } from "./types/inquiries";
+import {
+  Inquiry,
+  InquiryResponse as SupplierInquiryResponse,
+  InquiryListResponse,
+  ReadStatusResponse,
+} from "./types/inquiries";
 
 const API_BASE_URL = "http://localhost:8000";
-
 
 class ApiService {
   private baseURL: string;
@@ -213,14 +235,29 @@ class ApiService {
 
   // ====== PUBLIC INQUIRIES ======
   async createInquiry(data: InquiryRequest): Promise<PublicInquiryResponse> {
-    return this.request(
+    // Check if user is logged in and get token
+    const token = localStorage.getItem("token");
+    
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    
+    // Add authorization header if token exists
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    
+    const response = await this.request(
       "/api/supplier/inquiries",
       {
         method: "POST",
+        headers,
         body: JSON.stringify(data),
       },
       false // doesn't require authentication
-    );
+    ) as PublicInquiryResponse;
+    
+    return response;
   }
 
   // ====== API METHODS ======
@@ -429,7 +466,10 @@ class ApiService {
       // Handle user type and user data
       if (response.userType === "supplier" && response.supplier) {
         localStorage.setItem("user_type", "supplier");
-        localStorage.setItem("supplier_user", JSON.stringify(response.supplier));
+        localStorage.setItem(
+          "supplier_user",
+          JSON.stringify(response.supplier)
+        );
         this.setCookie("user_type", "supplier", 7);
       } else if (response.userType === "admin" && response.admin) {
         localStorage.setItem("user_type", "admin");
@@ -437,7 +477,10 @@ class ApiService {
         this.setCookie("user_type", "admin", 7);
       } else if (response.userType === "super_admin" && response.super_admin) {
         localStorage.setItem("user_type", "admin");
-        localStorage.setItem("admin_user", JSON.stringify(response.super_admin));
+        localStorage.setItem(
+          "admin_user",
+          JSON.stringify(response.super_admin)
+        );
         this.setCookie("user_type", "admin", 7);
       }
     }
@@ -466,7 +509,6 @@ class ApiService {
       "getBusinesses called with params:",
       JSON.stringify(params, null, 2)
     );
-    console.log("Timestamp:", new Date().toISOString());
 
     // Log each parameter separately for better readability
     if (params) {
@@ -1740,7 +1782,6 @@ class ApiService {
   }
 }
 
-
 // Interface for business statistics
 interface BusinessStats {
   total_businesses: number;
@@ -1748,5 +1789,39 @@ interface BusinessStats {
   open_now: number;
   new_this_week: number;
 }
+
+// Re-export interfaces for backward compatibility
+export type { Review, Certification, Product, Service } from "./types/common";
+export type { PermissionsResponse } from "./types/permissions";
+export type {
+  Phone,
+  WorkingHour,
+  SupplierProfileData,
+  SupplierProfile,
+  BusinessProfile,
+} from "./types/supplier";
+export type {
+  RegistrationData,
+  RegistrationResponse,
+  SendOtpRequest,
+  VerifyOtpRequest,
+  ForgotPasswordRequest,
+  ResetPasswordRequest,
+  OtpResponse,
+} from "./types/auth";
+export type {
+  ProfileUpdateData,
+  ProfileUpdateResponse,
+  DocumentUploadResponse,
+} from "./types/profile";
+export type { Business, BusinessListResponse } from "./types/business";
+export type { ApiError } from "./types/errors";
+export { ValidationError } from "./types/errors";
+export type {
+  Inquiry,
+  InquiryResponse,
+  InquiryListResponse,
+  ReadStatusResponse,
+} from "./types/inquiries";
 
 export const apiService = new ApiService();

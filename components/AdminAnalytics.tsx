@@ -104,7 +104,6 @@ export default function AdminAnalytics() {
       const range = timeRange === "7days" ? 7 : timeRange === "30days" ? 30 : timeRange === "90days" ? 90 : 365;
       await apiService.exportAdminAnalytics(range);
       
-      console.log("Export successful");
     } catch (error) {
       console.error("Error exporting analytics:", error);
     } finally {
@@ -125,7 +124,6 @@ export default function AdminAnalytics() {
             ? 90
             : 365;
         const data = await apiService.getAnalytics(range);
-        console.log("Analytics data:", data);
 
         // Set analytics data
         const newAnalyticsData: Record<ChartKey, AnalyticsSeries> = {

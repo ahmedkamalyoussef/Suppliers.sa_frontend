@@ -66,7 +66,6 @@ type AIFilterPayload = {
 function BusinessesContent() {
   const { t } = useLanguage();
   const { aiSearchQuery } = useAISearch();
-  console.log("BusinessesContent rendered - aiSearchQuery:", aiSearchQuery);
   const searchParams = useSearchParams();
   const [selectedDistance, setSelectedDistance] = useState<string>("");
   const [filteredBusinesses, setFilteredBusinesses] = useState<Business[]>([]);
@@ -224,7 +223,6 @@ function BusinessesContent() {
         // Also check if we have an AI search query from context
         if (aiSearchQuery && aiSearchQuery.trim()) {
           params.ai = aiSearchQuery.trim();
-          console.log("Adding AI parameter to API call:", params.ai);
         }
 
         const response = await apiService.getBusinesses(params);

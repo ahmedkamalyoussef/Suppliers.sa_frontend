@@ -123,7 +123,6 @@ export default function SystemSettings() {
         setIsLoading(true);
         const { apiService } = await import("../lib/api");
         const data = await apiService.getSystemSettings();
-        console.log("System settings data:", data);
 
         // Update state with API data
         if (data.success && data.settings) {
@@ -132,10 +131,10 @@ export default function SystemSettings() {
           // Map API data to component settings structure
           setSettings({
             general: {
-              siteName: data.settings.site_name,
-              siteDescription: data.settings.site_description,
-              contactEmail: data.settings.contact_email,
-              supportEmail: data.settings.support_email,
+              siteName: data.settings.site_name || "",
+              siteDescription: data.settings.site_description || "",
+              contactEmail: data.settings.contact_email || "",
+              supportEmail: data.settings.support_email || "",
               timezone: "Asia/Riyadh", // Default since not in API
               language: "en", // Default since not in API
               maintenanceMode: data.settings.maintenance_mode,
@@ -342,12 +341,10 @@ export default function SystemSettings() {
       };
 
       const response = await apiService.updateSystemSettings(apiData);
-      console.log("Settings updated successfully:", response);
 
       // Show success toast
       if (response.success) {
         toast.success("System settings updated successfully!");
-        console.log("System settings updated successfully");
       } else {
         toast.error("Failed to update system settings");
       }
@@ -373,7 +370,6 @@ export default function SystemSettings() {
           : "System backup created successfully";
         
         toast.success(backupInfo);
-        console.log("Backup created successfully:", response);
       } else {
         toast.error("Failed to create system backup");
       }
@@ -405,7 +401,6 @@ export default function SystemSettings() {
           try {
             setIsLoading(true);
             const data = await apiService.getSystemSettings();
-            console.log("System settings data:", data);
 
             if (data.success && data.settings) {
               setSystemSettings(data.settings);
@@ -413,10 +408,10 @@ export default function SystemSettings() {
               // Map API data to component settings structure
               setSettings({
                 general: {
-                  siteName: data.settings.site_name,
-                  siteDescription: data.settings.site_description,
-                  contactEmail: data.settings.contact_email,
-                  supportEmail: data.settings.support_email,
+                  siteName: data.settings.site_name || "",
+                  siteDescription: data.settings.site_description || "",
+                  contactEmail: data.settings.contact_email || "",
+                  supportEmail: data.settings.support_email || "",
                   timezone: "Asia/Riyadh",
                   language: "en",
                   maintenanceMode: data.settings.maintenance_mode,
@@ -639,7 +634,7 @@ export default function SystemSettings() {
                   className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm resize-none"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  {settings.general.siteDescription.length}/500{" "}
+                  {(settings.general.siteDescription || "").length}/500 {" "}
                   {t("systemSettings.general.characters")}
                 </p>
               </div>

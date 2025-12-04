@@ -13,7 +13,6 @@ export function AISearchProvider({ children }: { children: ReactNode }) {
   const [aiSearchQuery, setAISearchQueryState] = useState<string | null>(null);
 
   const setAISearchQuery = (query: string) => {
-    console.log("AI Search Query:", query);
     setAISearchQueryState(query);
   };
 

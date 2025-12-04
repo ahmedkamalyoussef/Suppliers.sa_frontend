@@ -60,7 +60,6 @@ export default function MaintenancePage() {
             <div className="flex items-center justify-center space-x-2 text-blue-700">
               <i className="ri-time-line text-xl"></i>
               <span className="text-sm font-medium">
-                وقت الصيانة المتوقع: بضع ساعات
               </span>
             </div>
           </div>

@@ -353,13 +353,11 @@ export default function ContentManagement() {
       try {
         if (!selectedInquiry.is_read) {
           const { apiService } = await import("../lib/api");
-          console.log("Marking inquiry as read:", selectedInquiry.id);
 
           // Use the new markAsReadForAdmin method
           const response = await apiService.markAsReadForAdmin(
             selectedInquiry.id
           );
-          console.log("Mark as read response:", response);
 
           // Update the local state to mark the inquiry as read
           setInquiries((prevInquiries) =>
@@ -385,14 +383,12 @@ export default function ContentManagement() {
 
     try {
       const { apiService } = await import("../lib/api");
-      console.log("Replying to inquiry:", selectedInquiry.id);
 
       const response = await apiService.replyToInquiryAdmin({
         id: selectedInquiry.id,
         message: replyMessage.trim(),
       });
 
-      console.log("Reply response:", response);
 
       // Show success message
       toast.success(t("contentManagement.inquiries.replySuccess"));

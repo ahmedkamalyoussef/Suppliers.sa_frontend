@@ -59,7 +59,7 @@ export default function AuthPage() {
         if (formData.rememberMe) {
           localStorage.setItem("rememberMe", "true");
         }
-        router.push("/dashboard");
+        router.push("/");
       } else {
         setErrors({
           general:
