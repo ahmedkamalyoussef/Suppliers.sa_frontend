@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type React from "react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
@@ -30,6 +30,18 @@ type Business = {
 
 export default function ManageBusinessesPage() {
   const { t } = useLanguage();
+  
+  // Auth guard - redirect to login if not authenticated
+  useEffect(() => {
+    const token = localStorage.getItem("supplier_token");
+    const user = localStorage.getItem("supplier_user");
+    
+    if (!token || !user) {
+      window.location.href = "/login";
+      return;
+    }
+  }, []);
+  
   const [businesses, setBusinesses] = useState<Business[]>([
     {
       id: "1",

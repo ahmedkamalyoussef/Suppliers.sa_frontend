@@ -11,6 +11,17 @@ export default function ProfileClient({ id }: { id: string }) {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
+  // Auth guard - redirect to login if not authenticated
+  useEffect(() => {
+    const token = localStorage.getItem("supplier_token");
+    const user = localStorage.getItem("supplier_user");
+    
+    if (!token || !user) {
+      window.location.href = "/login";
+      return;
+    }
+  }, []);
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {

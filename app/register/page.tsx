@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type React from "react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
@@ -12,6 +12,28 @@ import VerificationStep from "@/components/VerificationStep";
 
 export default function RegisterPage() {
   const { t, translations, language } = useLanguage();
+  
+  // Auth guard - redirect authenticated users away
+  useEffect(() => {
+    const token = localStorage.getItem("supplier_token");
+    const user = localStorage.getItem("supplier_user");
+    
+    if (token && user) {
+      try {
+        const userData = JSON.parse(user);
+        // Redirect based on user type
+        if (userData.userType === "admin") {
+          window.location.href = "/admin";
+        } else {
+          window.location.href = "/";
+        }
+        return;
+      } catch (error) {
+        // Invalid user data, continue to register
+      }
+    }
+  }, []);
+
   const [step, setStep] = useState<number>(1);
   const [formData, setFormData] = useState<{
     businessName: string;

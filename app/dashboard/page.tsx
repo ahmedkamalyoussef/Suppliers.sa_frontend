@@ -29,6 +29,17 @@ function DashboardContent() {
   const [selectedMessageId, setSelectedMessageId] = useState<number | null>(
     null
   );
+
+  // Auth guard - redirect to login if not authenticated
+  useEffect(() => {
+    const token = localStorage.getItem("supplier_token");
+    const user = localStorage.getItem("supplier_user");
+    
+    if (!token || !user) {
+      window.location.href = "/login";
+      return;
+    }
+  }, []);
   const [showProfileCustomization, setShowProfileCustomization] =
     useState(false);
   const [showPhotoUpload, setShowPhotoUpload] = useState(false);

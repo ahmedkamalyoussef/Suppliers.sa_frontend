@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Header from "../../components/Header";
@@ -11,6 +11,28 @@ import { apiService, type ForgotPasswordRequest } from "@/lib/api";
 export default function ForgotPasswordPage() {
   const { t } = useLanguage();
   const router = useRouter();
+  
+  // Auth guard - redirect authenticated users away
+  useEffect(() => {
+    const token = localStorage.getItem("supplier_token");
+    const user = localStorage.getItem("supplier_user");
+    
+    if (token && user) {
+      try {
+        const userData = JSON.parse(user);
+        // Redirect based on user type
+        if (userData.userType === "admin") {
+          window.location.href = "/admin";
+        } else {
+          window.location.href = "/";
+        }
+        return;
+      } catch (error) {
+        // Invalid user data, continue to forgot-password
+      }
+    }
+  }, []);
+
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);

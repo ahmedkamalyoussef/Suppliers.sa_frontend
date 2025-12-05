@@ -127,23 +127,18 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
   ];
 
   const plans = [
-    {
+    // Only show Basic plan if user doesn't have Premium
+    ...(user.plan !== "Premium" ? [{
       name: t("settings.plans.basic.name"),
       price: t("settings.plans.basic.price"),
       features: t("settings.plans.basic.features") || [],
       current: user.plan === "Basic",
-    },
+    }] : []),
     {
       name: t("settings.plans.premium.name"),
-      price: t("settings.plans.premium.price"),
+      price: "$49/month",
       features: t("settings.plans.premium.features") || [],
       current: user.plan === "Premium",
-    },
-    {
-      name: t("settings.plans.enterprise.name"),
-      price: t("settings.plans.enterprise.price"),
-      features: t("settings.plans.enterprise.features") || [],
-      current: user.plan === "Enterprise",
     },
   ];
 
@@ -848,15 +843,11 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                         )}
                       </h4>
                       <p className="text-gray-600">
-                        {t("settings.subscription.billedMonthly")} •{" "}
-                        {t("settings.subscription.autoRenewal")}{" "}
-                        {settings.subscription.autoRenew
-                          ? t("settings.subscription.enabled")
-                          : t("settings.subscription.disabled")}
+                        {t("settings.subscription.billedMonthly")}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-yellow-600">$29</p>
+                      <p className="text-2xl font-bold text-yellow-600">Free</p>
                       <p className="text-sm text-gray-600">
                         {t("settings.subscription.perMonth")}
                       </p>
@@ -918,55 +909,6 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                 </div>
               </div>
 
-              <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  {t("settings.subscription.billingInfo")}
-                </h3>
-                <div className="bg-white border border-gray-200 rounded-lg p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <i className="ri-bank-card-line text-gray-600 text-xl"></i>
-                      <div>
-                        <p className="font-medium text-gray-800">
-                          {t("settings.subscription.paymentMethod")}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          {t("settings.subscription.cardEnding")}{" "}
-                          {settings.subscription.paymentMethod}
-                        </p>
-                      </div>
-                    </div>
-                    <button className="text-yellow-600 hover:text-yellow-700 font-medium text-sm cursor-pointer">
-                      {t("settings.subscription.update")}
-                    </button>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-gray-800">
-                        {t("settings.subscription.autoRenewalLabel")}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        {t("settings.subscription.nextBilling")}: March 15, 2024
-                      </p>
-                    </div>
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={settings.subscription.autoRenew}
-                        onChange={(e) =>
-                          handleSettingChange(
-                            "subscription",
-                            "autoRenew",
-                            e.target.checked
-                          )
-                        }
-                        className="w-4 h-4 text-yellow-400 border-gray-300 rounded focus:ring-yellow-400"
-                      />
-                    </label>
-                  </div>
-                </div>
-              </div>
             </div>
           )}
         </div>

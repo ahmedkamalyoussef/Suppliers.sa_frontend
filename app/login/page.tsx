@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type React from "react";
 import Link from "next/link";
 import Header from "../../components/Header";
@@ -13,6 +13,27 @@ import { LoginRequest } from "../../types/auth";
 export default function LoginPage() {
   const { t, language } = useLanguage();
   const { login } = useAuth();
+
+  // Auth guard - redirect authenticated users away
+  useEffect(() => {
+    const token = localStorage.getItem("supplier_token");
+    const user = localStorage.getItem("supplier_user");
+    
+    if (token && user) {
+      try {
+        const userData = JSON.parse(user);
+        // Redirect based on user type
+        if (userData.userType === "admin") {
+          window.location.href = "/admin";
+        } else {
+          window.location.href = "/";
+        }
+        return;
+      } catch (error) {
+        // Invalid user data, continue to login
+      }
+    }
+  }, []);
 
   const [formData, setFormData] = useState({
     email: "",

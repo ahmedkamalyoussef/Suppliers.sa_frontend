@@ -15,7 +15,6 @@ export function middleware(request: NextRequest) {
     pathname === "/login" ||
     pathname === "/register" ||
     pathname === "/add-business" ||
-    pathname.startsWith("/reset-password") ||
     pathname === "/forgot-password"
   ) {
     if (token && userType) {
@@ -53,7 +52,9 @@ export function middleware(request: NextRequest) {
   if (
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/profile") ||
-    pathname.startsWith("/complete-profile")
+    pathname.startsWith("/complete-profile") ||
+    pathname.startsWith("/manage-businesses") ||
+    pathname.startsWith("/reset-password")
   ) {
     // Not authenticated
     if (!token) {

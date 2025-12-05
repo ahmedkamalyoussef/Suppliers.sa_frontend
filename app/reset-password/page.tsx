@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Header from "../../components/Header";
@@ -14,6 +14,27 @@ export default function ResetPasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "";
+
+  // Auth guard - redirect authenticated users away
+  useEffect(() => {
+    const token = localStorage.getItem("supplier_token");
+    const user = localStorage.getItem("supplier_user");
+    
+    if (token && user) {
+      try {
+        const userData = JSON.parse(user);
+        // Redirect based on user type
+        if (userData.userType === "admin") {
+          window.location.href = "/admin";
+        } else {
+          window.location.href = "/";
+        }
+        return;
+      } catch (error) {
+        // Invalid user data, continue to reset-password
+      }
+    }
+  }, []);
 
   // Translation function
   const t = (key: string, params?: { email?: string; errors?: string }) => {
