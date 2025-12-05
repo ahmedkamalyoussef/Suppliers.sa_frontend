@@ -17,6 +17,7 @@ export interface SupplierProfileData {
   business_type: string;
   category: string;
   business_image: string;
+  keywords: string[];
   website: string;
   contact_email: string;
   description: string | null;

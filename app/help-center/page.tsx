@@ -22,7 +22,7 @@ export default function Page() {
             </h3>
             <p className="text-gray-600 mb-4">{t("help.gettingStartedDesc")}</p>
             <a
-              href="/register"
+              href="/add-business"
               className="text-yellow-600 hover:text-yellow-700 font-medium"
             >
               {t("help.createAccountCta")}

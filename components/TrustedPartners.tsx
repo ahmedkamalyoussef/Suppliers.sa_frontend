@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useLanguage } from "../lib/LanguageContext";
+import Link from "next/link";
 
 export default function TrustedPartners() {
   const { t } = useLanguage();
@@ -199,12 +200,22 @@ export default function TrustedPartners() {
               {t("trustedPartners.ctaDesc")}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
-              <button className="bg-white text-yellow-600 px-6 md:px-8 py-3 md:py-4 rounded-full hover:bg-gray-100 font-semibold text-base md:text-lg whitespace-nowrap cursor-pointer shadow-lg">
+              <button 
+                onClick={(e) => {
+                  e.preventDefault();
+                  // Dispatch a custom event to open the contact modal in the header
+                  window.dispatchEvent(new CustomEvent('openContactModal'));
+                }}
+                className="bg-white text-yellow-600 px-6 md:px-8 py-3 md:py-4 rounded-full hover:bg-gray-100 font-semibold text-base md:text-lg whitespace-nowrap cursor-pointer shadow-lg transition-colors duration-200"
+              >
                 {t("trustedPartners.ctaBecomePartner")}
               </button>
-              <button className="border-2 border-white text-white px-6 md:px-8 py-3 md:py-4 rounded-full hover:bg-white hover:text-yellow-600 font-semibold text-base md:text-lg whitespace-nowrap cursor-pointer">
+              <Link 
+                href="/businesses"
+                className="border-2 border-white text-white px-6 md:px-8 py-3 md:py-4 rounded-full hover:bg-white hover:text-yellow-600 font-semibold text-base md:text-lg whitespace-nowrap cursor-pointer text-center transition-colors duration-200"
+              >
                 {t("trustedPartners.ctaExploreNetwork")}
-              </button>
+              </Link>
             </div>
           </div>
         </div>

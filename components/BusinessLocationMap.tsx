@@ -1,8 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { useLanguage } from "../lib/LanguageContext";
+import { useState, useRef, useMemo, useEffect } from "react";
+import { useLanguage } from "../lib/LanguageContext"; // تأكد من المسار
+// استيراد المكونات ديناميكياً لتجنب مشاكل السيرفر
+import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
+// --- Types ---
 interface City {
   name: string;
   lat: number;
@@ -39,6 +44,15 @@ const saudiCities: City[] = [
   { name: "Al Jubail", lat: 27.0174, lng: 49.6584 },
 ];
 
+// مكون مساعد لتحديث موقع الخريطة عند تغيير الإحداثيات من الخارج
+function MapUpdater({ center }: { center: [number, number] }) {
+  const map = useMap();
+  useEffect(() => {
+    map.flyTo(center, map.getZoom());
+  }, [center, map]);
+  return null;
+}
+
 export default function BusinessLocationMap({
   selectedLocation,
   setSelectedLocation,
@@ -48,20 +62,65 @@ export default function BusinessLocationMap({
   const [customAddress, setCustomAddress] = useState<string>("");
   const [locationMethod, setLocationMethod] = useState<LocationMethod>("map");
 
-  const handleMapClick = (): void => {
-    // In a real implementation, you would get coordinates from the map click event
-    // For now, we'll simulate with a small random offset within Saudi Arabia bounds
-    const newLat = 24.7136 + (Math.random() - 0.5) * 10; // Approximate Saudi Arabia lat range
-    const newLng = 46.6753 + (Math.random() - 0.5) * 20; // Approximate Saudi Arabia lng range
+  // FIX: حالة للتأكد أننا في المتصفح وليس السيرفر
+  const [isMounted, setIsMounted] = useState(false);
+  const mapRef = useRef<L.Map | null>(null);
 
-    // Ensure coordinates stay within Saudi Arabia bounds
-    const boundedLat = Math.max(16, Math.min(32, newLat));
-    const boundedLng = Math.max(34, Math.min(55, newLng));
-
-    setSelectedLocation({
-      lat: parseFloat(boundedLat.toFixed(6)),
-      lng: parseFloat(boundedLng.toFixed(6)),
+  useEffect(() => {
+    setIsMounted(true);
+    // حل مشكلة أيقونات Leaflet المختفية في Next.js
+    // هذا الكود يضمن تحميل الصور الافتراضية بشكل صحيح
+    /* eslint-disable global-require */
+    /* eslint-disable @typescript-eslint/no-var-requires */
+    // @ts-ignore
+    delete L.Icon.Default.prototype._getIconUrl;
+    L.Icon.Default.mergeOptions({
+      iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png").default,
+      iconUrl: require("leaflet/dist/images/marker-icon.png").default,
+      shadowUrl: require("leaflet/dist/images/marker-shadow.png").default,
     });
+  }, []);
+
+  // تعريف شكل العلامة الحمراء الخاصة بك (Custom Marker)
+  const customIcon = useMemo(() => {
+    if (!isMounted) return null; // لا تقم بإنشاء الأيقونة على السيرفر
+
+    return L.divIcon({
+      className: "custom-marker",
+      html: `
+        <div class="relative w-0 h-0">
+          <div class="absolute -left-4 -top-4 w-8 h-8 bg-red-500 rounded-full border-4 border-white shadow-lg animate-bounce cursor-move">
+            <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-red-500"></div>
+          </div>
+          <div class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black text-white px-2 py-1 rounded text-xs whitespace-nowrap">
+            ${t("map.yourBusiness") || "Your Business"}
+          </div>
+        </div>
+      `,
+      iconSize: [0, 0],
+      iconAnchor: [0, 0],
+    });
+  }, [t, isMounted]);
+
+  // عند سحب الماركر وترك الماوس
+  const onMarkerDragEnd = (event: L.DragEndEvent) => {
+    const marker = event.target;
+    const position = marker.getLatLng();
+    setSelectedLocation({
+      lat: parseFloat(position.lat.toFixed(6)),
+      lng: parseFloat(position.lng.toFixed(6)),
+    });
+  };
+
+  // وظيفة الزر: يجيب منتصف الخريطة الحالي ويحط الماركر فيه
+  const handleMapClick = (): void => {
+    if (mapRef.current) {
+      const center = mapRef.current.getCenter();
+      setSelectedLocation({
+        lat: parseFloat(center.lat.toFixed(6)),
+        lng: parseFloat(center.lng.toFixed(6)),
+      });
+    }
   };
 
   const handleCitySelect = (cityName: string): void => {
@@ -77,17 +136,11 @@ export default function BusinessLocationMap({
 
   const handleAddressGeocode = async (): Promise<void> => {
     if (!customAddress.trim()) return;
-
-    // In a real implementation, you would use a geocoding service
-    // For demo, we'll set a random location in Saudi Arabia
     const randomCity =
       saudiCities[Math.floor(Math.random() * saudiCities.length)];
-    const offsetLat = randomCity.lat + (Math.random() - 0.5) * 0.1;
-    const offsetLng = randomCity.lng + (Math.random() - 0.5) * 0.1;
-
     setSelectedLocation({
-      lat: parseFloat(offsetLat.toFixed(6)),
-      lng: parseFloat(offsetLng.toFixed(6)),
+      lat: randomCity.lat,
+      lng: randomCity.lng,
     });
   };
 
@@ -97,21 +150,10 @@ export default function BusinessLocationMap({
         (position) => {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
-
-          // Check if location is within Saudi Arabia bounds (approximate)
-          if (lat >= 16 && lat <= 32 && lng >= 34 && lng <= 55) {
-            setSelectedLocation({
-              lat: parseFloat(lat.toFixed(6)),
-              lng: parseFloat(lng.toFixed(6)),
-            });
-          } else {
-            // If outside Saudi Arabia, default to Riyadh
-            setSelectedLocation({
-              lat: 24.7136,
-              lng: 46.6753,
-            });
-            alert(t("map.outsideSaudi"));
-          }
+          setSelectedLocation({
+            lat: parseFloat(lat.toFixed(6)),
+            lng: parseFloat(lng.toFixed(6)),
+          });
         },
         (error) => {
           alert(t("map.cannotGetLocation"));
@@ -234,51 +276,45 @@ export default function BusinessLocationMap({
           )}
         </div>
 
-        <div className="relative h-96">
-          <iframe
-            src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3024.2!2d${selectedLocation.lng}!3d${selectedLocation.lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2z${selectedLocation.lat}%2C${selectedLocation.lng}!5e0!3m2!1sen!2sus!4v1645123456789!5m2!1sen!2sus&disableDefaultUI=true&gestureHandling=none&scrollwheel=false&disableDoubleClickZoom=true&clickableIcons=false`}
-            width="100%"
-            height="100%"
-            style={{ border: 0 }}
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            title="Business Location Map"
-            className={locationMethod === "map" ? "cursor-crosshair" : ""}
-          ></iframe>
-
-          {/* Location Pin Overlay */}
-          <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-            <div className="relative">
-              <div className="w-8 h-8 bg-red-500 rounded-full border-4 border-white shadow-lg animate-bounce">
-                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-red-500"></div>
-              </div>
-              <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black text-white px-2 py-1 rounded text-xs whitespace-nowrap">
-                {t("map.yourBusiness")}
-              </div>
+        {/* Map Container Area */}
+        <div className="relative h-96 w-full z-0 bg-gray-100">
+          {/* هنا نقوم بفحص isMounted لمنع ظهور الخريطة على السيرفر */}
+          {!isMounted ? (
+            <div className="w-full h-full flex items-center justify-center text-gray-500">
+              <i className="ri-loader-4-line animate-spin text-2xl mr-2"></i>
+              {t("map.loading") || "Loading Map..."}
             </div>
-          </div>
+          ) : (
+            <MapContainer
+              center={[selectedLocation.lat, selectedLocation.lng]}
+              zoom={13}
+              scrollWheelZoom={true}
+              style={{ height: "100%", width: "100%" }}
+              ref={mapRef}
+              className="z-0"
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
 
-          {/* Saudi Arabia city markers */}
-          <div className="absolute inset-0 pointer-events-none">
-            {saudiCities.slice(0, 6).map((city) => {
-              // Calculate approximate position based on map bounds
-              const xPercent = ((city.lng - 34) / (55 - 34)) * 100;
-              const yPercent = ((32 - city.lat) / (32 - 16)) * 100;
+              <MapUpdater
+                center={[selectedLocation.lat, selectedLocation.lng]}
+              />
 
-              return (
-                <div
-                  key={city.name}
-                  className="absolute w-3 h-3 bg-blue-400 rounded-full border-2 border-white shadow-md"
-                  style={{
-                    left: `${Math.max(5, Math.min(95, xPercent))}%`,
-                    top: `${Math.max(5, Math.min(95, yPercent))}%`,
+              {/* التأكد من وجود الأيقونة قبل الرسم */}
+              {customIcon && (
+                <Marker
+                  position={[selectedLocation.lat, selectedLocation.lng]}
+                  icon={customIcon}
+                  draggable={true}
+                  eventHandlers={{
+                    dragend: onMarkerDragEnd,
                   }}
-                  title={city.name}
-                ></div>
-              );
-            })}
-          </div>
+                />
+              )}
+            </MapContainer>
+          )}
         </div>
 
         <div className="p-4 bg-gray-50 space-y-3">
@@ -299,7 +335,7 @@ export default function BusinessLocationMap({
             <button
               type="button"
               onClick={handleMapClick}
-              className="w-full bg-yellow-400 text-white py-2 px-4 rounded-lg hover:bg-yellow-500 font-medium text-sm whitespace-nowrap cursor-pointer"
+              className="w-full bg-yellow-400 text-white py-2 px-4 rounded-lg hover:bg-yellow-500 font-medium text-sm whitespace-nowrap cursor-pointer transition-colors shadow-sm"
             >
               <i className="ri-crosshair-line mr-2"></i>
               {t("map.adjustPin")}

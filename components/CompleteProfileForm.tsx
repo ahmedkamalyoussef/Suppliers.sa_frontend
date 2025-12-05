@@ -860,6 +860,34 @@ export default function CompleteProfileForm({
     }
   };
 
+  // Function to get city name from coordinates
+  const getCityFromCoordinates = async (lat: number, lng: number): Promise<string> => {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=${language}`
+      );
+      const data = await response.json();
+      return data.address?.city || data.address?.town || data.address?.county || '';
+    } catch (error) {
+      console.error('Error getting city from coordinates:', error);
+      return '';
+    }
+  };
+
+  // Update form data when location changes
+  const handleLocationChange = async (location: { lat: number; lng: number }) => {
+    const city = await getCityFromCoordinates(location.lat, location.lng);
+    setFormData(prev => ({
+      ...prev,
+      address: city, // Set address to just the city name
+      location: {
+        lat: location.lat,
+        lng: location.lng
+      }
+    }));
+    setSelectedLocation(location);
+  };
+
   const validateStep = (step: number): boolean => {
     const newErrors: Errors = {};
 
@@ -871,10 +899,6 @@ export default function CompleteProfileForm({
 
         if (!formData.businessType) {
           newErrors.businessType = "Business type is required";
-        }
-
-        if (!formData.category) {
-          newErrors.category = "Category is required";
         }
         break;
 
@@ -894,9 +918,7 @@ export default function CompleteProfileForm({
         if (!formData.mainPhone || formData.mainPhone.trim() === "") {
           newErrors.mainPhone = "Main phone is required";
         }
-        if (!formData.address || formData.address.trim() === "") {
-          newErrors.address = "Address is required";
-        }
+        // Address is now handled automatically from coordinates
         break;
 
       case 4:
@@ -1362,30 +1384,6 @@ export default function CompleteProfileForm({
                 </p>
               )}
 
-              {/* Category Dropdown */}
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Category *
-                </label>
-                <select
-                  value={formData.category || ""}
-                  onChange={(e) =>
-                    handleInputChange("category", e.target.value)
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
-                  required
-                >
-                  <option value="">Select a category</option>
-                  {categoryOptions.map((option) => (
-                    <option key={option.en} value={option.en}>
-                      {language === "ar" ? option.ar : option.en}
-                    </option>
-                  ))}
-                </select>
-                {errors.category && (
-                  <p className="text-red-500 text-xs mt-1">{errors.category}</p>
-                )}
-              </div>
 
               <div className="mt-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1992,25 +1990,8 @@ export default function CompleteProfileForm({
               )}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t("completeProfile.businessAddress")}
-              </label>
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={(e) => handleInputChange("address", e.target.value)}
-                className={`w-full px-3 md:px-4 py-2 md:py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ${
-                  errors.address ? "border-red-300" : "border-gray-300"
-                }`}
-                placeholder={t("completeProfile.addressPlaceholder")}
-                required
-              />
-              {errors.address && (
-                <p className="text-red-500 text-xs mt-1">{errors.address}</p>
-              )}
-            </div>
+            {/* Address is now automatically set from the selected location */}
+            <input type="hidden" name="address" value={formData.address || ''} />
 
             <div className="bg-yellow-50 p-3 md:p-4 rounded-lg">
               <p className="text-xs md:text-sm text-yellow-800 mb-1 md:mb-2">
@@ -2290,7 +2271,7 @@ export default function CompleteProfileForm({
               <div className="h-[800px] rounded-lg overflow-hidden border border-gray-300 shadow-lg">
                 <BusinessLocationMap
                   selectedLocation={selectedLocation}
-                  setSelectedLocation={setSelectedLocation}
+                  setSelectedLocation={handleLocationChange}
                 />
               </div>
 

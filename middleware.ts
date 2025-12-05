@@ -14,6 +14,7 @@ export function middleware(request: NextRequest) {
   if (
     pathname === "/login" ||
     pathname === "/register" ||
+    pathname === "/add-business" ||
     pathname.startsWith("/reset-password") ||
     pathname === "/forgot-password"
   ) {

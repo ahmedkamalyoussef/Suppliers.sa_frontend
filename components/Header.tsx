@@ -39,6 +39,14 @@ export default function Header() {
 
   // Track auth state changes and fetch inbox data
   useEffect(() => {
+    // Add event listener for opening contact modal from other components
+    const handleOpenContactModal = () => {
+      setShowContactModal(true);
+      setIsContactModalOpen(true);
+    };
+
+    window.addEventListener('openContactModal', handleOpenContactModal);
+
     if (isAuthenticated) {
       const fetchInbox = async () => {
         try {
@@ -75,6 +83,11 @@ export default function Header() {
 
       fetchInbox();
     }
+
+    // Cleanup event listener
+    return () => {
+      window.removeEventListener('openContactModal', handleOpenContactModal);
+    };
   }, [isAuthenticated]);
 
   // Listen for message marked as read events
@@ -509,7 +522,7 @@ export default function Header() {
                     !window.location.pathname.startsWith("/admin") && (
                       <div className="hidden sm:flex items-center space-x-2 md:space-x-3">
                         <Link
-                          href="/register"
+                          href="/add-business"
                           className="text-gray-700 hover:text-yellow-600 font-medium transition-colors text-sm"
                         >
                           {t("nav.register")}
@@ -592,7 +605,7 @@ export default function Header() {
                 !window.location.pathname.startsWith("/admin") && (
                   <div className="pt-4 border-t border-gray-200 space-y-4">
                     <Link
-                      href="/register"
+                      href="/add-business"
                       className="block w-full text-center text-gray-700 hover:text-yellow-600 border border-gray-300 font-medium transition-colors py-2 px-3 rounded-lg"
                       onClick={() => setMobileMenuOpen(false)}
                     >

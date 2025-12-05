@@ -1007,14 +1007,28 @@ function BusinessesContent() {
                       </p>
                       <button
                         onClick={() => {
+                          // Reset all filter states
                           setSearchQuery("");
                           setSelectedCategory("all");
                           setSelectedBusinessType("all");
                           setSelectedLocation("");
                           setSelectedRating("");
                           setSelectedDistance("");
+                          setVerifiedOnly(false);
+                          setOpenNow(false);
+                          setAddress("");
+                          setDebouncedSearch("");
+                          setDebouncedAddress("");
+                          setSortBy("rating");
+                          setViewMode("grid");
+                          setCurrentPage(1);
+                          
+                          // Update URL without any query parameters
+                          const url = new URL(window.location.href);
+                          const baseUrl = url.origin + url.pathname;
+                          window.history.pushState({}, '', baseUrl);
                         }}
-                        className="bg-yellow-400 text-white px-6 py-3 rounded-lg hover:bg-yellow-500 font-medium cursor-pointer"
+                        className="bg-yellow-400 text-white px-6 py-3 rounded-lg hover:bg-yellow-500 font-medium cursor-pointer transition-colors duration-200"
                       >
                         {t("businessesPage.clearFilters")}
                       </button>
@@ -1025,7 +1039,6 @@ function BusinessesContent() {
             </div>
           </div>
         </section>
-
         {/* Load More / Show Less Section */}
         {sortedBusinesses.length > 0 && (
           <section className="py-8 text-center">

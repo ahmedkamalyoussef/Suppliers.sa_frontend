@@ -1,9 +1,12 @@
 "use client";
 
 import { useLanguage } from "../lib/LanguageContext";
+import Link from "next/link";
+import { useAuth } from "../hooks/useAuth";
 
 export default function HowItWorks() {
   const { t } = useLanguage();
+  const { isAuthenticated } = useAuth();
 
   const steps = [
     {
@@ -26,7 +29,7 @@ export default function HowItWorks() {
     },
     {
       id: 4,
-      icon: "ri-handshake-line",
+      icon: "ri-team-line",
       title: t("howItWorks.steps.step4.title"),
       description: t("howItWorks.steps.step4.description"),
     },
@@ -86,12 +89,20 @@ export default function HowItWorks() {
               {t("howItWorks.cta.subtitle")}
             </p>
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4 justify-center">
-              <button className="bg-yellow-400 text-white px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 rounded-full hover:bg-yellow-500 font-semibold text-sm sm:text-base md:text-lg whitespace-nowrap cursor-pointer">
-                {t("howItWorks.cta.createProfile")}
-              </button>
-              <button className="border-2 border-yellow-400 text-yellow-600 px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 rounded-full hover:bg-yellow-50 font-semibold text-sm sm:text-base md:text-lg whitespace-nowrap cursor-pointer">
+              {!isAuthenticated && (
+                <Link
+                  href="/add-business"
+                  className="bg-yellow-400 text-white px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 rounded-full hover:bg-yellow-500 font-semibold text-sm sm:text-base md:text-lg whitespace-nowrap cursor-pointer text-center transition-colors duration-200"
+                >
+                  {t("howItWorks.cta.createProfile")}
+                </Link>
+              )}
+              <Link
+                href="/businesses"
+                className="border-2 border-yellow-400 text-yellow-600 px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 rounded-full hover:bg-yellow-50 font-semibold text-sm sm:text-base md:text-lg whitespace-nowrap cursor-pointer text-center transition-colors duration-200"
+              >
                 {t("howItWorks.cta.startSearching")}
-              </button>
+              </Link>
             </div>
           </div>
         </div>

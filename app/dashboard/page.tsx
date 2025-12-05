@@ -54,9 +54,46 @@ function DashboardContent() {
     avatar: string;
   } | null>(null);
 
-  useEffect(() => {
-    // Fetch user data from localStorage or API
-    const fetchUserData = async () => {
+  // Fetch user data from profile API
+  const fetchUserData = async () => {
+    try {
+      // Get fresh profile data
+      const profileData = await apiService.getProfile();
+      
+      // Get current user data from localStorage (for login-specific fields)
+      const userData = localStorage.getItem("supplier_user");
+      const parsedUser = userData ? JSON.parse(userData) : {};
+
+      // Fetch the latest profile picture
+      let profileImage = profileData.profileImage || "/images/default-avatar.png";
+      try {
+        const { profile_image } = await apiService.getProfilePicture(
+          profileData.id || parsedUser.id
+        );
+        if (profile_image) {
+          profileImage = profile_image;
+        }
+      } catch (error) {
+        // Fallback to the existing image if there's an error
+      }
+
+      setUser({
+        id: profileData.id?.toString() || parsedUser.id?.toString() || "",
+        name: profileData.businessName || parsedUser.name || "User",
+        email: parsedUser.email || profileData.contactEmail || "",
+        phone: profileData.contactPhone || parsedUser.phone || "",
+        businessName: profileData.businessName || parsedUser.name || "Business",
+        businessId: profileData.slug || parsedUser.slug || profileData.id?.toString() || "",
+        memberSince: profileData.createdAt
+          ? new Date(profileData.createdAt).toLocaleDateString()
+          : parsedUser.emailVerifiedAt
+          ? new Date(parsedUser.emailVerifiedAt).toLocaleDateString()
+          : "N/A",
+        plan: profileData.plan || parsedUser.plan || "Basic",
+        avatar: profileImage,
+      });
+    } catch (error) {
+      // Fallback to localStorage data if API fails
       try {
         const userData = localStorage.getItem("supplier_user");
         if (userData) {
@@ -91,10 +128,26 @@ function DashboardContent() {
             avatar: profileImage,
           });
         }
-      } catch (error) {}
+      } catch (fallbackError) {}
+    }
+  };
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  // Listen for profile updates
+  useEffect(() => {
+    const handleProfileUpdate = async () => {
+      // Refetch data when profile is updated
+      fetchUserData();
     };
 
-    fetchUserData();
+    window.addEventListener("userProfileUpdated", handleProfileUpdate);
+    
+    return () => {
+      window.removeEventListener("userProfileUpdated", handleProfileUpdate);
+    };
   }, []);
 
   useEffect(() => {

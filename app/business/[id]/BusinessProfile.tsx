@@ -123,9 +123,10 @@ export default function BusinessProfile() {
   }, [businessId, sessionId]);
 
   const { t } = useLanguage();
-  const [businessProfile, setBusinessProfile] =
-    useState<BusinessProfileType | null>(null);
+  const [businessProfile, setBusinessProfile] = useState<BusinessProfileType | null>(null);
   const [businessPreferences, setBusinessPreferences] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showContact, setShowContact] = useState(false);
   const [showInquiryModal, setShowInquiryModal] = useState(false);
@@ -134,6 +135,7 @@ export default function BusinessProfile() {
   const [reviewText, setReviewText] = useState("");
   const [showThankYou, setShowThankYou] = useState(false);
   const [submitUrl, setSubmitUrl] = useState("");
+  const [showVerificationToast, setShowVerificationToast] = useState(false);
   const [inquiryForm, setInquiryForm] = useState({
     name: "",
     email: "",
@@ -151,6 +153,15 @@ export default function BusinessProfile() {
 
   useEffect(() => {
     const fetchBusinessProfile = async () => {
+      if (!businessId) {
+        setError("No business ID provided");
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+      setError(null);
+
       try {
         const profile = await apiService.getBusinessProfile(businessId);
 
@@ -160,13 +171,10 @@ export default function BusinessProfile() {
             per_page: 100,
           });
           const businessWithPreferences = businessesResponse.data.find(
-            (b) => b.id.toString() === businessId
+            (b: any) => b.id.toString() === businessId
           );
 
-          if (
-            businessWithPreferences?.preferences?.profile_visibility ===
-            "limited"
-          ) {
+          if (businessWithPreferences?.preferences?.profile_visibility === "limited") {
             // Check if user is logged in
             const userData = localStorage.getItem("supplier_user");
             if (!userData) {
@@ -189,6 +197,9 @@ export default function BusinessProfile() {
         setBusinessProfile(profile);
       } catch (error) {
         console.error("Error fetching business profile:", error);
+        setError("Failed to load business profile. Please try again later.");
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -235,6 +246,7 @@ export default function BusinessProfile() {
         // Refresh the business profile to show the new review
         try {
           const profile = await apiService.getBusinessProfile(businessId);
+          console.log("jjjjjjjjj", profile);
           setBusinessProfile(profile);
         } catch (error) {
           console.error("Failed to refresh business profile:", error);
@@ -497,25 +509,73 @@ export default function BusinessProfile() {
     setShowReviewModal(false);
   };
 
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading business profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center p-6 max-w-md mx-auto bg-white rounded-lg shadow-md">
+          <div className="text-red-500 text-4xl mb-4">
+            <i className="ri-error-warning-line"></i>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Error Loading Profile</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Show no profile found state
+  if (!businessProfile) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-gray-500 text-4xl mb-4">
+            <i className="ri-store-2-line"></i>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Business Not Found</h2>
+          <p className="text-gray-600">The requested business profile could not be found.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
       <main>
         {/* Hero Section */}
         <section className="relative h-64 md:h-80 lg:h-96 overflow-hidden">
-          <div
-            className="w-full h-full bg-cover bg-center"
-            style={{
-              backgroundImage: `url(${
-                businessProfile?.profile?.business_image ||
-                businessProfile?.profile_image ||
-                ""
-              })`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-            }}
-          ></div>
+          {businessProfile?.profile_image ? (
+            <div
+              className="w-full h-full bg-cover bg-center"
+              style={{
+                backgroundImage: `url(${businessProfile.profile_image})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+              }}
+            ></div>
+          ) : (
+            <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600"></div>
+          )}
           <div className="absolute inset-0 bg-black bg-opacity-40"></div>
 
           <div className="absolute inset-0 flex items-end">
@@ -591,18 +651,7 @@ export default function BusinessProfile() {
                       {t("publicProfile.buttons.message")}
                     </button>
                   )}
-
-                <button
-                  disabled={businessPreferences?.allow_direct_contact === false}
-                  className={`px-8 py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors border ${
-                    businessPreferences?.allow_direct_contact === false
-                      ? "bg-gray-200 text-gray-400 cursor-not-allowed border-gray-300"
-                      : "bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border-gray-300"
-                  }`}
-                >
-                  <i className="ri-phone-line mr-2"></i>
-                  {t("publicProfile.buttons.call")}
-                </button>
+                
               </div>
             )}
           </div>
@@ -686,12 +735,12 @@ export default function BusinessProfile() {
                 <div>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 md:mb-6 gap-2">
                     <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800">
-                      {t("businessProfile.productsServices")}
+                      {t("businessProfile.keywords")}
                     </h2>
                     <span className="bg-blue-100 text-blue-800 px-2 py-1 md:px-3 md:py-1 rounded-full text-xs md:text-sm font-medium w-fit">
                       {t("businessProfile.itemsCount").replace(
                         "{{count}}",
-                        String(business.productsAndServices.length)
+                        String(businessProfile?.profile?.keywords?.length || 0)
                       )}
                     </span>
                   </div>
@@ -709,42 +758,33 @@ export default function BusinessProfile() {
                       </p>
                     </div>
 
-                    {/* Excel-like Grid */}
+                    {/* Keywords Grid */}
                     <div className="max-h-80 md:max-h-96 overflow-y-auto">
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-px bg-gray-200">
-                        {business.productsAndServices.map((item, index) => (
-                          <div
-                            key={index}
-                            className="bg-white p-2 md:p-3 hover:bg-blue-50 transition-colors border-r border-b border-gray-100 last:border-r-0"
-                          >
-                            <div className="flex items-center space-x-1 md:space-x-2">
-                              <span className="text-xs text-gray-400 font-mono w-4 md:w-6 text-right">
-                                {(index + 1).toString().padStart(2, "0")}
-                              </span>
-                              <span
-                                className="text-xs md:text-sm text-gray-800 font-medium truncate"
-                                title={item}
-                              >
-                                {item}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-
-                        {/* Fill remaining cells if needed for visual consistency */}
-                        {Array(4 - (business.productsAndServices.length % 4))
-                          .fill(0)
-                          .map(
-                            (_, index) =>
-                              business.productsAndServices.length % 4 !== 0 && (
-                                <div
-                                  key={`filler-${index}`}
-                                  className="bg-gray-50 p-2 md:p-3 border-r border-b border-gray-100 last:border-r-0"
+                        {businessProfile?.profile?.keywords && businessProfile.profile.keywords.length > 0 ? (
+                          businessProfile.profile.keywords.map((keyword: string, index: number) => (
+                            <div
+                              key={index}
+                              className="bg-white p-2 md:p-3 hover:bg-blue-50 transition-colors border-r border-b border-gray-100 last:border-r-0"
+                            >
+                              <div className="flex items-center space-x-1 md:space-x-2">
+                                <span className="text-xs text-gray-400 font-mono w-4 md:w-6 text-right">
+                                  {(index + 1).toString().padStart(2, "0")}
+                                </span>
+                                <span
+                                  className="text-xs md:text-sm text-gray-800 font-medium truncate"
+                                  title={keyword}
                                 >
-                                  <div className="text-xs text-gray-300">—</div>
-                                </div>
-                              )
-                          )}
+                                  {keyword}
+                                </span>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="col-span-full p-4 text-center text-gray-500">
+                            {t("businessProfile.noKeywords")}
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -755,9 +795,9 @@ export default function BusinessProfile() {
                           <span>{t("businessProfile.customersCanSearch")}</span>
                         </div>
                         <div className="text-xs md:text-sm text-blue-600 font-medium">
-                          {t("businessProfile.totalProductsServices").replace(
+                          {t("businessProfile.totalKeywords").replace(
                             "{{count}}",
-                            String(business.productsAndServices.length)
+                            String(businessProfile?.profile?.keywords?.length || 0)
                           )}
                         </div>
                       </div>
@@ -818,7 +858,16 @@ export default function BusinessProfile() {
                     </h2>
                     {isLoggedIn() && (
                       <button
-                        onClick={() => setShowReviewModal(true)}
+                        onClick={() => {
+                          // Check if current logged-in user is active
+                          const activeStatuses = ["active", "verified", "approved", "confirmed"];
+                          if (!user?.status || !activeStatuses.includes(user.status)) {
+                            setShowVerificationToast(true);
+                            setTimeout(() => setShowVerificationToast(false), 4000);
+                            return;
+                          }
+                          setShowReviewModal(true);
+                        }}
                         className="bg-yellow-400 text-white px-4 py-2 md:px-6 md:py-3 rounded-full hover:bg-yellow-500 font-medium whitespace-nowrap cursor-pointer flex items-center space-x-1 md:space-x-2 text-sm md:text-base"
                       >
                         <i className="ri-edit-line"></i>
@@ -1625,6 +1674,19 @@ Best regards,"
       )}
 
       <Footer />
+
+      {/* Verification Toast */}
+      {showVerificationToast && (
+        <div className="fixed top-4 right-4 z-50 animate-pulse">
+          <div className="bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3">
+            <i className="ri-shield-warning-line text-xl"></i>
+            <div>
+              <p className="font-semibold">{t("businessProfile.verificationRequired")}</p>
+              <p className="text-sm">{t("businessProfile.verifyAccountFirst")}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

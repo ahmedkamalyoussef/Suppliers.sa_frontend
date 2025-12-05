@@ -118,7 +118,7 @@ export default function CompleteProfilePage() {
   useEffect(() => {
     const initializePage = async () => {
       if (!apiService.isAuthenticated()) {
-        router.push("/register");
+        router.push("/add-business");
         return;
       }
 

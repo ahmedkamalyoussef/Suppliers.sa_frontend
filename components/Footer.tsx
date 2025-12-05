@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useLanguage } from "../lib/LanguageContext";
+import { useAuth } from "../hooks/useAuth";
 import { FaTwitter, FaLinkedin, FaWhatsapp } from "react-icons/fa";
-import { FaFlag } from "react-icons/fa6";
 
 export default function Footer() {
   const { t, isRTL } = useLanguage();
+  const { isAuthenticated } = useAuth();
   return (
     <footer className="bg-white text-gray-800">
       {/* Vision 2030 Support Banner */}
@@ -110,15 +111,17 @@ export default function Footer() {
                   {t("footer.forBusinesses")}
                 </h4>
                 <ul className="space-y-3 sm:space-y-4">
-                  <li>
-                    <Link
-                      href="/add-business"
-                      className="text-gray-600 hover:text-yellow-600 transition-colors flex items-center"
-                    >
-                      <i className="ri-add-circle-line text-yellow-500 mr-2 w-4 h-4 flex items-center justify-center"></i>
-                      <span>{t("footer.registerBusiness")}</span>
-                    </Link>
-                  </li>
+                  {!isAuthenticated && (
+                    <li>
+                      <Link
+                        href="/add-business"
+                        className="text-gray-600 hover:text-yellow-600 transition-colors flex items-center"
+                      >
+                        <i className="ri-add-circle-line text-yellow-500 mr-2 w-4 h-4 flex items-center justify-center"></i>
+                        <span>{t("footer.registerBusiness")}</span>
+                      </Link>
+                    </li>
+                  )}
                   <li>
                     <Link
                       href="/businesses"
@@ -137,15 +140,7 @@ export default function Footer() {
                       <span>{t("footer.pricingPlans")}</span>
                     </Link>
                   </li>
-                  <li>
-                    <Link
-                      href="/dashboard"
-                      className="text-gray-600 hover:text-yellow-600 transition-colors flex items-center"
-                    >
-                      <i className="ri-dashboard-line text-yellow-500 mr-2 w-4 h-4 flex items-center justify-center"></i>
-                      <span>{t("footer.businessDashboard")}</span>
-                    </Link>
-                  </li>
+                  
                 </ul>
               </div>
 
@@ -157,13 +152,17 @@ export default function Footer() {
                 </h4>
                 <ul className="space-y-3 sm:space-y-4">
                   <li>
-                    <Link
-                      href="/help-center"
-                      className="text-gray-600 hover:text-yellow-600 transition-colors flex items-center"
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        // Dispatch a custom event to open the contact modal
+                        window.dispatchEvent(new CustomEvent('openContactModal'));
+                      }}
+                      className="w-full text-left text-gray-600 hover:text-yellow-600 transition-colors flex items-center"
                     >
                       <i className="ri-question-line text-yellow-500 mr-2 w-4 h-4 flex items-center justify-center"></i>
                       <span>{t("footer.helpCenter")}</span>
-                    </Link>
+                    </button>
                   </li>
                   <li>
                     <Link
@@ -183,15 +182,7 @@ export default function Footer() {
                       <span>{t("footer.successStories")}</span>
                     </Link>
                   </li>
-                  <li>
-                    <Link
-                      href="/support"
-                      className="text-gray-600 hover:text-yellow-600 transition-colors flex items-center"
-                    >
-                      <i className="ri-customer-service-line text-yellow-500 mr-2 w-4 h-4 flex items-center justify-center"></i>
-                      <span>{t("footer.support247")}</span>
-                    </Link>
-                  </li>
+                  
                 </ul>
               </div>
 

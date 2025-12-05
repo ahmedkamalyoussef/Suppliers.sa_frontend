@@ -49,13 +49,13 @@ export default function ResetPasswordPage() {
 
     if (!formData.otp.trim()) {
       newErrors.push(t("otpRequired"));
-    } else if (formData.otp.length !== 6) {
+    } else if (formData.otp.length !== 4) {
       newErrors.push(t("otpDigits"));
     }
 
     if (!formData.password.trim()) {
       newErrors.push(t("passwordRequired"));
-    } else if (formData.password.length < 6) {
+    } else if (formData.password.length < 4) {
       newErrors.push(t("passwordMinLength"));
     }
 

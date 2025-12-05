@@ -237,17 +237,17 @@ class ApiService {
   async createInquiry(data: InquiryRequest): Promise<PublicInquiryResponse> {
     // Check if user is logged in and get token
     const token = localStorage.getItem("token");
-    
+
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
     };
-    
+
     // Add authorization header if token exists
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
-    
-    const response = await this.request(
+
+    const response = (await this.request(
       "/api/supplier/inquiries",
       {
         method: "POST",
@@ -255,8 +255,8 @@ class ApiService {
         body: JSON.stringify(data),
       },
       false // doesn't require authentication
-    ) as PublicInquiryResponse;
-    
+    )) as PublicInquiryResponse;
+
     return response;
   }
 

@@ -295,12 +295,24 @@ export default function BusinessFilters({
   ];
 
   const clearAllFilters = (): void => {
+    // Reset all filter states
     setSearchQuery("");
     setSelectedCategory("all");
     setSelectedBusinessType("all");
     setSelectedDistance("");
     setVerifiedOnly(false);
     setOpenNow(false);
+    setAddress("");
+    
+    // If there are any additional reset functions passed as props, call them
+    if (typeof (window as any).resetAdditionalFilters === 'function') {
+      (window as any).resetAdditionalFilters();
+    }
+    
+    // Update URL without any query parameters
+    const url = new URL(window.location.href);
+    const baseUrl = url.origin + url.pathname;
+    window.history.pushState({}, '', baseUrl);
   };
 
   return (

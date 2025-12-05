@@ -4,6 +4,7 @@ import { profile } from "console";
 import { useState, useEffect } from "react";
 import { useAuth } from "../lib/UserContext";
 import { useLanguage } from "../lib/LanguageContext";
+import { apiService } from "../lib/api";
 
 interface WorkingHours {
   open: string;
@@ -83,21 +84,45 @@ export default function BusinessManagement() {
   const [keywordInput, setKeywordInput] = useState("");
 
   useEffect(() => {
-    if (user) {
-      // Process the user data from auth context
-      processUserData(user);
-    } else {
-      setIsLoading(false);
-    }
+    // Fetch fresh profile data directly from API
+    const fetchProfileData = async () => {
+      try {
+        const profileData = await apiService.getProfile();
+        processUserData(profileData);
+      } catch (error) {
+        // Fallback to auth context user data
+        if (user) {
+          processUserData(user);
+        } else {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchProfileData();
+
+    // Listen for profile updates
+    const handleProfileUpdate = () => {
+      fetchProfileData();
+    };
+
+    window.addEventListener("userProfileUpdated", handleProfileUpdate);
+
+    return () => {
+      window.removeEventListener("userProfileUpdated", handleProfileUpdate);
+    };
   }, [user]);
 
   const processUserData = (parsedUser: any) => {
     // Process keywords from API data (array format)
     let keywordsFromData: string[] = [];
-    if (Array.isArray(parsedUser.profile?.productKeywords)) {
-      keywordsFromData = parsedUser.profile.productKeywords;
-    } else if (typeof parsedUser.profile?.productKeywords === "string") {
-      keywordsFromData = parsedUser.profile.productKeywords
+    // Handle both profile data structure and auth context structure
+    const keywords =
+      parsedUser.productKeywords || parsedUser.profile?.productKeywords;
+    if (Array.isArray(keywords)) {
+      keywordsFromData = keywords;
+    } else if (typeof keywords === "string") {
+      keywordsFromData = keywords
         .split(",")
         .map((k: string) => k.trim())
         .filter(Boolean);
@@ -121,7 +146,8 @@ export default function BusinessManagement() {
     };
 
     // Get working hours from API response or use defaults
-    const apiWorkingHours = parsedUser.profile?.workingHours || {};
+    const apiWorkingHours =
+      parsedUser.workingHours || parsedUser.profile?.workingHours || {};
 
     // Merge API working hours with defaults
     const workingHours = {
@@ -131,29 +157,35 @@ export default function BusinessManagement() {
 
     // Update business data
     setBusinessData({
-      name: parsedUser.profile?.businessName || parsedUser.name || "",
-      category: parsedUser.profile?.category || "",
-      businessType: parsedUser.profile?.businessType || "",
-      description: parsedUser.profile?.description || "",
+      name:
+        parsedUser.businessName ||
+        parsedUser.profile?.businessName ||
+        parsedUser.name ||
+        "",
+      category: parsedUser.category || parsedUser.profile?.category || "",
+      businessType:
+        parsedUser.businessType || parsedUser.profile?.businessType || "",
+      description:
+        parsedUser.description || parsedUser.profile?.description || "",
       productKeywords: keywordsFromData.join(", "),
-      email: parsedUser.profile?.contactEmail || "",
-      phone: parsedUser.profile?.mainPhone || "",
-      website: parsedUser.profile?.website || "",
-      address: parsedUser.profile?.address || "",
-      serviceDistance: parsedUser.profile?.serviceDistance || "",
-      targetCustomers: Array.isArray(parsedUser.profile?.targetCustomers)
-        ? parsedUser.profile.targetCustomers
-        : [],
-      services: Array.isArray(parsedUser.profile?.services)
-        ? parsedUser.profile.services
-        : [],
-      categories: Array.isArray(parsedUser.profile?.categories)
-        ? parsedUser.profile.categories
-        : [],
-      workingHours: workingHours,
+      email: parsedUser.contactEmail || parsedUser.profile?.contactEmail || "",
+      phone:
+        parsedUser.contactPhone ||
+        parsedUser.profile?.mainPhone ||
+        parsedUser.phone ||
+        "",
+      website: parsedUser.website || parsedUser.profile?.website || "",
+      address: parsedUser.address || parsedUser.profile?.address || "",
+      serviceDistance:
+        parsedUser.serviceDistance || parsedUser.profile?.serviceDistance || "",
+      targetCustomers:
+        parsedUser.targetCustomers || parsedUser.profile?.targetCustomers || [],
+      services: parsedUser.services || parsedUser.profile?.services || [],
+      categories: parsedUser.categories || parsedUser.profile?.categories || [],
+      workingHours,
     });
 
-    // Set the keywords state arrays
+    // Set product keywords
     setProductKeywords(keywordsFromData);
     setKeywordInput(keywordsFromData.join(", "));
 
@@ -184,78 +216,96 @@ export default function BusinessManagement() {
       const currentUser = JSON.parse(
         localStorage.getItem("supplier_user") || "{}"
       );
-      
+
       // Create update data with only changed fields
       const updateData: Record<string, any> = {};
-      
+
       // Compare each field with original data
       const originalProfile = currentUser.profile || {};
-      
-      if (businessData.name !== (originalProfile.businessName || currentUser.name)) {
+
+      if (
+        businessData.name !== (originalProfile.businessName || currentUser.name)
+      ) {
         updateData.businessName = businessData.name;
       }
-      
+
       if (businessData.category !== (originalProfile.category || "")) {
         updateData.category = businessData.category;
       }
-      
+
       if (businessData.businessType !== (originalProfile.businessType || "")) {
         updateData.businessType = businessData.businessType;
       }
-      
+
       if (businessData.description !== (originalProfile.description || "")) {
         updateData.description = businessData.description;
       }
-      
+
       if (businessData.phone !== (originalProfile.mainPhone || "")) {
         updateData.mainPhone = businessData.phone;
       }
-      
+
       if (businessData.website !== (originalProfile.website || "")) {
         updateData.website = businessData.website;
       }
-      
+
       if (businessData.address !== (originalProfile.address || "")) {
         updateData.address = businessData.address;
       }
-      
-      if (businessData.serviceDistance !== (originalProfile.serviceDistance || "")) {
+
+      if (
+        businessData.serviceDistance !== (originalProfile.serviceDistance || "")
+      ) {
         updateData.serviceDistance = businessData.serviceDistance;
       }
-      
+
       // Compare product keywords (convert to array for comparison)
       const currentKeywords = businessData.productKeywords
         .split(",")
         .map((k) => k.trim())
         .filter(Boolean);
-      const originalKeywords = Array.isArray(originalProfile.productKeywords) 
-        ? originalProfile.productKeywords 
+      const originalKeywords = Array.isArray(originalProfile.productKeywords)
+        ? originalProfile.productKeywords
         : [];
-      
-      if (JSON.stringify(currentKeywords.sort()) !== JSON.stringify(originalKeywords.sort())) {
+
+      if (
+        JSON.stringify(currentKeywords.sort()) !==
+        JSON.stringify(originalKeywords.sort())
+      ) {
         updateData.productKeywords = currentKeywords;
       }
-      
+
       // Compare services
-      if (JSON.stringify(businessData.services.sort()) !== JSON.stringify((originalProfile.services || []).sort())) {
+      if (
+        JSON.stringify(businessData.services.sort()) !==
+        JSON.stringify((originalProfile.services || []).sort())
+      ) {
         updateData.services = businessData.services;
       }
-      
+
       // Compare categories
-      if (JSON.stringify(businessData.categories.sort()) !== JSON.stringify((originalProfile.categories || []).sort())) {
+      if (
+        JSON.stringify(businessData.categories.sort()) !==
+        JSON.stringify((originalProfile.categories || []).sort())
+      ) {
         updateData.categories = businessData.categories;
       }
-      
+
       // Compare working hours
-      if (JSON.stringify(businessData.workingHours) !== JSON.stringify(originalProfile.workingHours || {})) {
+      if (
+        JSON.stringify(businessData.workingHours) !==
+        JSON.stringify(originalProfile.workingHours || {})
+      ) {
         updateData.workingHours = businessData.workingHours;
       }
-      
+
       // Only include email if it has changed
-      if (businessData.email !== (originalProfile.contactEmail || currentUser.email)) {
+      if (
+        businessData.email !==
+        (originalProfile.contactEmail || currentUser.email)
+      ) {
         updateData.contactEmail = businessData.email;
       }
-
 
       const { apiService } = await import("../lib/api");
       const response = await apiService.updateProfile(updateData);
@@ -275,8 +325,7 @@ export default function BusinessManagement() {
       }
 
       setIsEditing(false);
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const handleImageUpload = async (
@@ -300,9 +349,7 @@ export default function BusinessManagement() {
           image: response.name,
         };
         setBusinessImages([...businessImages, newImage]);
-
-      } catch (error) {
-      }
+      } catch (error) {}
     }
   };
 
@@ -316,62 +363,60 @@ export default function BusinessManagement() {
 
       // Remove the image from the state
       setBusinessImages(businessImages.filter((img) => img.id !== id));
-
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   // Categories from CompleteProfileForm
-const categories = [
-  { en: "Agriculture", ar: "الزراعة" },
-  { en: "Apparel & Fashion", ar: "الملابس والموضة" },
-  { en: "Automobile", ar: "السيارات" },
-  { en: "Brass Hardware & Components", ar: "أدوات ومكونات النحاس" },
-  { en: "Business Services", ar: "الخدمات التجارية" },
-  { en: "Chemicals", ar: "المواد الكيميائية" },
-  { en: "Computer Hardware & Software", ar: "أجهزة وبرامج الكمبيوتر" },
-  { en: "Construction & Real Estate", ar: "البناء والعقارات" },
-  { en: "Consumer Electronics", ar: "الإلكترونيات الاستهلاكية" },
-  {
-    en: "Electronics & Electrical Supplies",
-    ar: "الإلكترونيات والمستلزمات الكهربائية",
-  },
-  { en: "Energy & Power", ar: "الطاقة والطاقة الكهربائية" },
-  { en: "Environment & Pollution", ar: "البيئة والتلوث" },
-  { en: "Food & Beverage", ar: "الطعام والمشروبات" },
-  { en: "Furniture", ar: "الأثاث" },
-  { en: "Gifts & Crafts", ar: "الهدايا والحرف اليدوية" },
-  { en: "Health & Beauty", ar: "الصحة والجمال" },
-  { en: "Home Supplies", ar: "مستلزمات المنزل" },
-  { en: "Home Textiles & Furnishings", ar: "منسوجات وتجهيزات المنزل" },
-  { en: "Hospital & Medical Supplies", ar: "المستشفيات والمستلزمات الطبية" },
-  { en: "Hotel Supplies & Equipment", ar: "مستلزمات ومعدات الفنادق" },
-  { en: "Industrial Supplies", ar: "المستلزمات الصناعية" },
-  { en: "Jewelry & Gemstones", ar: "المجوهرات والأحجار الكريمة" },
-  { en: "Leather & Leather Products", ar: "الجلد والمنتجات الجلدية" },
-  { en: "Machinery", ar: "المعدات والآلات" },
-  { en: "Mineral & Metals", ar: "المعادن والمعادن" },
-  { en: "Office & School Supplies", ar: "مستلزمات المكتب والمدرسة" },
-  { en: "Oil and Gas", ar: "النفط والغاز" },
-  { en: "Packaging & Paper", ar: "التغليف والورق" },
-  { en: "Pharmaceuticals", ar: "الأدوية" },
-  { en: "Pipes, Tubes & Fittings", ar: "الأنابيب والوصلات" },
-  { en: "Plastics & Products", ar: "اللدائن والمنتجات" },
-  { en: "Printing & Publishing", ar: "الطباعة والنشر" },
-  { en: "Real Estate", ar: "العقارات" },
-  {
-    en: "Scientific & Laboratory Instruments",
-    ar: "الأدوات العلمية والمخبرية",
-  },
-  { en: "Security & Protection", ar: "الأمن والحماية" },
-  { en: "Sports & Entertainment", ar: "الرياضة والترفيه" },
-  { en: "Telecommunications", ar: "الاتصالات" },
-  { en: "Textiles & Fabrics", ar: "المنسوجات والأقمشة" },
-  { en: "Toys", ar: "الألعاب" },
-  { en: "Transportation", ar: "النقل" },
-];
+  const categories = [
+    { en: "Agriculture", ar: "الزراعة" },
+    { en: "Apparel & Fashion", ar: "الملابس والموضة" },
+    { en: "Automobile", ar: "السيارات" },
+    { en: "Brass Hardware & Components", ar: "أدوات ومكونات النحاس" },
+    { en: "Business Services", ar: "الخدمات التجارية" },
+    { en: "Chemicals", ar: "المواد الكيميائية" },
+    { en: "Computer Hardware & Software", ar: "أجهزة وبرامج الكمبيوتر" },
+    { en: "Construction & Real Estate", ar: "البناء والعقارات" },
+    { en: "Consumer Electronics", ar: "الإلكترونيات الاستهلاكية" },
+    {
+      en: "Electronics & Electrical Supplies",
+      ar: "الإلكترونيات والمستلزمات الكهربائية",
+    },
+    { en: "Energy & Power", ar: "الطاقة والطاقة الكهربائية" },
+    { en: "Environment & Pollution", ar: "البيئة والتلوث" },
+    { en: "Food & Beverage", ar: "الطعام والمشروبات" },
+    { en: "Furniture", ar: "الأثاث" },
+    { en: "Gifts & Crafts", ar: "الهدايا والحرف اليدوية" },
+    { en: "Health & Beauty", ar: "الصحة والجمال" },
+    { en: "Home Supplies", ar: "مستلزمات المنزل" },
+    { en: "Home Textiles & Furnishings", ar: "منسوجات وتجهيزات المنزل" },
+    { en: "Hospital & Medical Supplies", ar: "المستشفيات والمستلزمات الطبية" },
+    { en: "Hotel Supplies & Equipment", ar: "مستلزمات ومعدات الفنادق" },
+    { en: "Industrial Supplies", ar: "المستلزمات الصناعية" },
+    { en: "Jewelry & Gemstones", ar: "المجوهرات والأحجار الكريمة" },
+    { en: "Leather & Leather Products", ar: "الجلد والمنتجات الجلدية" },
+    { en: "Machinery", ar: "المعدات والآلات" },
+    { en: "Mineral & Metals", ar: "المعادن والمعادن" },
+    { en: "Office & School Supplies", ar: "مستلزمات المكتب والمدرسة" },
+    { en: "Oil and Gas", ar: "النفط والغاز" },
+    { en: "Packaging & Paper", ar: "التغليف والورق" },
+    { en: "Pharmaceuticals", ar: "الأدوية" },
+    { en: "Pipes, Tubes & Fittings", ar: "الأنابيب والوصلات" },
+    { en: "Plastics & Products", ar: "اللدائن والمنتجات" },
+    { en: "Printing & Publishing", ar: "الطباعة والنشر" },
+    { en: "Real Estate", ar: "العقارات" },
+    {
+      en: "Scientific & Laboratory Instruments",
+      ar: "الأدوات العلمية والمخبرية",
+    },
+    { en: "Security & Protection", ar: "الأمن والحماية" },
+    { en: "Sports & Entertainment", ar: "الرياضة والترفيه" },
+    { en: "Telecommunications", ar: "الاتصالات" },
+    { en: "Textiles & Fabrics", ar: "المنسوجات والأقمشة" },
+    { en: "Toys", ar: "الألعاب" },
+    { en: "Transportation", ar: "النقل" },
+  ];
 
-const availableServices = [
+  const availableServices = [
     "Wholesale",
     "Retail",
     "Repair Services",
@@ -456,33 +501,6 @@ const availableServices = [
                         : "border-gray-200 bg-gray-50"
                     }`}
                   />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Category
-                  </label>
-                  <select
-                    value={businessData.category}
-                    disabled={!isEditing}
-                    onChange={(e) =>
-                      setBusinessData({
-                        ...businessData,
-                        category: e.target.value,
-                      })
-                    }
-                    className={`w-full px-4 py-3 border rounded-lg text-sm pr-8 ${
-                      isEditing
-                        ? "border-gray-300 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
-                        : "border-gray-200 bg-gray-50"
-                    }`}
-                  >
-                    <option value="Home Supplies">Home Supplies</option>
-                    <option value="Electronics">Electronics</option>
-                    <option value="Printing">Printing</option>
-                    <option value="Furniture">Furniture</option>
-                    <option value="Technology">Technology</option>
-                  </select>
                 </div>
 
                 <div>
@@ -765,7 +783,10 @@ const availableServices = [
                             if (e.target.checked) {
                               setBusinessData({
                                 ...businessData,
-                                categories: [...businessData.categories, category.en],
+                                categories: [
+                                  ...businessData.categories,
+                                  category.en,
+                                ],
                               });
                             } else {
                               setBusinessData({
@@ -786,10 +807,9 @@ const availableServices = [
                   </div>
                   {categories.length > 15 && (
                     <div className="text-center py-2 text-xs text-gray-500 border-t mt-2">
-                      {isRTL 
+                      {isRTL
                         ? `${categories.length} فئة متاحة`
-                        : `${categories.length} categories available`
-                      }
+                        : `${categories.length} categories available`}
                     </div>
                   )}
                 </div>

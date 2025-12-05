@@ -132,9 +132,7 @@ export default function RootLayout({
         <AuthProvider>
           <AISearchProvider>
             <LanguageProvider>
-              <MaintenanceChecker>
-                {children}
-              </MaintenanceChecker>
+              <MaintenanceChecker>{children}</MaintenanceChecker>
               <ToastContainer
                 position="top-center"
                 autoClose={5000}

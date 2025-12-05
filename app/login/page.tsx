@@ -311,7 +311,7 @@ export default function LoginPage() {
                   <p className="text-sm text-gray-600 mb-4">
                     {t("login.noAccount")}{" "}
                     <Link
-                      href="/register"
+                      href="/add-business"
                       className="text-yellow-600 hover:text-yellow-700 font-medium transition-colors"
                     >
                       {t("login.createAccountLink")}

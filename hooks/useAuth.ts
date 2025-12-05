@@ -106,16 +106,18 @@ export const useAuth = (): UseAuthReturn => {
       if (userType === "admin") {
         const adminUserStr = localStorage.getItem("admin_user");
         const permissionsStr = localStorage.getItem("admin_permissions");
-        
+
         if (adminUserStr) {
           try {
             const adminUserData: AdminUser = JSON.parse(adminUserStr);
-            const permissions = permissionsStr ? JSON.parse(permissionsStr) : null;
-            
+            const permissions = permissionsStr
+              ? JSON.parse(permissionsStr)
+              : null;
+
             const adminUser = {
               ...adminUserData,
               plan: adminUserData.plan || "Enterprise", // Default to Enterprise for admins
-              permissions: permissions // Add permissions to user object
+              permissions: permissions, // Add permissions to user object
             };
             setAuthState({
               isAuthenticated: true,
@@ -160,8 +162,8 @@ export const useAuth = (): UseAuthReturn => {
 
       if (isAdminUser) {
         const adminUser = {
-          ...user as AdminUser,
-          plan: (user as AdminUser).plan || "Enterprise" // Default to Enterprise for admins
+          ...(user as AdminUser),
+          plan: (user as AdminUser).plan || "Enterprise", // Default to Enterprise for admins
         };
         const userType =
           adminUser.role === "super_admin" ? "super_admin" : "admin";
@@ -231,16 +233,19 @@ export const useAuth = (): UseAuthReturn => {
     }
 
     // If user is admin or super_admin, only allow admin pages
-    if (authState.userType === "admin" || authState.userType === "super_admin") {
+    if (
+      authState.userType === "admin" ||
+      authState.userType === "super_admin"
+    ) {
       const adminPaths = [
         "/admin",
         "/admin/",
         "/admin/user-management",
-        "/admin/content-management", 
+        "/admin/content-management",
         "/admin/system-settings",
-        "/admin/analytics"
+        "/admin/analytics",
       ];
-      
+
       // Check if current path starts with /admin
       return currentPath.startsWith("/admin");
     }
@@ -251,7 +256,10 @@ export const useAuth = (): UseAuthReturn => {
 
   // Function to redirect admin if they try to access non-admin pages
   const enforceAdminPageAccess = (currentPath: string) => {
-    if (authState.isAuthenticated && (authState.userType === "admin" || authState.userType === "super_admin")) {
+    if (
+      authState.isAuthenticated &&
+      (authState.userType === "admin" || authState.userType === "super_admin")
+    ) {
       if (!canAccessCurrentPage(currentPath)) {
         router.push("/admin");
         return false;
@@ -266,7 +274,10 @@ export const useAuth = (): UseAuthReturn => {
 
   // Client-side admin access restriction
   useEffect(() => {
-    if (authState.isAuthenticated && (authState.userType === "admin" || authState.userType === "super_admin")) {
+    if (
+      authState.isAuthenticated &&
+      (authState.userType === "admin" || authState.userType === "super_admin")
+    ) {
       const currentPath = window.location.pathname;
       if (!canAccessCurrentPage(currentPath)) {
         router.push("/admin");

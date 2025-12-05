@@ -12,7 +12,7 @@ export default function SubscriptionPage() {
       <Header />
       <PricingHero />
       <PricingPlans />
-      <SubscriptionTestimonials />
+      {/* <SubscriptionTestimonials /> */}
       <Footer />
     </div>
   );
