@@ -246,6 +246,7 @@ export default function Header() {
                 isRTL ? "flex-row-reverse" : "flex-row"
               }`}
             >
+              
               <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center">
                 <svg
                   viewBox="0 0 24 24"

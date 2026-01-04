@@ -1,10 +1,20 @@
 "use client";
 
-import { profile } from "console";
-import { useState, useEffect } from "react";
-import { useAuth } from "../lib/UserContext";
-import { useLanguage } from "../lib/LanguageContext";
-import { apiService } from "../lib/api";
+import { SetStateAction, useEffect, useState, useRef } from "react";
+import Link from "next/link";
+import BranchManagement from "./BranchManagement";
+import { useLanguage } from "./../lib/LanguageContext";
+import { useAuth } from "./../hooks/useAuth";
+import { apiService, type ProfileUpdateData } from "./../lib/api";
+import {
+  ProfileFormData,
+  AdditionalPhone,
+  Location,
+  Errors,
+  CompleteProfileFormProps,
+  type Branch,
+} from "./../lib/types";
+import BusinessLocationMap, { findNearestCity } from "./BusinessLocationMap";
 
 interface WorkingHours {
   open: string;
@@ -26,6 +36,13 @@ interface BusinessData {
   targetCustomers: string[];
   services: string[];
   categories: string[];
+  additionalPhones: Array<{
+    id: number;
+    type: string;
+    number: string;
+    name: string;
+  }>;
+  location: { lat: number; lng: number };
   workingHours: {
     monday: WorkingHours;
     tuesday: WorkingHours;
@@ -37,19 +54,102 @@ interface BusinessData {
   };
 }
 
-interface Service {
-  id?: number;
-  name: string;
-}
-
 interface ProductImage {
   id?: number;
   url?: string;
   image?: string;
 }
 
+// Business types with translations
+const businessTypes = [
+  { value: "supplier", en: "Supplier", ar: "مورد" },
+  { value: "store", en: "Retail Shop", ar: "متجر" },
+  { value: "office", en: "Company", ar: "مكتب" },
+  { value: "individual", en: "Individual Establishment", ar: "فرد" },
+];
+
+// Target customer options with translations
+const targetCustomerOptions = [
+  { en: "Large Organizations", ar: "المنظمات الكبيرة" },
+  { en: "Small Businesses", ar: "الشركات الصغيرة" },
+  { en: "Individuals", ar: "الأفراد" },
+];
+
+// Service distance options with translations
+const serviceDistanceOptions = [
+  { en: "5 km", ar: "5 كم" },
+  { en: "10 km", ar: "10 كم" },
+  { en: "15 km", ar: "15 كم" },
+  { en: "25 km", ar: "25 كم" },
+  { en: "50 km", ar: "50 كم" },
+  { en: "100+ km", ar: "100+ كم" },
+];
+
+// Categories from CompleteProfileForm
+const categories = [
+  { en: "Agriculture", ar: "الزراعة" },
+  { en: "Apparel & Fashion", ar: "الملابس والموضة" },
+  { en: "Automobile", ar: "السيارات" },
+  { en: "Brass Hardware & Components", ar: "أدوات ومكونات النحاس" },
+  { en: "Business Services", ar: "الخدمات التجارية" },
+  { en: "Chemicals", ar: "المواد الكيميائية" },
+  { en: "Computer Hardware & Software", ar: "أجهزة وبرامج الكمبيوتر" },
+  { en: "Construction & Real Estate", ar: "البناء والعقارات" },
+  { en: "Consumer Electronics", ar: "الإلكترونيات الاستهلاكية" },
+  {
+    en: "Electronics & Electrical Supplies",
+    ar: "الإلكترونيات والمستلزمات الكهربائية",
+  },
+  { en: "Energy & Power", ar: "الطاقة والطاقة الكهربائية" },
+  { en: "Environment & Pollution", ar: "البيئة والتلوث" },
+  { en: "Food & Beverage", ar: "الطعام والمشروبات" },
+  { en: "Furniture", ar: "الأثاث" },
+  { en: "Gifts & Crafts", ar: "الهدايا والحرف اليدوية" },
+  { en: "Health & Beauty", ar: "الصحة والجمال" },
+  { en: "Home Supplies", ar: "مستلزمات المنزل" },
+  { en: "Home Textiles & Furnishings", ar: "منسوجات وتجهيزات المنزل" },
+  { en: "Hospital & Medical Supplies", ar: "المستشفيات والمستلزمات الطبية" },
+  { en: "Hotel Supplies & Equipment", ar: "مستلزمات ومعدات الفنادق" },
+  { en: "Industrial Supplies", ar: "المستلزمات الصناعية" },
+  { en: "Jewelry & Gemstones", ar: "المجوهرات والأحجار الكريمة" },
+  { en: "Leather & Leather Products", ar: "الجلد والمنتجات الجلدية" },
+  { en: "Machinery", ar: "المعدات والآلات" },
+  { en: "Mineral & Metals", ar: "المعادن والمعادن" },
+  { en: "Office & School Supplies", ar: "مستلزمات المكتب والمدرسة" },
+  { en: "Oil and Gas", ar: "النفط والغاز" },
+  { en: "Packaging & Paper", ar: "التغليف والورق" },
+  { en: "Pharmaceuticals", ar: "الأدوية" },
+  { en: "Pipes, Tubes & Fittings", ar: "الأنابيب والوصلات" },
+  { en: "Plastics & Products", ar: "اللدائن والمنتجات" },
+  { en: "Printing & Publishing", ar: "الطباعة والنشر" },
+  { en: "Real Estate", ar: "العقارات" },
+  {
+    en: "Scientific & Laboratory Instruments",
+    ar: "الأدوات العلمية والمخبرية",
+  },
+  { en: "Security & Protection", ar: "الأمن والحماية" },
+  { en: "Sports & Entertainment", ar: "الرياضة والترفيه" },
+  { en: "Telecommunications", ar: "الاتصالات" },
+  { en: "Textiles & Fabrics", ar: "المنسوجات والأقمشة" },
+  { en: "Toys", ar: "الألعاب" },
+  { en: "Transportation", ar: "النقل" },
+];
+
+const availableServices = [
+  "Wholesale",
+  "Retail",
+  "Repair Services",
+  "Custom Orders",
+  "Bulk Orders",
+  "Emergency Service",
+  "Installation",
+  "Maintenance",
+  "Delivery",
+  "Consulting",
+];
+
 export default function BusinessManagement() {
-  const { user, updateUser } = useAuth();
+  const { user } = useAuth();
   const { isRTL } = useLanguage();
   const [activeSection, setActiveSection] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
@@ -67,6 +167,10 @@ export default function BusinessManagement() {
     targetCustomers: [],
     services: [],
     categories: [],
+    additionalPhones: [
+      { id: 1, type: "Sales Representative", number: "", name: "" },
+    ],
+    location: { lat: 24.7136, lng: 46.6753 },
     workingHours: {
       monday: { open: "08:00", close: "18:00", closed: false },
       tuesday: { open: "08:00", close: "18:00", closed: false },
@@ -83,14 +187,124 @@ export default function BusinessManagement() {
   const [productKeywords, setProductKeywords] = useState<string[]>([]);
   const [keywordInput, setKeywordInput] = useState("");
 
+  // Helper functions
+  const getTranslatedText = (
+    items: Array<{ en: string; ar: string }>,
+    value: string
+  ): string => {
+    const item = items.find((item) => item.en === value);
+    return item ? item[isRTL ? "ar" : "en"] : value;
+  };
+
+  const getTranslatedTextWithValue = (
+    items: Array<{ value: string; en: string; ar: string }>,
+    value: string
+  ): string => {
+    const item = items.find((item) => item.value === value);
+    if (!item) return value;
+    return item[isRTL ? "ar" : "en"] as string;
+  };
+
+  // Business types with translations (like CompleteProfileForm)
+  const businessTypes = [
+    { value: "supplier", en: "Supplier", ar: "مورد" },
+    { value: "store", en: "Retail Shop", ar: "متجر" },
+    { value: "office", en: "Company", ar: "مكتب" },
+    { value: "individual", en: "Individual Establishment", ar: "منشأة فردية" },
+  ];
+
+  const getBusinessTypeIcon = (type: string): string => {
+    switch (type) {
+      case "supplier":
+        return "ri-truck-line";
+      case "store":
+        return "ri-store-2-line";
+      case "office":
+        return "ri-building-line";
+      case "individual":
+        return "ri-user-3-line";
+      default:
+        return "ri-briefcase-line";
+    }
+  };
+
+  // Phone types with translations (like CompleteProfileForm)
+  const phoneTypes = [
+    "Sales Representative",
+    "Procurement",
+    "Technical Support",
+    "Customer Service",
+    "General Inquiry",
+  ];
+
+  const handleTargetCustomerToggle = (customer: string) => {
+    console.log("Toggling customer:", customer);
+    console.log("Current target customers:", businessData.targetCustomers);
+
+    const englishCustomer =
+      targetCustomerOptions.find(
+        (opt) => opt.en === customer || opt.ar === customer
+      )?.en || customer;
+
+    const newCustomers = businessData.targetCustomers.includes(englishCustomer)
+      ? businessData.targetCustomers.filter((c) => c !== englishCustomer)
+      : [...businessData.targetCustomers, englishCustomer];
+
+    console.log("New target customers:", newCustomers);
+
+    setBusinessData({
+      ...businessData,
+      targetCustomers: newCustomers,
+    });
+  };
+
+  const handleAddPhone = () => {
+    if (businessData.additionalPhones.length < 4) {
+      setBusinessData({
+        ...businessData,
+        additionalPhones: [
+          ...businessData.additionalPhones,
+          {
+            id: Date.now(),
+            type: "Sales Representative",
+            number: "",
+            name: "",
+          },
+        ],
+      });
+    }
+  };
+
+  const handleRemovePhone = (id: number) => {
+    setBusinessData({
+      ...businessData,
+      additionalPhones: businessData.additionalPhones.filter(
+        (phone) => phone.id !== id
+      ),
+    });
+  };
+
+  const handlePhoneChange = (
+    id: number,
+    field: "type" | "number" | "name",
+    value: string
+  ) => {
+    const updatedPhones = businessData.additionalPhones.map((phone) =>
+      phone.id === id ? { ...phone, [field]: value } : phone
+    );
+
+    setBusinessData({
+      ...businessData,
+      additionalPhones: updatedPhones,
+    });
+  };
+
   useEffect(() => {
-    // Fetch fresh profile data directly from API
     const fetchProfileData = async () => {
       try {
         const profileData = await apiService.getProfile();
         processUserData(profileData);
       } catch (error) {
-        // Fallback to auth context user data
         if (user) {
           processUserData(user);
         } else {
@@ -101,7 +315,6 @@ export default function BusinessManagement() {
 
     fetchProfileData();
 
-    // Listen for profile updates
     const handleProfileUpdate = () => {
       fetchProfileData();
     };
@@ -114,9 +327,9 @@ export default function BusinessManagement() {
   }, [user]);
 
   const processUserData = (parsedUser: any) => {
-    // Process keywords from API data (array format)
+    console.log("Processing user data:", parsedUser);
+
     let keywordsFromData: string[] = [];
-    // Handle both profile data structure and auth context structure
     const keywords =
       parsedUser.productKeywords || parsedUser.profile?.productKeywords;
     if (Array.isArray(keywords)) {
@@ -128,13 +341,6 @@ export default function BusinessManagement() {
         .filter(Boolean);
     }
 
-    // Debug: Log the entire parsedUser object to see its structure
-
-    // Debug: Log the profile object
-
-    // Debug: Log the working hours from API
-
-    // Set default working hours structure
     const defaultWorkingHours = {
       monday: { open: "09:00", close: "17:00", closed: false },
       tuesday: { open: "09:00", close: "17:00", closed: false },
@@ -145,18 +351,63 @@ export default function BusinessManagement() {
       sunday: { open: "10:00", close: "16:00", closed: true },
     };
 
-    // Get working hours from API response or use defaults
     const apiWorkingHours =
       parsedUser.workingHours || parsedUser.profile?.workingHours || {};
 
-    // Merge API working hours with defaults
     const workingHours = {
       ...defaultWorkingHours,
       ...apiWorkingHours,
     };
 
-    // Update business data
-    setBusinessData({
+    // Fix: Handle targetCustomers properly - convert from string to array if needed
+    let targetCustomersFromData: string[] = [];
+
+    // Check multiple possible fields for target customers
+    const targetCustomersRaw =
+      parsedUser.targetCustomers ||
+      parsedUser.profile?.targetCustomers ||
+      parsedUser.whoDoYouServe ||
+      parsedUser.profile?.whoDoYouServe ||
+      [];
+
+    console.log(
+      "Raw target customers data:",
+      targetCustomersRaw,
+      typeof targetCustomersRaw
+    );
+
+    if (typeof targetCustomersRaw === "string") {
+      // If it's a string, split by comma and clean
+      targetCustomersFromData = targetCustomersRaw
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+    } else if (Array.isArray(targetCustomersRaw)) {
+      // If it's an array, check if it contains strings or mixed data
+      if (
+        targetCustomersRaw.length > 0 &&
+        typeof targetCustomersRaw[0] === "string"
+      ) {
+        // Check if the first element contains commas (indicating it needs splitting)
+        if (targetCustomersRaw[0].includes(",")) {
+          // Split the first element by comma
+          targetCustomersFromData = targetCustomersRaw[0]
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean);
+        } else {
+          // Use the array as is
+          targetCustomersFromData = targetCustomersRaw;
+        }
+      } else {
+        // Use the array as is
+        targetCustomersFromData = targetCustomersRaw;
+      }
+    }
+
+    console.log("Processed target customers:", targetCustomersFromData);
+
+    const businessDataToSet = {
       name:
         parsedUser.businessName ||
         parsedUser.profile?.businessName ||
@@ -178,18 +429,24 @@ export default function BusinessManagement() {
       address: parsedUser.address || parsedUser.profile?.address || "",
       serviceDistance:
         parsedUser.serviceDistance || parsedUser.profile?.serviceDistance || "",
-      targetCustomers:
-        parsedUser.targetCustomers || parsedUser.profile?.targetCustomers || [],
+      targetCustomers: targetCustomersFromData,
       services: parsedUser.services || parsedUser.profile?.services || [],
       categories: parsedUser.categories || parsedUser.profile?.categories || [],
+      additionalPhones: parsedUser.additionalPhones ||
+        parsedUser.profile?.additionalPhones || [
+          { id: 1, type: "Sales Representative", number: "", name: "" },
+        ],
+      location: parsedUser.location ||
+        parsedUser.profile?.location || { lat: 24.7136, lng: 46.6753 },
       workingHours,
-    });
+    };
 
-    // Set product keywords
+    console.log("Setting business data:", businessDataToSet);
+    setBusinessData(businessDataToSet);
+
     setProductKeywords(keywordsFromData);
     setKeywordInput(keywordsFromData.join(", "));
 
-    // Set product images if available
     if (Array.isArray(parsedUser.product_images)) {
       setBusinessImages(
         parsedUser.product_images.map((img: any) => ({
@@ -204,7 +461,9 @@ export default function BusinessManagement() {
   };
 
   const sections = [
-    { id: "profile", name: "Profile", icon: "ri-information-line" },
+    { id: "profile", name: "Basic Info", icon: "ri-user-line" },
+    { id: "details", name: "Business Details", icon: "ri-briefcase-line" },
+    { id: "location", name: "Location", icon: "ri-map-pin-line" },
     { id: "products", name: "Products", icon: "ri-price-tag-3-line" },
     { id: "photos", name: "Photos", icon: "ri-image-line" },
     { id: "hours", name: "Hours", icon: "ri-time-line" },
@@ -212,20 +471,23 @@ export default function BusinessManagement() {
 
   const handleSave = async () => {
     try {
-      // Get current user data to compare changes
       const currentUser = JSON.parse(
         localStorage.getItem("supplier_user") || "{}"
       );
 
-      // Create update data with only changed fields
       const updateData: Record<string, any> = {};
-
-      // Compare each field with original data
       const originalProfile = currentUser.profile || {};
 
-      if (
-        businessData.name !== (originalProfile.businessName || currentUser.name)
-      ) {
+      console.log("Current business data:", businessData);
+      console.log("Original profile:", originalProfile);
+
+      // Fix: Check multiple possible fields for name and send as businessName
+      const originalName =
+        originalProfile.businessName ||
+        originalProfile.name ||
+        currentUser.name ||
+        "";
+      if (businessData.name !== originalName) {
         updateData.businessName = businessData.name;
       }
 
@@ -233,15 +495,22 @@ export default function BusinessManagement() {
         updateData.category = businessData.category;
       }
 
+      // Fix: Send businessType in lowercase like CompleteProfileForm
       if (businessData.businessType !== (originalProfile.businessType || "")) {
-        updateData.businessType = businessData.businessType;
+        updateData.businessType = businessData.businessType.toLowerCase();
       }
 
       if (businessData.description !== (originalProfile.description || "")) {
         updateData.description = businessData.description;
       }
 
-      if (businessData.phone !== (originalProfile.mainPhone || "")) {
+      // Fix: Check multiple possible fields for phone
+      const originalPhone =
+        originalProfile.mainPhone ||
+        originalProfile.contactPhone ||
+        originalProfile.phone ||
+        "";
+      if (businessData.phone !== originalPhone) {
         updateData.mainPhone = businessData.phone;
       }
 
@@ -253,13 +522,13 @@ export default function BusinessManagement() {
         updateData.address = businessData.address;
       }
 
+      // Fix: Send serviceDistance as string like CompleteProfileForm
       if (
         businessData.serviceDistance !== (originalProfile.serviceDistance || "")
       ) {
-        updateData.serviceDistance = businessData.serviceDistance;
+        updateData.serviceDistance = businessData.serviceDistance.toString();
       }
 
-      // Compare product keywords (convert to array for comparison)
       const currentKeywords = businessData.productKeywords
         .split(",")
         .map((k) => k.trim())
@@ -275,7 +544,6 @@ export default function BusinessManagement() {
         updateData.productKeywords = currentKeywords;
       }
 
-      // Compare services
       if (
         JSON.stringify(businessData.services.sort()) !==
         JSON.stringify((originalProfile.services || []).sort())
@@ -283,7 +551,6 @@ export default function BusinessManagement() {
         updateData.services = businessData.services;
       }
 
-      // Compare categories
       if (
         JSON.stringify(businessData.categories.sort()) !==
         JSON.stringify((originalProfile.categories || []).sort())
@@ -291,7 +558,6 @@ export default function BusinessManagement() {
         updateData.categories = businessData.categories;
       }
 
-      // Compare working hours
       if (
         JSON.stringify(businessData.workingHours) !==
         JSON.stringify(originalProfile.workingHours || {})
@@ -299,7 +565,60 @@ export default function BusinessManagement() {
         updateData.workingHours = businessData.workingHours;
       }
 
-      // Only include email if it has changed
+      // Fix: Better target customers comparison and send as string like CompleteProfileForm
+      const currentTargetCustomers = Array.isArray(businessData.targetCustomers)
+        ? businessData.targetCustomers
+        : [];
+      const originalTargetCustomers = Array.isArray(
+        originalProfile.targetCustomers
+      )
+        ? originalProfile.targetCustomers
+        : [];
+
+      console.log("Current target customers:", currentTargetCustomers);
+      console.log("Original target customers:", originalTargetCustomers);
+      console.log(
+        "Are they different?",
+        JSON.stringify(currentTargetCustomers.sort()) !==
+          JSON.stringify(originalTargetCustomers.sort())
+      );
+
+      // Send as string to match backend expectation (like CompleteProfileForm)
+      if (
+        JSON.stringify(currentTargetCustomers.sort()) !==
+        JSON.stringify(originalTargetCustomers.sort())
+      ) {
+        updateData.whoDoYouServe = currentTargetCustomers.join(", ");
+        console.log(
+          "Adding whoDoYouServe to updateData:",
+          currentTargetCustomers.join(", ")
+        );
+      }
+
+      if (
+        JSON.stringify(businessData.additionalPhones) !==
+        JSON.stringify(originalProfile.additionalPhones || [])
+      ) {
+        updateData.additionalPhones = businessData.additionalPhones;
+      }
+
+      // Fix: Better location comparison
+      const currentLocation = {
+        lat: parseFloat(String(businessData.location.lat)) || 24.7136,
+        lng: parseFloat(String(businessData.location.lng)) || 46.6753,
+      };
+      const originalLocation = originalProfile.location || {
+        lat: 24.7136,
+        lng: 46.6753,
+      };
+
+      if (
+        currentLocation.lat !== originalLocation.lat ||
+        currentLocation.lng !== originalLocation.lng
+      ) {
+        updateData.location = currentLocation;
+      }
+
       if (
         businessData.email !==
         (originalProfile.contactEmail || currentUser.email)
@@ -307,25 +626,34 @@ export default function BusinessManagement() {
         updateData.contactEmail = businessData.email;
       }
 
+      console.log("Update data to send:", updateData);
+
       const { apiService } = await import("../lib/api");
       const response = await apiService.updateProfile(updateData);
 
-      // Override localStorage with the updated data
+      console.log("API response:", response);
+
       if (response.supplier) {
+        // Update localStorage with the new data
         localStorage.setItem(
           "supplier_user",
           JSON.stringify(response.supplier)
         );
 
-        // Update the auth context user state
-        updateUser(response.supplier);
-
-        // Update the component state with the new data
+        // Process the updated data to refresh the component state
+        console.log("Processing updated user data:", response.supplier);
         processUserData(response.supplier);
+      } else {
+        // If no structured response, fetch fresh data
+        console.log("No structured response, fetching fresh data...");
+        const freshData = await apiService.getProfile();
+        processUserData(freshData);
       }
 
       setIsEditing(false);
-    } catch (error) {}
+    } catch (error) {
+      console.error("Error saving profile:", error);
+    }
   };
 
   const handleImageUpload = async (
@@ -334,22 +662,20 @@ export default function BusinessManagement() {
     const files = event.target.files;
     if (files && files[0]) {
       try {
-        // Create FormData for the file upload
         const formData = new FormData();
         formData.append("image", files[0]);
 
-        // Upload the image using the API
-        const { apiService } = await import("../lib/api");
         const response = await apiService.uploadProductImage(formData);
 
-        // Add the uploaded image to the state
         const newImage: ProductImage = {
           id: response.id,
           url: response.image_url,
           image: response.name,
         };
         setBusinessImages([...businessImages, newImage]);
-      } catch (error) {}
+      } catch (error) {
+        console.error("Error uploading image:", error);
+      }
     }
   };
 
@@ -357,77 +683,12 @@ export default function BusinessManagement() {
     if (!id) return;
 
     try {
-      // Delete the image using the API
-      const { apiService } = await import("../lib/api");
       await apiService.deleteProductImage(id);
-
-      // Remove the image from the state
       setBusinessImages(businessImages.filter((img) => img.id !== id));
-    } catch (error) {}
+    } catch (error) {
+      console.error("Error deleting image:", error);
+    }
   };
-
-  // Categories from CompleteProfileForm
-  const categories = [
-    { en: "Agriculture", ar: "الزراعة" },
-    { en: "Apparel & Fashion", ar: "الملابس والموضة" },
-    { en: "Automobile", ar: "السيارات" },
-    { en: "Brass Hardware & Components", ar: "أدوات ومكونات النحاس" },
-    { en: "Business Services", ar: "الخدمات التجارية" },
-    { en: "Chemicals", ar: "المواد الكيميائية" },
-    { en: "Computer Hardware & Software", ar: "أجهزة وبرامج الكمبيوتر" },
-    { en: "Construction & Real Estate", ar: "البناء والعقارات" },
-    { en: "Consumer Electronics", ar: "الإلكترونيات الاستهلاكية" },
-    {
-      en: "Electronics & Electrical Supplies",
-      ar: "الإلكترونيات والمستلزمات الكهربائية",
-    },
-    { en: "Energy & Power", ar: "الطاقة والطاقة الكهربائية" },
-    { en: "Environment & Pollution", ar: "البيئة والتلوث" },
-    { en: "Food & Beverage", ar: "الطعام والمشروبات" },
-    { en: "Furniture", ar: "الأثاث" },
-    { en: "Gifts & Crafts", ar: "الهدايا والحرف اليدوية" },
-    { en: "Health & Beauty", ar: "الصحة والجمال" },
-    { en: "Home Supplies", ar: "مستلزمات المنزل" },
-    { en: "Home Textiles & Furnishings", ar: "منسوجات وتجهيزات المنزل" },
-    { en: "Hospital & Medical Supplies", ar: "المستشفيات والمستلزمات الطبية" },
-    { en: "Hotel Supplies & Equipment", ar: "مستلزمات ومعدات الفنادق" },
-    { en: "Industrial Supplies", ar: "المستلزمات الصناعية" },
-    { en: "Jewelry & Gemstones", ar: "المجوهرات والأحجار الكريمة" },
-    { en: "Leather & Leather Products", ar: "الجلد والمنتجات الجلدية" },
-    { en: "Machinery", ar: "المعدات والآلات" },
-    { en: "Mineral & Metals", ar: "المعادن والمعادن" },
-    { en: "Office & School Supplies", ar: "مستلزمات المكتب والمدرسة" },
-    { en: "Oil and Gas", ar: "النفط والغاز" },
-    { en: "Packaging & Paper", ar: "التغليف والورق" },
-    { en: "Pharmaceuticals", ar: "الأدوية" },
-    { en: "Pipes, Tubes & Fittings", ar: "الأنابيب والوصلات" },
-    { en: "Plastics & Products", ar: "اللدائن والمنتجات" },
-    { en: "Printing & Publishing", ar: "الطباعة والنشر" },
-    { en: "Real Estate", ar: "العقارات" },
-    {
-      en: "Scientific & Laboratory Instruments",
-      ar: "الأدوات العلمية والمخبرية",
-    },
-    { en: "Security & Protection", ar: "الأمن والحماية" },
-    { en: "Sports & Entertainment", ar: "الرياضة والترفيه" },
-    { en: "Telecommunications", ar: "الاتصالات" },
-    { en: "Textiles & Fabrics", ar: "المنسوجات والأقمشة" },
-    { en: "Toys", ar: "الألعاب" },
-    { en: "Transportation", ar: "النقل" },
-  ];
-
-  const availableServices = [
-    "Wholesale",
-    "Retail",
-    "Repair Services",
-    "Custom Orders",
-    "Bulk Orders",
-    "Emergency Service",
-    "Installation",
-    "Maintenance",
-    "Delivery",
-    "Consulting",
-  ];
 
   if (isLoading) {
     return (
@@ -444,7 +705,7 @@ export default function BusinessManagement() {
           Business Management
         </h2>
         <button
-          onClick={() => setIsEditing(!isEditing)}
+          onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
           className={`px-6 py-3 rounded-lg font-medium whitespace-nowrap cursor-pointer transition-all ${
             isEditing
               ? "bg-green-500 text-white hover:bg-green-600"
@@ -582,42 +843,66 @@ export default function BusinessManagement() {
                         serviceDistance: e.target.value,
                       })
                     }
-                    className={`w-full px-4 py-3 border rounded-lg text-sm pr-8 ${
+                    className={`w-full px-4 py-3 border rounded-lg text-sm ${
                       isEditing
                         ? "border-gray-300 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
                         : "border-gray-200 bg-gray-50"
                     }`}
                   >
-                    <option value="5 km">5 km</option>
-                    <option value="10 km">10 km</option>
-                    <option value="15 km">15 km</option>
-                    <option value="25 km">25 km</option>
-                    <option value="50 km">50 km</option>
-                    <option value="100+ km">100+ km</option>
+                    <option value="">Select distance</option>
+                    {serviceDistanceOptions.map((distance) => (
+                      <option key={distance.en} value={distance.en}>
+                        {getTranslatedText(serviceDistanceOptions, distance.en)}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Address
+                  Who do you serve?
                 </label>
-                <input
-                  type="text"
-                  value={businessData.address}
-                  disabled={!isEditing}
-                  onChange={(e) =>
-                    setBusinessData({
-                      ...businessData,
-                      address: e.target.value,
-                    })
-                  }
-                  className={`w-full px-4 py-3 border rounded-lg text-sm ${
-                    isEditing
-                      ? "border-gray-300 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
-                      : "border-gray-200 bg-gray-50"
-                  }`}
-                />
+                <div className="space-y-2">
+                  {targetCustomerOptions.map((customer) => {
+                    const isSelected = businessData.targetCustomers.includes(
+                      customer.en
+                    );
+                    console.log(
+                      `Checking ${customer.en}:`,
+                      isSelected,
+                      "in",
+                      businessData.targetCustomers
+                    );
+
+                    return (
+                      <label
+                        key={customer.en}
+                        className={`flex items-center space-x-3 p-3 border rounded-lg cursor-pointer transition-all ${
+                          isSelected
+                            ? "border-yellow-400 bg-yellow-50"
+                            : "border-gray-200 hover:border-gray-300"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() =>
+                            handleTargetCustomerToggle(customer.en)
+                          }
+                          disabled={!isEditing}
+                          className="w-4 h-4 text-yellow-400 border-gray-300 rounded focus:ring-yellow-400"
+                        />
+                        <span className="text-sm text-gray-700">
+                          {getTranslatedText(
+                            targetCustomerOptions,
+                            customer.en
+                          )}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
 
               <div>
@@ -645,16 +930,169 @@ export default function BusinessManagement() {
                   {businessData.description.length}/500 characters
                 </p>
               </div>
+
+              {/* Additional Phone Numbers Section */}
+              <div>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Additional Phone Numbers (Optional)
+                  </label>
+                  {isEditing && businessData.additionalPhones.length < 4 && (
+                    <button
+                      type="button"
+                      onClick={handleAddPhone}
+                      className="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600"
+                    >
+                      <i className="ri-add-line mr-1"></i>
+                      Add Phone
+                    </button>
+                  )}
+                </div>
+
+                <p className="text-xs text-gray-600 mb-3">
+                  Add additional contact numbers for different departments or
+                  services
+                </p>
+
+                <div className="space-y-2 md:space-y-3">
+                  {businessData.additionalPhones.map((phone) => (
+                    <div
+                      key={phone.id}
+                      className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3 p-2 md:p-3 bg-gray-50 rounded-lg"
+                    >
+                      <div>
+                        <select
+                          value={phone.type}
+                          disabled={!isEditing}
+                          onChange={(e) =>
+                            handlePhoneChange(phone.id, "type", e.target.value)
+                          }
+                          className="w-full px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm pr-8"
+                        >
+                          {phoneTypes.map((type) => (
+                            <option key={type} value={type}>
+                              {type}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <input
+                          type="tel"
+                          value={phone.number}
+                          disabled={!isEditing}
+                          onChange={(e) =>
+                            handlePhoneChange(
+                              phone.id,
+                              "number",
+                              e.target.value
+                            )
+                          }
+                          className="w-full px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
+                          placeholder="+966 50 123 4567"
+                        />
+                      </div>
+
+                      <div className="flex items-center space-x-1 md:space-x-2">
+                        <input
+                          type="text"
+                          value={phone.name}
+                          disabled={!isEditing}
+                          onChange={(e) =>
+                            handlePhoneChange(phone.id, "name", e.target.value)
+                          }
+                          className="flex-1 px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
+                          placeholder="Contact Name"
+                        />
+                        {isEditing &&
+                          businessData.additionalPhones.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemovePhone(phone.id)}
+                              className="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center text-red-600 hover:text-red-700 hover:bg-red-50 rounded cursor-pointer"
+                            >
+                              <i className="ri-close-line text-sm md:text-base"></i>
+                            </button>
+                          )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {businessData.additionalPhones.length === 0 && (
+                  <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                    <i className="ri-phone-line text-gray-400 text-2xl mb-2"></i>
+                    <p className="text-gray-600 text-sm mb-3">
+                      No additional phone numbers added
+                    </p>
+                    {isEditing && (
+                      <button
+                        type="button"
+                        onClick={handleAddPhone}
+                        className="bg-yellow-400 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg hover:bg-yellow-500 text-xs md:text-sm font-medium whitespace-nowrap cursor-pointer"
+                      >
+                        <i className="ri-add-line mr-1 md:mr-2"></i>
+                        Add First Phone Number
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
-          {/* Products & Services Section */}
-          {activeSection === "products" && (
+          {/* Business Details Section */}
+          {activeSection === "details" && (
             <div className="space-y-6">
-              <div className="bg-blue-50 p-6 rounded-xl border border-blue-200">
+              <div className="bg-yellow-50 p-6 rounded-xl border border-yellow-200">
                 <div className="flex items-center space-x-3 mb-4">
-                  <i className="ri-search-line text-blue-600 text-xl"></i>
-                  <h3 className="text-lg font-semibold text-blue-800">
+                  <i className="ri-briefcase-line text-yellow-600 text-xl"></i>
+                  <h3 className="text-lg font-semibold text-yellow-800">
+                    Business Type
+                  </h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
+                  {businessTypes.map((type) => (
+                    <label
+                      key={type.value}
+                      className={`flex items-center space-x-2 md:space-x-3 p-3 md:p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                        businessData.businessType === type.value
+                          ? "border-yellow-400 bg-yellow-50"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="businessType"
+                        value={type.value}
+                        checked={businessData.businessType === type.value}
+                        onChange={(e) =>
+                          setBusinessData({
+                            ...businessData,
+                            businessType: e.target.value,
+                          })
+                        }
+                        disabled={!isEditing}
+                        className="w-4 h-4 text-yellow-400 border-gray-300 focus:ring-yellow-400"
+                      />
+                      <i
+                        className={`${getBusinessTypeIcon(
+                          type.value
+                        )} text-base md:text-lg text-gray-600`}
+                      ></i>
+                      <span className="text-sm md:text-base text-gray-700">
+                        {getTranslatedTextWithValue(businessTypes, type.value)}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-green-50 p-6 rounded-xl border border-green-200">
+                <div className="flex items-center space-x-3 mb-4">
+                  <i className="ri-search-line text-green-600 text-xl"></i>
+                  <h3 className="text-lg font-semibold text-green-800">
                     Search Keywords
                   </h3>
                 </div>
@@ -680,6 +1118,7 @@ export default function BusinessManagement() {
                         key={index}
                         type="button"
                         onClick={() => {
+                          if (!isEditing) return;
                           const newKeywords: string[] =
                             productKeywords.includes(keyword)
                               ? productKeywords.filter((k) => k !== keyword)
@@ -691,7 +1130,10 @@ export default function BusinessManagement() {
                             productKeywords: newKeywords.join(", "),
                           }));
                         }}
-                        className={`px-3 py-2 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                        disabled={!isEditing}
+                        className={`px-3 py-2 rounded-full text-xs font-medium transition-all ${
+                          isEditing ? "cursor-pointer" : "cursor-not-allowed"
+                        } ${
                           productKeywords.includes(keyword)
                             ? "bg-green-100 text-green-800 border border-green-300"
                             : "bg-white text-gray-700 border border-gray-300 hover:bg-blue-50 hover:border-blue-300"
@@ -741,19 +1183,25 @@ export default function BusinessManagement() {
                   </p>
                 </div>
 
-                <div className="bg-white p-4 rounded-lg border border-blue-200">
+                <div className="bg-white p-4 rounded-lg border border-green-200">
                   <h4 className="font-medium text-gray-800 mb-3">
                     Current Keywords
                   </h4>
                   <div className="flex flex-wrap gap-2">
-                    {productKeywords.map((keyword, index) => (
-                      <span
-                        key={index}
-                        className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium"
-                      >
-                        {keyword}
+                    {productKeywords.length > 0 ? (
+                      productKeywords.map((keyword, index) => (
+                        <span
+                          key={index}
+                          className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium"
+                        >
+                          {keyword}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-gray-500 text-sm">
+                        No keywords added yet
                       </span>
-                    ))}
+                    )}
                   </div>
                 </div>
               </div>
@@ -805,13 +1253,6 @@ export default function BusinessManagement() {
                       </label>
                     ))}
                   </div>
-                  {categories.length > 15 && (
-                    <div className="text-center py-2 text-xs text-gray-500 border-t mt-2">
-                      {isRTL
-                        ? `${categories.length} فئة متاحة`
-                        : `${categories.length} categories available`}
-                    </div>
-                  )}
                 </div>
 
                 <div className="bg-white p-4 rounded-lg border border-blue-200 mt-4">
@@ -819,15 +1260,16 @@ export default function BusinessManagement() {
                     Selected Categories
                   </h4>
                   <div className="flex flex-wrap gap-2">
-                    {businessData.categories.map((category, index) => (
-                      <span
-                        key={index}
-                        className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium"
-                      >
-                        {category}
-                      </span>
-                    ))}
-                    {businessData.categories.length === 0 && (
+                    {businessData.categories.length > 0 ? (
+                      businessData.categories.map((category, index) => (
+                        <span
+                          key={index}
+                          className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium"
+                        >
+                          {category}
+                        </span>
+                      ))
+                    ) : (
                       <span className="text-gray-500 text-sm">
                         No categories selected
                       </span>
@@ -856,9 +1298,7 @@ export default function BusinessManagement() {
                           if (e.target.checked) {
                             setBusinessData({
                               ...businessData,
-                              services: [...businessData.services, service].map(
-                                (s) => s.trim()
-                              ),
+                              services: [...businessData.services, service],
                             });
                           } else {
                             setBusinessData({
@@ -875,6 +1315,83 @@ export default function BusinessManagement() {
                     </label>
                   ))}
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Location Section */}
+          {activeSection === "location" && (
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Business Location
+                </label>
+                <div
+                  className={`rounded-lg overflow-hidden border ${
+                    isEditing ? "border-gray-300" : "border-gray-200"
+                  }`}
+                >
+                  <BusinessLocationMap
+                    selectedLocation={businessData.location}
+                    setSelectedLocation={(location) => {
+                      console.log("Location updated:", location);
+                      // Update address automatically based on nearest city
+                      const nearestCity = findNearestCity(
+                        location.lat,
+                        location.lng
+                      );
+                      console.log("Nearest city found:", nearestCity);
+                      setBusinessData({
+                        ...businessData,
+                        location,
+                        address: nearestCity.name,
+                      });
+                    }}
+                  />
+                  <div className="mt-2 p-2 bg-blue-50 rounded">
+                    <p className="text-xs text-blue-600">
+                      Debug: Current location from DB:{" "}
+                      {businessData.location.lat}, {businessData.location.lng}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Click on the map to update your business location
+                </p>
+
+                {/* Display current coordinates */}
+                <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                  <p className="text-sm text-gray-600">
+                    <strong>Current Location:</strong>
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Latitude: {businessData.location.lat}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Longitude: {businessData.location.lng}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Address: {businessData.address}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Products Section */}
+          {activeSection === "products" && (
+            <div className="space-y-6">
+              <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-xl border border-purple-200">
+                <div className="flex items-center space-x-3 mb-4">
+                  <i className="ri-shopping-bag-line text-purple-600 text-xl"></i>
+                  <h3 className="text-lg font-semibold text-purple-800">
+                    Product Information
+                  </h3>
+                </div>
+                <p className="text-gray-600 text-sm">
+                  Manage your product keywords and categories to help customers
+                  find your business.
+                </p>
               </div>
             </div>
           )}
@@ -936,6 +1453,13 @@ export default function BusinessManagement() {
                   </label>
                 )}
               </div>
+
+              {businessImages.length === 0 && !isEditing && (
+                <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                  <i className="ri-image-line text-gray-400 text-4xl mb-3"></i>
+                  <p className="text-gray-600">No photos added yet</p>
+                </div>
+              )}
             </div>
           )}
 

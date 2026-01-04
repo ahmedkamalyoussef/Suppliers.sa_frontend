@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type React from "react";
 import { useLanguage } from "../lib/LanguageContext";
 import type { Branch } from "../lib/types";
@@ -13,7 +13,7 @@ type BranchWorkingHoursDay = {
 type WorkingHours = {
   monday: BranchWorkingHoursDay;
   tuesday: BranchWorkingHoursDay;
-  wednesday: BranchWorkingHoursDay; 
+  wednesday: BranchWorkingHoursDay;
   thursday: BranchWorkingHoursDay;
   friday: BranchWorkingHoursDay;
   saturday: BranchWorkingHoursDay;
@@ -36,6 +36,13 @@ export default function BranchManagement({
   mainBusinessData,
 }: BranchManagementProps) {
   const { t } = useLanguage();
+  const workingHoursInputRefs = useRef<
+    Record<
+      string,
+      { open?: HTMLInputElement | null; close?: HTMLInputElement | null }
+    >
+  >({});
+
   const [showAddBranch, setShowAddBranch] = useState<boolean>(false);
   const [editingBranch, setEditingBranch] = useState<Branch | null>(null);
   const [newBranch, setNewBranch] = useState<Branch>({
@@ -125,6 +132,46 @@ export default function BranchManagement({
         },
       },
     }));
+  };
+
+  const applyWorkingHoursToAllDays = (sourceDay: keyof WorkingHours) => {
+    setNewBranch((prev) => {
+      const source = prev.workingHours[sourceDay];
+      return {
+        ...prev,
+        workingHours: (
+          Object.keys(prev.workingHours) as Array<keyof WorkingHours>
+        ).reduce((acc, day) => {
+          acc[day] = { ...source };
+          return acc;
+        }, {} as WorkingHours),
+      };
+    });
+  };
+
+  const applyWorkingHoursToNextDays = (sourceDay: keyof WorkingHours) => {
+    const dayOrder: Array<keyof WorkingHours> = [
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday",
+      "sunday",
+    ];
+    setNewBranch((prev) => {
+      const source = prev.workingHours[sourceDay];
+      const startIndex = dayOrder.indexOf(sourceDay);
+      if (startIndex < 0) return prev;
+
+      const next = { ...prev.workingHours };
+      for (let i = startIndex + 1; i < dayOrder.length; i++) {
+        const d = dayOrder[i];
+        next[d] = { ...source };
+      }
+
+      return { ...prev, workingHours: next };
+    });
   };
 
   const handleServiceToggle = (service: string) => {
@@ -492,265 +539,335 @@ export default function BranchManagement({
               </button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Branch Form */}
-              <div className="space-y-6">
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t("branchManagement.form.branchName")} *
+                </label>
+                <input
+                  type="text"
+                  value={newBranch.name}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ${
+                    errors.name ? "border-red-300" : "border-gray-300"
+                  }`}
+                  placeholder={t("branchManagement.form.branchNamePlaceholder")}
+                />
+                {errors.name && (
+                  <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t("branchManagement.form.branchAddress")} *
+                </label>
+                <textarea
+                  value={newBranch.address}
+                  onChange={(e) => handleInputChange("address", e.target.value)}
+                  rows={3}
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm resize-none ${
+                    errors.address ? "border-red-300" : "border-gray-300"
+                  }`}
+                  placeholder={t("branchManagement.form.addressPlaceholder")}
+                />
+                {errors.address && (
+                  <p className="text-red-500 text-xs mt-1">{errors.address}</p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("branchManagement.form.branchName")} *
+                    {t("branchManagement.form.branchPhone")} *
                   </label>
                   <input
-                    type="text"
-                    value={newBranch.name}
-                    onChange={(e) => handleInputChange("name", e.target.value)}
+                    type="tel"
+                    value={newBranch.phone}
+                    onChange={(e) => handleInputChange("phone", e.target.value)}
                     className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ${
-                      errors.name ? "border-red-300" : "border-gray-300"
+                      errors.phone ? "border-red-300" : "border-gray-300"
                     }`}
-                    placeholder={t(
-                      "branchManagement.form.branchNamePlaceholder"
-                    )}
+                    placeholder="+966 50 123 4567"
                   />
-                  {errors.name && (
-                    <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+                  {errors.phone && (
+                    <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
                   )}
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("branchManagement.form.branchAddress")} *
-                  </label>
-                  <textarea
-                    value={newBranch.address}
-                    onChange={(e) =>
-                      handleInputChange("address", e.target.value)
-                    }
-                    rows={3}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm resize-none ${
-                      errors.address ? "border-red-300" : "border-gray-300"
-                    }`}
-                    placeholder={t("branchManagement.form.addressPlaceholder")}
-                  />
-                  {errors.address && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.address}
-                    </p>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t("branchManagement.form.branchPhone")} *
-                    </label>
-                    <input
-                      type="tel"
-                      value={newBranch.phone}
-                      onChange={(e) =>
-                        handleInputChange("phone", e.target.value)
-                      }
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ${
-                        errors.phone ? "border-red-300" : "border-gray-300"
-                      }`}
-                      placeholder="+966 50 123 4567"
-                    />
-                    {errors.phone && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {errors.phone}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t("branchManagement.form.branchEmail")}
-                    </label>
-                    <input
-                      type="email"
-                      value={newBranch.email}
-                      onChange={(e) =>
-                        handleInputChange("email", e.target.value)
-                      }
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
-                      placeholder="branch@company.com"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("branchManagement.form.branchManager")} *
+                    {t("branchManagement.form.branchEmail")}
                   </label>
                   <input
-                    type="text"
-                    value={newBranch.manager}
-                    onChange={(e) =>
-                      handleInputChange("manager", e.target.value)
-                    }
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ${
-                      errors.manager ? "border-red-300" : "border-gray-300"
-                    }`}
-                    placeholder={t("branchManagement.form.managerPlaceholder")}
+                    type="email"
+                    value={newBranch.email}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
+                    placeholder="branch@company.com"
                   />
-                  {errors.manager && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.manager}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("branchManagement.form.location")}
-                  </label>
-                  <select
-                    value={
-                      saudiCities.find(
-                        (c) =>
-                          c.lat === selectedLocation.lat &&
-                          c.lng === selectedLocation.lng
-                      )?.name || ""
-                    }
-                    onChange={(e) => handleLocationSelect(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm pr-8"
-                  >
-                    <option value="">
-                      {t("branchManagement.form.selectCity")}
-                    </option>
-                    {saudiCities.map((city) => (
-                      <option key={city.name} value={city.name}>
-                        {city.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    {t("branchManagement.form.specialServices")}
-                  </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {specialServices.map((service) => (
-                      <label
-                        key={service}
-                        className={`flex items-center space-x-3 p-3 border rounded-lg cursor-pointer transition-all ${
-                          newBranch.specialServices.includes(service)
-                            ? "border-yellow-400 bg-yellow-50"
-                            : "border-gray-200 hover:border-gray-300"
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={newBranch.specialServices.includes(service)}
-                          onChange={() => handleServiceToggle(service)}
-                          className="w-4 h-4 text-yellow-400 border-gray-300 rounded focus:ring-yellow-400"
-                        />
-                        <span className="text-sm text-gray-700">{service}</span>
-                      </label>
-                    ))}
-                  </div>
                 </div>
               </div>
 
-              {/* Working Hours */}
-              <div className="space-y-6">
-                <div>
-                  <h4 className="text-lg font-semibold text-gray-800 mb-4">
-                    {t("branchManagement.workingHours")}
-                  </h4>
-                  <div className="space-y-4">
-                    {Object.keys(newBranch.workingHours).map((day) => {
-                      const typedDay = day as keyof WorkingHours;
-                      return (
-                        <div
-                          key={typedDay}
-                          className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg"
-                        >
-                          <div className="w-20">
-                            <span className="text-sm font-medium text-gray-700 capitalize">
-                              {t(`branchManagement.days.${typedDay}`)}
-                            </span>
-                          </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t("branchManagement.form.branchManager")} *
+                </label>
+                <input
+                  type="text"
+                  value={newBranch.manager}
+                  onChange={(e) => handleInputChange("manager", e.target.value)}
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ${
+                    errors.manager ? "border-red-300" : "border-gray-300"
+                  }`}
+                  placeholder={t("branchManagement.form.managerPlaceholder")}
+                />
+                {errors.manager && (
+                  <p className="text-red-500 text-xs mt-1">{errors.manager}</p>
+                )}
+              </div>
 
-                          <label className="flex items-center">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t("branchManagement.form.location")}
+                </label>
+                <select
+                  value={
+                    saudiCities.find(
+                      (c) =>
+                        c.lat === selectedLocation.lat &&
+                        c.lng === selectedLocation.lng
+                    )?.name || ""
+                  }
+                  onChange={(e) => handleLocationSelect(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm pr-8"
+                >
+                  <option value="">
+                    {t("branchManagement.form.selectCity")}
+                  </option>
+                  {saudiCities.map((city) => (
+                    <option key={city.name} value={city.name}>
+                      {city.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  {t("branchManagement.form.specialServices")}
+                </label>
+                <div className="grid grid-cols-1 gap-3">
+                  {specialServices.map((service) => (
+                    <label
+                      key={service}
+                      className={`flex items-center space-x-3 p-3 border rounded-lg cursor-pointer transition-all ${
+                        newBranch.specialServices.includes(service)
+                          ? "border-yellow-400 bg-yellow-50"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={newBranch.specialServices.includes(service)}
+                        onChange={() => handleServiceToggle(service)}
+                        className="w-4 h-4 text-yellow-400 border-gray-300 rounded focus:ring-yellow-400"
+                      />
+                      <span className="text-sm text-gray-700">{service}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Location Map Preview */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-medium text-gray-700 mb-3">
+                  {t("branchManagement.branchLocation")}
+                </h4>
+                <div className="relative h-64 bg-gray-200 rounded-lg overflow-hidden">
+                  <iframe
+                    src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3024.2!2d${selectedLocation.lng}!3d${selectedLocation.lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2z${selectedLocation.lat}%2C${selectedLocation.lng}!5e0!3m2!1sen!2sus!4v1645123456789!5m2!1sen!2sus&disableDefaultUI=true&gestureHandling=none&scrollwheel=false&disableDoubleClickZoom=true&clickableIcons=false`}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Branch Location Map"
+                  ></iframe>
+
+                  <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                    <div className="w-6 h-6 bg-red-500 rounded-full border-2 border-white shadow-lg"></div>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Lat: {selectedLocation.lat.toFixed(6)}, Lng:{" "}
+                  {selectedLocation.lng.toFixed(6)}
+                </p>
+              </div>
+
+              {/* Working Hours */}
+              <div>
+                <h4 className="text-lg font-semibold text-gray-800 mb-4">
+                  {t("branchManagement.workingHours")}
+                </h4>
+                <div className="space-y-4">
+                  {Object.keys(newBranch.workingHours).map((day) => {
+                    const typedDay = day as keyof WorkingHours;
+                    return (
+                      <div
+                        key={typedDay}
+                        className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg"
+                      >
+                        <div className="w-20">
+                          <span className="text-sm font-medium text-gray-700 capitalize">
+                            {t(`branchManagement.days.${typedDay}`)}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              applyWorkingHoursToNextDays(typedDay)
+                            }
+                            className="text-xs px-2 py-1 rounded border border-gray-200 text-gray-700 hover:bg-white whitespace-nowrap cursor-pointer"
+                          >
+                            {t("branchManagement.copyToNext")}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => applyWorkingHoursToAllDays(typedDay)}
+                            className="text-xs px-2 py-1 rounded border border-gray-200 text-gray-700 hover:bg-white whitespace-nowrap cursor-pointer"
+                          >
+                            {t("branchManagement.applyAll")}
+                          </button>
+                        </div>
+
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={newBranch.workingHours[typedDay].closed}
+                            onChange={(e) =>
+                              handleWorkingHoursChange(
+                                typedDay,
+                                "closed",
+                                e.target.checked
+                              )
+                            }
+                            className="w-4 h-4 text-yellow-400 border-gray-300 rounded focus:ring-yellow-400 mr-2"
+                          />
+                          <span className="text-sm text-gray-600">
+                            {t("branchManagement.closed")}
+                          </span>
+                        </label>
+
+                        {!newBranch.workingHours[typedDay].closed && (
+                          <div className="flex items-center space-x-2 flex-1">
                             <input
-                              type="checkbox"
-                              checked={newBranch.workingHours[typedDay].closed}
+                              type="time"
+                              value={newBranch.workingHours[typedDay].open}
                               onChange={(e) =>
                                 handleWorkingHoursChange(
                                   typedDay,
-                                  "closed",
-                                  e.target.checked
+                                  "open",
+                                  e.target.value
                                 )
                               }
-                              className="w-4 h-4 text-yellow-400 border-gray-300 rounded focus:ring-yellow-400 mr-2"
+                              onKeyDown={(e) => {
+                                if (e.key === "ArrowRight") {
+                                  e.preventDefault();
+                                  workingHoursInputRefs.current[
+                                    typedDay
+                                  ]?.close?.focus();
+                                  return;
+                                }
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+                                  const dayOrder: Array<keyof WorkingHours> = [
+                                    "monday",
+                                    "tuesday",
+                                    "wednesday",
+                                    "thursday",
+                                    "friday",
+                                    "saturday",
+                                    "sunday",
+                                  ];
+                                  const idx = dayOrder.indexOf(typedDay);
+                                  const nextDay =
+                                    idx >= 0 ? dayOrder[idx + 1] : undefined;
+                                  if (nextDay) {
+                                    workingHoursInputRefs.current[
+                                      nextDay
+                                    ]?.open?.focus();
+                                  }
+                                }
+                              }}
+                              ref={(el) => {
+                                workingHoursInputRefs.current[typedDay] = {
+                                  ...(workingHoursInputRefs.current[typedDay] ||
+                                    {}),
+                                  open: el,
+                                };
+                              }}
+                              className="px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
                             />
-                            <span className="text-sm text-gray-600">
-                              {t("branchManagement.closed")}
+                            <span className="text-gray-500">
+                              {t("branchManagement.to")}
                             </span>
-                          </label>
-
-                          {!newBranch.workingHours[typedDay].closed && (
-                            <div className="flex items-center space-x-2 flex-1">
-                              <input
-                                type="time"
-                                value={newBranch.workingHours[typedDay].open}
-                                onChange={(e) =>
-                                  handleWorkingHoursChange(
-                                    typedDay,
-                                    "open",
-                                    e.target.value
-                                  )
+                            <input
+                              type="time"
+                              value={newBranch.workingHours[typedDay].close}
+                              onChange={(e) =>
+                                handleWorkingHoursChange(
+                                  typedDay,
+                                  "close",
+                                  e.target.value
+                                )
+                              }
+                              onKeyDown={(e) => {
+                                if (e.key === "ArrowLeft") {
+                                  e.preventDefault();
+                                  workingHoursInputRefs.current[
+                                    typedDay
+                                  ]?.open?.focus();
+                                  return;
                                 }
-                                className="px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
-                              />
-                              <span className="text-gray-500">
-                                {t("branchManagement.to")}
-                              </span>
-                              <input
-                                type="time"
-                                value={newBranch.workingHours[typedDay].close}
-                                onChange={(e) =>
-                                  handleWorkingHoursChange(
-                                    typedDay,
-                                    "close",
-                                    e.target.value
-                                  )
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+                                  const dayOrder: Array<keyof WorkingHours> = [
+                                    "monday",
+                                    "tuesday",
+                                    "wednesday",
+                                    "thursday",
+                                    "friday",
+                                    "saturday",
+                                    "sunday",
+                                  ];
+                                  const idx = dayOrder.indexOf(typedDay);
+                                  const nextDay =
+                                    idx >= 0 ? dayOrder[idx + 1] : undefined;
+                                  if (nextDay) {
+                                    workingHoursInputRefs.current[
+                                      nextDay
+                                    ]?.open?.focus();
+                                  }
                                 }
-                                className="px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
-                              />
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Location Map Preview */}
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-gray-700 mb-3">
-                    {t("branchManagement.branchLocation")}
-                  </h4>
-                  <div className="relative h-64 bg-gray-200 rounded-lg overflow-hidden">
-                    <iframe
-                      src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3024.2!2d${selectedLocation.lng}!3d${selectedLocation.lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2z${selectedLocation.lat}%2C${selectedLocation.lng}!5e0!3m2!1sen!2sus!4v1645123456789!5m2!1sen!2sus&disableDefaultUI=true&gestureHandling=none&scrollwheel=false&disableDoubleClickZoom=true&clickableIcons=false`}
-                      width="100%"
-                      height="100%"
-                      style={{ border: 0 }}
-                      allowFullScreen
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                      title="Branch Location Map"
-                    ></iframe>
-
-                    <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                      <div className="w-6 h-6 bg-red-500 rounded-full border-2 border-white shadow-lg"></div>
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Lat: {selectedLocation.lat.toFixed(6)}, Lng:{" "}
-                    {selectedLocation.lng.toFixed(6)}
-                  </p>
+                              }}
+                              ref={(el) => {
+                                workingHoursInputRefs.current[typedDay] = {
+                                  ...(workingHoursInputRefs.current[typedDay] ||
+                                    {}),
+                                  close: el,
+                                };
+                              }}
+                              className="px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>

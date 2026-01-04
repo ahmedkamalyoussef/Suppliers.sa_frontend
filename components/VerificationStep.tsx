@@ -35,6 +35,13 @@ export default function VerificationStep({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
+  const phoneSubtitle = phone
+    ? `${t("register.step2.phoneSubtitle").split("+")[0].trim()} +966 ${phone}`
+    : t("register.step2.phoneSubtitle");
+  const emailSubtitle = email
+    ? `${t("register.step2.emailSubtitle").split("@")[0].trim()} ${email}`
+    : t("register.step2.emailSubtitle");
+
   const handleVerificationMethodSelect = async (method: "phone" | "email") => {
     setVerificationMethod(method);
     setIsSubmitting(true);
@@ -151,11 +158,7 @@ export default function VerificationStep({
       ) {
         // Use AuthContext login if user data is available
         if (error.supplier && error.accessToken) {
-          login(
-            error.supplier,
-            error.accessToken,
-            error.tokenType || "Bearer"
-          );
+          login(error.supplier, error.accessToken, error.tokenType || "Bearer");
         }
 
         // Store verification data in localStorage for complete profile page
@@ -216,9 +219,7 @@ export default function VerificationStep({
                   <h3 className="font-semibold text-gray-800">
                     {t("register.step2.phoneTitle")}
                   </h3>
-                  <p className="text-gray-600 text-sm">
-                    {t("register.step2.phoneSubtitle")}
-                  </p>
+                  <p className="text-gray-600 text-sm">{phoneSubtitle}</p>
                 </div>
               </div>
             </button>
@@ -236,9 +237,7 @@ export default function VerificationStep({
                   <h3 className="font-semibold text-gray-800">
                     {t("register.step2.emailTitle")}
                   </h3>
-                  <p className="text-gray-600 text-sm">
-                    {t("register.step2.emailSubtitle")}
-                  </p>
+                  <p className="text-gray-600 text-sm">{emailSubtitle}</p>
                 </div>
               </div>
             </button>

@@ -75,10 +75,10 @@ const categories = [
 
 // Business types with translations
 const businessTypes = [
-  { en: "Supplier", ar: "مورد" },
-  { en: "Store", ar: "متجر" },
-  { en: "Office", ar: "مكتب" },
-  { en: "Individual", ar: "فرد" },
+  { value: "supplier", en: "Supplier", ar: "مورد" },
+  { value: "store", en: "Retail Shop", ar: "متجر" },
+  { value: "office", en: "Company", ar: "مكتب" },
+  { value: "individual", en: "Individual Establishment", ar: "فرد" },
 ];
 
 // Target customer options with translations
@@ -123,6 +123,13 @@ export default function CompleteProfileForm({
   prevStep,
   goToStep,
 }: CompleteProfileFormProps) {
+  const workingHoursInputRefs = useRef<
+    Record<
+      string,
+      { open?: HTMLInputElement | null; close?: HTMLInputElement | null }
+    >
+  >({});
+
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [selectedTargetCustomers, setSelectedTargetCustomers] = useState<
     string[]
@@ -166,6 +173,15 @@ export default function CompleteProfileForm({
   ): string => {
     const item = items.find((item) => item.en === value);
     return item ? item[language as keyof typeof item] : value;
+  };
+
+  const getTranslatedTextWithValue = (
+    items: Array<{ value: string; en: string; ar: string }>,
+    value: string
+  ): string => {
+    const item = items.find((item) => item.value === value);
+    if (!item) return value;
+    return item[language as keyof typeof item] as string;
   };
 
   // Helper function to get English value from translated text
@@ -811,6 +827,49 @@ export default function CompleteProfileForm({
     }));
   };
 
+  const applyWorkingHoursToAllDays = (
+    sourceDay: keyof typeof formData.workingHours
+  ) => {
+    setFormData((prev) => {
+      const source = prev.workingHours[sourceDay];
+      return {
+        ...prev,
+        workingHours: Object.keys(prev.workingHours).reduce((acc, dayKey) => {
+          const day = dayKey as keyof typeof prev.workingHours;
+          acc[day] = { ...source };
+          return acc;
+        }, {} as typeof prev.workingHours),
+      };
+    });
+  };
+
+  const applyWorkingHoursToNextDays = (
+    sourceDay: keyof typeof formData.workingHours
+  ) => {
+    const dayOrder: Array<keyof typeof formData.workingHours> = [
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday",
+      "sunday",
+    ];
+    setFormData((prev) => {
+      const source = prev.workingHours[sourceDay];
+      const startIndex = dayOrder.indexOf(sourceDay);
+      if (startIndex < 0) return prev;
+
+      const next = { ...prev.workingHours };
+      for (let i = startIndex + 1; i < dayOrder.length; i++) {
+        const d = dayOrder[i];
+        next[d] = { ...source };
+      }
+
+      return { ...prev, workingHours: next };
+    });
+  };
+
   const handleCRFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const file = e.target.files?.[0];
 
@@ -861,29 +920,37 @@ export default function CompleteProfileForm({
   };
 
   // Function to get city name from coordinates
-  const getCityFromCoordinates = async (lat: number, lng: number): Promise<string> => {
+  const getCityFromCoordinates = async (
+    lat: number,
+    lng: number
+  ): Promise<string> => {
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=${language}`
       );
       const data = await response.json();
-      return data.address?.city || data.address?.town || data.address?.county || '';
+      return (
+        data.address?.city || data.address?.town || data.address?.county || ""
+      );
     } catch (error) {
-      console.error('Error getting city from coordinates:', error);
-      return '';
+      console.error("Error getting city from coordinates:", error);
+      return "";
     }
   };
 
   // Update form data when location changes
-  const handleLocationChange = async (location: { lat: number; lng: number }) => {
+  const handleLocationChange = async (location: {
+    lat: number;
+    lng: number;
+  }) => {
     const city = await getCityFromCoordinates(location.lat, location.lng);
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       address: city, // Set address to just the city name
       location: {
         lat: location.lat,
-        lng: location.lng
-      }
+        lng: location.lng,
+      },
     }));
     setSelectedLocation(location);
   };
@@ -1128,13 +1195,13 @@ export default function CompleteProfileForm({
 
   const getBusinessTypeIcon = (type: string): string => {
     switch (type) {
-      case "Supplier":
+      case "supplier":
         return "ri-truck-line";
-      case "Store":
+      case "store":
         return "ri-store-line";
-      case "Office":
+      case "office":
         return "ri-building-line";
-      case "Individual":
+      case "individual":
         return "ri-user-line";
       default:
         return "ri-building-line";
@@ -1349,9 +1416,9 @@ export default function CompleteProfileForm({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
                 {businessTypes.map((type) => (
                   <label
-                    key={type.en}
+                    key={type.value}
                     className={`flex items-center space-x-2 md:space-x-3 p-3 md:p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                      formData.businessType === type.en
+                      formData.businessType === type.value
                         ? "border-yellow-400 bg-yellow-50"
                         : "border-gray-200 hover:border-gray-300"
                     }`}
@@ -1359,8 +1426,8 @@ export default function CompleteProfileForm({
                     <input
                       type="radio"
                       name="businessType"
-                      value={type.en}
-                      checked={formData.businessType === type.en}
+                      value={type.value}
+                      checked={formData.businessType === type.value}
                       onChange={(e) =>
                         handleInputChange("businessType", e.target.value)
                       }
@@ -1369,11 +1436,11 @@ export default function CompleteProfileForm({
                     />
                     <i
                       className={`${getBusinessTypeIcon(
-                        type.en
+                        type.value
                       )} text-base md:text-lg text-gray-600`}
                     ></i>
-                    <span className="text-sm font-medium text-gray-700">
-                      {type[language as keyof typeof type]}
+                    <span className="text-sm md:text-base text-gray-700">
+                      {getTranslatedTextWithValue(businessTypes, type.value)}
                     </span>
                   </label>
                 ))}
@@ -1383,7 +1450,6 @@ export default function CompleteProfileForm({
                   {errors.businessType}
                 </p>
               )}
-
 
               <div className="mt-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1991,7 +2057,11 @@ export default function CompleteProfileForm({
             </div>
 
             {/* Address is now automatically set from the selected location */}
-            <input type="hidden" name="address" value={formData.address || ''} />
+            <input
+              type="hidden"
+              name="address"
+              value={formData.address || ""}
+            />
 
             <div className="bg-yellow-50 p-3 md:p-4 rounded-lg">
               <p className="text-xs md:text-sm text-yellow-800 mb-1 md:mb-2">
@@ -2037,6 +2107,31 @@ export default function CompleteProfileForm({
                       </span>
                     </div>
 
+                    <div className="flex items-center justify-end gap-1">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          applyWorkingHoursToNextDays(
+                            day as keyof typeof formData.workingHours
+                          )
+                        }
+                        className="text-[10px] md:text-xs px-1.5 py-0.5 rounded border border-blue-200 text-blue-700 hover:bg-blue-50 whitespace-nowrap cursor-pointer"
+                      >
+                        {t("completeProfile.step4.copyToNext")}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          applyWorkingHoursToAllDays(
+                            day as keyof typeof formData.workingHours
+                          )
+                        }
+                        className="text-[10px] md:text-xs px-1.5 py-0.5 rounded border border-blue-200 text-blue-700 hover:bg-blue-50 whitespace-nowrap cursor-pointer"
+                      >
+                        {t("completeProfile.step4.applyAll")}
+                      </button>
+                    </div>
+
                     <label className="flex items-center">
                       <input
                         type="checkbox"
@@ -2077,6 +2172,45 @@ export default function CompleteProfileForm({
                               e.target.value
                             )
                           }
+                          onKeyDown={(e) => {
+                            if (e.key === "ArrowRight") {
+                              e.preventDefault();
+                              workingHoursInputRefs.current[
+                                day
+                              ]?.close?.focus();
+                              return;
+                            }
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              const currentDay =
+                                day as keyof typeof formData.workingHours;
+                              const dayOrder: Array<
+                                keyof typeof formData.workingHours
+                              > = [
+                                "monday",
+                                "tuesday",
+                                "wednesday",
+                                "thursday",
+                                "friday",
+                                "saturday",
+                                "sunday",
+                              ];
+                              const idx = dayOrder.indexOf(currentDay);
+                              const nextDay =
+                                idx >= 0 ? dayOrder[idx + 1] : undefined;
+                              if (nextDay) {
+                                workingHoursInputRefs.current[
+                                  nextDay
+                                ]?.open?.focus();
+                              }
+                            }
+                          }}
+                          ref={(el) => {
+                            workingHoursInputRefs.current[day] = {
+                              ...(workingHoursInputRefs.current[day] || {}),
+                              open: el,
+                            };
+                          }}
                           className="px-1 md:px-2 py-0.5 md:py-1 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-xs"
                         />
                         <span className="text-gray-500 text-xs">
@@ -2096,6 +2230,43 @@ export default function CompleteProfileForm({
                               e.target.value
                             )
                           }
+                          onKeyDown={(e) => {
+                            if (e.key === "ArrowLeft") {
+                              e.preventDefault();
+                              workingHoursInputRefs.current[day]?.open?.focus();
+                              return;
+                            }
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              const currentDay =
+                                day as keyof typeof formData.workingHours;
+                              const dayOrder: Array<
+                                keyof typeof formData.workingHours
+                              > = [
+                                "monday",
+                                "tuesday",
+                                "wednesday",
+                                "thursday",
+                                "friday",
+                                "saturday",
+                                "sunday",
+                              ];
+                              const idx = dayOrder.indexOf(currentDay);
+                              const nextDay =
+                                idx >= 0 ? dayOrder[idx + 1] : undefined;
+                              if (nextDay) {
+                                workingHoursInputRefs.current[
+                                  nextDay
+                                ]?.open?.focus();
+                              }
+                            }
+                          }}
+                          ref={(el) => {
+                            workingHoursInputRefs.current[day] = {
+                              ...(workingHoursInputRefs.current[day] || {}),
+                              close: el,
+                            };
+                          }}
                           className="px-1 md:px-2 py-0.5 md:py-1 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-xs"
                         />
                       </div>
@@ -2439,7 +2610,7 @@ export default function CompleteProfileForm({
                 <i className="ri-information-line mr-1 md:mr-2"></i>
                 {t("completeProfile.step6.whatHappensNext")}
               </h5>
-              <ol className="text-xs md:text-sm text-blue-700 space-y-1 md:space-y-2">
+              <ol className="text-xs md:text-sm text-blue-700 space-y-1">
                 <li className="flex items-start space-x-1 md:space-x-2">
                   <span className="bg-blue-200 text-blue-800 rounded-full w-4 h-4 md:w-5 md:h-5 flex items-center justify-center text-xs font-bold mt-0.5">
                     1
@@ -2487,7 +2658,10 @@ export default function CompleteProfileForm({
                     <span className="font-medium">
                       {t("completeProfile.step6.type")}:
                     </span>{" "}
-                    {getTranslatedText(businessTypes, formData.businessType)}
+                    {getTranslatedTextWithValue(
+                      businessTypes,
+                      formData.businessType
+                    )}
                   </p>
                   <p>
                     <span className="font-medium">

@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "export", // 🎯 تمت إضافة هذا السطر لتمكين التصدير الثابت
+  // output: "export", // 🎯 تم التعليق عليه مؤقتاً لحل مشاكل الـ static export
   images: {
     unoptimized: true,
   },
@@ -9,7 +9,7 @@ const nextConfig = {
   },
   // Exclude API routes from static export
   trailingSlash: true,
-  distDir: 'out',
+  // distDir: 'out', // تم التعليق عليه أيضاً
 };
 
 module.exports = nextConfig;

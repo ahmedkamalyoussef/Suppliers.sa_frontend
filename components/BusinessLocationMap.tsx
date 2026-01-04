@@ -44,6 +44,24 @@ const saudiCities: City[] = [
   { name: "Al Jubail", lat: 27.0174, lng: 49.6584 },
 ];
 
+// Function to find the nearest city to given coordinates
+export const findNearestCity = (lat: number, lng: number): City => {
+  let nearestCity = saudiCities[0];
+  let minDistance = Infinity;
+
+  saudiCities.forEach((city) => {
+    const distance = Math.sqrt(
+      Math.pow(lat - city.lat, 2) + Math.pow(lng - city.lng, 2)
+    );
+    if (distance < minDistance) {
+      minDistance = distance;
+      nearestCity = city;
+    }
+  });
+
+  return nearestCity;
+};
+
 // مكون مساعد لتحديث موقع الخريطة عند تغيير الإحداثيات من الخارج
 function MapUpdater({ center }: { center: [number, number] }) {
   const map = useMap();
@@ -74,11 +92,17 @@ export default function BusinessLocationMap({
     /* eslint-disable @typescript-eslint/no-var-requires */
     // @ts-ignore
     delete L.Icon.Default.prototype._getIconUrl;
-    L.Icon.Default.mergeOptions({
-      iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png").default,
-      iconUrl: require("leaflet/dist/images/marker-icon.png").default,
-      shadowUrl: require("leaflet/dist/images/marker-shadow.png").default,
-    });
+
+    // Fix: Use dynamic imports for static export compatibility
+    if (typeof window !== "undefined") {
+      // Client-side only
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png")
+          .default,
+        iconUrl: require("leaflet/dist/images/marker-icon.png").default,
+        shadowUrl: require("leaflet/dist/images/marker-shadow.png").default,
+      });
+    }
   }, []);
 
   // تعريف شكل العلامة الحمراء الخاصة بك (Custom Marker)
