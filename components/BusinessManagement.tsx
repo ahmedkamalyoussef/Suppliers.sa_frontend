@@ -1,6 +1,6 @@
 "use client";
 
-import { SetStateAction, useEffect, useState, useRef } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import Link from "next/link";
 import BranchManagement from "./BranchManagement";
 import { useLanguage } from "./../lib/LanguageContext";
@@ -16,10 +16,14 @@ import {
 } from "./../lib/types";
 import BusinessLocationMap, { findNearestCity } from "./BusinessLocationMap";
 
-interface WorkingHours {
+interface DayWorkingHours {
   open: string;
   close: string;
   closed: boolean;
+}
+
+interface WorkingHours {
+  [key: string]: DayWorkingHours;
 }
 
 interface BusinessData {
@@ -44,13 +48,13 @@ interface BusinessData {
   }>;
   location: { lat: number; lng: number };
   workingHours: {
-    monday: WorkingHours;
-    tuesday: WorkingHours;
-    wednesday: WorkingHours;
-    thursday: WorkingHours;
-    friday: WorkingHours;
-    saturday: WorkingHours;
-    sunday: WorkingHours;
+    monday: DayWorkingHours;
+    tuesday: DayWorkingHours;
+    wednesday: DayWorkingHours;
+    thursday: DayWorkingHours;
+    friday: DayWorkingHours;
+    saturday: DayWorkingHours;
+    sunday: DayWorkingHours;
   };
 }
 
@@ -163,15 +167,9 @@ export default function BusinessManagement({
   const [activeSection, setActiveSection] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
 
-  // Update business data when locationData prop changes
-  useEffect(() => {
-    if (locationData && businessData.location.lat !== locationData.lat) {
-      setBusinessData((prev) => ({
-        ...prev,
-        location: locationData,
-      }));
-    }
-  }, [locationData]);
+  // File upload state
+  const [verificationFile, setVerificationFile] = useState<File | null>(null);
+  const [isUploadingVerification, setIsUploadingVerification] = useState(false);
 
   const workingHoursInputRefs = useRef<
     Record<
@@ -179,6 +177,7 @@ export default function BusinessManagement({
       { open?: HTMLInputElement | null; close?: HTMLInputElement | null }
     >
   >({});
+
   const [businessData, setBusinessData] = useState<BusinessData>({
     name: "",
     category: "",
@@ -229,6 +228,48 @@ export default function BusinessManagement({
     const item = items.find((item) => item.value === value);
     if (!item) return value;
     return item[isRTL ? "ar" : "en"] as string;
+  };
+
+  // File upload handler
+  const handleVerificationUpload = async () => {
+    if (!verificationFile) return;
+
+    setIsUploadingVerification(true);
+    try {
+      const formData = new FormData();
+      formData.append("document", verificationFile);
+
+      const response = await fetch(
+        `${
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+        }/api/supplier/documents`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("supplier_token")}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log("Verification uploaded successfully:", result);
+        // Show success message
+        alert(
+          "Document uploaded successfully! It will be reviewed by our team."
+        );
+      } else {
+        const error = await response.json();
+        console.error("Upload failed:", error);
+        alert(`Upload failed: ${error.message || "Unknown error"}`);
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("Upload failed. Please try again.");
+    } finally {
+      setIsUploadingVerification(false);
+    }
   };
 
   // Business types with translations (like CompleteProfileForm)
@@ -493,7 +534,6 @@ export default function BusinessManagement({
       workingHours,
     };
 
-    console.log("Setting business data:", businessDataToSetFinal);
     setBusinessData(businessDataToSetFinal);
 
     setProductKeywords(keywordsFromData);
@@ -518,6 +558,11 @@ export default function BusinessManagement({
     { id: "location", name: "Location", icon: "ri-map-pin-line" },
     { id: "photos", name: "Photos", icon: "ri-image-line" },
     { id: "hours", name: "Hours", icon: "ri-time-line" },
+    {
+      id: "verification",
+      name: "Submit Verification",
+      icon: "ri-shield-check-line",
+    },
   ];
 
   const handleWorkingHoursChange = (
@@ -856,7 +901,6 @@ export default function BusinessManagement({
           {isEditing ? "Save Changes" : "Edit Profile"}
         </button>
       </div>
-
       {/* Section Navigation */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
         <div className="border-b border-gray-200">
@@ -1975,9 +2019,131 @@ export default function BusinessManagement({
               )}
             </div>
           )}
+
+          {activeSection === "verification" && (
+            <div className="space-y-6">
+              <div className="bg-yellow-50 p-6 rounded-xl border border-yellow-200">
+                <div className="flex items-center space-x-3 mb-4">
+                  <i className="ri-shield-check-line text-yellow-600 text-2xl"></i>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">
+                      Business Verification Required
+                    </h3>
+                    <p className="text-gray-600 mb-4">
+                      Upload your Commercial Registration to verify your
+                      business legitimacy
+                    </p>
+                    <div className="space-y-2">
+                      <div className="flex items-start space-x-2">
+                        <i className="ri-check-line text-green-600 mt-1"></i>
+                        <div>
+                          <h4 className="font-semibold text-gray-800">
+                            Why is this required?
+                          </h4>
+                          <p className="text-sm text-gray-600">
+                            Ensures only legitimate businesses are listed on our
+                            platform
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-2">
+                        <i className="ri-check-line text-green-600 mt-1"></i>
+                        <div>
+                          <h4 className="font-semibold text-gray-800">
+                            Builds trust with customers
+                          </h4>
+                          <p className="text-sm text-gray-600">
+                            Verified businesses get more customer inquiries
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-xl border border-gray-200">
+                  <h4 className="font-semibold text-gray-800 mb-4">
+                    Commercial Registration Document *
+                  </h4>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                    <input
+                      type="file"
+                      ref={(el) => {
+                        if (el && el.files && el.files[0]) {
+                          setVerificationFile(el.files[0]);
+                        }
+                      }}
+                      accept=".jpg,.jpeg,.png,.pdf"
+                      className="hidden"
+                      disabled={!isEditing}
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          setVerificationFile(e.target.files[0]);
+                        }
+                      }}
+                    />
+                    <p className="text-gray-600 mb-4">
+                      Upload your Commercial Registration
+                    </p>
+                    <p className="text-sm text-gray-500 mb-4">
+                      Supported formats: JPG, PNG, PDF (Max 5MB)
+                    </p>
+                    <div className="space-y-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const fileInput = document.querySelector(
+                            'input[type="file"]'
+                          ) as HTMLInputElement;
+                          fileInput?.click();
+                        }}
+                        disabled={!isEditing}
+                        className="w-full bg-blue-500 text-white py-3 px-6 rounded-lg hover:bg-blue-600 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {verificationFile
+                          ? `Selected: ${verificationFile.name}`
+                          : "Choose File"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleVerificationUpload}
+                        disabled={
+                          !verificationFile ||
+                          isUploadingVerification ||
+                          !isEditing
+                        }
+                        className="w-full bg-yellow-400 text-white py-3 px-6 rounded-lg hover:bg-yellow-500 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isUploadingVerification
+                          ? "Uploading..."
+                          : "Upload Document"}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 space-y-3">
+                    <h4 className="font-semibold text-gray-800">
+                      What happens next?
+                    </h4>
+                    <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600">
+                      <li>
+                        Your document will be reviewed by our verification team
+                      </li>
+                      <li>
+                        You'll receive a notification about verification status
+                      </li>
+                      <li>Once approved, your business profile will go live</li>
+                    </ol>
+                    <p className="text-xs text-gray-500 mt-4">
+                      Verification typically takes 1-2 business days
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-
       {isEditing && (
         <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
           <div className="flex items-center justify-between">
