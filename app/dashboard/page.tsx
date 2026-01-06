@@ -29,12 +29,16 @@ function DashboardContent() {
   const [selectedMessageId, setSelectedMessageId] = useState<number | null>(
     null
   );
+  const [locationData, setLocationData] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
 
   // Auth guard - redirect to login if not authenticated
   useEffect(() => {
     const token = localStorage.getItem("supplier_token");
     const user = localStorage.getItem("supplier_user");
-    
+
     if (!token || !user) {
       window.location.href = "/login";
       return;
@@ -70,13 +74,28 @@ function DashboardContent() {
     try {
       // Get fresh profile data
       const profileData = await apiService.getProfile();
-      
+
+      // Get location data from API
+      let locationData;
+      try {
+        locationData = await apiService.getSupplierLocation();
+        console.log("Location data from API:", locationData);
+      } catch (error) {
+        console.log("Failed to fetch location data:", error);
+        locationData = {
+          latitude: 14.7136,
+          longitude: 46.6753,
+          address: "Default location",
+        };
+      }
+
       // Get current user data from localStorage (for login-specific fields)
       const userData = localStorage.getItem("supplier_user");
       const parsedUser = userData ? JSON.parse(userData) : {};
 
       // Fetch the latest profile picture
-      let profileImage = profileData.profileImage || "/images/default-avatar.png";
+      let profileImage =
+        profileData.profileImage || "/images/default-avatar.png";
       try {
         const { profile_image } = await apiService.getProfilePicture(
           profileData.id || parsedUser.id
@@ -88,13 +107,29 @@ function DashboardContent() {
         // Fallback to the existing image if there's an error
       }
 
+      // Use location data from API if available, otherwise use default
+      const finalLocation =
+        locationData?.latitude && locationData?.longitude
+          ? {
+              lat: locationData.latitude,
+              lng: locationData.longitude,
+            }
+          : { lat: 24.7136, lng: 46.6753 };
+
+      // Set location data state to pass to BusinessManagement
+      setLocationData(finalLocation);
+
       setUser({
         id: profileData.id?.toString() || parsedUser.id?.toString() || "",
         name: profileData.businessName || parsedUser.name || "User",
         email: parsedUser.email || profileData.contactEmail || "",
         phone: profileData.contactPhone || parsedUser.phone || "",
         businessName: profileData.businessName || parsedUser.name || "Business",
-        businessId: profileData.slug || parsedUser.slug || profileData.id?.toString() || "",
+        businessId:
+          profileData.slug ||
+          parsedUser.slug ||
+          profileData.id?.toString() ||
+          "",
         memberSince: profileData.createdAt
           ? new Date(profileData.createdAt).toLocaleDateString()
           : parsedUser.emailVerifiedAt
@@ -154,10 +189,21 @@ function DashboardContent() {
       fetchUserData();
     };
 
+    const handleDataRefresh = async (event: Event) => {
+      const customEvent = event as CustomEvent;
+      // Handle specific section refresh
+      if (customEvent.detail?.section === "businessProfile") {
+        console.log("Refreshing business profile data...");
+        await fetchUserData();
+      }
+    };
+
     window.addEventListener("userProfileUpdated", handleProfileUpdate);
-    
+    window.addEventListener("dataRefresh", handleDataRefresh);
+
     return () => {
       window.removeEventListener("userProfileUpdated", handleProfileUpdate);
+      window.removeEventListener("dataRefresh", handleDataRefresh);
     };
   }, []);
 
@@ -320,7 +366,9 @@ function DashboardContent() {
               {/* Tab Content */}
               <div className="p-4 sm:p-6">
                 {activeTab === "overview" && <DashboardStats />}
-                {activeTab === "business" && <BusinessManagement />}
+                {activeTab === "business" && (
+                  <BusinessManagement locationData={locationData} />
+                )}
                 {activeTab === "analytics" && <DashboardAnalytics />}
                 {activeTab === "messages" && (
                   <DashboardMessages selectedMessageId={selectedMessageId} />

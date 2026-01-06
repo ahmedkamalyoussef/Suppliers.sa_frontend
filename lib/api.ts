@@ -562,6 +562,19 @@ class ApiService {
       false // doesn't require auth
     );
   }
+  async getSupplierLocation(): Promise<{
+    latitude: number;
+    longitude: number;
+    address: string;
+  }> {
+    return this.request(
+      "/api/supplier/location",
+      {
+        method: "GET",
+      },
+      true
+    );
+  }
 
   async updateProfile(data: ProfileUpdateData): Promise<ProfileUpdateResponse> {
     return this.request(

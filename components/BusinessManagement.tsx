@@ -148,11 +148,37 @@ const availableServices = [
   "Consulting",
 ];
 
-export default function BusinessManagement() {
+interface BusinessManagementProps {
+  locationData?: {
+    lat: number;
+    lng: number;
+  } | null;
+}
+
+export default function BusinessManagement({
+  locationData,
+}: BusinessManagementProps = {}) {
   const { user } = useAuth();
   const { isRTL } = useLanguage();
   const [activeSection, setActiveSection] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
+
+  // Update business data when locationData prop changes
+  useEffect(() => {
+    if (locationData && businessData.location.lat !== locationData.lat) {
+      setBusinessData((prev) => ({
+        ...prev,
+        location: locationData,
+      }));
+    }
+  }, [locationData]);
+
+  const workingHoursInputRefs = useRef<
+    Record<
+      string,
+      { open?: HTMLInputElement | null; close?: HTMLInputElement | null }
+    >
+  >({});
   const [businessData, setBusinessData] = useState<BusinessData>({
     name: "",
     category: "",
@@ -328,6 +354,15 @@ export default function BusinessManagement() {
 
   const processUserData = (parsedUser: any) => {
     console.log("Processing user data:", parsedUser);
+    console.log("Services from parsedUser.services:", parsedUser.services);
+    console.log(
+      "Services from parsedUser.profile?.services:",
+      parsedUser.profile?.services
+    );
+    console.log(
+      "Services from parsedUser.profile?.services_offered:",
+      parsedUser.profile?.services_offered
+    );
 
     let keywordsFromData: string[] = [];
     const keywords =
@@ -430,19 +465,36 @@ export default function BusinessManagement() {
       serviceDistance:
         parsedUser.serviceDistance || parsedUser.profile?.serviceDistance || "",
       targetCustomers: targetCustomersFromData,
-      services: parsedUser.services || parsedUser.profile?.services || [],
-      categories: parsedUser.categories || parsedUser.profile?.categories || [],
-      additionalPhones: parsedUser.additionalPhones ||
-        parsedUser.profile?.additionalPhones || [
-          { id: 1, type: "Sales Representative", number: "", name: "" },
-        ],
-      location: parsedUser.location ||
-        parsedUser.profile?.location || { lat: 24.7136, lng: 46.6753 },
+      services:
+        parsedUser.services ||
+        parsedUser.profile?.services ||
+        parsedUser.profile?.services_offered ||
+        [],
+    };
+
+    console.log("Final services being set:", businessDataToSet.services);
+
+    const categories =
+      parsedUser.categories || parsedUser.profile?.categories || [];
+    const additionalPhones = parsedUser.additionalPhones ||
+      parsedUser.profile?.additionalPhones || [
+        { id: 1, type: "Sales Representative", number: "", name: "" },
+      ];
+
+    const location = locationData ||
+      parsedUser.location ||
+      parsedUser.profile?.location || { lat: 24.7136, lng: 46.6753 };
+
+    const businessDataToSetFinal = {
+      ...businessDataToSet,
+      categories,
+      additionalPhones,
+      location,
       workingHours,
     };
 
-    console.log("Setting business data:", businessDataToSet);
-    setBusinessData(businessDataToSet);
+    console.log("Setting business data:", businessDataToSetFinal);
+    setBusinessData(businessDataToSetFinal);
 
     setProductKeywords(keywordsFromData);
     setKeywordInput(keywordsFromData.join(", "));
@@ -464,10 +516,69 @@ export default function BusinessManagement() {
     { id: "profile", name: "Basic Info", icon: "ri-user-line" },
     { id: "details", name: "Business Details", icon: "ri-briefcase-line" },
     { id: "location", name: "Location", icon: "ri-map-pin-line" },
-    { id: "products", name: "Products", icon: "ri-price-tag-3-line" },
     { id: "photos", name: "Photos", icon: "ri-image-line" },
     { id: "hours", name: "Hours", icon: "ri-time-line" },
   ];
+
+  const handleWorkingHoursChange = (
+    day: keyof typeof businessData.workingHours,
+    field: "open" | "close" | "closed",
+    value: string | boolean
+  ): void => {
+    setBusinessData((prev) => ({
+      ...prev,
+      workingHours: {
+        ...prev.workingHours,
+        [day]: {
+          ...prev.workingHours[day],
+          [field]: value,
+        },
+      },
+    }));
+  };
+
+  const applyWorkingHoursToAllDays = (
+    sourceDay: keyof typeof businessData.workingHours
+  ) => {
+    setBusinessData((prev) => {
+      const source = prev.workingHours[sourceDay];
+      return {
+        ...prev,
+        workingHours: Object.keys(prev.workingHours).reduce((acc, dayKey) => {
+          const day = dayKey as keyof typeof prev.workingHours;
+          acc[day] = { ...source };
+          return acc;
+        }, {} as typeof prev.workingHours),
+      };
+    });
+  };
+
+  const applyWorkingHoursToNextDays = (
+    sourceDay: keyof typeof businessData.workingHours
+  ) => {
+    const dayOrder: Array<keyof typeof businessData.workingHours> = [
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday",
+      "sunday",
+    ];
+    setBusinessData((prev) => {
+      const source = prev.workingHours[sourceDay];
+      const startIndex = dayOrder.indexOf(sourceDay);
+      if (startIndex < 0) return prev;
+
+      const next = { ...prev.workingHours };
+      for (let i = startIndex + 1; i < dayOrder.length; i++) {
+        const d = dayOrder[i];
+        next[d] = { ...source };
+      }
+
+      return { ...prev, workingHours: next };
+    });
+  };
 
   const handleSave = async () => {
     try {
@@ -546,7 +657,13 @@ export default function BusinessManagement() {
 
       if (
         JSON.stringify(businessData.services.sort()) !==
-        JSON.stringify((originalProfile.services || []).sort())
+        JSON.stringify(
+          (
+            originalProfile.services ||
+            originalProfile.services_offered ||
+            []
+          ).sort()
+        )
       ) {
         updateData.services = businessData.services;
       }
@@ -594,6 +711,13 @@ export default function BusinessManagement() {
           currentTargetCustomers.join(", ")
         );
       }
+
+      console.log("Services comparison:");
+      console.log("Current services:", businessData.services);
+      console.log(
+        "Original services:",
+        originalProfile.services || originalProfile.services_offered || []
+      );
 
       if (
         JSON.stringify(businessData.additionalPhones) !==
@@ -651,6 +775,20 @@ export default function BusinessManagement() {
       }
 
       setIsEditing(false);
+
+      // Trigger dashboard refresh to show changes immediately
+      window.dispatchEvent(
+        new CustomEvent("userProfileUpdated", {
+          detail: { message: "Profile updated successfully" },
+        })
+      );
+
+      // Also trigger a general data refresh event
+      window.dispatchEvent(
+        new CustomEvent("dataRefresh", {
+          detail: { section: "businessProfile" },
+        })
+      );
     } catch (error) {
       console.error("Error saving profile:", error);
     }
@@ -1333,6 +1471,7 @@ export default function BusinessManagement() {
                 >
                   <BusinessLocationMap
                     selectedLocation={businessData.location}
+                    isEditing={isEditing}
                     setSelectedLocation={(location) => {
                       console.log("Location updated:", location);
                       // Update address automatically based on nearest city
@@ -1466,89 +1605,374 @@ export default function BusinessManagement() {
           {/* Working Hours Section */}
           {activeSection === "hours" && (
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-gray-800">
-                Working Hours
-              </h3>
-
-              <div className="space-y-4">
-                {Object.entries(businessData.workingHours).map(
-                  ([day, hours]) => (
-                    <div
-                      key={day}
-                      className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg"
-                    >
-                      <div className="w-24">
-                        <span className="text-sm font-medium text-gray-700 capitalize">
-                          {day}
-                        </span>
-                      </div>
-
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={hours.closed}
-                          disabled={!isEditing}
-                          onChange={(e) =>
-                            setBusinessData({
-                              ...businessData,
-                              workingHours: {
-                                ...businessData.workingHours,
-                                [day]: { ...hours, closed: e.target.checked },
-                              },
-                            })
-                          }
-                          className="w-4 h-4 text-yellow-400 border-gray-300 rounded focus:ring-yellow-400 mr-2"
-                        />
-                        <span className="text-sm text-gray-600">Closed</span>
-                      </label>
-
-                      {!hours.closed && (
-                        <div className="flex items-center space-x-2">
-                          <input
-                            type="time"
-                            value={hours.open}
-                            disabled={!isEditing}
-                            onChange={(e) =>
-                              setBusinessData({
-                                ...businessData,
-                                workingHours: {
-                                  ...businessData.workingHours,
-                                  [day]: { ...hours, open: e.target.value },
-                                },
-                              })
-                            }
-                            className={`px-3 py-2 border rounded focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ${
-                              isEditing
-                                ? "border-gray-300"
-                                : "border-gray-200 bg-gray-100"
-                            }`}
-                          />
-                          <span className="text-gray-500">to</span>
-                          <input
-                            type="time"
-                            value={hours.close}
-                            disabled={!isEditing}
-                            onChange={(e) =>
-                              setBusinessData({
-                                ...businessData,
-                                workingHours: {
-                                  ...businessData.workingHours,
-                                  [day]: { ...hours, close: e.target.value },
-                                },
-                              })
-                            }
-                            className={`px-3 py-2 border rounded focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ${
-                              isEditing
-                                ? "border-gray-300"
-                                : "border-gray-200 bg-gray-100"
-                            }`}
-                          />
-                        </div>
-                      )}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">
+                    Working Hours
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Set your business operating hours for each day
+                  </p>
+                </div>
+                {!isEditing && (
+                  <div className="p-3 bg-yellow-100 border border-yellow-200 rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <i className="ri-lock-line text-yellow-600"></i>
+                      <span className="text-sm text-yellow-800 font-medium">
+                        Click 'Edit Profile' to modify working hours
+                      </span>
                     </div>
-                  )
+                  </div>
                 )}
               </div>
+
+              <div className="space-y-1 md:space-y-2">
+                {Object.keys(businessData.workingHours).map((day) => (
+                  <div
+                    key={day}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-2 bg-white rounded-lg border border-gray-200 gap-1 md:gap-2"
+                  >
+                    <div className="w-16">
+                      <span className="text-xs font-medium text-gray-700 capitalize">
+                        {day}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-1">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          applyWorkingHoursToNextDays(
+                            day as keyof typeof businessData.workingHours
+                          )
+                        }
+                        disabled={!isEditing}
+                        className="text-[10px] md:text-xs px-1.5 py-0.5 rounded border border-gray-200 text-gray-700 hover:bg-gray-50 whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Copy to Next
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          applyWorkingHoursToAllDays(
+                            day as keyof typeof businessData.workingHours
+                          )
+                        }
+                        disabled={!isEditing}
+                        className="text-[10px] md:text-xs px-1.5 py-0.5 rounded border border-gray-200 text-gray-700 hover:bg-gray-50 whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Apply to All
+                      </button>
+                    </div>
+
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={
+                          businessData.workingHours[
+                            day as keyof typeof businessData.workingHours
+                          ].closed
+                        }
+                        onChange={(e) =>
+                          handleWorkingHoursChange(
+                            day as keyof typeof businessData.workingHours,
+                            "closed",
+                            e.target.checked
+                          )
+                        }
+                        disabled={!isEditing}
+                        className="w-3 h-3 text-yellow-400 border-gray-300 rounded focus:ring-yellow-400 mr-1 disabled:opacity-50"
+                      />
+                      <span className="text-xs text-gray-600">Closed</span>
+                    </label>
+
+                    {!businessData.workingHours[
+                      day as keyof typeof businessData.workingHours
+                    ].closed && (
+                      <div className="flex items-center space-x-1 md:space-x-2">
+                        <input
+                          type="time"
+                          ref={(el) => {
+                            if (workingHoursInputRefs.current[day]) {
+                              workingHoursInputRefs.current[day].open = el;
+                            } else {
+                              workingHoursInputRefs.current[day] = { open: el };
+                            }
+                          }}
+                          value={
+                            businessData.workingHours[
+                              day as keyof typeof businessData.workingHours
+                            ].open
+                          }
+                          onChange={(e) =>
+                            handleWorkingHoursChange(
+                              day as keyof typeof businessData.workingHours,
+                              "open",
+                              e.target.value
+                            )
+                          }
+                          disabled={!isEditing}
+                          onKeyDown={(e) => {
+                            if (e.key === "ArrowRight") {
+                              e.preventDefault();
+                              workingHoursInputRefs.current[
+                                day
+                              ]?.close?.focus();
+                              return;
+                            }
+                            if (e.key === "ArrowLeft") {
+                              e.preventDefault();
+                              const dayOrder: Array<
+                                keyof typeof businessData.workingHours
+                              > = [
+                                "monday",
+                                "tuesday",
+                                "wednesday",
+                                "thursday",
+                                "friday",
+                                "saturday",
+                                "sunday",
+                              ];
+                              const currentIndex = dayOrder.indexOf(
+                                day as keyof typeof businessData.workingHours
+                              );
+                              if (currentIndex > 0) {
+                                const prevDay = dayOrder[currentIndex - 1];
+                                workingHoursInputRefs.current[
+                                  prevDay
+                                ]?.close?.focus();
+                              }
+                              return;
+                            }
+                            if (e.key === "ArrowDown") {
+                              e.preventDefault();
+                              const dayOrder: Array<
+                                keyof typeof businessData.workingHours
+                              > = [
+                                "monday",
+                                "tuesday",
+                                "wednesday",
+                                "thursday",
+                                "friday",
+                                "saturday",
+                                "sunday",
+                              ];
+                              const currentIndex = dayOrder.indexOf(
+                                day as keyof typeof businessData.workingHours
+                              );
+                              if (currentIndex < dayOrder.length - 1) {
+                                const nextDay = dayOrder[currentIndex + 1];
+                                workingHoursInputRefs.current[
+                                  nextDay
+                                ]?.open?.focus();
+                              }
+                              return;
+                            }
+                            if (e.key === "ArrowUp") {
+                              e.preventDefault();
+                              const dayOrder: Array<
+                                keyof typeof businessData.workingHours
+                              > = [
+                                "monday",
+                                "tuesday",
+                                "wednesday",
+                                "thursday",
+                                "friday",
+                                "saturday",
+                                "sunday",
+                              ];
+                              const currentIndex = dayOrder.indexOf(
+                                day as keyof typeof businessData.workingHours
+                              );
+                              if (currentIndex > 0) {
+                                const prevDay = dayOrder[currentIndex - 1];
+                                workingHoursInputRefs.current[
+                                  prevDay
+                                ]?.open?.focus();
+                              }
+                              return;
+                            }
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              workingHoursInputRefs.current[
+                                day
+                              ]?.close?.focus();
+                              return;
+                            }
+                          }}
+                          className={`px-2 py-1 border rounded text-xs focus:ring-2 focus:ring-yellow-400 focus:border-transparent ${
+                            isEditing
+                              ? "border-gray-300"
+                              : "border-gray-200 bg-gray-100"
+                          } disabled:opacity-50`}
+                        />
+                        <span className="text-gray-500 text-xs">to</span>
+                        <input
+                          type="time"
+                          ref={(el) => {
+                            if (workingHoursInputRefs.current[day]) {
+                              workingHoursInputRefs.current[day].close = el;
+                            } else {
+                              workingHoursInputRefs.current[day] = {
+                                close: el,
+                              };
+                            }
+                          }}
+                          value={
+                            businessData.workingHours[
+                              day as keyof typeof businessData.workingHours
+                            ].close
+                          }
+                          onChange={(e) =>
+                            handleWorkingHoursChange(
+                              day as keyof typeof businessData.workingHours,
+                              "close",
+                              e.target.value
+                            )
+                          }
+                          disabled={!isEditing}
+                          onKeyDown={(e) => {
+                            if (e.key === "ArrowLeft") {
+                              e.preventDefault();
+                              workingHoursInputRefs.current[day]?.open?.focus();
+                              return;
+                            }
+                            if (e.key === "ArrowRight") {
+                              e.preventDefault();
+                              const dayOrder: Array<
+                                keyof typeof businessData.workingHours
+                              > = [
+                                "monday",
+                                "tuesday",
+                                "wednesday",
+                                "thursday",
+                                "friday",
+                                "saturday",
+                                "sunday",
+                              ];
+                              const currentIndex = dayOrder.indexOf(
+                                day as keyof typeof businessData.workingHours
+                              );
+                              if (currentIndex < dayOrder.length - 1) {
+                                const nextDay = dayOrder[currentIndex + 1];
+                                workingHoursInputRefs.current[
+                                  nextDay
+                                ]?.open?.focus();
+                              }
+                              return;
+                            }
+                            if (e.key === "ArrowDown") {
+                              e.preventDefault();
+                              const dayOrder: Array<
+                                keyof typeof businessData.workingHours
+                              > = [
+                                "monday",
+                                "tuesday",
+                                "wednesday",
+                                "thursday",
+                                "friday",
+                                "saturday",
+                                "sunday",
+                              ];
+                              const currentIndex = dayOrder.indexOf(
+                                day as keyof typeof businessData.workingHours
+                              );
+                              if (currentIndex < dayOrder.length - 1) {
+                                const nextDay = dayOrder[currentIndex + 1];
+                                workingHoursInputRefs.current[
+                                  nextDay
+                                ]?.close?.focus();
+                              }
+                              return;
+                            }
+                            if (e.key === "ArrowUp") {
+                              e.preventDefault();
+                              const dayOrder: Array<
+                                keyof typeof businessData.workingHours
+                              > = [
+                                "monday",
+                                "tuesday",
+                                "wednesday",
+                                "thursday",
+                                "friday",
+                                "saturday",
+                                "sunday",
+                              ];
+                              const currentIndex = dayOrder.indexOf(
+                                day as keyof typeof businessData.workingHours
+                              );
+                              if (currentIndex > 0) {
+                                const prevDay = dayOrder[currentIndex - 1];
+                                workingHoursInputRefs.current[
+                                  prevDay
+                                ]?.close?.focus();
+                              }
+                              return;
+                            }
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              const dayOrder: Array<
+                                keyof typeof businessData.workingHours
+                              > = [
+                                "monday",
+                                "tuesday",
+                                "wednesday",
+                                "thursday",
+                                "friday",
+                                "saturday",
+                                "sunday",
+                              ];
+                              const currentIndex = dayOrder.indexOf(
+                                day as keyof typeof businessData.workingHours
+                              );
+                              if (currentIndex < dayOrder.length - 1) {
+                                const nextDay = dayOrder[currentIndex + 1];
+                                workingHoursInputRefs.current[
+                                  nextDay
+                                ]?.open?.focus();
+                              }
+                              return;
+                            }
+                          }}
+                          className={`px-2 py-1 border rounded text-xs focus:ring-2 focus:ring-yellow-400 focus:border-transparent ${
+                            isEditing
+                              ? "border-gray-300"
+                              : "border-gray-200 bg-gray-100"
+                          } disabled:opacity-50`}
+                        />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {isEditing && (
+                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <i className="ri-information-line text-blue-600 text-xs"></i>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium text-blue-800 mb-1">
+                        Working Hours Tips
+                      </h4>
+                      <ul className="text-xs text-blue-700 space-y-1">
+                        <li>
+                          • Use "Copy to Next" to apply hours to following days
+                        </li>
+                        <li>
+                          • Use "Apply to All" to set same hours for all days
+                        </li>
+                        <li>
+                          • Mark days as "Closed" when you're not available
+                        </li>
+                        <li>• Use arrow keys to navigate between fields</li>
+                        <li>• Press Enter to move to the next field</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
