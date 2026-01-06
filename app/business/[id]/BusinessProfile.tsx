@@ -246,7 +246,6 @@ export default function BusinessProfile() {
         // Refresh the business profile to show the new review
         try {
           const profile = await apiService.getBusinessProfile(businessId);
-          console.log("jjjjjjjjj", profile);
           setBusinessProfile(profile);
         } catch (error) {
           console.error("Failed to refresh business profile:", error);

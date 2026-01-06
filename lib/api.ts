@@ -505,18 +505,6 @@ class ApiService {
     category?: string; // Add category as a separate parameter
     ai?: string; // Add AI parameter for advanced filtering
   }): Promise<BusinessListResponse> {
-    console.log(
-      "getBusinesses called with params:",
-      JSON.stringify(params, null, 2)
-    );
-
-    // Log each parameter separately for better readability
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        console.log(`Parameter - ${key}:`, value);
-      });
-    }
-
     const queryParams = new URLSearchParams();
 
     const options: RequestInit = { method: "GET" };
@@ -969,6 +957,32 @@ class ApiService {
           // Don't set Content-Type for FormData - browser sets it with boundary
         },
         body: formData,
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.message || `HTTP ${response.status}: ${response.statusText}`
+      );
+    }
+
+    return response.json();
+  }
+
+  async getProductImages(): Promise<any[]> {
+    const token = localStorage.getItem("supplier_token");
+    const tokenType = localStorage.getItem("token_type") || "Bearer";
+
+    if (!token) throw new Error("No auth token found");
+
+    const response = await fetch(
+      `${this.baseURL}/api/supplier/product-images`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `${tokenType} ${token}`,
+        },
       }
     );
 

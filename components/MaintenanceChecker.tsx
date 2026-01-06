@@ -49,14 +49,6 @@ export default function MaintenanceChecker({
   useEffect(() => {
     if (isLoading) return;
 
-    console.log(
-      "Maintenance checker: isMaintenanceMode =",
-      isMaintenanceMode,
-      "user role =",
-      user?.role,
-      "path =",
-      pathname
-    );
 
     // If maintenance mode is NOT active, allow everything
     if (!isMaintenanceMode) {

@@ -60,8 +60,8 @@ interface BusinessData {
 
 interface ProductImage {
   id?: number;
-  url?: string;
-  image?: string;
+  image_url?: string;
+  name?: string;
 }
 
 // Business types with translations
@@ -159,9 +159,7 @@ interface BusinessManagementProps {
   } | null;
 }
 
-export default function BusinessManagement({
-  locationData,
-}: BusinessManagementProps = {}) {
+export default function BusinessManagement({}: BusinessManagementProps = {}) {
   const { user } = useAuth();
   const { isRTL } = useLanguage();
   const [activeSection, setActiveSection] = useState("profile");
@@ -236,36 +234,17 @@ export default function BusinessManagement({
 
     setIsUploadingVerification(true);
     try {
-      const formData = new FormData();
-      formData.append("document", verificationFile);
+      const response = await apiService.uploadDocument(verificationFile);
 
-      const response = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
-        }/api/supplier/documents`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("supplier_token")}`,
-          },
-          body: formData,
-        }
-      );
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log("Verification uploaded successfully:", result);
+      if (response) {
         // Show success message
         alert(
           "Document uploaded successfully! It will be reviewed by our team."
         );
       } else {
-        const error = await response.json();
-        console.error("Upload failed:", error);
-        alert(`Upload failed: ${error.message || "Unknown error"}`);
+        alert("Upload failed. Please try again.");
       }
     } catch (error) {
-      console.error("Upload error:", error);
       alert("Upload failed. Please try again.");
     } finally {
       setIsUploadingVerification(false);
@@ -305,9 +284,6 @@ export default function BusinessManagement({
   ];
 
   const handleTargetCustomerToggle = (customer: string) => {
-    console.log("Toggling customer:", customer);
-    console.log("Current target customers:", businessData.targetCustomers);
-
     const englishCustomer =
       targetCustomerOptions.find(
         (opt) => opt.en === customer || opt.ar === customer
@@ -316,8 +292,6 @@ export default function BusinessManagement({
     const newCustomers = businessData.targetCustomers.includes(englishCustomer)
       ? businessData.targetCustomers.filter((c) => c !== englishCustomer)
       : [...businessData.targetCustomers, englishCustomer];
-
-    console.log("New target customers:", newCustomers);
 
     setBusinessData({
       ...businessData,
@@ -393,18 +367,45 @@ export default function BusinessManagement({
     };
   }, [user]);
 
-  const processUserData = (parsedUser: any) => {
-    console.log("Processing user data:", parsedUser);
-    console.log("Services from parsedUser.services:", parsedUser.services);
-    console.log(
-      "Services from parsedUser.profile?.services:",
-      parsedUser.profile?.services
-    );
-    console.log(
-      "Services from parsedUser.profile?.services_offered:",
-      parsedUser.profile?.services_offered
-    );
+  const [locationData, setLocationData] = useState<{
+    lat: number;
+    lng: number;
+  }>({
+    lat: 24.7136,
+    lng: 46.6753,
+  });
+  // Load location from API
+  useEffect(() => {
+    const loadLocation = async () => {
+      try {
+        const locationData = await apiService.getSupplierLocation();
+        if (locationData.latitude && locationData.longitude) {
+          setLocationData({
+            lat: locationData.latitude,
+            lng: locationData.longitude,
+          });
+        }
+      } catch (error) {
+        console.error("Error loading location:", error);
+      }
+    };
 
+    loadLocation();
+  }, []); // Run only once on mount
+
+  // Load product images from API
+  useEffect(() => {
+    const loadProductImages = async () => {
+      try {
+        const images = await apiService.getProductImages();
+        setBusinessImages(images);
+      } catch (error) {}
+    };
+
+    loadProductImages();
+  }, []); // Run only once on mount
+
+  const processUserData = (parsedUser: any) => {
     let keywordsFromData: string[] = [];
     const keywords =
       parsedUser.productKeywords || parsedUser.profile?.productKeywords;
@@ -446,12 +447,6 @@ export default function BusinessManagement({
       parsedUser.profile?.whoDoYouServe ||
       [];
 
-    console.log(
-      "Raw target customers data:",
-      targetCustomersRaw,
-      typeof targetCustomersRaw
-    );
-
     if (typeof targetCustomersRaw === "string") {
       // If it's a string, split by comma and clean
       targetCustomersFromData = targetCustomersRaw
@@ -480,8 +475,6 @@ export default function BusinessManagement({
         targetCustomersFromData = targetCustomersRaw;
       }
     }
-
-    console.log("Processed target customers:", targetCustomersFromData);
 
     const businessDataToSet = {
       name:
@@ -512,8 +505,6 @@ export default function BusinessManagement({
         parsedUser.profile?.services_offered ||
         [],
     };
-
-    console.log("Final services being set:", businessDataToSet.services);
 
     const categories =
       parsedUser.categories || parsedUser.profile?.categories || [];
@@ -634,9 +625,6 @@ export default function BusinessManagement({
       const updateData: Record<string, any> = {};
       const originalProfile = currentUser.profile || {};
 
-      console.log("Current business data:", businessData);
-      console.log("Original profile:", originalProfile);
-
       // Fix: Check multiple possible fields for name and send as businessName
       const originalName =
         originalProfile.businessName ||
@@ -737,32 +725,13 @@ export default function BusinessManagement({
         ? originalProfile.targetCustomers
         : [];
 
-      console.log("Current target customers:", currentTargetCustomers);
-      console.log("Original target customers:", originalTargetCustomers);
-      console.log(
-        "Are they different?",
-        JSON.stringify(currentTargetCustomers.sort()) !==
-          JSON.stringify(originalTargetCustomers.sort())
-      );
-
       // Send as string to match backend expectation (like CompleteProfileForm)
       if (
         JSON.stringify(currentTargetCustomers.sort()) !==
         JSON.stringify(originalTargetCustomers.sort())
       ) {
         updateData.whoDoYouServe = currentTargetCustomers.join(", ");
-        console.log(
-          "Adding whoDoYouServe to updateData:",
-          currentTargetCustomers.join(", ")
-        );
       }
-
-      console.log("Services comparison:");
-      console.log("Current services:", businessData.services);
-      console.log(
-        "Original services:",
-        originalProfile.services || originalProfile.services_offered || []
-      );
 
       if (
         JSON.stringify(businessData.additionalPhones) !==
@@ -795,12 +764,8 @@ export default function BusinessManagement({
         updateData.contactEmail = businessData.email;
       }
 
-      console.log("Update data to send:", updateData);
-
       const { apiService } = await import("../lib/api");
       const response = await apiService.updateProfile(updateData);
-
-      console.log("API response:", response);
 
       if (response.supplier) {
         // Update localStorage with the new data
@@ -810,13 +775,23 @@ export default function BusinessManagement({
         );
 
         // Process the updated data to refresh the component state
-        console.log("Processing updated user data:", response.supplier);
         processUserData(response.supplier);
+
+        // Reload images from API to ensure they're up to date
+        try {
+          const images = await apiService.getProductImages();
+          setBusinessImages(images);
+        } catch (error) {}
       } else {
         // If no structured response, fetch fresh data
-        console.log("No structured response, fetching fresh data...");
         const freshData = await apiService.getProfile();
         processUserData(freshData);
+
+        // Also reload images
+        try {
+          const images = await apiService.getProductImages();
+          setBusinessImages(images);
+        } catch (error) {}
       }
 
       setIsEditing(false);
@@ -834,9 +809,7 @@ export default function BusinessManagement({
           detail: { section: "businessProfile" },
         })
       );
-    } catch (error) {
-      console.error("Error saving profile:", error);
-    }
+    } catch (error) {}
   };
 
   const handleImageUpload = async (
@@ -852,13 +825,11 @@ export default function BusinessManagement({
 
         const newImage: ProductImage = {
           id: response.id,
-          url: response.image_url,
-          image: response.name,
+          image_url: response.image_url,
+          name: response.name,
         };
         setBusinessImages([...businessImages, newImage]);
-      } catch (error) {
-        console.error("Error uploading image:", error);
-      }
+      } catch (error) {}
     }
   };
 
@@ -868,9 +839,7 @@ export default function BusinessManagement({
     try {
       await apiService.deleteProductImage(id);
       setBusinessImages(businessImages.filter((img) => img.id !== id));
-    } catch (error) {
-      console.error("Error deleting image:", error);
-    }
+    } catch (error) {}
   };
 
   if (isLoading) {
@@ -1049,12 +1018,6 @@ export default function BusinessManagement({
                   {targetCustomerOptions.map((customer) => {
                     const isSelected = businessData.targetCustomers.includes(
                       customer.en
-                    );
-                    console.log(
-                      `Checking ${customer.en}:`,
-                      isSelected,
-                      "in",
-                      businessData.targetCustomers
                     );
 
                     return (
@@ -1514,16 +1477,16 @@ export default function BusinessManagement({
                   }`}
                 >
                   <BusinessLocationMap
-                    selectedLocation={businessData.location}
+                    selectedLocation={locationData}
                     isEditing={isEditing}
                     setSelectedLocation={(location) => {
-                      console.log("Location updated:", location);
                       // Update address automatically based on nearest city
                       const nearestCity = findNearestCity(
                         location.lat,
                         location.lng
                       );
-                      console.log("Nearest city found:", nearestCity);
+                      // Update both locationData and businessData
+                      setLocationData(location);
                       setBusinessData({
                         ...businessData,
                         location,
@@ -1605,7 +1568,7 @@ export default function BusinessManagement({
                 {businessImages.map((image) => (
                   <div key={image.id} className="relative group">
                     <img
-                      src={image.url || image.image || ""}
+                      src={image.image_url || ""}
                       alt="Business photo"
                       className="w-full h-48 object-cover rounded-lg border border-gray-200"
                     />

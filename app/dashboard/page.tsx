@@ -29,10 +29,6 @@ function DashboardContent() {
   const [selectedMessageId, setSelectedMessageId] = useState<number | null>(
     null
   );
-  const [locationData, setLocationData] = useState<{
-    lat: number;
-    lng: number;
-  } | null>(null);
 
   // Auth guard - redirect to login if not authenticated
   useEffect(() => {
@@ -79,9 +75,7 @@ function DashboardContent() {
       let locationData;
       try {
         locationData = await apiService.getSupplierLocation();
-        console.log("Location data from API:", locationData);
       } catch (error) {
-        console.log("Failed to fetch location data:", error);
         locationData = {
           latitude: 14.7136,
           longitude: 46.6753,
@@ -115,9 +109,6 @@ function DashboardContent() {
               lng: locationData.longitude,
             }
           : { lat: 24.7136, lng: 46.6753 };
-
-      // Set location data state to pass to BusinessManagement
-      setLocationData(finalLocation);
 
       setUser({
         id: profileData.id?.toString() || parsedUser.id?.toString() || "",
@@ -193,7 +184,6 @@ function DashboardContent() {
       const customEvent = event as CustomEvent;
       // Handle specific section refresh
       if (customEvent.detail?.section === "businessProfile") {
-        console.log("Refreshing business profile data...");
         await fetchUserData();
       }
     };
@@ -366,9 +356,7 @@ function DashboardContent() {
               {/* Tab Content */}
               <div className="p-4 sm:p-6">
                 {activeTab === "overview" && <DashboardStats />}
-                {activeTab === "business" && (
-                  <BusinessManagement locationData={locationData} />
-                )}
+                {activeTab === "business" && <BusinessManagement />}
                 {activeTab === "analytics" && <DashboardAnalytics />}
                 {activeTab === "messages" && (
                   <DashboardMessages selectedMessageId={selectedMessageId} />
