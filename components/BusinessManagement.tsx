@@ -856,19 +856,28 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
         <h2 className="text-2xl font-bold text-gray-800">
           Business Management
         </h2>
-        <button
-          onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
-          className={`px-6 py-3 rounded-lg font-medium whitespace-nowrap cursor-pointer transition-all ${
-            isEditing
-              ? "bg-green-500 text-white hover:bg-green-600"
-              : "bg-yellow-400 text-white hover:bg-yellow-500"
-          }`}
-        >
-          <i
-            className={`${isEditing ? "ri-save-line" : "ri-edit-line"} mr-2`}
-          ></i>
-          {isEditing ? "Save Changes" : "Edit Profile"}
-        </button>
+        <div className="flex space-x-3">
+          <button
+            onClick={() => (window.location.href = "/manage-businesses/")}
+            className="px-4 py-3 rounded-lg font-medium whitespace-nowrap cursor-pointer transition-all bg-blue-500 text-white hover:bg-blue-600"
+          >
+            <i className="ri-branch-line mr-2"></i>
+            Manage Branches
+          </button>
+          <button
+            onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
+            className={`px-6 py-3 rounded-lg font-medium whitespace-nowrap cursor-pointer transition-all ${
+              isEditing
+                ? "bg-green-500 text-white hover:bg-green-600"
+                : "bg-yellow-400 text-white hover:bg-yellow-500"
+            }`}
+          >
+            <i
+              className={`${isEditing ? "ri-save-line" : "ri-edit-line"} mr-2`}
+            ></i>
+            {isEditing ? "Save Changes" : "Edit Profile"}
+          </button>
+        </div>
       </div>
       {/* Section Navigation */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm">

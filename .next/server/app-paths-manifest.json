@@ -1,5 +1,6 @@
 {
-  "/dashboard/page": "app/dashboard/page.js",
-  "/profile/[id]/page": "app/profile/[id]/page.js",
-  "/admin/page": "app/admin/page.js"
+  "/admin/page": "app/admin/page.js",
+  "/manage-businesses/page": "app/manage-businesses/page.js",
+  "/business-guides/page": "app/business-guides/page.js",
+  "/dashboard/page": "app/dashboard/page.js"
 }
