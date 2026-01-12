@@ -24,7 +24,7 @@ export default function PricingPlans() {
   const [transactionId, setTransactionId] = useState("");
 
   const monthlyPrice = 49;
-  const yearlyPrice = 490;
+  const yearlyPrice = 1799;
   const yearlySavings = Math.round(
     ((monthlyPrice * 12 - yearlyPrice) / (monthlyPrice * 12)) * 100
   );
@@ -119,8 +119,13 @@ export default function PricingPlans() {
               </p>
               <div className="mb-4 sm:mb-6">
                 <span className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900">
-                  $0
+                  0
                 </span>
+                <img
+                  src="/riyal.svg"
+                  alt="SAR"
+                  className="w-6 h-6 inline-block ml-1"
+                />
                 <span className="text-gray-600 text-base sm:text-lg">
                   {t("subscription.perMonth")}
                 </span>
@@ -210,8 +215,13 @@ export default function PricingPlans() {
                 {billingCycle === "monthly" ? (
                   <div>
                     <span className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900">
-                      ${monthlyPrice}
+                      {monthlyPrice}
                     </span>
+                    <img
+                      src="/riyal.svg"
+                      alt="SAR"
+                      className="w-6 h-6 inline-block ml-1"
+                    />
                     <span className="text-gray-600 text-base sm:text-lg">
                       {t("subscription.perMonth")}
                     </span>
@@ -219,7 +229,12 @@ export default function PricingPlans() {
                       <div className="text-xs sm:text-sm text-green-800">
                         {t("subscription.saveWithYearly")}{" "}
                         <strong>
-                          ${yearlyPrice}
+                          {yearlyPrice}
+                          <img
+                            src="/riyal.svg"
+                            alt="SAR"
+                            className="w-4 h-4 inline-block ml-1"
+                          />
                           {t("subscription.perYear")}
                         </strong>
                         <span className="ml-1 font-bold text-green-700">
@@ -237,10 +252,20 @@ export default function PricingPlans() {
                   <div>
                     <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2">
                       <span className="text-lg sm:text-2xl font-medium text-gray-500 line-through">
-                        ${monthlyPrice * 12}
+                        {monthlyPrice * 12}
+                        <img
+                          src="/riyal.svg"
+                          alt="SAR"
+                          className="w-4 h-4 inline-block ml-1"
+                        />
                       </span>
                       <span className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900">
-                        ${yearlyPrice}
+                        {yearlyPrice}
+                        <img
+                          src="/riyal.svg"
+                          alt="SAR"
+                          className="w-6 h-6 inline-block ml-1"
+                        />
                       </span>
                     </div>
                     <span className="text-gray-600 text-base sm:text-lg">
@@ -267,7 +292,9 @@ export default function PricingPlans() {
               </div>
 
               <ClickPayButton
-                plan={paymentPlans[1]} // Professional plan
+                plan={
+                  billingCycle === "monthly" ? paymentPlans[1] : paymentPlans[2]
+                } // Professional monthly or yearly
                 onPaymentInitiate={handlePaymentInitiate}
                 className="w-full py-3 sm:py-4 px-4 sm:px-6 rounded-lg font-bold text-base sm:text-lg shadow-lg"
               />
@@ -389,7 +416,6 @@ export default function PricingPlans() {
             </div>
           </div>
         </div>
-
       </div>
 
       {/* Payment Modal */}

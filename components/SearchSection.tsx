@@ -25,7 +25,7 @@ export default function SearchSection() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
 
-  // Fetch businesses from API 
+  // Fetch businesses from API
   useEffect(() => {
     const fetchBusinesses = async () => {
       try {
@@ -71,8 +71,7 @@ export default function SearchSection() {
 
         setBusinessLocations(locations);
         setBusinesses(response.data);
-      } catch (error) {
-      }
+      } catch (error) {}
     };
 
     fetchBusinesses();
@@ -480,12 +479,12 @@ export default function SearchSection() {
 
       // Map category value to industry name
       const industryMap: { [key: string]: string } = {
-        "agriculture": "Agriculture",
+        agriculture: "Agriculture",
         "apparel-fashion": "Apparel & Fashion",
-        "automobile": "Automobile",
+        automobile: "Automobile",
         "brass-hardware": "Brass Hardware",
         "business-services": "Business Services",
-        "chemicals": "Chemicals",
+        chemicals: "Chemicals",
         "computer-hardware-software": "Computer Hardware & Software",
         "construction-real-estate": "Construction & Real Estate",
         "consumer-electronics": "Consumer Electronics",
@@ -493,7 +492,7 @@ export default function SearchSection() {
         "energy-power": "Energy & Power",
         "environment-pollution": "Environment & Pollution",
         "food-beverage": "Food & Beverage",
-        "furniture": "Furniture",
+        furniture: "Furniture",
         "gifts-crafts": "Gifts & Crafts",
         "health-beauty": "Health & Beauty",
         "home-supplies": "Home Supplies",
@@ -503,12 +502,12 @@ export default function SearchSection() {
         "industrial-supplies": "Industrial Supplies",
         "jewelry-gemstones": "Jewelry & Gemstones",
         "leather-products": "Leather Products",
-        "machinery": "Machinery",
+        machinery: "Machinery",
         "mineral-metals": "Mineral & Metals",
         "office-school": "Office & School",
         "oil-gas": "Oil & Gas",
         "packaging-paper": "Packaging & Paper",
-        "pharmaceuticals": "Pharmaceuticals",
+        pharmaceuticals: "Pharmaceuticals",
         "pipes-tubes": "Pipes, Tubes & Fittings",
         "plastics-products": "Plastics & Products",
         "printing-publishing": "Printing & Publishing",
@@ -516,27 +515,33 @@ export default function SearchSection() {
         "scientific-laboratory": "Scientific & Laboratory Instruments",
         "security-protection": "Security & Protection",
         "sports-entertainment": "Sports & Entertainment",
-        "telecommunications": "Telecommunications",
+        telecommunications: "Telecommunications",
         "textiles-fabrics": "Textiles & Fabrics",
-        "toys": "Toys",
-        "transportation": "Transportation",
+        toys: "Toys",
+        transportation: "Transportation",
       };
 
       const industry = industryMap[category] || category;
 
       const businessRequest = {
-        appearance: (nameType === "anonymous" ? "anonymous" : "showName") as "showName" | "anonymous",
+        appearance: (nameType === "anonymous" ? "anonymous" : "showName") as
+          | "showName"
+          | "anonymous",
         industry,
         preferred_distance: distance === "anywhere" ? "anywhere" : distance,
         description: description,
       };
 
       const response = await apiService.createBusinessRequest(businessRequest);
-      
+
       if (response.inquiries_sent > 0) {
-        setSubmitStatus(`Request submitted successfully! Sent to ${response.inquiries_sent} supplier(s).`);
+        setSubmitStatus(
+          `Request submitted successfully! Sent to ${response.inquiries_sent} supplier(s).`
+        );
       } else {
-        setSubmitStatus(response.note || "No suppliers found matching your criteria.");
+        setSubmitStatus(
+          response.note || "No suppliers found matching your criteria."
+        );
       }
 
       // Reset form
@@ -652,7 +657,7 @@ export default function SearchSection() {
 
                   {/* رجعنا التصميم القديم:  inputs 2 بس في grid  */}
                   <form onSubmit={handleSearch} className="contents">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4 md:mb-6">
+                    <div className="grid grid-cols-1 gap-3 sm:gap-4 mb-3 sm:mb-4 md:mb-6">
                       {/* Search Input */}
                       <div className="relative">
                         <input
@@ -674,24 +679,6 @@ export default function SearchSection() {
                       </div>
 
                       {/* Location Input */}
-                      <div className="relative">
-                        <input
-                          type="text"
-                          placeholder={t("locationPlaceholder")}
-                          value={location}
-                          onChange={(e) => setLocation(e.target.value)}
-                          className={`w-full py-2.5 sm:py-3 md:py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:outline-none text-xs sm:text-sm ${
-                            isRTL
-                              ? "pr-8 sm:pr-10 md:pr-12 pl-3 sm:pl-4 text-right"
-                              : "pl-8 sm:pl-10 md:pl-12 pr-3 sm:pr-4"
-                          }`}
-                        />
-                        <i
-                          className={`ri-map-pin-line absolute top-1/2 transform -translate-y-1/2 text-gray-400 text-xs sm:text-sm ${
-                            isRTL ? "right-3 sm:right-4" : "left-3 sm:left-4"
-                          }`}
-                        ></i>
-                      </div>
                     </div>
 
                     {/* Button تحت نفس القديم */}

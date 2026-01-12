@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { PaymentPlan } from "../lib/clickpay/types";
-import { formatCurrency } from "../lib/clickpay/utils";
+import { useLanguage } from "../lib/LanguageContext";
 
 interface ClickPayButtonProps {
   plan: PaymentPlan;
@@ -18,6 +18,7 @@ const ClickPayButton: React.FC<ClickPayButtonProps> = ({
   disabled = false,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useLanguage();
 
   const handleClick = async () => {
     if (disabled || isLoading) return;
@@ -50,15 +51,22 @@ const ClickPayButton: React.FC<ClickPayButtonProps> = ({
       {isLoading ? (
         <div className="flex items-center justify-center">
           <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-          Processing...
+          {t("subscription.processing")}
         </div>
       ) : (
         <div className="flex flex-col items-center">
-          <span className="text-lg font-bold">
-            {formatCurrency(plan.price, plan.currency)}
+          <span className="text-lg font-bold flex items-center">
+            {plan.price}
+            <img
+              src="/riyal.svg"
+              alt="SAR"
+              className="w-4 h-4 inline-block ml-1"
+            />
           </span>
           <span className="text-sm opacity-90">
-            {plan.duration === "monthly" ? "per month" : "one-time"}
+            {plan.duration === "monthly"
+              ? t("subscription.perMonth")
+              : t("subscription.perYear")}
           </span>
         </div>
       )}

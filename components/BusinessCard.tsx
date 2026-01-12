@@ -223,8 +223,11 @@ export default function BusinessCard({
                         )} text-xs`}
                       ></i>
                       <span className="text-xs font-medium">
-                        {business.businessType?.charAt(0).toUpperCase() +
-                          business.businessType?.slice(1)}
+                        {t(
+                          `publicProfile.businessTypes.${business.businessType?.toLowerCase()}`
+                        ) ||
+                          business.businessType?.charAt(0).toUpperCase() +
+                            business.businessType?.slice(1)}
                       </span>
                     </div>
                     {business.openNow && (
@@ -359,8 +362,11 @@ export default function BusinessCard({
               )} text-sm`}
             ></i>
             <span className="text-xs font-medium">
-              {business.businessType?.charAt(0).toUpperCase() +
-                business.businessType?.slice(1)}
+              {t(
+                `publicProfile.businessTypes.${business.businessType?.toLowerCase()}`
+              ) ||
+                business.businessType?.charAt(0).toUpperCase() +
+                  business.businessType?.slice(1)}
             </span>
           </div>
           {business.verified && (

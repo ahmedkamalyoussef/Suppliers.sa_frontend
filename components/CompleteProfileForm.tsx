@@ -76,9 +76,9 @@ const categories = [
 // Business types with translations
 const businessTypes = [
   { value: "supplier", en: "Supplier", ar: "مورد" },
-  { value: "store", en: "Retail Shop", ar: "متجر" },
-  { value: "office", en: "Company", ar: "مكتب" },
-  { value: "individual", en: "Individual Establishment", ar: "فرد" },
+  { value: "store", en: "Retail Shop", ar: "متجر تجزئة" },
+  { value: "office", en: "Company", ar: "شركة" },
+  { value: "individual", en: "Individual Establishment", ar: "منشأة فردية" },
 ];
 
 // Target customer options with translations

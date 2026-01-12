@@ -226,10 +226,10 @@ export default function AIChatWidget() {
   const navigateAndFilter = (suggestions: AISuggestions, query: string) => {
     // Set the AI search query in context to be used by AIFilterBar
     setAISearchQuery(query);
-    
+
     // Optionally navigate to businesses page if not already there
-    if (window.location.pathname !== '/businesses') {
-      router.push('/businesses');
+    if (window.location.pathname !== "/businesses") {
+      router.push("/businesses");
     }
   };
 

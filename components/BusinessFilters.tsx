@@ -52,18 +52,20 @@ export default function BusinessFilters({
   setOpenNow,
 }: BusinessFiltersProps) {
   const [lastTrackedSearch, setLastTrackedSearch] = useState<string>("");
-  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(
+    null
+  );
 
   // Track search when user types (with 2-second debounce)
   const handleSearchChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
-    
+
     // Clear previous timeout
     if (searchTimeout) {
       clearTimeout(searchTimeout);
     }
-    
+
     // Set new timeout to track search after 2 seconds
     if (value && value !== lastTrackedSearch) {
       const timeout = setTimeout(async () => {
@@ -71,13 +73,12 @@ export default function BusinessFilters({
           // Get current user location
           const userData = localStorage.getItem("supplier_user");
           let location = "Unknown";
-          
+
           if (userData) {
             try {
               const user = JSON.parse(userData);
               location = user.profile?.address || "Unknown";
-            } catch (error) {
-            }
+            } catch (error) {}
           }
 
           await apiService.trackSearch({
@@ -85,12 +86,11 @@ export default function BusinessFilters({
             search_type: "supplier",
             location: location,
           });
-          
+
           setLastTrackedSearch(value);
-        } catch (error) {
-        }
+        } catch (error) {}
       }, 2000); // 2 seconds delay
-      
+
       setSearchTimeout(timeout);
     }
   };
@@ -100,8 +100,7 @@ export default function BusinessFilters({
       try {
         const stats = await apiService.getStats();
         setStats(stats);
-      } catch (error) {
-      }
+      } catch (error) {}
     };
 
     fetchStats();
@@ -278,10 +277,26 @@ export default function BusinessFilters({
 
   const businessTypes: BusinessType[] = [
     { id: "all", name: t("filters.allTypes"), icon: "ri-building-line" },
-    { id: "Supplier", name: "Supplier", icon: "ri-truck-line" },
-    { id: "Store", name: "Store", icon: "ri-store-line" },
-    { id: "Office", name: "Office", icon: "ri-building-line" },
-    { id: "Individual", name: "Individual", icon: "ri-user-line" },
+    {
+      id: "supplier",
+      name: t("publicProfile.businessTypes.supplier"),
+      icon: "ri-truck-line",
+    },
+    {
+      id: "store",
+      name: t("publicProfile.businessTypes.store"),
+      icon: "ri-store-line",
+    },
+    {
+      id: "office",
+      name: t("publicProfile.businessTypes.office"),
+      icon: "ri-building-line",
+    },
+    {
+      id: "individual",
+      name: t("publicProfile.businessTypes.individual"),
+      icon: "ri-user-line",
+    },
   ];
 
   const distanceOptions = [
@@ -303,16 +318,16 @@ export default function BusinessFilters({
     setVerifiedOnly(false);
     setOpenNow(false);
     setAddress("");
-    
+
     // If there are any additional reset functions passed as props, call them
-    if (typeof (window as any).resetAdditionalFilters === 'function') {
+    if (typeof (window as any).resetAdditionalFilters === "function") {
       (window as any).resetAdditionalFilters();
     }
-    
+
     // Update URL without any query parameters
     const url = new URL(window.location.href);
     const baseUrl = url.origin + url.pathname;
-    window.history.pushState({}, '', baseUrl);
+    window.history.pushState({}, "", baseUrl);
   };
 
   return (
@@ -496,13 +511,13 @@ export default function BusinessFilters({
         <h3 className="text-lg font-semibold mb-4 text-gray-800">
           {t("filters.quickStats")}
         </h3>
-        <div className="space-y-3"> 
+        <div className="space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-600">
               {t("filters.totalBusinesses")}
             </span>
             <span className="text-sm font-semibold text-gray-800">
-              {stats ? stats.total_businesses.toLocaleString() : '...'}
+              {stats ? stats.total_businesses.toLocaleString() : "..."}
             </span>
           </div>
           <div className="flex items-center justify-between">
@@ -510,7 +525,7 @@ export default function BusinessFilters({
               {t("filters.verified")}
             </span>
             <span className="text-sm font-semibold text-green-600">
-              {stats ? stats.total_suppliers.toLocaleString() : '...'}
+              {stats ? stats.total_suppliers.toLocaleString() : "..."}
             </span>
           </div>
           <div className="flex items-center justify-between">
@@ -518,7 +533,7 @@ export default function BusinessFilters({
               {t("filters.openNow")}
             </span>
             <span className="text-sm font-semibold text-blue-600">
-              {stats ? stats.open_now.toLocaleString() : '...'}
+              {stats ? stats.open_now.toLocaleString() : "..."}
             </span>
           </div>
           <div className="flex items-center justify-between">
@@ -526,7 +541,7 @@ export default function BusinessFilters({
               {t("filters.newThisWeek")}
             </span>
             <span className="text-sm font-semibold text-yellow-600">
-              {stats ? stats.new_this_week.toLocaleString() : '...'}
+              {stats ? stats.new_this_week.toLocaleString() : "..."}
             </span>
           </div>
         </div>

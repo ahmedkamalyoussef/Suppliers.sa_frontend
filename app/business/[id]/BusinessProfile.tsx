@@ -123,7 +123,8 @@ export default function BusinessProfile() {
   }, [businessId, sessionId]);
 
   const { t } = useLanguage();
-  const [businessProfile, setBusinessProfile] = useState<BusinessProfileType | null>(null);
+  const [businessProfile, setBusinessProfile] =
+    useState<BusinessProfileType | null>(null);
   const [businessPreferences, setBusinessPreferences] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -174,7 +175,10 @@ export default function BusinessProfile() {
             (b: any) => b.id.toString() === businessId
           );
 
-          if (businessWithPreferences?.preferences?.profile_visibility === "limited") {
+          if (
+            businessWithPreferences?.preferences?.profile_visibility ===
+            "limited"
+          ) {
             // Check if user is logged in
             const userData = localStorage.getItem("supplier_user");
             if (!userData) {
@@ -410,14 +414,14 @@ export default function BusinessProfile() {
   };
 
   const getBusinessTypeIcon = (type: string): string => {
-    switch (type) {
-      case "Supplier":
+    switch (type?.toLowerCase()) {
+      case "supplier":
         return "ri-truck-line";
-      case "Store":
+      case "store":
         return "ri-store-line";
-      case "Office":
+      case "office":
         return "ri-building-line";
-      case "Individual":
+      case "individual":
         return "ri-user-line";
       default:
         return "ri-building-line";
@@ -425,14 +429,14 @@ export default function BusinessProfile() {
   };
 
   const getBusinessTypeColor = (type: string): string => {
-    switch (type) {
-      case "Supplier":
+    switch (type?.toLowerCase()) {
+      case "supplier":
         return "bg-blue-100 text-blue-700 border-blue-200";
-      case "Store":
+      case "store":
         return "bg-green-100 text-green-700 border-green-200";
-      case "Office":
+      case "office":
         return "bg-purple-100 text-purple-700 border-purple-200";
-      case "Individual":
+      case "individual":
         return "bg-orange-100 text-orange-700 border-orange-200";
       default:
         return "bg-gray-100 text-gray-700 border-gray-200";
@@ -528,7 +532,9 @@ export default function BusinessProfile() {
           <div className="text-red-500 text-4xl mb-4">
             <i className="ri-error-warning-line"></i>
           </div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Error Loading Profile</h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">
+            Error Loading Profile
+          </h2>
           <p className="text-gray-600 mb-4">{error}</p>
           <button
             onClick={() => window.location.reload()}
@@ -549,8 +555,12 @@ export default function BusinessProfile() {
           <div className="text-gray-500 text-4xl mb-4">
             <i className="ri-store-2-line"></i>
           </div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Business Not Found</h2>
-          <p className="text-gray-600">The requested business profile could not be found.</p>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">
+            Business Not Found
+          </h2>
+          <p className="text-gray-600">
+            The requested business profile could not be found.
+          </p>
         </div>
       </div>
     );
@@ -594,7 +604,11 @@ export default function BusinessProfile() {
                         business.businessType
                       )} text-xs md:text-sm`}
                     ></i>
-                    <span className="font-medium">{business.businessType}</span>
+                    <span className="font-medium">
+                      {t(
+                        `publicProfile.businessTypes.${business.businessType?.toLowerCase()}`
+                      ) || business.businessType}
+                    </span>
                   </div>
                   <div className="flex items-center space-x-1">
                     {[...Array(5)].map((_, i) => (
@@ -650,7 +664,6 @@ export default function BusinessProfile() {
                       {t("publicProfile.buttons.message")}
                     </button>
                   )}
-                
               </div>
             )}
           </div>
@@ -703,7 +716,9 @@ export default function BusinessProfile() {
                     {t("businessProfile.businessType")}
                   </p>
                   <p className="text-xs md:text-sm text-gray-600">
-                    {business.businessType}
+                    {t(
+                      `publicProfile.businessTypes.${business.businessType?.toLowerCase()}`
+                    ) || business.businessType}
                   </p>
                 </div>
               </div>
@@ -760,25 +775,28 @@ export default function BusinessProfile() {
                     {/* Keywords Grid */}
                     <div className="max-h-80 md:max-h-96 overflow-y-auto">
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-px bg-gray-200">
-                        {businessProfile?.profile?.keywords && businessProfile.profile.keywords.length > 0 ? (
-                          businessProfile.profile.keywords.map((keyword: string, index: number) => (
-                            <div
-                              key={index}
-                              className="bg-white p-2 md:p-3 hover:bg-blue-50 transition-colors border-r border-b border-gray-100 last:border-r-0"
-                            >
-                              <div className="flex items-center space-x-1 md:space-x-2">
-                                <span className="text-xs text-gray-400 font-mono w-4 md:w-6 text-right">
-                                  {(index + 1).toString().padStart(2, "0")}
-                                </span>
-                                <span
-                                  className="text-xs md:text-sm text-gray-800 font-medium truncate"
-                                  title={keyword}
-                                >
-                                  {keyword}
-                                </span>
+                        {businessProfile?.profile?.keywords &&
+                        businessProfile.profile.keywords.length > 0 ? (
+                          businessProfile.profile.keywords.map(
+                            (keyword: string, index: number) => (
+                              <div
+                                key={index}
+                                className="bg-white p-2 md:p-3 hover:bg-blue-50 transition-colors border-r border-b border-gray-100 last:border-r-0"
+                              >
+                                <div className="flex items-center space-x-1 md:space-x-2">
+                                  <span className="text-xs text-gray-400 font-mono w-4 md:w-6 text-right">
+                                    {(index + 1).toString().padStart(2, "0")}
+                                  </span>
+                                  <span
+                                    className="text-xs md:text-sm text-gray-800 font-medium truncate"
+                                    title={keyword}
+                                  >
+                                    {keyword}
+                                  </span>
+                                </div>
                               </div>
-                            </div>
-                          ))
+                            )
+                          )
                         ) : (
                           <div className="col-span-full p-4 text-center text-gray-500">
                             {t("businessProfile.noKeywords")}
@@ -796,7 +814,9 @@ export default function BusinessProfile() {
                         <div className="text-xs md:text-sm text-blue-600 font-medium">
                           {t("businessProfile.totalKeywords").replace(
                             "{{count}}",
-                            String(businessProfile?.profile?.keywords?.length || 0)
+                            String(
+                              businessProfile?.profile?.keywords?.length || 0
+                            )
                           )}
                         </div>
                       </div>
@@ -859,10 +879,21 @@ export default function BusinessProfile() {
                       <button
                         onClick={() => {
                           // Check if current logged-in user is active
-                          const activeStatuses = ["active", "verified", "approved", "confirmed"];
-                          if (!user?.status || !activeStatuses.includes(user.status)) {
+                          const activeStatuses = [
+                            "active",
+                            "verified",
+                            "approved",
+                            "confirmed",
+                          ];
+                          if (
+                            !user?.status ||
+                            !activeStatuses.includes(user.status)
+                          ) {
                             setShowVerificationToast(true);
-                            setTimeout(() => setShowVerificationToast(false), 4000);
+                            setTimeout(
+                              () => setShowVerificationToast(false),
+                              4000
+                            );
                             return;
                           }
                           setShowReviewModal(true);
@@ -1680,8 +1711,12 @@ Best regards,"
           <div className="bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3">
             <i className="ri-shield-warning-line text-xl"></i>
             <div>
-              <p className="font-semibold">{t("businessProfile.verificationRequired")}</p>
-              <p className="text-sm">{t("businessProfile.verifyAccountFirst")}</p>
+              <p className="font-semibold">
+                {t("businessProfile.verificationRequired")}
+              </p>
+              <p className="text-sm">
+                {t("businessProfile.verifyAccountFirst")}
+              </p>
             </div>
           </div>
         </div>

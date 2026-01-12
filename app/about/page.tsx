@@ -36,11 +36,19 @@ export default function AboutPage() {
           {/* Saudi Pride Statement */}
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 max-w-4xl mx-auto border border-green-100">
             <div className="flex items-center justify-center mb-4">
-              <i className="ri-heart-fill text-3xl text-red-500 mr-3"></i>
+              <img
+                src="/images.png"
+                alt="Vision 2030"
+                className="w-6 h-6 mr-3"
+              />
               <h2 className="text-2xl font-bold text-green-600">
                 {t("aboutPage.proudSaudi")}
               </h2>
-              <i className="ri-heart-fill text-3xl text-red-500 ml-3"></i>
+              <img
+                src="/images.png"
+                alt="Vision 2030"
+                className="w-6 h-6 ml-3"
+              />
             </div>
             <p className="text-lg text-gray-700 leading-relaxed">
               {t("aboutPage.proudBody")}

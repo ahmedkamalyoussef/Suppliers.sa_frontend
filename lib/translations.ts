@@ -532,6 +532,7 @@ export const translations = {
       freeTitle: "Free Forever",
       freeSubtitle: "Perfect for businesses just getting started",
       perMonth: "/month",
+      processing: "Processing...",
       getStartedFree: "Get Started Free",
       noCard: "No credit card required",
       whatsIncluded: "What's included:",
@@ -1269,7 +1270,7 @@ export const translations = {
         },
         premium: {
           name: "Premium",
-          price: "$29/month",
+          price: "49 ريال/شهرياً",
           features: [
             "Enhanced profile",
             "Unlimited photos",
@@ -1280,7 +1281,7 @@ export const translations = {
         },
         enterprise: {
           name: "Enterprise",
-          price: "$99/month",
+          price: "1799 ريال/سنوياً",
           features: [
             "All Premium features",
             "Custom branding",
@@ -1812,9 +1813,9 @@ export const translations = {
       },
       businessTypes: {
         supplier: "Supplier",
-        store: "Store",
-        office: "Office",
-        individual: "Individual",
+        store: "Retail Shop",
+        office: "Company",
+        individual: "Individual Establishment",
       },
       status: {
         pending: "Pending",
@@ -3566,7 +3567,8 @@ export const translations = {
       saveXPercent: "وفّر {{percent}}%",
       freeTitle: "مجاني للأبد",
       freeSubtitle: "مثالي للأنشطة التي تبدأ للتو",
-      perMonth: "/شهري",
+      perMonth: "/شهرياً",
+      processing: "جاري المعالجة...",
       getStartedFree: "ابدأ مجاناً",
       noCard: "لا حاجة لبطاقة بنكية",
       whatsIncluded: "يشمل:",
@@ -3580,7 +3582,7 @@ export const translations = {
       incl8: "نموذج تواصل أساسي",
       premiumTitle: "خطة الأعمال المميزة",
       premiumSubtitle: "حل متكامل لنمو جاد للأعمال",
-      perYear: "/سنوي",
+      perYear: "/سنوياً",
       saveWithYearly: "💡 وفّر مع السنوي:",
       saveAmount: "💰 وفّر ${{amount}} (خصم {{percent}}%)",
       justPerMonth: "أي ما يعادل ${{amount}}/شهري عند الفوترة السنوية",
@@ -4410,7 +4412,7 @@ export const translations = {
         },
         premium: {
           name: "مميز",
-          price: "$29/شهرياً",
+          price: "49 ريال/شهرياً",
           features: [
             "ملف محسّن",
             "صور غير محدودة",
@@ -4421,7 +4423,7 @@ export const translations = {
         },
         enterprise: {
           name: "للشركات",
-          price: "$99/شهرياً",
+          price: "1799 ريال/سنوياً",
           features: [
             "جميع مميزات الخطة المميزة",
             "علامة تجارية مخصصة",
@@ -4755,9 +4757,9 @@ export const translations = {
       },
       businessTypes: {
         supplier: "مورد",
-        store: "متجر",
-        office: "مكتب",
-        individual: "فردي",
+        store: "متجر تجزئة",
+        office: "شركة",
+        individual: "منشأة فردية",
       },
       status: {
         pending: "قيد المراجعة",

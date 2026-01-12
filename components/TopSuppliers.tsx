@@ -311,8 +311,10 @@ export default function TopSuppliers() {
                               supplier.businessType
                             )} text-white px-2 py-1 rounded-full shadow-lg`}
                           >
-                            <span className="text-xs font-bold capitalize">
-                              {supplier.businessType}
+                            <span className="text-xs font-bold">
+                              {t(
+                                `publicProfile.businessTypes.${supplier.businessType?.toLowerCase()}`
+                              ) || supplier.businessType}
                             </span>
                           </div>
                         </div>
@@ -375,7 +377,7 @@ export default function TopSuppliers() {
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-2 mt-auto">
-                          {supplier.allow_direct_contact && isLoggedIn() &&(
+                          {supplier.allow_direct_contact && isLoggedIn() && (
                             <button
                               onClick={() => handleMessageClick(supplier)}
                               className="flex-1 bg-yellow-400 text-white py-2 rounded-lg hover:bg-yellow-500 text-xs font-medium transition-colors"

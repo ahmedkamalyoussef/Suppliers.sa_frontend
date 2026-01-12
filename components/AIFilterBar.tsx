@@ -34,7 +34,11 @@ export default function AIFilterBar({ onFilterChange }: AIFilterBarProps) {
 
   // Handle AI search query from context (set by AIChatWidget)
   useEffect(() => {
-    if (aiSearchQuery && aiSearchQuery.trim() && aiSearchQuery !== searchQuery) {
+    if (
+      aiSearchQuery &&
+      aiSearchQuery.trim() &&
+      aiSearchQuery !== searchQuery
+    ) {
       setSearchQuery(aiSearchQuery);
       setIsVisible(true);
       // Automatically trigger the search
@@ -51,16 +55,16 @@ export default function AIFilterBar({ onFilterChange }: AIFilterBarProps) {
 
     // Store the AI search query in context
     setAISearchQuery(searchQuery.trim());
-    
+
     // Generate AI suggestions and apply filters
     const suggestions = generateAdvancedAISuggestions(searchQuery);
-    
+
     // Call the onFilterChange prop to update the businesses list
     onFilterChange({
       query: searchQuery,
-      filters: suggestions
+      filters: suggestions,
     });
-    
+
     setIsProcessing(false);
   };
 
@@ -71,13 +75,13 @@ export default function AIFilterBar({ onFilterChange }: AIFilterBarProps) {
 
     // Generate AI suggestions and apply filters
     const suggestions = generateAdvancedAISuggestions(query);
-    
+
     // Call the onFilterChange prop to update the businesses list
     onFilterChange({
       query: query,
-      filters: suggestions
+      filters: suggestions,
     });
-    
+
     setIsProcessing(false);
   };
 

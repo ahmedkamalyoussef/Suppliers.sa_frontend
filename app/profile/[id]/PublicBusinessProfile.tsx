@@ -145,8 +145,7 @@ export default function PublicBusinessProfile({
   // Helper function to get translated business type
   const getTranslatedBusinessType = (type: string): string => {
     if (!type) return type;
-    const businessTypes = getNestedTranslation("publicProfile.businessTypes");
-    return businessTypes[type.toLowerCase()] || type;
+    return t(`publicProfile.businessTypes.${type.toLowerCase()}`) || type;
   };
 
   // Helper function to get translated status
@@ -171,7 +170,18 @@ export default function PublicBusinessProfile({
     category: supplier?.profile?.category || "",
     business_image:
       supplier?.profile?.business_image || supplier?.profile_image || "",
-    businessType: "Supplier",
+    businessType: (() => {
+      const type = supplier?.profile?.business_type?.toLowerCase();
+      const validTypes = ["supplier", "store", "office", "individual"];
+      if (type && validTypes.includes(type)) {
+        return (type.charAt(0).toUpperCase() + type.slice(1)) as
+          | "Supplier"
+          | "Store"
+          | "Office"
+          | "Individual";
+      }
+      return "Supplier";
+    })(),
     targetCustomers: supplier?.profile?.target_market || [],
     serviceDistance: supplier?.profile?.service_distance || "",
     rating: supplier?.ratings?.average || 0,
@@ -275,11 +285,15 @@ export default function PublicBusinessProfile({
   const getBusinessTypeIcon = (type: Business["businessType"]) => {
     switch (type) {
       case "Supplier":
+      case "Supplier":
         return "ri-truck-line";
+      case "Store":
       case "Store":
         return "ri-store-line";
       case "Office":
+      case "Office":
         return "ri-building-line";
+      case "Individual":
       case "Individual":
         return "ri-user-line";
       default:
@@ -290,11 +304,15 @@ export default function PublicBusinessProfile({
   const getBusinessTypeColor = (type: Business["businessType"]) => {
     switch (type) {
       case "Supplier":
+      case "Supplier":
         return "bg-blue-100 text-blue-700 border-blue-200";
+      case "Store":
       case "Store":
         return "bg-green-100 text-green-700 border-green-200";
       case "Office":
+      case "Office":
         return "bg-purple-100 text-purple-700 border-purple-200";
+      case "Individual":
       case "Individual":
         return "bg-orange-100 text-orange-700 border-orange-200";
       default:

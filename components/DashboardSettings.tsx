@@ -18,7 +18,7 @@ interface DashboardSettingsProps {
 }
 
 export default function DashboardSettings({ user }: DashboardSettingsProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [activeSection, setActiveSection] = useState("profile");
   const [settings, setSettings] = useState({
     profile: {
@@ -66,40 +66,62 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
     const fetchPreferences = async () => {
       try {
         const preferences = await apiService.getPreferences();
-        
+
         // Update settings with API data
         if (preferences) {
-          setSettings(prev => ({
+          setSettings((prev) => ({
             ...prev,
             profile: {
               ...prev.profile,
               name: preferences.supplierName || prev.profile.name,
               email: preferences.email || prev.profile.email,
               phone: preferences.phone || prev.profile.phone,
-              businessName: preferences.businessName || prev.profile.businessName,
+              businessName:
+                preferences.businessName || prev.profile.businessName,
             },
             notifications: {
-              emailNotifications: preferences.preferences?.emailNotifications ?? prev.notifications.emailNotifications,
-              smsNotifications: preferences.preferences?.smsNotifications ?? prev.notifications.smsNotifications,
-              newInquiries: preferences.preferences?.newInquiriesNotifications ?? prev.notifications.newInquiries,
-              profileViews: preferences.preferences?.profileViewsNotifications ?? prev.notifications.profileViews,
-              marketingEmails: preferences.preferences?.marketingEmails ?? prev.notifications.marketingEmails,
-              weeklyReports: preferences.preferences?.weeklyReports ?? prev.notifications.weeklyReports,
+              emailNotifications:
+                preferences.preferences?.emailNotifications ??
+                prev.notifications.emailNotifications,
+              smsNotifications:
+                preferences.preferences?.smsNotifications ??
+                prev.notifications.smsNotifications,
+              newInquiries:
+                preferences.preferences?.newInquiriesNotifications ??
+                prev.notifications.newInquiries,
+              profileViews:
+                preferences.preferences?.profileViewsNotifications ??
+                prev.notifications.profileViews,
+              marketingEmails:
+                preferences.preferences?.marketingEmails ??
+                prev.notifications.marketingEmails,
+              weeklyReports:
+                preferences.preferences?.weeklyReports ??
+                prev.notifications.weeklyReports,
               instantAlerts: prev.notifications.instantAlerts,
             },
             privacy: {
-              profileVisibility: preferences.preferences?.profileVisibility ?? prev.privacy.profileVisibility,
-              showEmail: preferences.preferences?.showEmailPublicly ?? prev.privacy.showEmail,
-              showPhone: preferences.preferences?.showPhonePublicly ?? prev.privacy.showPhone,
-              allowDirectContact: preferences.preferences?.allowDirectContact ?? prev.privacy.allowDirectContact,
-              searchEngineIndexing: preferences.preferences?.allowSearchEngineIndexing ?? prev.privacy.searchEngineIndexing,
+              profileVisibility:
+                preferences.preferences?.profileVisibility ??
+                prev.privacy.profileVisibility,
+              showEmail:
+                preferences.preferences?.showEmailPublicly ??
+                prev.privacy.showEmail,
+              showPhone:
+                preferences.preferences?.showPhonePublicly ??
+                prev.privacy.showPhone,
+              allowDirectContact:
+                preferences.preferences?.allowDirectContact ??
+                prev.privacy.allowDirectContact,
+              searchEngineIndexing:
+                preferences.preferences?.allowSearchEngineIndexing ??
+                prev.privacy.searchEngineIndexing,
             },
           }));
         }
-      } catch (error) {
-      }
+      } catch (error) {}
     };
-    
+
     fetchPreferences();
   }, []);
 
@@ -128,15 +150,48 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
 
   const plans = [
     // Only show Basic plan if user doesn't have Premium
-    ...(user.plan !== "Premium" ? [{
-      name: t("settings.plans.basic.name"),
-      price: t("settings.plans.basic.price"),
-      features: t("settings.plans.basic.features") || [],
-      current: user.plan === "Basic",
-    }] : []),
+    ...(user.plan !== "Premium"
+      ? [
+          {
+            name: t("settings.plans.basic.name"),
+            price: t("settings.plans.basic.price"),
+            features: t("settings.plans.basic.features") || [],
+            current: user.plan === "Basic",
+          },
+        ]
+      : []),
     {
       name: t("settings.plans.premium.name"),
-      price: "$49/month",
+      price: (
+        <div className="flex items-center justify-center">
+          <span>49</span>
+          <img
+            src="/riyal.svg"
+            alt="SAR"
+            className="w-4 h-4 inline-block mx-1"
+          />
+          <span>{language === "ar" ? "/شهرياً" : "/month"}</span>
+        </div>
+      ),
+      features: t("settings.plans.premium.features") || [],
+      current: user.plan === "Premium",
+    },
+    {
+      name:
+        t("settings.plans.premium.name") +
+        " " +
+        (language === "ar" ? "(سنوي)" : "(Yearly)"),
+      price: (
+        <div className="flex items-center justify-center">
+          <span>1799</span>
+          <img
+            src="/riyal.svg"
+            alt="SAR"
+            className="w-4 h-4 inline-block mx-1"
+          />
+          <span>{language === "ar" ? "/سنوياً" : "/year"}</span>
+        </div>
+      ),
       features: t("settings.plans.premium.features") || [],
       current: user.plan === "Premium",
     },
@@ -175,20 +230,16 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
 
       // Call the updatePreferences API
       const response = await apiService.updatePreferences(preferencesData);
-      
+
       // Show success message
       const isArabic = document.documentElement.dir === "rtl";
       toast.success(
         isArabic ? "تم حفظ الإعدادات بنجاح" : "Settings saved successfully"
       );
-      
     } catch (error) {
-      
       // Show error message
       const isArabic = document.documentElement.dir === "rtl";
-      toast.error(
-        isArabic ? "فشل حفظ الإعدادات" : "Failed to save settings"
-      );
+      toast.error(isArabic ? "فشل حفظ الإعدادات" : "Failed to save settings");
     }
   };
 
@@ -908,7 +959,6 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                   ))}
                 </div>
               </div>
-
             </div>
           )}
         </div>
