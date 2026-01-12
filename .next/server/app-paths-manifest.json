@@ -3,6 +3,5 @@
   "/page": "app/page.js",
   "/add-business/page": "app/add-business/page.js",
   "/login/page": "app/login/page.js",
-  "/businesses/page": "app/businesses/page.js",
-  "/not-found": "app/not-found.js"
+  "/businesses/page": "app/businesses/page.js"
 }

@@ -285,6 +285,7 @@ export const translations = {
       privacyPolicy: "Privacy Policy",
       termsOfService: "Terms of Service",
       cookiePolicy: "Cookie Policy",
+      policies: "Policies",
     },
 
     // Help Center Page
@@ -1711,6 +1712,8 @@ export const translations = {
           "You gained an additional 5% discount on your subscription! Your total discount is now",
         percent: "%",
       },
+      policiesAgreement: "I agree to the",
+      policiesLink: "Policies and Terms",
     },
     systemSettings: {
       title: "System Settings",
@@ -3185,6 +3188,7 @@ export const translations = {
       privacyPolicy: "سياسة الخصوصية",
       termsOfService: "شروط الخدمة",
       cookiePolicy: "سياسة ملفات الارتباط",
+      policies: "السياسات",
     },
     allCategories: "جميع الفئات",
     searchPlaceholder: "ابحث عن موردين، منتجات، خدمات...",
@@ -4738,6 +4742,8 @@ export const translations = {
           "حصلت على خصم إضافي بنسبة 5% على اشتراكك! إجمالي الخصم الخاص بك الآن",
         percent: "%",
       },
+      policiesAgreement: "أوافق على",
+      policiesLink: "السياسات والشروط",
     },
 
     // Public Profile
