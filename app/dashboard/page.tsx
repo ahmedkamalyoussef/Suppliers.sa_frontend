@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { toast } from "react-toastify";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import DashboardStats from "../../components/DashboardStats";
@@ -301,9 +302,7 @@ function DashboardContent() {
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-1 sm:mb-2">
                       {user ? `Welcome back, ${user.name}` : "Loading..."}
                     </h1>
-                    <p className="text-gray-600 mb-2">
-                      {user?.businessName || "Loading..."}
-                    </p>
+
                     <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
                       <span className="flex items-center">
                         <i className="ri-calendar-line mr-1"></i>
@@ -543,7 +542,15 @@ function DashboardContent() {
                             !pendingAvatarPreview ||
                             !fileInputRef.current?.files?.[0]
                           ) {
-                            alert("الرجاء اختيار صورة أولاً");
+                            toast.error("الرجاء اختيار صورة أولاً", {
+                              position: "top-right",
+                              autoClose: 3000,
+                              hideProgressBar: false,
+                              closeOnClick: true,
+                              pauseOnHover: true,
+                              draggable: true,
+                              progress: undefined,
+                            });
                             return;
                           }
 
@@ -602,6 +609,17 @@ function DashboardContent() {
                               }
                             }
 
+                            // Show success toast
+                            toast.success("تم تحديث صورة الملف الشخصي بنجاح", {
+                              position: "top-right",
+                              autoClose: 3000,
+                              hideProgressBar: false,
+                              closeOnClick: true,
+                              pauseOnHover: true,
+                              draggable: true,
+                              progress: undefined,
+                            });
+
                             // Don't show success message to avoid interrupting the user
                             // The UI is already updated with the new image
                           } catch (error: unknown) {
@@ -619,7 +637,15 @@ function DashboardContent() {
                               error instanceof Error
                                 ? error.message
                                 : "حدث خطأ أثناء رفع الصورة";
-                            alert(errorMessage);
+                            toast.error(errorMessage, {
+                              position: "top-right",
+                              autoClose: 5000,
+                              hideProgressBar: false,
+                              closeOnClick: true,
+                              pauseOnHover: true,
+                              draggable: true,
+                              progress: undefined,
+                            });
                           } finally {
                             setIsUploading(false);
                             setShowPhotoUpload(false);

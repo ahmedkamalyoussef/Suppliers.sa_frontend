@@ -4,6 +4,7 @@ export interface RegistrationData {
   phone: string;
   password: string;
   password_confirmation: string;
+  accept_policies: boolean;
 }
 
 export interface RegistrationResponse {

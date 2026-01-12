@@ -15,7 +15,7 @@ export default function ProfileClient({ id }: { id: string }) {
   useEffect(() => {
     const token = localStorage.getItem("supplier_token");
     const user = localStorage.getItem("supplier_user");
-    
+
     if (!token || !user) {
       window.location.href = "/login";
       return;

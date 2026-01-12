@@ -45,7 +45,7 @@ export default function Header() {
       setIsContactModalOpen(true);
     };
 
-    window.addEventListener('openContactModal', handleOpenContactModal);
+    window.addEventListener("openContactModal", handleOpenContactModal);
 
     if (isAuthenticated) {
       const fetchInbox = async () => {
@@ -86,7 +86,7 @@ export default function Header() {
 
     // Cleanup event listener
     return () => {
-      window.removeEventListener('openContactModal', handleOpenContactModal);
+      window.removeEventListener("openContactModal", handleOpenContactModal);
     };
   }, [isAuthenticated]);
 
@@ -241,12 +241,12 @@ export default function Header() {
         <div className="w-full px-3 sm:px-4 md:px-6">
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo Section - Fixed direction regardless of language */}
-            <div
-              className={`flex items-center space-x-2 sm:space-x-3 ${
+            <Link
+              href="/"
+              className={`flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity ${
                 isRTL ? "flex-row-reverse" : "flex-row"
               }`}
             >
-              
               <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center">
                 <svg
                   viewBox="0 0 24 24"
@@ -269,7 +269,7 @@ export default function Header() {
                 <span className="text-gray-800">Supplier</span>
                 <span className="text-green-400">.sa</span>
               </div>
-            </div>
+            </Link>
 
             {/* Navigation - Desktop Only */}
             <nav className="hidden lg:flex space-x-6 xl:space-x-8 gap-4">

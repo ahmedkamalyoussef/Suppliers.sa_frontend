@@ -1,6 +1,8 @@
 {
-  "/admin/page": "app/admin/page.js",
-  "/manage-businesses/page": "app/manage-businesses/page.js",
-  "/business-guides/page": "app/business-guides/page.js",
-  "/dashboard/page": "app/dashboard/page.js"
+  "/policies/page": "app/policies/page.js",
+  "/page": "app/page.js",
+  "/add-business/page": "app/add-business/page.js",
+  "/login/page": "app/login/page.js",
+  "/businesses/page": "app/businesses/page.js",
+  "/not-found": "app/not-found.js"
 }

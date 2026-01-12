@@ -2,6 +2,7 @@
 
 import { useState, useRef, useMemo, useEffect } from "react";
 import Link from "next/link";
+import { toast } from "react-toastify";
 import BranchManagement from "./BranchManagement";
 import { useLanguage } from "./../lib/LanguageContext";
 import { useAuth } from "./../hooks/useAuth";
@@ -782,19 +783,20 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
           const images = await apiService.getProductImages();
           setBusinessImages(images);
         } catch (error) {}
-      } else {
-        // If no structured response, fetch fresh data
-        const freshData = await apiService.getProfile();
-        processUserData(freshData);
-
-        // Also reload images
-        try {
-          const images = await apiService.getProductImages();
-          setBusinessImages(images);
-        } catch (error) {}
       }
 
       setIsEditing(false);
+
+      // Show success toast
+      toast.success("تم تحديث بيانات العمل بنجاح", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
 
       // Trigger dashboard refresh to show changes immediately
       window.dispatchEvent(
@@ -809,7 +811,18 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
           detail: { section: "businessProfile" },
         })
       );
-    } catch (error) {}
+    } catch (error) {
+      // Show error toast
+      toast.error("فشل تحديث البيانات. يرجى المحاولة مرة أخرى", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    }
   };
 
   const handleImageUpload = async (
@@ -829,7 +842,29 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
           name: response.name,
         };
         setBusinessImages([...businessImages, newImage]);
-      } catch (error) {}
+
+        // Show success toast
+        toast.success("تم رفع الصورة بنجاح", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      } catch (error) {
+        // Show error toast
+        toast.error("فشل رفع الصورة. يرجى المحاولة مرة أخرى", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      }
     }
   };
 
@@ -839,7 +874,29 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
     try {
       await apiService.deleteProductImage(id);
       setBusinessImages(businessImages.filter((img) => img.id !== id));
-    } catch (error) {}
+
+      // Show success toast
+      toast.success("تم حذف الصورة بنجاح", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    } catch (error) {
+      // Show error toast
+      toast.error("فشل حذف الصورة. يرجى المحاولة مرة أخرى", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    }
   };
 
   if (isLoading) {

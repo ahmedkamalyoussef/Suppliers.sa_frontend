@@ -140,7 +140,6 @@ export default function Footer() {
                       <span>{t("footer.pricingPlans")}</span>
                     </Link>
                   </li>
-                  
                 </ul>
               </div>
 
@@ -152,11 +151,22 @@ export default function Footer() {
                 </h4>
                 <ul className="space-y-3 sm:space-y-4">
                   <li>
+                    <Link
+                      href="/policies"
+                      className="text-gray-600 hover:text-yellow-600 transition-colors flex items-center"
+                    >
+                      <i className="ri-file-list-3-line text-yellow-500 mr-2 w-4 h-4 flex items-center justify-center"></i>
+                      <span>{t("footer.policies")}</span>
+                    </Link>
+                  </li>
+                  <li>
                     <button
                       onClick={(e) => {
                         e.preventDefault();
-                        // Dispatch a custom event to open the contact modal
-                        window.dispatchEvent(new CustomEvent('openContactModal'));
+                        // Dispatch a custom event to open contact modal
+                        window.dispatchEvent(
+                          new CustomEvent("openContactModal")
+                        );
                       }}
                       className="w-full text-left text-gray-600 hover:text-yellow-600 transition-colors flex items-center"
                     >
@@ -182,7 +192,6 @@ export default function Footer() {
                       <span>{t("footer.successStories")}</span>
                     </Link>
                   </li>
-                  
                 </ul>
               </div>
 

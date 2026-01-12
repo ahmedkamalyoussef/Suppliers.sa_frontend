@@ -15,6 +15,7 @@ interface LocalRegistrationData {
   password: string;
   confirmPassword: string;
   referralCode: string;
+  acceptPolicies: boolean;
 }
 
 interface Errors {
@@ -35,6 +36,7 @@ export default function BusinessRegistrationForm() {
       password: "",
       confirmPassword: "",
       referralCode: "",
+      acceptPolicies: false,
     });
   const [verificationCode, setVerificationCode] = useState<string[]>([
     "",
@@ -56,7 +58,7 @@ export default function BusinessRegistrationForm() {
 
   const handleInputChange = (
     field: keyof LocalRegistrationData,
-    value: string
+    value: string | boolean
   ): void => {
     setRegistrationData((prev) => ({
       ...prev,
@@ -96,6 +98,9 @@ export default function BusinessRegistrationForm() {
     if (registrationData.password !== registrationData.confirmPassword) {
       newErrors.confirmPassword = t("business.errors.passwordMismatch");
     }
+    if (!registrationData.acceptPolicies) {
+      newErrors.acceptPolicies = t("business.errors.acceptPoliciesRequired");
+    }
     if (registrationData.referralCode.trim()) {
       if (
         !referralSystem.isValidReferralCode(
@@ -126,6 +131,7 @@ export default function BusinessRegistrationForm() {
           : `+966${registrationData.phone}`,
         password: registrationData.password,
         password_confirmation: registrationData.confirmPassword,
+        accept_policies: registrationData.acceptPolicies,
       };
 
       const response = await apiService.registerSupplier(apiData);
@@ -424,6 +430,35 @@ export default function BusinessRegistrationForm() {
                 <p className="text-red-500 text-xs mt-1">
                   {errors.referralCode}
                 </p>
+              )}
+            </div>
+
+            {/* Policies Acceptance */}
+            <div className="space-y-2">
+              <label className="flex items-start space-x-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={registrationData.acceptPolicies}
+                  onChange={(e) =>
+                    handleInputChange("acceptPolicies", e.target.checked)
+                  }
+                  className={`mt-1 w-4 h-4 text-yellow-400 border-gray-300 rounded focus:ring-yellow-400 focus:ring-2 ${
+                    errors.acceptPolicies ? "border-red-300" : ""
+                  }`}
+                />
+                <span className="text-sm text-gray-700 leading-relaxed">
+                  {t("business.form.policiesAgreement")}
+                  <Link
+                    href="/policies"
+                    className="text-yellow-600 hover:text-yellow-700 underline ml-1"
+                    target="_blank"
+                  >
+                    {t("business.form.policiesLink")}
+                  </Link>
+                </span>
+              </label>
+              {errors.acceptPolicies && (
+                <p className="text-red-500 text-xs">{errors.acceptPolicies}</p>
               )}
             </div>
 

@@ -96,6 +96,172 @@ export const translations = {
     chooseStepDesc:
       "Select the best business for your needs and start building your partnership.",
 
+    // Policies Page
+    policies: {
+      title: "Supplier.sa Platform Policies",
+      lastUpdated: "Last Updated: December 30, 2025",
+      contents: "Contents",
+      privacyPolicy: "Privacy Policy",
+      termsOfUse: "Terms of Use",
+      suspendedAccountsPolicy: "Suspended Accounts Policy",
+      prohibitedItemsPolicy: "Prohibited Items and Services Policy",
+      intellectualPropertyPolicy: "Intellectual Property Policy",
+
+      // Privacy Policy Content
+      privacy: {
+        title: "Privacy Policy",
+        welcome:
+          "Welcome to the Supplier.sa platform. At the Supplier Establishment, we prioritize the privacy of our users, whether they are suppliers or companies. This policy explains how we collect, use, and protect your personal information. Your use of the platform signifies your agreement to this policy.",
+
+        sections: {
+          informationWeCollect: {
+            title: "A. Information We Collect",
+            registration:
+              "Registration Information: When you create an account, we ask for basic information such as name, company name, email, mobile number, and commercial registration.",
+            profile:
+              "Profile Information: You can add more details to your profile, such as company address, business description, logos, and images of your products or services.",
+            transaction:
+              "Transaction Information: We record details of orders, quotes, conversations, and ratings between suppliers and companies on the platform.",
+            technical:
+              "Technical Information: We automatically collect technical information like your IP address, browser type, and operating system.",
+            cookies:
+              "Cookies: We use cookies to personalize your experience, remember your preferences, and analyze platform usage.",
+          },
+          howWeUseInformation: {
+            title: "B. How We Use Your Information",
+            operate:
+              "To Operate the Platform: To manage your account, facilitate communication, and process transactions.",
+            improve:
+              "To Improve Our Services: To analyze user behavior, understand needs, and develop new features.",
+            communicate:
+              "To Communicate With You: To send important account notifications, service updates, or marketing offers, with an unsubscribe option.",
+            security:
+              "To Ensure Security: To protect against fraud, illegal activities, and enforce our Terms of Use.",
+            legal:
+              "For Legal Compliance: To adhere to the legal and regulatory requirements in the Kingdom of Saudi Arabia.",
+          },
+          informationSharing: {
+            title: "C. Information Sharing",
+            intro:
+              "We do not sell your personal information. We may share your information only in these cases:",
+            users:
+              "Between Users: Necessary information such as company name and contact details is shared between suppliers and companies to complete transactions.",
+            providers:
+              "Service Providers: We may use third parties for payment processing, data analysis, or technical support.",
+            government:
+              "Government Authorities: We may disclose your information if required by a court or legal order.",
+          },
+          informationSecurity: {
+            title: "D. Information Security",
+            text: "We implement technical and organizational security measures to protect your information from unauthorized access. However, no internet transmission is 100% secure, and we cannot guarantee absolute security.",
+          },
+          yourRights: {
+            title: "E. Your Rights",
+            access:
+              "Access and Correction: You can review and update your personal information at any time from your account dashboard.",
+            deletion:
+              "Request Deletion: You can request the deletion of your account, noting that we may retain some information for legal purposes.",
+          },
+          contact: {
+            title: "F. Contact Us",
+            text: "If you have any questions about this Privacy Policy, please contact us via email:",
+            emailPlaceholder: "[Enter Your Email Here]",
+          },
+        },
+      },
+
+      // Terms of Use Content
+      terms: {
+        title: "Terms of Use",
+
+        sections: {
+          membershipEligibility: {
+            title: "A. Membership Eligibility",
+            point1:
+              "The user must be an officially registered commercial entity.",
+            point2:
+              "You must provide true, complete, and accurate information upon registration.",
+            point3:
+              "Supplier.sa has the right to cancel any account using false information.",
+            point4:
+              "An entity is prohibited from having more than one account on the platform.",
+          },
+          obligations: {
+            title: "B. Your Obligations as a Member",
+            point1:
+              "You are responsible for maintaining the confidentiality of your account information and password.",
+            point2:
+              "You agree not to use the platform for any illegal or prohibited purpose.",
+            point3: "You agree not to harm the platform or its other users.",
+            point4:
+              "You agree to provide clear and accurate information about the products or services you offer.",
+            point5:
+              "You agree to comply with all applicable laws and regulations in the Kingdom of Saudi Arabia.",
+          },
+          relationship: {
+            title: "C. Nature of the Relationship",
+            text: "Supplier.sa is a technical intermediary connecting suppliers and companies. The platform is not a party to any contract between users and is not responsible for product quality or payments.",
+          },
+        },
+      },
+
+      // Suspended Accounts Policy Content
+      suspended: {
+        title: "Suspended Accounts Policy",
+        intro:
+          "The Supplier.sa administration reserves the right to block or suspend any account for the following reasons:",
+        point1: "Violation of the Terms of Use or any other policies.",
+        point2:
+          "Fraud, manipulation, or attempting to cheat the platform's systems.",
+        point3: "Listing or requesting items from the Prohibited Items list.",
+        point4: "Harming other users or failing to honor business agreements.",
+        point5: "Impersonating another business entity.",
+        point6: "Receiving multiple, documented complaints from other users.",
+      },
+
+      // Prohibited Items Policy Content
+      prohibited: {
+        title: "Prohibited Items and Services Policy",
+        intro:
+          "It is strictly forbidden to list or request any of the following items or services on the platform:",
+        point1:
+          "All products and services illegal under the laws of the Kingdom of Saudi Arabia.",
+        point2: "Firearms, ammunition, and explosives.",
+        point3: "Drugs, psychotropic substances, and intoxicants.",
+        point4:
+          "Counterfeit products or those that infringe on intellectual property rights.",
+        point5: "Medications and medical products requiring a prescription.",
+        point6: "Spoiled or expired food products.",
+        point7: "Scam services or pyramid schemes.",
+        point8:
+          "Any products or services the platform administration deems unethical or inappropriate.",
+      },
+
+      // Intellectual Property Policy Content
+      intellectual: {
+        title: "Intellectual Property Policy",
+
+        sections: {
+          platformOwnership: {
+            title: "6. Platform Ownership",
+            text: "The Supplier (Supplier.sa) trademark and all associated logos, designs, text, and software are the exclusive property of the Supplier Establishment.",
+          },
+          userContent: {
+            title: "7. User Content",
+            text: "You grant Supplier.sa a worldwide, non-exclusive license to use and display the content you post, such as product images, for the purpose of operating and promoting the platform.",
+          },
+          respectRights: {
+            title: "8. Respect for Others' Rights",
+            text: "You confirm that all materials you upload are your own or that you have the right to use them, and they do not infringe on any third-party intellectual property rights.",
+          },
+          reporting: {
+            title: "9. Reporting Infringements",
+            text: "If you believe a user has violated your intellectual property rights, please contact us immediately with proof.",
+          },
+        },
+      },
+    },
+
     // Footer
     footer: {
       bannerSupport2030: "Proudly Supporting Saudi Vision 2030",
@@ -2836,6 +3002,165 @@ export const translations = {
     connectStepDesc: "تواصل مع عدة شركات، قارن الخدمات، واقرأ المراجعات.",
     chooseStep: "الاختيار والعمل",
     chooseStepDesc: "اختر أفضل شركة لاحتياجاتك وابدأ في بناء شراكتك.",
+
+    // Policies Page
+    policies: {
+      title: "سياسات منصة سبلاير (Supplier.sa)",
+      lastUpdated: "آخر تحديث: 30 ديسمبر 2025",
+      contents: "المحتويات",
+      privacyPolicy: "سياسة الخصوصية",
+      termsOfUse: "شروط الاستخدام",
+      suspendedAccountsPolicy: "سياسة الحسابات الموقوفة",
+      prohibitedItemsPolicy: "سياسة المواد والخدمات المحظورة",
+      intellectualPropertyPolicy: "سياسة الملكية الفكرية",
+
+      // Privacy Policy Content
+      privacy: {
+        title: "سياسة الخصوصية",
+        welcome:
+          "مرحبًا بك في منصة سبلاير (Supplier.sa). نحن في مؤسسة سبلاير نولي أهمية قصوى لخصوصية مستخدمينا، سواء كانوا موردين أو شركات. توضح هذه السياسة كيفية جمعنا واستخدامنا وحمايتنا لمعلوماتك الشخصية. إن استخدامك للمنصة يعني موافقتك على هذه السياسة.",
+
+        sections: {
+          informationWeCollect: {
+            title: "أ. المعلومات التي نجمعها",
+            registration:
+              "معلومات التسجيل: عند إنشاء حساب، نطلب منك معلومات أساسية مثل الاسم، اسم الشركة، البريد الإلكتروني، رقم الجوال، والسجل التجاري.",
+            profile:
+              "معلومات الملف الشخصي: يمكنك إضافة المزيد من التفاصيل إلى ملفك الشخصي مثل عنوان الشركة، وصف النشاط، الشعارات، والصور التي توضح منتجاتك أو خدماتك.",
+            transaction:
+              "معلومات التعاملات: نقوم بتسجيل تفاصيل الطلبات، عروض الأسعار، المحادثات، والتقييمات التي تتم بين الموردين والشركات عبر المنصة.",
+            technical:
+              "معلومات تقنية: نقوم بجمع معلومات تقنية تلقائيًا عند استخدامك للمنصة، مثل عنوان بروتوكول الإنترنت (IP)، نوع المتصفح، ونظام التشغيل.",
+            cookies:
+              "ملفات تعريف الارتباط (Cookies): نستخدم ملفات تعريف الارتباط لتخصيص تجربتك، وتذكر تفضيلاتك، وتحليل كيفية استخدامك للمنصة.",
+          },
+          howWeUseInformation: {
+            title: "ب. كيف نستخدم معلوماتك",
+            operate:
+              "لتشغيل المنصة: لإدارة حسابك، وتسهيل التواصل بين الموردين والشركات، ومعالجة التعاملات.",
+            improve:
+              "لتحسين خدماتنا: لتحليل سلوك المستخدمين، وفهم احتياجاتهم، وتطوير ميزات جديدة.",
+            communicate:
+              "للتواصل معك: لإرسال إشعارات هامة تتعلق بحسابك، أو تحديثات على خدماتنا، أو عروض تسويقية، مع إمكانية إلغاء الاشتراك.",
+            security:
+              "لضمان الأمان: لحماية المنصة من الاحتيال والأنشطة غير القانونية، وفرض شروط الاستخدام الخاصة بنا.",
+            legal:
+              "للامتثال القانوني: للالتزام بالمتطلبات القانونية والتنظيمية في المملكة العربية السعودية.",
+          },
+          informationSharing: {
+            title: "ج. مشاركة المعلومات",
+            intro:
+              "نحن لا نبيع معلوماتك الشخصية لأطراف ثالثة. قد نشارك معلوماتك في الحالات التالية فقط:",
+            users:
+              "بين المستخدمين: تتم مشاركة المعلومات الضرورية مثل اسم الشركة وتفاصيل الاتصال بين المورد والشركة لإتمام التعاملات التجارية بينهما.",
+            providers:
+              "مزودو الخدمات: قد نستعين بأطراف ثالثة لمعالجة المدفوعات، تحليل البيانات، أو تقديم خدمات الدعم الفني.",
+            government:
+              "الجهات الحكومية: قد نكشف عن معلوماتك إذا طُلب منا ذلك بموجب أمر قضائي أو قانوني.",
+          },
+          informationSecurity: {
+            title: "د. أمان المعلومات",
+            text: "نتخذ إجراءات أمنية تقنية وتنظيمية لحماية معلوماتك من الوصول غير المصرح به. ومع ذلك، لا توجد طريقة نقل عبر الإنترنت آمنة بنسبة 100%، لذا لا يمكننا ضمان الأمان المطلق.",
+          },
+          yourRights: {
+            title: "هـ. حقوقك",
+            access:
+              "الوصول والتعديل: يمكنك مراجعة وتحديث معلوماتك الشخصية في أي وقت من خلال لوحة التحكم في حسابك.",
+            deletion:
+              "طلب الحذف: يمكنك طلب حذف حسابك، مع العلم أننا قد نحتفظ ببعض المعلومات لأغراض قانونية.",
+          },
+          contact: {
+            title: "و. التواصل معنا",
+            text: "إذا كان لديك أي أسئلة حول سياسة الخصوصية، يرجى التواصل معنا عبر البريد الإلكتروني:",
+            emailPlaceholder: "[أدخل بريدك الإلكتروني هنا]",
+          },
+        },
+      },
+
+      // Terms of Use Content
+      terms: {
+        title: "شروط استخدام منصة سبلاير (Supplier.sa)",
+
+        sections: {
+          membershipEligibility: {
+            title: "أ. أهلية العضوية",
+            point1: "يجب أن يكون المستخدم كيانًا تجاريًا مسجلاً رسميًا.",
+            point2: "يجب تقديم معلومات صحيحة وكاملة ودقيقة عند التسجيل.",
+            point3: "يحق لمنصة سبلاير إلغاء أي حساب يستخدم معلومات مزيفة.",
+            point4: "يُمنع أن يكون للكيان التجاري أكثر من حساب واحد في المنصة.",
+          },
+          obligations: {
+            title: "ب. التزاماتك كعضو",
+            point1: "أنت مسؤول عن الحفاظ على سرية معلومات حسابك وكلمة المرور.",
+            point2: "تتعهد بعدم استخدام المنصة لأي غرض غير قانوني أو محظور.",
+            point3: "تتعهد بعدم الإضرار بالمنصة أو بمستخدميها الآخرين.",
+            point4:
+              "تتعهد بتقديم معلومات واضحة وصحيحة عن المنتجات أو الخدمات التي تعرضها.",
+            point5:
+              "تتعهد بالالتزام بجميع القوانين واللوائح المعمول بها في المملكة العربية السعودية.",
+          },
+          relationship: {
+            title: "ج. طبيعة العلاقة",
+            text: "منصة سبلاير هي وسيط تقني يربط بين الموردين والشركات. المنصة ليست طرفًا في أي عقد أو اتفاق يتم بين المستخدمين ولا تتحمل أي مسؤولية عن جودة المنتجات أو سداد المستحقات.",
+          },
+        },
+      },
+
+      // Suspended Accounts Policy Content
+      suspended: {
+        title: "سياسة الحسابات الموقوفة",
+        intro:
+          "تحتفظ إدارة منصة سبلاير بالحق في حظر أو تعليق أي حساب في الحالات التالية:",
+        point1: "انتهاك شروط الاستخدام أو أي من السياسات الأخرى.",
+        point2: "الاحتيال أو التلاعب أو محاولة التحايل على أنظمة المنصة.",
+        point3: "عرض أو طلب مواد مدرجة في قائمة المواد المحظورة.",
+        point4:
+          "الإضرار بالمستخدمين الآخرين أو عدم الالتزام بالاتفاقات التجارية.",
+        point5: "انتحال شخصية أو صفة كيان تجاري آخر.",
+        point6: "تلقي شكاوى موثقة ومتكررة من مستخدمين آخرين.",
+      },
+
+      // Prohibited Items Policy Content
+      prohibited: {
+        title: "سياسة المواد والخدمات المحظورة",
+        intro:
+          "يُمنع منعًا باتًا عرض أو طلب أي من المواد أو الخدمات التالية على المنصة:",
+        point1:
+          "جميع المنتجات والخدمات غير القانونية بموجب قوانين المملكة العربية السعودية.",
+        point2: "الأسلحة النارية والذخائر والمتفجرات.",
+        point3: "المخدرات والمؤثرات العقلية والمسكرات.",
+        point4: "المنتجات المقلدة أو التي تنتهك حقوق الملكية الفكرية.",
+        point5: "الأدوية والمنتجات الطبية التي تتطلب وصفة طبية.",
+        point6: "المنتجات الغذائية الفاسدة أو منتهية الصلاحية.",
+        point7: "خدمات النصب والاحتيال أو التسويق الهرمي.",
+        point8:
+          "أي منتجات أو خدمات تعتبرها إدارة المنصة غير أخلاقية أو غير مناسبة.",
+      },
+
+      // Intellectual Property Policy Content
+      intellectual: {
+        title: "سياسة الملكية الفكرية",
+
+        sections: {
+          platformOwnership: {
+            title: "6. ملكية المنصة",
+            text: "العلامة التجارية سبلاير (Supplier.sa) وجميع الشعارات والتصاميم والنصوص والبرمجيات المرتبطة بالمنصة هي ملك حصري لمؤسسة سبلاير.",
+          },
+          userContent: {
+            title: "7. محتوى المستخدم",
+            text: "أنت تمنح منصة سبلاير ترخيصًا عالميًا وغير حصري لاستخدام وعرض المحتوى الذي تقوم بنشره، مثل صور المنتجات، لغرض تشغيل وترويج المنصة.",
+          },
+          respectRights: {
+            title: "8. احترام حقوق الآخرين",
+            text: "تتعهد بأن جميع المواد التي ترفعها على المنصة هي ملكك الخاص أو لديك الحق في استخدامها، وأنها لا تنتهك حقوق الملكية الفكرية لأي طرف ثالث.",
+          },
+          reporting: {
+            title: "9. الإبلاغ عن الانتهاكات",
+            text: "إذا كنت تعتقد أن أحد المستخدمين قد انتهك حقوق الملكية الفكرية الخاصة بك، يرجى التواصل معنا فورًا مع تقديم ما يثبت ذلك.",
+          },
+        },
+      },
+    },
 
     // Footer
     footer: {
