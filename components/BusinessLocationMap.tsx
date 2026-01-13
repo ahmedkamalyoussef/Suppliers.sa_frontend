@@ -17,7 +17,7 @@ interface City {
 interface Location {
   lat: number;
   lng: number;
-}
+} 
 
 interface BusinessLocationMapProps {
   selectedLocation: Location;
