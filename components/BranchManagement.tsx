@@ -28,12 +28,21 @@ type BranchManagementProps = {
     category: string;
     businessType?: string;
   };
+  onSaveBranch?: (
+    branchData: Branch,
+    editingBranch: Branch | null
+  ) => Promise<void>;
+  onDeleteBranch?: (branchId: string) => Promise<void>;
+  onToggleBranchStatus?: (branchId: string) => Promise<void>;
 };
 
 export default function BranchManagement({
   branches,
   setBranches,
   mainBusinessData,
+  onSaveBranch,
+  onDeleteBranch,
+  onToggleBranchStatus,
 }: BranchManagementProps) {
   const { t } = useLanguage();
   const workingHoursInputRefs = useRef<
@@ -208,7 +217,7 @@ export default function BranchManagement({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSaveBranch = () => {
+  const handleSaveBranch = async () => {
     if (!validateBranch()) return;
 
     const branchData = {
@@ -217,17 +226,26 @@ export default function BranchManagement({
       location: selectedLocation,
     } as Branch;
 
-    if (editingBranch) {
-      const updated = branches.map((b) =>
-        b.id === editingBranch.id ? branchData : b
-      );
-      setBranches(updated);
-    } else {
-      const updated = [...branches, branchData];
-      setBranches(updated);
+    try {
+      if (onSaveBranch) {
+        await onSaveBranch(branchData, editingBranch);
+      } else {
+        // Fallback to local state management
+        if (editingBranch) {
+          const updated = branches.map((b) =>
+            b.id === editingBranch.id ? branchData : b
+          );
+          setBranches(updated);
+        } else {
+          const updated = [...branches, branchData];
+          setBranches(updated);
+        }
+      }
+      handleCancelAdd();
+    } catch (error) {
+      console.error("Error saving branch:", error);
+      // You might want to show an error message to the user here
     }
-
-    handleCancelAdd();
   };
 
   const handleEditBranch = (branch: Branch) => {
@@ -237,10 +255,20 @@ export default function BranchManagement({
     setShowAddBranch(true);
   };
 
-  const handleDeleteBranch = (branchId: string) => {
+  const handleDeleteBranch = async (branchId: string) => {
     if (window.confirm(t("branchManagement.deleteConfirm"))) {
-      const updated = branches.filter((b) => b.id !== branchId);
-      setBranches(updated);
+      try {
+        if (onDeleteBranch) {
+          await onDeleteBranch(branchId);
+        } else {
+          // Fallback to local state management
+          const updated = branches.filter((b) => b.id !== branchId);
+          setBranches(updated);
+        }
+      } catch (error) {
+        console.error("Error deleting branch:", error);
+        // You might want to show an error message to the user here
+      }
     }
   };
 
@@ -272,13 +300,23 @@ export default function BranchManagement({
     setErrors({});
   };
 
-  const toggleBranchStatus = (branchId: string) => {
-    const updated = branches.map((b) =>
-      b.id === branchId
-        ? { ...b, status: b.status === "active" ? "inactive" : "active" }
-        : b
-    );
-    setBranches(updated);
+  const toggleBranchStatus = async (branchId: string) => {
+    try {
+      if (onToggleBranchStatus) {
+        await onToggleBranchStatus(branchId);
+      } else {
+        // Fallback to local state management
+        const updated = branches.map((b) =>
+          b.id === branchId
+            ? { ...b, status: b.status === "active" ? "inactive" : "active" }
+            : b
+        );
+        setBranches(updated);
+      }
+    } catch (error) {
+      console.error("Error toggling branch status:", error);
+      // You might want to show an error message to the user here
+    }
   };
 
   return (
@@ -317,7 +355,7 @@ export default function BranchManagement({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+        <div className="grid grid-cols-1 md:grid-cols-1 gap-4 text-sm">
           <div className="bg-white p-3 rounded-lg">
             <div className="flex items-center space-x-2 mb-1">
               <i className="ri-map-pin-line text-green-500"></i>
@@ -327,28 +365,6 @@ export default function BranchManagement({
             </div>
             <p className="text-2xl font-bold text-gray-800">
               {branches.length}
-            </p>
-          </div>
-          <div className="bg-white p-3 rounded-lg">
-            <div className="flex items-center space-x-2 mb-1">
-              <i className="ri-check-line text-green-500"></i>
-              <span className="font-medium text-gray-700">
-                {t("branchManagement.activeBranches")}
-              </span>
-            </div>
-            <p className="text-2xl font-bold text-green-600">
-              {branches.filter((b) => b.status === "active").length}
-            </p>
-          </div>
-          <div className="bg-white p-3 rounded-lg">
-            <div className="flex items-center space-x-2 mb-1">
-              <i className="ri-pause-line text-orange-500"></i>
-              <span className="font-medium text-gray-700">
-                {t("branchManagement.inactiveBranches")}
-              </span>
-            </div>
-            <p className="text-2xl font-bold text-orange-600">
-              {branches.filter((b) => b.status === "inactive").length}
             </p>
           </div>
         </div>
@@ -384,22 +400,6 @@ export default function BranchManagement({
                       <h3 className="text-xl font-semibold text-gray-800">
                         {branch.name}
                       </h3>
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          branch.status === "active"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-gray-100 text-gray-600"
-                        }`}
-                      >
-                        {branch.status === "active"
-                          ? t("branchManagement.active")
-                          : t("branchManagement.inactive")}
-                      </span>
-                      {branch.isMainBranch && (
-                        <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-medium">
-                          {t("branchManagement.mainBranch")}
-                        </span>
-                      )}
                     </div>
                     <div className="space-y-1 text-sm text-gray-600">
                       <div className="flex items-center space-x-2">
@@ -421,25 +421,6 @@ export default function BranchManagement({
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => toggleBranchStatus(branch.id)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap cursor-pointer transition-all ${
-                      branch.status === "active"
-                        ? "bg-orange-100 text-orange-700 hover:bg-orange-200"
-                        : "bg-green-100 text-green-700 hover:bg-green-200"
-                    }`}
-                  >
-                    <i
-                      className={`${
-                        branch.status === "active"
-                          ? "ri-pause-line"
-                          : "ri-play-line"
-                      } mr-1`}
-                    ></i>
-                    {branch.status === "active"
-                      ? t("branchManagement.deactivate")
-                      : t("branchManagement.activate")}
-                  </button>
                   <button
                     onClick={() => handleEditBranch(branch)}
                     className="bg-blue-100 text-blue-700 px-3 py-2 rounded-lg hover:bg-blue-200 text-sm font-medium whitespace-nowrap cursor-pointer transition-all"

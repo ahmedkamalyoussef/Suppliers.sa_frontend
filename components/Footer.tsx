@@ -222,47 +222,15 @@ export default function Footer() {
       <div className="bg-yellow-400 text-white">
         <div className="w-full px-3 sm:px-4 md:px-6 py-4 sm:py-6">
           <div className="max-w-7xl mx-auto">
-            <div className="flex flex-col lg:flex-row justify-between items-center space-y-3 sm:space-y-4 lg:space-y-0">
+            <div className="flex justify-center items-center">
               {/* Copyright */}
-              <div
-                className={`flex flex-col sm:flex-row items-center ${
-                  isRTL
-                    ? "space-x-reverse space-x-2 sm:space-x-4"
-                    : "space-x-2 sm:space-x-4"
-                }`}
-              >
+              <div className="flex flex-col items-center space-y-2 text-center">
                 <p className="text-white text-xs sm:text-sm">
                   {t("footer.copyright")}
                 </p>
-                <div
-                  className={`flex items-center ${
-                    isRTL
-                      ? "space-x-reverse space-x-1 sm:space-x-2"
-                      : "space-x-1 sm:space-x-2"
-                  } text-xs text-yellow-100`}
-                ></div>
-              </div>
-
-              {/* Legal Links */}
-              <div className="flex flex-wrap items-center justify-center lg:justify-end space-x-3 sm:space-x-4 md:space-x-6 gap-2">
-                <Link
-                  href="/privacy"
-                  className="text-white hover:text-yellow-100 text-xs sm:text-sm transition-colors"
-                >
-                  {t("footer.privacyPolicy")}
-                </Link>
-                <Link
-                  href="/terms"
-                  className="text-white hover:text-yellow-100 text-xs sm:text-sm transition-colors"
-                >
-                  {t("footer.termsOfService")}
-                </Link>
-                <Link
-                  href="/cookie-policy"
-                  className="text-white hover:text-yellow-100 text-xs sm:text-sm transition-colors"
-                >
-                  {t("footer.cookiePolicy")}
-                </Link>
+                <div className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 text-xs text-yellow-100">
+                  <span>{t("footer.commercialRegistered")}</span>
+                </div>
               </div>
             </div>
           </div>

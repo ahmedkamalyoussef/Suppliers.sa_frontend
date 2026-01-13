@@ -68,6 +68,13 @@ import {
   InquiryListResponse,
   ReadStatusResponse,
 } from "./types/inquiries";
+import {
+  BranchCreateRequest,
+  BranchUpdateRequest,
+  BranchResponse,
+  BranchesResponse,
+  BranchActionResponse,
+} from "./types";
 
 const API_BASE_URL = "http://localhost:8000";
 
@@ -1807,6 +1814,52 @@ class ApiService {
       true // Requires authentication
     );
   }
+
+  // ====== BRANCH MANAGEMENT ======
+  async getBranches(): Promise<BranchesResponse> {
+    return this.request<BranchesResponse>(
+      "/api/branches",
+      {
+        method: "GET",
+      },
+      true
+    );
+  }
+
+  async createBranch(data: BranchCreateRequest): Promise<BranchActionResponse> {
+    return this.request<BranchActionResponse>(
+      "/api/branches",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+      true
+    );
+  }
+
+  async updateBranch(
+    branchId: string,
+    data: BranchUpdateRequest
+  ): Promise<BranchActionResponse> {
+    return this.request<BranchActionResponse>(
+      `/api/branches/${branchId}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      },
+      true
+    );
+  }
+
+  async deleteBranch(branchId: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>(
+      `/api/branches/${branchId}`,
+      {
+        method: "DELETE",
+      },
+      true
+    );
+  }
 }
 
 // Interface for business statistics
@@ -1850,5 +1903,12 @@ export type {
   InquiryListResponse,
   ReadStatusResponse,
 } from "./types/inquiries";
+export type {
+  BranchCreateRequest,
+  BranchUpdateRequest,
+  BranchResponse,
+  BranchesResponse,
+  BranchActionResponse,
+} from "./types";
 
 export const apiService = new ApiService();

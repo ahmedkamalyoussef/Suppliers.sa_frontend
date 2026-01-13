@@ -1,11 +1,5 @@
 {
   "pages": {
-    "/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/page.css",
-      "static/chunks/app/page.js"
-    ],
     "/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -17,51 +11,17 @@
       "static/chunks/main-app.js",
       "static/chunks/app/not-found.js"
     ],
-    "/add-business/page": [
+    "/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/add-business/page.js"
-    ],
-    "/businesses/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/businesses/page.js"
-    ],
-    "/business/[id]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/business/[id]/page.js"
-    ],
-    "/login/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/login/page.js"
-    ],
-    "/admin/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/admin/page.js"
+      "static/css/app/page.css",
+      "static/chunks/app/page.js"
     ],
     "/dashboard/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/css/app/dashboard/page.css",
-      "static/chunks/app/dashboard/page.js"
-    ],
-    "/profile/[id]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/profile/[id]/page.js"
-    ],
-    "/about/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/about/page.js"
-    ],
-    "/subscription/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/subscription/page.js"
+      "static/chunks/app/dashboard/page.js",
+      "static/css/app/dashboard/page.css"
     ],
     "/manage-businesses/page": [
       "static/chunks/webpack.js",

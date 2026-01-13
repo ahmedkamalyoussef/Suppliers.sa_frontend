@@ -8,7 +8,7 @@ const nextConfig = {
     // ignoreBuildErrors: true,
   },
   // Exclude API routes from static export
-  trailingSlash: true,
+  // trailingSlash: true, // Temporarily disabled to fix redirect loop
   // distDir: 'out', // تم التعليق عليه أيضاً
 };
 

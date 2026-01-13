@@ -115,7 +115,11 @@ export interface Business {
 // Inbox Interfaces
 export interface InboxMessage {
   id: number;
-  type: "supplier_to_supplier_inquiry" | "supplier_rating" | "message" | "review_reply";
+  type:
+    | "supplier_to_supplier_inquiry"
+    | "supplier_rating"
+    | "message"
+    | "review_reply";
   subject: string;
   message: string;
   is_read: boolean;
@@ -155,7 +159,12 @@ export interface InboxResponse {
 }
 
 // Supplier Management Interfaces
-export type SupplierStatus = "active" | "suspended" | "pending" | "inactive" | "approved";
+export type SupplierStatus =
+  | "active"
+  | "suspended"
+  | "pending"
+  | "inactive"
+  | "approved";
 export type SupplierPlan = "Basic" | "Premium" | "Enterprise";
 
 export interface Supplier {
@@ -230,4 +239,83 @@ export interface AdminInquiry {
 
 export interface AdminInquiryListResponse {
   inquiries: AdminInquiry[];
+}
+
+// Branch Management Interfaces
+export interface BranchCreateRequest {
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+  manager_name: string;
+  location: {
+    lat: number;
+    lng: number;
+  };
+  workingHours: {
+    [key: string]: {
+      open: string;
+      close: string;
+      closed: boolean;
+    };
+  };
+  specialServices: string[];
+  status: "active" | "inactive";
+  isMainBranch: boolean;
+}
+
+export interface BranchUpdateRequest {
+  name?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  manager?: string;
+  location?: {
+    lat: number;
+    lng: number;
+  };
+  workingHours?: {
+    [key: string]: {
+      open: string;
+      close: string;
+      closed: boolean;
+    };
+  };
+  specialServices?: string[];
+  status?: "active" | "inactive";
+  isMainBranch?: boolean;
+}
+
+export interface BranchResponse {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+  manager: string;
+  status: "active" | "inactive";
+  isMainBranch: boolean;
+  location: {
+    lat: number;
+    lng: number;
+  };
+  workingHours: {
+    [key: string]: {
+      open: string;
+      close: string;
+      closed: boolean;
+    };
+  };
+  specialServices: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BranchesResponse {
+  branches: BranchResponse[];
+}
+
+export interface BranchActionResponse {
+  message: string;
+  branch?: BranchResponse;
 }

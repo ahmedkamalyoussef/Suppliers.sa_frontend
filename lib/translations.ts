@@ -280,7 +280,9 @@ export const translations = {
       company: "Company",
       aboutUs: "About Us",
       vision2030: "Vision 2030",
-      copyright: "© 2024 Supplier.sa. All rights reserved.",
+      copyright: "All Rights Reserved For Supplier Establishment 2025.",
+      allRightsReserved: "All rights reserved.",
+      commercialRegistered: "Commercial Register Number 7051329352",
       proudlyMadeInSaudi: "Proudly Made in Saudi Arabia",
       privacyPolicy: "Privacy Policy",
       termsOfService: "Terms of Service",
@@ -2553,13 +2555,19 @@ export const translations = {
       mainBranch: "Main Branch",
       manager: "Manager",
       deactivate: "Deactivate",
+      edit: "Edit",
+      delete: "Delete",
       workingHours: "Working Hours",
+      specialServices: "Special Services",
       closed: "Closed",
-      to: "to",
-      copyToNext: "Copy to next days",
-      applyAll: "Apply to all days",
-      branchLocation: "Branch Location",
       deleteConfirm: "Are you sure you want to delete this branch?",
+
+      // Toast messages
+      branchAdded: "Branch added successfully",
+      branchUpdated: "Branch updated successfully",
+      branchDeleted: "Branch deleted successfully",
+      mainBranchCannotDelete: "Cannot delete main branch",
+      error: "An error occurred. Please try again.",
 
       days: {
         monday: "Monday",
@@ -2909,6 +2917,56 @@ export const translations = {
       desertDesc:
         "Streamlined client communication with the built-in messaging tools.",
     },
+
+    // Manage Businesses
+    manageBusinesses: {
+      title: "Manage Your Businesses",
+      subtitle:
+        "Control all your business profiles and branch locations from one dashboard",
+      stats: {
+        totalBusinesses: "Total Businesses",
+        verified: "Verified",
+        pending: "Pending",
+        totalBranches: "Total Branches",
+        activeBranches: "Active Branches",
+        mainBranches: "Main Branches",
+        inactiveBranches: "Inactive Branches",
+      },
+      status: {
+        verified: "Verified",
+        pending: "Pending Review",
+        rejected: "Rejected",
+      },
+      branchStatus: {
+        active: "Active",
+        inactive: "Inactive",
+      },
+      buttons: {
+        addNewBusiness: "Add New Business",
+        addNewBranch: "Add New Branch",
+        addFirstBranch: "Add Your First Branch",
+        quickSetup: "Quick Setup",
+        checkStatus: "Check Status",
+        manageBranches: "Manage Branches",
+        viewProfile: "View Profile",
+      },
+      branches: {
+        title: "Branches",
+        active: "Active",
+        more: "More",
+        noBranches: "No branches added yet",
+        addFirst: "Add First Branch",
+      },
+      empty: {
+        title: "No businesses yet",
+        message:
+          "Start by adding your first business profile to reach customers",
+        button: "Add Your First Business",
+      },
+      modal: {
+        title: "Manage Branches",
+      },
+    },
   },
 
   ar: {
@@ -3184,7 +3242,9 @@ export const translations = {
       company: "الشركة",
       aboutUs: "من نحن",
       vision2030: "رؤية 2030",
-      copyright: "© 2024 Supplier.sa. جميع الحقوق محفوظة.",
+      copyright: "كافة الحقوق محفوظة لمنصة سبلاير 2025.",
+      allRightsReserved: "جميع الحقوق محفوظة.",
+      commercialRegistered: "سجل تجاري رقم 7051329352",
       proudlyMadeInSaudi: "بفخر صنع في المملكة العربية السعودية",
       privacyPolicy: "سياسة الخصوصية",
       termsOfService: "شروط الخدمة",
@@ -5412,6 +5472,13 @@ export const translations = {
       branchLocation: "موقع الفرع",
       deleteConfirm: "هل أنت متأكد من حذف هذا الفرع؟",
 
+      // Toast messages
+      branchAdded: "تم إضافة الفرع بنجاح",
+      branchUpdated: "تم تحديث الفرع بنجاح",
+      branchDeleted: "تم حذف الفرع بنجاح",
+      mainBranchCannotDelete: "لا يمكن حذف الفرع الرئيسي",
+      error: "حدث خطأ. يرجى المحاولة مرة أخرى.",
+
       days: {
         monday: "الإثنين",
         tuesday: "الثلاثاء",
@@ -5521,6 +5588,9 @@ export const translations = {
         verified: "موثق",
         pending: "قيد المراجعة",
         totalBranches: "إجمالي الفروع",
+        activeBranches: "الفروع النشطة",
+        mainBranches: "الفروع الرئيسية",
+        inactiveBranches: "الفروع غير النشطة",
       },
       status: {
         verified: "موثق",
@@ -5533,6 +5603,8 @@ export const translations = {
       },
       buttons: {
         addNewBusiness: "إض��فة نشاط تجاري جديد",
+        addNewBranch: "إضافة فرع جديد",
+        addFirstBranch: "أضف فرعك الأول",
         quickSetup: "إعداد سريع للنشاط",
         checkStatus: "تحقق من الحالة",
         manageBranches: "إدارة الفروع",
