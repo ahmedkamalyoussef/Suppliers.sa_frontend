@@ -18,7 +18,6 @@ interface Location {
   lat: number;
   lng: number;
 } 
-
 interface BusinessLocationMapProps {
   selectedLocation: Location;
   setSelectedLocation: (location: Location) => void;
