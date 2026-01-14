@@ -1,5 +1,11 @@
 {
   "pages": {
+    "/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/page.css",
+      "static/chunks/app/page.js"
+    ],
     "/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -11,22 +17,15 @@
       "static/chunks/main-app.js",
       "static/chunks/app/not-found.js"
     ],
-    "/page": [
+    "/login/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/css/app/page.css",
-      "static/chunks/app/page.js"
+      "static/chunks/app/login/page.js"
     ],
-    "/dashboard/page": [
+    "/admin/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/page.js",
-      "static/css/app/dashboard/page.css"
-    ],
-    "/manage-businesses/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/manage-businesses/page.js"
+      "static/chunks/app/admin/page.js"
     ]
   }
 }

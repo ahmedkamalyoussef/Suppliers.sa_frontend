@@ -75,6 +75,16 @@ import {
   BranchesResponse,
   BranchActionResponse,
 } from "./types";
+import {
+  Partnership,
+  PartnershipFormData,
+  CreatePartnershipRequest,
+  UpdatePartnershipRequest,
+  CreatePartnershipResponse,
+  UpdatePartnershipResponse,
+  DeletePartnershipResponse,
+  GetPartnershipsResponse,
+} from "./types/partnerships";
 
 const API_BASE_URL = "http://localhost:8000";
 
@@ -1081,12 +1091,95 @@ class ApiService {
     data: CreateSupplierRequest
   ): Promise<SupplierActionResponse> {
     return this.request<SupplierActionResponse>(
-      "/api/admin/suppliers",
+      `/api/admin/suppliers`,
       {
         method: "POST",
         body: JSON.stringify(data),
       },
       true
+    );
+  }
+
+  // ====== PARTNERSHIPS ======
+  async createPartnership(
+    formData: FormData
+  ): Promise<CreatePartnershipResponse> {
+    const token = localStorage.getItem("supplier_token");
+    const tokenType = localStorage.getItem("token_type") || "Bearer";
+
+    if (!token) throw new Error("No auth token found");
+
+    const response = await fetch(`${this.baseURL}/api/admin/partnerships`, {
+      method: "POST",
+      headers: {
+        Authorization: `${tokenType} ${token}`,
+        // Don't set Content-Type for FormData - browser sets it with boundary
+      },
+      body: formData,
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.message || `HTTP ${response.status}: ${response.statusText}`
+      );
+    }
+
+    return response.json();
+  }
+
+  async updatePartnership(
+    partnershipId: number,
+    formData: FormData
+  ): Promise<UpdatePartnershipResponse> {
+    const token = localStorage.getItem("supplier_token");
+    const tokenType = localStorage.getItem("token_type") || "Bearer";
+
+    if (!token) throw new Error("No auth token found");
+
+    const response = await fetch(
+      `${this.baseURL}/api/admin/partnerships/${partnershipId}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `${tokenType} ${token}`,
+          // Don't set Content-Type for FormData - browser sets it with boundary
+        },
+        body: formData,
+        credentials: "include",
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.message || `HTTP ${response.status}: ${response.statusText}`
+      );
+    }
+
+    return response.json();
+  }
+
+  async deletePartnership(
+    partnershipId: number
+  ): Promise<DeletePartnershipResponse> {
+    return this.request<DeletePartnershipResponse>(
+      `/api/admin/partnerships/${partnershipId}`,
+      {
+        method: "DELETE",
+      },
+      true
+    );
+  }
+
+  async getPartnerships(): Promise<GetPartnershipsResponse> {
+    return this.request<GetPartnershipsResponse>(
+      "/api/partnerships",
+      {
+        method: "GET",
+      },
+      false // doesn't require authentication
     );
   }
 
@@ -1910,5 +2003,15 @@ export type {
   BranchesResponse,
   BranchActionResponse,
 } from "./types";
+export type {
+  Partnership,
+  PartnershipFormData,
+  CreatePartnershipRequest,
+  UpdatePartnershipRequest,
+  CreatePartnershipResponse,
+  UpdatePartnershipResponse,
+  DeletePartnershipResponse,
+  GetPartnershipsResponse,
+} from "./types/partnerships";
 
 export const apiService = new ApiService();
