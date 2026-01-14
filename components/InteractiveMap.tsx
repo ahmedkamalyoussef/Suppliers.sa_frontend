@@ -492,7 +492,6 @@ const InteractiveMap = ({
 
         // No button handlers needed since we removed the buttons
 
-        // متغ��رات للتحكم في فتح وإغلاق الـ tooltip
         let isTooltipOpen = false;
         let closeTimeout: NodeJS.Timeout;
         let isHoveringTooltip = false;

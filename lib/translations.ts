@@ -3888,7 +3888,7 @@ export const translations = {
       ctaTitle: "كن شريكاً موثوقاً",
       ctaDesc:
         "انضم إلى شبكتنا وتواصل مع الشركات الرائدة في المملكة العربية السعودية",
-      ctaBecomePartner: "كن شريك",
+      ctaBecomePartner: "كن شريكا",
       ctaExploreNetwork: "استكشف الشبكة",
     },
     topSuppliers: {
