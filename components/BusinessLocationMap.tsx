@@ -22,7 +22,7 @@ interface BusinessLocationMapProps {
   selectedLocation: Location;
   setSelectedLocation: (location: Location) => void;
   isEditing?: boolean; // Add isEditing prop
-}
+} 
 
 type LocationMethod = "map" | "city" | "address";
 
