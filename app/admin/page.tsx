@@ -12,6 +12,7 @@ import ContentManagement from "../../components/ContentManagement";
 import SystemSettings from "../../components/SystemSettings";
 import AdminAnalytics from "../../components/AdminAnalytics";
 import PartnershipsManagement from "../../components/PartnershipsManagement";
+import BusinessStatistics from "../../components/BusinessStatistics";
 import { ToastProvider } from "../../components/ToastContext";
 import { useAuth } from "../../hooks/useAuth";
 
@@ -33,6 +34,11 @@ export default function AdminDashboard() {
       id: "partnerships",
       name: "Partnerships Management",
       icon: "ri-handshake-line",
+    },
+    {
+      id: "business-statistics",
+      name: "Business Statistics",
+      icon: "ri-bar-chart-2-line",
     },
     {
       id: "analytics",
@@ -155,6 +161,9 @@ export default function AdminDashboard() {
                     {activeTab === "employees" && <EmployeeManagement />}
                     {activeTab === "content" && <ContentManagement />}
                     {activeTab === "partnerships" && <PartnershipsManagement />}
+                    {activeTab === "business-statistics" && (
+                      <BusinessStatistics />
+                    )}
                     {activeTab === "analytics" && <AdminAnalytics />}
                     {activeTab === "settings" && <SystemSettings />}
                   </div>

@@ -1953,6 +1953,60 @@ class ApiService {
       true
     );
   }
+
+  // ====== BUSINESS STATISTICS ======
+  async getBusinessesStatistics(): Promise<{
+    verified_businesses: number;
+    successful_connections: number;
+    average_rating: number;
+  }> {
+    return this.request<{
+      verified_businesses: number;
+      successful_connections: number;
+      average_rating: number;
+    }>(
+      "/api/public/businesses-statistics",
+      {
+        method: "GET",
+      },
+      false // doesn't require authentication
+    );
+  }
+
+  async updateBusinessesStatistics(data: {
+    verified_businesses: number;
+    successful_connections: number;
+    average_rating: number;
+  }): Promise<{
+    message: string;
+    data: {
+      id: number;
+      verified_businesses: number;
+      successful_connections: number;
+      average_rating: number;
+      created_at: string;
+      updated_at: string;
+    };
+  }> {
+    return this.request<{
+      message: string;
+      data: {
+        id: number;
+        verified_businesses: number;
+        successful_connections: number;
+        average_rating: number;
+        created_at: string;
+        updated_at: string;
+      };
+    }>(
+      "/api/admin/businesses-statistics",
+      {
+        method: "PUT",
+        body: JSON.stringify(data),
+      },
+      true // requires authentication
+    );
+  }
 }
 
 // Interface for business statistics

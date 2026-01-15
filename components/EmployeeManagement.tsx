@@ -3,30 +3,12 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "../lib/LanguageContext";
 import { apiService } from "../lib/api";
+import { useToast } from "./ToastContext";
 import {
   AdminListItem as Employee,
   CreateAdminRequest,
   UpdateAdminRequest,
 } from "../types/auth";
-
-// Toast notification helper
-const showToast = (message: string, type: "success" | "error" = "success") => {
-  // Create toast element
-  const toast = document.createElement("div");
-  toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium ${
-    type === "success" ? "bg-green-500" : "bg-red-500"
-  }`;
-  toast.textContent = message;
-
-  document.body.appendChild(toast);
-
-  // Remove after 3 seconds
-  setTimeout(() => {
-    if (toast.parentNode) {
-      toast.parentNode.removeChild(toast);
-    }
-  }, 3000);
-};
 
 // Helper function to get full image URL
 const getImageUrl = (imagePath: string | null) => {
@@ -40,7 +22,8 @@ type RoleDef = { name: string; permissions: string[]; description: string };
 type PermissionDef = { id: string; name: string; category: string };
 
 export default function EmployeeManagement() {
-  const { t } = useLanguage();
+  const { t, isRTL } = useLanguage();
+  const { showToast } = useToast();
 
   const [showAddEmployee, setShowAddEmployee] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
@@ -414,11 +397,17 @@ export default function EmployeeManagement() {
       });
       setShowAddEmployee(false);
       await fetchAdmins();
-      showToast("Employee added successfully!");
+      showToast(
+        isRTL ? "تم إضافة الموظف بنجاح!" : "Employee added successfully!",
+        "success"
+      );
     } catch (err) {
       console.error("Error creating admin:", err);
       setError("Failed to create employee");
-      showToast("Failed to create employee", "error");
+      showToast(
+        isRTL ? "فشل في إنشاء الموظف" : "Failed to create employee",
+        "error"
+      );
     } finally {
       setSaving(false);
     }
@@ -506,11 +495,17 @@ export default function EmployeeManagement() {
       await apiService.updateAdmin(editEmployee.id, updateData);
       setShowEditEmployee(false);
       await fetchAdmins();
-      showToast("Employee updated successfully!");
+      showToast(
+        isRTL ? "تم تحديث الموظف بنجاح!" : "Employee updated successfully!",
+        "success"
+      );
     } catch (err) {
       console.error("Error updating admin:", err);
       setError("Failed to update employee");
-      showToast("Failed to update employee", "error");
+      showToast(
+        isRTL ? "فشل في تحديث الموظف" : "Failed to update employee",
+        "error"
+      );
     } finally {
       setSaving(false);
     }
@@ -524,11 +519,17 @@ export default function EmployeeManagement() {
       setError("");
       await apiService.deleteAdmin(id);
       await fetchAdmins();
-      showToast("Employee deleted successfully!");
+      showToast(
+        isRTL ? "تم حذف الموظف بنجاح!" : "Employee deleted successfully!",
+        "success"
+      );
     } catch (err) {
       console.error("Error deleting admin:", err);
       setError("Failed to delete employee");
-      showToast("Failed to delete employee", "error");
+      showToast(
+        isRTL ? "فشل في حذف الموظف" : "Failed to delete employee",
+        "error"
+      );
     } finally {
       setSaving(false);
     }

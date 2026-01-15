@@ -11,24 +11,38 @@ export default function TrustedPartners() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [partnerships, setPartnerships] = useState<Partnership[]>([]);
   const [loading, setLoading] = useState(true);
+  const [statistics, setStatistics] = useState<{
+    verified_businesses: number;
+    successful_connections: number;
+    average_rating: number;
+  } | null>(null);
 
-  // Fetch partnerships from API
+  // Fetch partnerships and statistics from API
   useEffect(() => {
-    const fetchPartnerships = async () => {
+    const fetchData = async () => {
       try {
-        const response = await apiService.getPartnerships();
-        console.log(response);
+        const [partnershipsResponse, statisticsResponse] = await Promise.all([
+          apiService.getPartnerships(),
+          apiService.getBusinessesStatistics(),
+        ]);
+
+        console.log("Partnerships:", partnershipsResponse);
+        console.log("Statistics:", statisticsResponse);
+
         // The response is directly an array, not nested under partnerships
-        setPartnerships(Array.isArray(response) ? response : []);
+        setPartnerships(
+          Array.isArray(partnershipsResponse) ? partnershipsResponse : []
+        );
+        setStatistics(statisticsResponse);
       } catch (error) {
-        console.error("Failed to fetch partnerships:", error);
+        console.error("Failed to fetch data:", error);
         // Keep empty array on error
       } finally {
         setLoading(false);
       }
     };
 
-    fetchPartnerships();
+    fetchData();
   }, []);
 
   // Mobile and tablet responsive display
@@ -107,7 +121,9 @@ export default function TrustedPartners() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-4xl mx-auto mb-8 md:mb-12">
             <div className="text-center">
               <div className="text-2xl md:text-3xl font-bold text-yellow-600 mb-2">
-                1,500+
+                {statistics
+                  ? `${statistics.verified_businesses.toLocaleString()}+`
+                  : "1,500+"}
               </div>
               <div className="text-gray-600 text-sm md:text-base">
                 {t("trustedPartners.statsVerified")}
@@ -115,7 +131,9 @@ export default function TrustedPartners() {
             </div>
             <div className="text-center">
               <div className="text-2xl md:text-3xl font-bold text-yellow-600 mb-2">
-                50,000+
+                {statistics
+                  ? `${statistics.successful_connections.toLocaleString()}+`
+                  : "50,000+"}
               </div>
               <div className="text-gray-600 text-sm md:text-base">
                 {t("trustedPartners.statsConnections")}
@@ -123,7 +141,7 @@ export default function TrustedPartners() {
             </div>
             <div className="text-center">
               <div className="text-2xl md:text-3xl font-bold text-yellow-600 mb-2">
-                4.9/5
+                {statistics ? `${statistics.average_rating}/5` : "4.9/5"}
               </div>
               <div className="text-gray-600 flex items-center justify-center space-x-1 text-sm md:text-base">
                 <span>{t("trustedPartners.statsAverageRating")}</span>
@@ -142,11 +160,11 @@ export default function TrustedPartners() {
                 className="bg-white rounded-2xl border border-gray-100 p-3 md:p-6 hover:shadow-lg transition-all duration-300 cursor-pointer h-24 md:h-32 flex items-center justify-center group"
               >
                 <div className="text-center">
-                  <div className="h-8 md:h-12 flex items-center justify-center mb-2 md:mb-3">
+                  <div className="h-12 md:h-16 flex items-center justify-center mb-2 md:mb-3">
                     <img
                       src={partner.image}
                       alt={partner.name}
-                      className="h-full w-auto object-contain opacity-60 group-hover:opacity-100 transition-opacity duration-300"
+                      className="h-full w-auto rounded-md object-contain opacity-80 group-hover:opacity-100 transition-opacity duration-300 max-w-full"
                     />
                   </div>
                   <p className="text-xs md:text-sm font-medium text-gray-600 group-hover:text-gray-800 transition-colors duration-300 hidden sm:block">
@@ -164,11 +182,11 @@ export default function TrustedPartners() {
                 className="bg-white rounded-2xl border border-gray-100 p-3 md:p-6 hover:shadow-lg transition-all duration-300 cursor-pointer h-24 md:h-32 flex items-center justify-center group"
               >
                 <div className="text-center">
-                  <div className="h-8 md:h-12 flex items-center justify-center mb-2 md:mb-3">
+                  <div className="h-12 md:h-16 flex items-center justify-center mb-2 md:mb-3">
                     <img
                       src={partner.image}
                       alt={partner.name}
-                      className="h-full w-auto object-contain opacity-60 group-hover:opacity-100 transition-opacity duration-300"
+                      className="h-full w-auto object-contain opacity-80 group-hover:opacity-100 transition-opacity duration-300 max-w-full"
                     />
                   </div>
                   <p className="text-xs md:text-sm font-medium text-gray-600 group-hover:text-gray-800 transition-colors duration-300 hidden sm:block">
@@ -189,11 +207,11 @@ export default function TrustedPartners() {
                 className="bg-white rounded-2xl border border-gray-100 p-3 md:p-6 hover:shadow-lg transition-all duration-300 cursor-pointer h-24 md:h-32 flex items-center justify-center group"
               >
                 <div className="text-center">
-                  <div className="h-8 md:h-12 flex items-center justify-center mb-2 md:mb-3">
+                  <div className="h-12 md:h-16 flex items-center justify-center mb-2 md:mb-3">
                     <img
                       src={partner.image}
                       alt={partner.name}
-                      className="h-full w-auto object-contain opacity-60 group-hover:opacity-100 transition-opacity duration-300"
+                      className="h-full w-auto object-contain opacity-80 group-hover:opacity-100 transition-opacity duration-300 max-w-full"
                     />
                   </div>
                   <p className="text-xs md:text-sm font-medium text-gray-600 group-hover:text-gray-800 transition-colors duration-300 hidden sm:block">
@@ -211,11 +229,11 @@ export default function TrustedPartners() {
                 className="bg-white rounded-2xl border border-gray-100 p-3 md:p-6 hover:shadow-lg transition-all duration-300 cursor-pointer h-24 md:h-32 flex items-center justify-center group"
               >
                 <div className="text-center">
-                  <div className="h-8 md:h-12 flex items-center justify-center mb-2 md:mb-3">
+                  <div className="h-12 md:h-16 flex items-center justify-center mb-2 md:mb-3">
                     <img
                       src={partner.image}
                       alt={partner.name}
-                      className="h-full w-auto object-contain opacity-60 group-hover:opacity-100 transition-opacity duration-300"
+                      className="h-full w-auto object-contain opacity-80 group-hover:opacity-100 transition-opacity duration-300 max-w-full"
                     />
                   </div>
                   <p className="text-xs md:text-sm font-medium text-gray-600 group-hover:text-gray-800 transition-colors duration-300 hidden sm:block">

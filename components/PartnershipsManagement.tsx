@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { apiService } from "../lib/api";
 import { useToast } from "./ToastContext";
 import { useAuth } from "../hooks/useAuth";
+import { useLanguage } from "../lib/LanguageContext";
 import type {
   Partnership,
   CreatePartnershipRequest,
@@ -27,6 +28,7 @@ export default function PartnershipsManagement() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { showToast } = useToast();
   const { user } = useAuth();
+  const { isRTL } = useLanguage();
 
   // Fetch permissions from API
   useEffect(() => {
@@ -84,7 +86,10 @@ export default function PartnershipsManagement() {
       setPartnerships(Array.isArray(response) ? response : []);
     } catch (error) {
       console.error("Failed to fetch partnerships:", error);
-      showToast("Failed to fetch partnerships", "error");
+      showToast(
+        isRTL ? "فشل في جلب الشراكات" : "Failed to fetch partnerships",
+        "error"
+      );
     } finally {
       setLoading(false);
     }
@@ -103,12 +108,22 @@ export default function PartnershipsManagement() {
     e.preventDefault();
 
     if (!canCreate && !canEdit) {
-      showToast("You don't have permission to perform this action", "error");
+      showToast(
+        isRTL
+          ? "ليس لديك صلاحية لأداء هذا الإجراء"
+          : "You don't have permission to perform this action",
+        "error"
+      );
       return;
     }
 
     if (!formData.name || (!formData.image && !editingPartnership)) {
-      showToast("Please fill in all required fields", "error");
+      showToast(
+        isRTL
+          ? "يرجى ملء جميع الحقول المطلوبة"
+          : "Please fill in all required fields",
+        "error"
+      );
       return;
     }
 
@@ -126,11 +141,21 @@ export default function PartnershipsManagement() {
           editingPartnership.id,
           formDataToSend
         );
-        showToast("Partnership updated successfully!", "success");
+        showToast(
+          isRTL
+            ? "تم تحديث الشراكة بنجاح!"
+            : "Partnership updated successfully!",
+          "success"
+        );
       } else {
         // Create new partnership
         await apiService.createPartnership(formDataToSend);
-        showToast("Partnership created successfully!", "success");
+        showToast(
+          isRTL
+            ? "تم إنشاء الشراكة بنجاح!"
+            : "Partnership created successfully!",
+          "success"
+        );
       }
 
       // Reset form and refresh data
@@ -141,7 +166,12 @@ export default function PartnershipsManagement() {
       fetchPartnerships();
     } catch (error) {
       console.error("Error:", error);
-      showToast("Failed to save partnership. Please try again.", "error");
+      showToast(
+        isRTL
+          ? "فشل في حفظ الشراكة. يرجى المحاولة مرة أخرى."
+          : "Failed to save partnership. Please try again.",
+        "error"
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -150,28 +180,52 @@ export default function PartnershipsManagement() {
   // Handle delete
   const handleDelete = async (id: number) => {
     if (!canDelete) {
-      showToast("You don't have permission to delete partnerships", "error");
+      showToast(
+        isRTL
+          ? "ليس لديك صلاحية لحذف الشراكات"
+          : "You don't have permission to delete partnerships",
+        "error"
+      );
       return;
     }
 
-    if (!confirm("Are you sure you want to delete this partnership?")) {
+    if (
+      !confirm(
+        isRTL
+          ? "هل أنت متأكد من حذف هذه الشراكة؟"
+          : "Are you sure you want to delete this partnership?"
+      )
+    ) {
       return;
     }
 
     try {
       await apiService.deletePartnership(id);
-      showToast("Partnership deleted successfully!", "success");
+      showToast(
+        isRTL ? "تم حذف الشراكة بنجاح!" : "Partnership deleted successfully!",
+        "success"
+      );
       fetchPartnerships();
     } catch (error) {
       console.error("Error:", error);
-      showToast("Failed to delete partnership. Please try again.", "error");
+      showToast(
+        isRTL
+          ? "فشل في حذف الشراكة. يرجى المحاولة مرة أخرى."
+          : "Failed to delete partnership. Please try again.",
+        "error"
+      );
     }
   };
 
   // Handle edit
   const handleEdit = (partnership: Partnership) => {
     if (!canEdit) {
-      showToast("You don't have permission to edit partnerships", "error");
+      showToast(
+        isRTL
+          ? "ليس لديك صلاحية لتحرير الشراكات"
+          : "You don't have permission to edit partnerships",
+        "error"
+      );
       return;
     }
 
