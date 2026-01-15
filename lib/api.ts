@@ -1426,6 +1426,53 @@ class ApiService {
     );
   }
 
+  // ====== ADMIN EMAIL SERVICES ======
+  async sendEmail(data: {
+    to: string;
+    subject: string;
+    message: string;
+  }): Promise<{
+    message: string;
+    to: string;
+    subject: string;
+    sent_at: string;
+  }> {
+    return this.request(
+      "/api/admin/email/send",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+      true
+    );
+  }
+
+  async sendBulkEmail(data: {
+    recipients: string[];
+    subject: string;
+    message: string;
+  }): Promise<{
+    message: string;
+    total_recipients: number;
+    sent_count: number;
+    failed_count: number;
+    failed_recipients?: Array<{
+      email: string;
+      error: string;
+    }>;
+    subject: string;
+    sent_at: string;
+  }> {
+    return this.request(
+      "/api/admin/email/send-bulk",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+      true
+    );
+  }
+
   async markAsRead(data: {
     type:
       | "supplier_inquiry"

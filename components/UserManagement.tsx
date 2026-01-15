@@ -13,7 +13,7 @@ import {
 } from "../lib/types";
 
 export default function UserManagement() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user, loading } = useAuth();
   const [permissions, setPermissions] = useState<any>(null);
   const [permissionsLoading, setPermissionsLoading] = useState(true);
@@ -132,6 +132,12 @@ export default function UserManagement() {
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [showUserDetails, setShowUserDetails] = useState<Supplier | null>(null);
   const [showUserModal, setShowUserModal] = useState<boolean>(false);
+  const [showEmailModal, setShowEmailModal] = useState<boolean>(false);
+  const [emailRecipient, setEmailRecipient] = useState<Supplier | null>(null);
+  const [emailForm, setEmailForm] = useState({
+    subject: "",
+    message: "",
+  });
   const [editingUser, setEditingUser] = useState<Supplier | null>(null);
   const [userForm, setUserForm] = useState<
     Omit<
@@ -190,11 +196,7 @@ export default function UserManagement() {
     if (canViewUsers || user?.role === "super_admin") {
       fetchSuppliers();
     }
-  }, [
-    pagination.currentPage,
-    canViewUsers,
-    user?.role,
-  ]);
+  }, [pagination.currentPage, canViewUsers, user?.role]);
 
   const openAddUser = () => {
     setEditingUser(null);
@@ -326,7 +328,7 @@ export default function UserManagement() {
   };
 
   const handleUserAction = async (
-    action: "edit" | "suspend" | "delete",
+    action: "edit" | "suspend" | "delete" | "sendEmail" | "sendMessage",
     userId: number
   ) => {
     const target = users.find((u: Supplier) => u.id === userId);
@@ -340,10 +342,11 @@ export default function UserManagement() {
           target.status === "suspended" ? "active" : "suspended";
         await apiService.updateSupplier(userId, { status: newStatus });
         await fetchSuppliers();
-        
-        const message = newStatus === "suspended" 
-          ? t("userManagement.notifications.userSuspended")
-          : t("userManagement.notifications.userActivated");
+
+        const message =
+          newStatus === "suspended"
+            ? t("userManagement.notifications.userSuspended")
+            : t("userManagement.notifications.userActivated");
         toast.success(message);
       } else if (action === "delete") {
         // Add confirmation for single delete
@@ -357,6 +360,16 @@ export default function UserManagement() {
         await apiService.deleteSupplier(userId);
         await fetchSuppliers();
         toast.success(t("userManagement.notifications.userDeleted"));
+      } else if (action === "sendEmail") {
+        // Open email modal
+        setEmailRecipient(target);
+        setEmailForm({ subject: "", message: "" });
+        setShowEmailModal(true);
+      } else if (action === "sendMessage") {
+        // TODO: Implement internal messaging functionality
+        toast.info(
+          `Internal messaging for ${target.name} will be implemented soon`
+        );
       }
     } catch (error) {
       console.error(`Failed to ${action} supplier:`, error);
@@ -364,13 +377,73 @@ export default function UserManagement() {
     }
   };
 
-  const handleBulkAction = async (action: "suspend" | "delete") => {
+  const sendEmail = async () => {
+    if (
+      !emailRecipient ||
+      !emailForm.subject.trim() ||
+      !emailForm.message.trim()
+    ) {
+      toast.error(
+        language === "ar"
+          ? "يرجى ملء جميع حقول البريد الإلكتروني"
+          : "Please fill in all email fields"
+      );
+      return;
+    }
+
+    try {
+      const response = await apiService.sendEmail({
+        to: emailRecipient.email,
+        subject: emailForm.subject,
+        message: emailForm.message,
+      });
+
+      toast.success(
+        language === "ar"
+          ? `تم إرسال البريد الإلكتروني بنجاح إلى ${emailRecipient.name}`
+          : `Email sent successfully to ${emailRecipient.name}`
+      );
+      setShowEmailModal(false);
+      setEmailRecipient(null);
+      setEmailForm({ subject: "", message: "" });
+    } catch (error: any) {
+      console.error("Failed to send email:", error);
+
+      // Handle validation errors
+      if (error.message && typeof error.message === "object") {
+        const errorMessages = Object.values(error.message).flat();
+        toast.error(errorMessages.join(", "));
+      } else {
+        toast.error(
+          language === "ar"
+            ? "فشل في إرسال البريد الإلكتروني"
+            : "Failed to send email"
+        );
+      }
+    }
+  };
+
+  const handleBulkAction = async (
+    action: "suspend" | "delete" | "sendEmail"
+  ) => {
     if (selectedUsers.length === 0) return;
+
+    if (action === "sendEmail") {
+      // Open bulk email modal
+      setEmailRecipient(null); // Clear single recipient
+      setEmailForm({ subject: "", message: "" });
+      setShowEmailModal(true);
+      return;
+    }
 
     // Show confirmation
     const confirmMessage =
       action === "delete"
-        ? `Are you sure you want to delete ${selectedUsers.length} user(s)? This action cannot be undone.`
+        ? language === "ar"
+          ? `هل أنت متأكد من حذف ${selectedUsers.length} مستخدم؟`
+          : `Are you sure you want to delete ${selectedUsers.length} user(s)? This action cannot be undone.`
+        : language === "ar"
+        ? `هل أنت متأكد من تعليق ${selectedUsers.length} مستخدم؟`
         : `Are you sure you want to suspend ${selectedUsers.length} user(s)?`;
 
     if (!window.confirm(confirmMessage)) {
@@ -383,7 +456,11 @@ export default function UserManagement() {
         await Promise.all(
           selectedUsers.map((userId) => apiService.deleteSupplier(userId))
         );
-        toast.success(t("userManagement.notifications.usersDeleted").replace("{count}", selectedUsers.length.toString()));
+        toast.success(
+          language === "ar"
+            ? `تم حذف ${selectedUsers.length} مستخدم بنجاح`
+            : `Deleted ${selectedUsers.length} user(s) successfully`
+        );
       } else if (action === "suspend") {
         // Suspend suppliers one by one
         await Promise.all(
@@ -391,14 +468,89 @@ export default function UserManagement() {
             apiService.updateSupplier(userId, { status: "suspended" })
           )
         );
-        toast.success(t("userManagement.notifications.usersSuspended").replace("{count}", selectedUsers.length.toString()));
+        toast.success(
+          language === "ar"
+            ? `تم تعليق ${selectedUsers.length} مستخدم بنجاح`
+            : `Suspended ${selectedUsers.length} user(s) successfully`
+        );
       }
 
       setSelectedUsers([]);
       await fetchSuppliers();
     } catch (error) {
       console.error(`Failed to ${action} suppliers:`, error);
-      toast.error(t("userManagement.notifications.bulkActionError"));
+      toast.error(
+        language === "ar" ? "فشل في تنفيذ الإجراء" : "Failed to perform action"
+      );
+    }
+  };
+
+  const sendBulkEmail = async () => {
+    if (!emailForm.subject.trim() || !emailForm.message.trim()) {
+      toast.error(
+        language === "ar"
+          ? "يرجى ملء جميع حقول البريد الإلكتروني"
+          : "Please fill in all email fields"
+      );
+      return;
+    }
+
+    if (selectedUsers.length === 0) {
+      toast.error(
+        language === "ar"
+          ? "يرجى تحديد مستخدمين على الأقل"
+          : "Please select at least one user"
+      );
+      return;
+    }
+
+    try {
+      const selectedUsersData = users.filter((user) =>
+        selectedUsers.includes(user.id)
+      );
+      const recipients = selectedUsersData.map((user) => user.email);
+
+      const response = await apiService.sendBulkEmail({
+        recipients,
+        subject: emailForm.subject,
+        message: emailForm.message,
+      });
+
+      const successMessage =
+        language === "ar"
+          ? `تم إرسال البريد الإلكتروني بنجاح إلى ${response.sent_count} من ${response.total_recipients} مستخدم`
+          : `Email sent successfully to ${response.sent_count} of ${response.total_recipients} users`;
+
+      toast.success(successMessage);
+
+      if (response.failed_count > 0) {
+        const failedEmails =
+          response.failed_recipients?.map((r: any) => r.email).join(", ") || "";
+        const failedMessage =
+          language === "ar"
+            ? `فشل الإرسال إلى: ${failedEmails}`
+            : `Failed to send to: ${failedEmails}`;
+        toast.warning(failedMessage);
+      }
+
+      setShowEmailModal(false);
+      setEmailRecipient(null);
+      setEmailForm({ subject: "", message: "" });
+      setSelectedUsers([]);
+    } catch (error: any) {
+      console.error("Failed to send bulk email:", error);
+
+      // Handle validation errors
+      if (error.message && typeof error.message === "object") {
+        const errorMessages = Object.values(error.message).flat();
+        toast.error(errorMessages.join(", "));
+      } else {
+        toast.error(
+          language === "ar"
+            ? "فشل في إرسال البريد الإلكتروني الجماعي"
+            : "Failed to send bulk email"
+        );
+      }
     }
   };
 
@@ -409,7 +561,7 @@ export default function UserManagement() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
           <h3 className="text-xl font-semibold text-gray-600 mb-2">
-            Loading...
+            {language === "ar" ? "جاري التحميل..." : "Loading..."}
           </h3>
         </div>
       </div>
@@ -423,10 +575,12 @@ export default function UserManagement() {
         <div className="text-center">
           <i className="ri-lock-line text-6xl text-gray-300 mb-4"></i>
           <h3 className="text-xl font-semibold text-gray-600 mb-2">
-            Access Denied
+            {language === "ar" ? "ممنوع الدخول" : "Access Denied"}
           </h3>
           <p className="text-gray-500">
-            You don't have permission to access User Management
+            {language === "ar"
+              ? "ليس لديك صلاحية الوصول إلى إدارة المستخدمين"
+              : "You don't have permission to access User Management"}
           </p>
         </div>
       </div>
@@ -437,11 +591,34 @@ export default function UserManagement() {
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
-          {t("userManagement.title")}
+          {language === "ar" ? "إدارة المستخدمين" : "User Management"}
         </h2>
         <div className="flex flex-col sm:flex-row gap-3">
           {selectedUsers.length > 0 && (
             <div className="flex gap-2">
+              <button
+                onClick={() => handleBulkAction("sendEmail")}
+                disabled={selectedUsers.length === 0}
+                className={`px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap cursor-pointer ${
+                  selectedUsers.length > 0
+                    ? "bg-purple-500 text-white hover:bg-purple-600"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+                title={
+                  selectedUsers.length > 0
+                    ? language === "ar"
+                      ? `إرسال بريد إلكتروني إلى ${selectedUsers.length} مستخدم`
+                      : `Send email to ${selectedUsers.length} user(s)`
+                    : language === "ar"
+                    ? "يرجى تحديد مستخدمين أولاً"
+                    : "Please select users first"
+                }
+              >
+                <i className="ri-mail-send-line mr-2"></i>
+                {language === "ar"
+                  ? `إرسال بريد (${selectedUsers.length})`
+                  : `Send Email (${selectedUsers.length})`}
+              </button>
               <button
                 onClick={() => handleBulkAction("suspend")}
                 disabled={!(canEditUsers || hasFullUserManagement)}
@@ -452,18 +629,18 @@ export default function UserManagement() {
                 }`}
                 title={
                   canEditUsers || hasFullUserManagement
-                    ? t("userManagement.bulkSuspend").replace(
-                        "{count}",
-                        selectedUsers.length.toString()
-                      )
+                    ? language === "ar"
+                      ? `تعليق ${selectedUsers.length} مستخدم`
+                      : `Suspend ${selectedUsers.length} user(s)`
+                    : language === "ar"
+                    ? "ليس لديك صلاحية تعليق المستخدمين"
                     : "You need Edit Users or Full User Management permission to suspend users"
                 }
               >
                 <i className="ri-pause-circle-line mr-2"></i>
-                {t("userManagement.bulkSuspend").replace(
-                  "{count}",
-                  selectedUsers.length.toString()
-                )}
+                {language === "ar"
+                  ? `تعليق (${selectedUsers.length})`
+                  : `Suspend (${selectedUsers.length})`}
               </button>
               <button
                 onClick={() => handleBulkAction("delete")}
@@ -475,18 +652,18 @@ export default function UserManagement() {
                 }`}
                 title={
                   canDeleteUsers || hasFullUserManagement
-                    ? t("userManagement.bulkDelete").replace(
-                        "{count}",
-                        selectedUsers.length.toString()
-                      )
+                    ? language === "ar"
+                      ? `حذف ${selectedUsers.length} مستخدم`
+                      : `Delete ${selectedUsers.length} user(s)`
+                    : language === "ar"
+                    ? "ليس لديك صلاحية حذف المستخدمين"
                     : "You need Delete Users or Full User Management permission to delete users"
                 }
               >
                 <i className="ri-delete-bin-line mr-2"></i>
-                {t("userManagement.bulkDelete").replace(
-                  "{count}",
-                  selectedUsers.length.toString()
-                )}
+                {language === "ar"
+                  ? `حذف (${selectedUsers.length})`
+                  : `Delete (${selectedUsers.length})`}
               </button>
             </div>
           )}
@@ -500,12 +677,16 @@ export default function UserManagement() {
             }`}
             title={
               hasFullUserManagement
-                ? t("userManagement.addUser")
+                ? language === "ar"
+                  ? "إضافة مستخدم"
+                  : "Add User"
+                : language === "ar"
+                ? "ليس لديك صلاحية إضافة المستخدمين"
                 : "You need Full User Management permission to add users"
             }
           >
             <i className="ri-add-line mr-2"></i>
-            {t("userManagement.addUser")}
+            {language === "ar" ? "إضافة مستخدم" : "Add User"}
           </button>
         </div>
       </div>
@@ -515,7 +696,7 @@ export default function UserManagement() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t("userManagement.searchUsers")}
+              {language === "ar" ? "بحث المستخدمين" : "Search Users"}
             </label>
             <div className="relative">
               <i className="ri-search-line absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
@@ -523,7 +704,9 @@ export default function UserManagement() {
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder={t("userManagement.searchPlaceholder")}
+                placeholder={
+                  language === "ar" ? "بحث المستخدمين..." : "Search users..."
+                }
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
               />
             </div>
@@ -531,7 +714,7 @@ export default function UserManagement() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t("userManagement.status")}
+              {language === "ar" ? "الحالة" : "Status"}
             </label>
             <select
               value={filterStatus}
@@ -548,20 +731,30 @@ export default function UserManagement() {
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
             >
-              <option value="all">{t("userManagement.allStatus")}</option>
-              <option value="active">{t("userManagement.active")}</option>
-              <option value="suspended">{t("userManagement.suspended")}</option>
-              <option value="pending">{t("userManagement.pending")}</option>
-              <option value="inactive">{t("userManagement.inactive")}</option>
+              <option value="all">
+                {language === "ar" ? "جميع الحالات" : "All Status"}
+              </option>
+              <option value="active">
+                {language === "ar" ? "نشط" : "Active"}
+              </option>
+              <option value="suspended">
+                {language === "ar" ? "معلق" : "Suspended"}
+              </option>
+              <option value="pending">
+                {language === "ar" ? "قيد الانتظار" : "Pending"}
+              </option>
+              <option value="inactive">
+                {language === "ar" ? "غير نشط" : "Inactive"}
+              </option>
               <option value="approved">
-                {t("userManagement.approved") || "Approved"}
+                {language === "ar" ? "معتمد" : "Approved"}
               </option>
             </select>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t("userManagement.plan")}
+              {language === "ar" ? "الخطة" : "Plan"}
             </label>
             <select
               value={filterPlan}
@@ -572,11 +765,17 @@ export default function UserManagement() {
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
             >
-              <option value="all">{t("userManagement.allPlans")}</option>
-              <option value="Basic">{t("userManagement.basic")}</option>
-              <option value="Premium">{t("userManagement.premium")}</option>
+              <option value="all">
+                {language === "ar" ? "جميع الخطط" : "All Plans"}
+              </option>
+              <option value="Basic">
+                {language === "ar" ? "أساسي" : "Basic"}
+              </option>
+              <option value="Premium">
+                {language === "ar" ? "متميز" : "Premium"}
+              </option>
               <option value="Enterprise">
-                {t("userManagement.enterprise")}
+                {language === "ar" ? "تجاري" : "Enterprise"}
               </option>
             </select>
           </div>
@@ -592,12 +791,16 @@ export default function UserManagement() {
               }`}
               title={
                 hasFullUserManagement
-                  ? t("userManagement.exportData")
+                  ? language === "ar"
+                    ? "تصدير البيانات"
+                    : "Export Data"
+                  : language === "ar"
+                  ? "ليس لديك صلاحية تصدير البيانات"
                   : "You need Full User Management permission to export data"
               }
             >
               <i className="ri-download-line mr-2"></i>
-              {t("userManagement.exportData")}
+              {language === "ar" ? "تصدير البيانات" : "Export Data"}
             </button>
           </div>
         </div>
@@ -612,7 +815,7 @@ export default function UserManagement() {
                 <th className="text-left py-3 px-4 sm:px-6">
                   <input
                     type="checkbox"
-                    className="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-red-400"
+                    className="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-2 focus:ring-red-400"
                     onChange={(e) => {
                       if (e.target.checked) {
                         setSelectedUsers(filteredUsers.map((u) => u.id));
@@ -623,25 +826,25 @@ export default function UserManagement() {
                   />
                 </th>
                 <th className="text-left py-3 px-4 sm:px-6 text-sm font-medium text-gray-700">
-                  {t("userManagement.user")}
+                  {language === "ar" ? "المستخدم" : "User"}
                 </th>
                 <th className="text-left py-3 px-4 sm:px-6 text-sm font-medium text-gray-700">
-                  {t("userManagement.business")}
+                  {language === "ar" ? "العمل التجاري" : "Business"}
                 </th>
                 <th className="text-left py-3 px-4 sm:px-6 text-sm font-medium text-gray-700">
-                  {t("userManagement.plan")}
+                  {language === "ar" ? "الخطة" : "Plan"}
                 </th>
                 <th className="text-left py-3 px-4 sm:px-6 text-sm font-medium text-gray-700">
-                  {t("userManagement.status")}
+                  {language === "ar" ? "الحالة" : "Status"}
                 </th>
                 <th className="text-left py-3 px-4 sm:px-6 text-sm font-medium text-gray-700">
-                  {t("userManagement.revenue")}
+                  {language === "ar" ? "الإيرادات" : "Revenue"}
                 </th>
                 <th className="text-left py-3 px-4 sm:px-6 text-sm font-medium text-gray-700">
-                  {t("userManagement.lastActive")}
+                  {language === "ar" ? "آخر نشاط" : "Last Active"}
                 </th>
                 <th className="text-left py-3 px-4 sm:px-6 text-sm font-medium text-gray-700">
-                  {t("userManagement.actions")}
+                  {language === "ar" ? "الإجراءات" : "Actions"}
                 </th>
               </tr>
             </thead>
@@ -661,7 +864,7 @@ export default function UserManagement() {
                           );
                         }
                       }}
-                      className="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-red-400"
+                      className="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-2 focus:ring-red-400"
                     />
                   </td>
                   <td className="py-4 px-4 sm:px-6">
@@ -737,9 +940,25 @@ export default function UserManagement() {
                       <button
                         onClick={() => setShowUserDetails(user)}
                         className="text-blue-600 hover:text-blue-700 cursor-pointer"
-                        title={t("userManagement.viewDetails")}
+                        title={
+                          language === "ar" ? "عرض التفاصيل" : "View Details"
+                        }
                       >
                         <i className="ri-eye-line text-sm sm:text-base"></i>
+                      </button>
+                      <button
+                        onClick={() => handleUserAction("sendEmail", user.id)}
+                        className="text-purple-600 hover:text-purple-700 cursor-pointer"
+                        title="Send Email"
+                      >
+                        <i className="ri-mail-send-line text-sm sm:text-base"></i>
+                      </button>
+                      <button
+                        onClick={() => handleUserAction("sendMessage", user.id)}
+                        className="text-indigo-600 hover:text-indigo-700 cursor-pointer"
+                        title="Send Message"
+                      >
+                        <i className="ri-message-3-line text-sm sm:text-base"></i>
                       </button>
                       <button
                         onClick={() => handleUserAction("edit", user.id)}
@@ -751,7 +970,11 @@ export default function UserManagement() {
                         }`}
                         title={
                           canEditUsers || hasFullUserManagement
-                            ? t("userManagement.edit")
+                            ? language === "ar"
+                              ? "تعديل المستخدم"
+                              : "Edit User"
+                            : language === "ar"
+                            ? "ليس لديك صلاحية تعديل المستخدمين"
                             : "You need Edit Users or Full User Management permission to edit users"
                         }
                       >
@@ -767,7 +990,11 @@ export default function UserManagement() {
                         }`}
                         title={
                           canEditUsers || hasFullUserManagement
-                            ? t("userManagement.suspendUser")
+                            ? language === "ar"
+                              ? "تعليق المستخدم"
+                              : "Suspend User"
+                            : language === "ar"
+                            ? "ليس لديك صلاحية تعليق المستخدمين"
                             : "You need Edit Users or Full User Management permission to suspend users"
                         }
                       >
@@ -783,7 +1010,11 @@ export default function UserManagement() {
                         }`}
                         title={
                           canDeleteUsers || hasFullUserManagement
-                            ? t("userManagement.deleteUser")
+                            ? language === "ar"
+                              ? "حذف المستخدم"
+                              : "Delete User"
+                            : language === "ar"
+                            ? "ليس لديك صلاحية حذف المستخدمين"
                             : "You need Delete Users or Full User Management permission to delete users"
                         }
                       >
@@ -801,13 +1032,13 @@ export default function UserManagement() {
         <div className="bg-gray-50 px-4 sm:px-6 py-3 border-t border-gray-200">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="text-xs sm:text-sm text-gray-600">
-              {t("userManagement.showingUsers")
-                .replace("{count}", filteredUsers.length.toString())
-                .replace("{total}", pagination.total.toString())}
+              {language === "ar"
+                ? `عرض ${filteredUsers.length} من ${pagination.total} مستخدم`
+                : `Showing ${filteredUsers.length} of ${pagination.total} users`}
             </div>
             <div className="flex items-center space-x-2">
               <button className="px-3 py-1 border border-gray-300 rounded text-xs sm:text-sm hover:bg-gray-100 cursor-pointer">
-                {t("userManagement.previous")}
+                {language === "ar" ? "السابق" : "Previous"}
               </button>
               <button className="px-3 py-1 bg-red-500 text-white rounded text-xs sm:text-sm">
                 1
@@ -816,7 +1047,7 @@ export default function UserManagement() {
                 2
               </button>
               <button className="px-3 py-1 border border-gray-300 rounded text-xs sm:text-sm hover:bg-gray-100 cursor-pointer">
-                {t("userManagement.next")}
+                {language === "ar" ? "التالي" : "Next"}
               </button>
             </div>
           </div>
@@ -830,7 +1061,7 @@ export default function UserManagement() {
             <div className="p-4 sm:p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h3 className="text-base sm:text-lg font-semibold text-gray-800">
-                  {t("userManagement.userDetails")}
+                  {language === "ar" ? "تفاصيل المستخدم" : "User Details"}
                 </h3>
                 <button
                   onClick={() => setShowUserDetails(null)}
@@ -874,7 +1105,7 @@ export default function UserManagement() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t("userManagement.plan")}
+                    {language === "ar" ? "الخطة" : "Plan"}
                   </label>
                   <span
                     className={`px-3 py-1 rounded-full text-sm font-medium ${getPlanColor(
@@ -886,7 +1117,7 @@ export default function UserManagement() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t("userManagement.status")}
+                    {language === "ar" ? "الحالة" : "Status"}
                   </label>
                   <span
                     className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${getStatusColor(
@@ -898,7 +1129,7 @@ export default function UserManagement() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t("userManagement.joinDate")}
+                    {language === "ar" ? "تاريخ الانضمام" : "Join Date"}
                   </label>
                   <p className="text-gray-800 text-sm sm:text-base">
                     {new Date(showUserDetails.joinDate).toLocaleDateString()}
@@ -906,7 +1137,7 @@ export default function UserManagement() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t("userManagement.revenue")}
+                    {language === "ar" ? "الإيرادات" : "Revenue"}
                   </label>
                   <p className="text-gray-800 font-medium text-sm sm:text-base">
                     {showUserDetails.revenue}
@@ -923,7 +1154,7 @@ export default function UserManagement() {
                   className="bg-blue-500 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-blue-600 font-medium text-sm whitespace-nowrap cursor-pointer"
                 >
                   <i className="ri-edit-line mr-2"></i>
-                  {t("userManagement.editUser")}
+                  {language === "ar" ? "تعديل المستخدم" : "Edit User"}
                 </button>
                 <button
                   onClick={() => {
@@ -933,7 +1164,7 @@ export default function UserManagement() {
                   className="bg-yellow-500 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-yellow-600 font-medium text-sm whitespace-nowrap cursor-pointer"
                 >
                   <i className="ri-pause-circle-line mr-2"></i>
-                  {t("userManagement.suspend")}
+                  {language === "ar" ? "تعليق المستخدم" : "Suspend User"}
                 </button>
                 <button
                   onClick={() => {
@@ -943,7 +1174,7 @@ export default function UserManagement() {
                   className="bg-red-500 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-red-600 font-medium text-sm whitespace-nowrap cursor-pointer"
                 >
                   <i className="ri-delete-bin-line mr-2"></i>
-                  {t("userManagement.delete")}
+                  {language === "ar" ? "حذف المستخدم" : "Delete User"}
                 </button>
               </div>
             </div>
@@ -958,8 +1189,12 @@ export default function UserManagement() {
             <div className="p-4 sm:p-6 border-b border-gray-200 flex items-center justify-between">
               <h3 className="text-base sm:text-lg font-semibold text-gray-800">
                 {editingUser
-                  ? t("userManagement.editUser")
-                  : t("userManagement.addUser")}
+                  ? language === "ar"
+                    ? "تعديل المستخدم"
+                    : "Edit User"
+                  : language === "ar"
+                  ? "إضافة مستخدم"
+                  : "Add User"}
               </h3>
               <button
                 onClick={() => {
@@ -974,7 +1209,7 @@ export default function UserManagement() {
             <div className="p-4 sm:p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t("userManagement.name")}
+                  {language === "ar" ? "الاسم" : "Name"}
                 </label>
                 <input
                   type="text"
@@ -983,12 +1218,12 @@ export default function UserManagement() {
                     setUserForm({ ...userForm, name: e.target.value })
                   }
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
-                  placeholder={t("userManagement.name")}
+                  placeholder={language === "ar" ? "الاسم" : "Name"}
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t("userManagement.email")}
+                  {language === "ar" ? "البريد الإلكتروني" : "Email"}
                 </label>
                 <input
                   type="email"
@@ -997,12 +1232,14 @@ export default function UserManagement() {
                     setUserForm({ ...userForm, email: e.target.value })
                   }
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
-                  placeholder={t("userManagement.email")}
+                  placeholder={
+                    language === "ar" ? "البريد الإلكتروني" : "Email"
+                  }
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t("userManagement.businessName")}
+                  {language === "ar" ? "اسم العمل التجاري" : "Business Name"}
                 </label>
                 <input
                   type="text"
@@ -1011,13 +1248,15 @@ export default function UserManagement() {
                     setUserForm({ ...userForm, businessName: e.target.value })
                   }
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
-                  placeholder={t("userManagement.businessName")}
+                  placeholder={
+                    language === "ar" ? "اسم العمل التجاري" : "Business Name"
+                  }
                 />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t("userManagement.plan")}
+                    {language === "ar" ? "الخطة" : "Plan"}
                   </label>
                   <select
                     value={userForm.plan}
@@ -1029,18 +1268,20 @@ export default function UserManagement() {
                     }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
                   >
-                    <option value="Basic">{t("userManagement.basic")}</option>
+                    <option value="Basic">
+                      {language === "ar" ? "أساسي" : "Basic"}
+                    </option>
                     <option value="Premium">
-                      {t("userManagement.premium")}
+                      {language === "ar" ? "متميز" : "Premium"}
                     </option>
                     <option value="Enterprise">
-                      {t("userManagement.enterprise")}
+                      {language === "ar" ? "تجاري" : "Enterprise"}
                     </option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t("userManagement.status")}
+                    {language === "ar" ? "الحالة" : "Status"}
                   </label>
                   <select
                     value={userForm.status}
@@ -1052,15 +1293,17 @@ export default function UserManagement() {
                     }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
                   >
-                    <option value="active">{t("userManagement.active")}</option>
+                    <option value="active">
+                      {language === "ar" ? "نشط" : "Active"}
+                    </option>
                     <option value="pending">
-                      {t("userManagement.pending")}
+                      {language === "ar" ? "قيد الانتظار" : "Pending"}
                     </option>
                     <option value="suspended">
-                      {t("userManagement.suspended")}
+                      {language === "ar" ? "معلق" : "Suspended"}
                     </option>
                     <option value="inactive">
-                      {t("userManagement.inactive")}
+                      {language === "ar" ? "غير نشط" : "Inactive"}
                     </option>
                   </select>
                 </div>
@@ -1068,7 +1311,7 @@ export default function UserManagement() {
               {!editingUser && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t("userManagement.password") || "Password"}
+                    {language === "ar" ? "كلمة المرور" : "Password"}
                   </label>
                   <input
                     type="password"
@@ -1077,7 +1320,7 @@ export default function UserManagement() {
                       setUserForm({ ...userForm, password: e.target.value })
                     }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
-                    placeholder={t("userManagement.password") || "Password"}
+                    placeholder={language === "ar" ? "كلمة المرور" : "Password"}
                   />
                 </div>
               )}
@@ -1090,7 +1333,7 @@ export default function UserManagement() {
                 }}
                 className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-sm whitespace-nowrap cursor-pointer order-2 sm:order-1"
               >
-                {t("userManagement.cancel")}
+                {language === "ar" ? "إلغاء" : "Cancel"}
               </button>
               <button
                 onClick={saveUser}
@@ -1109,7 +1352,128 @@ export default function UserManagement() {
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
               >
-                {t("userManagement.save")}
+                {language === "ar" ? "حفظ" : "Save"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Email Modal */}
+      {showEmailModal && (emailRecipient || selectedUsers.length > 0) && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full max-h-screen overflow-y-auto">
+            <div className="p-4 sm:p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  {emailRecipient
+                    ? language === "ar"
+                      ? `إرسال بريد إلكتروني إلى ${emailRecipient.name}`
+                      : `Send Email to ${emailRecipient.name}`
+                    : language === "ar"
+                    ? `إرسال بريد إلكتروني إلى ${selectedUsers.length} مستخدم`
+                    : `Send Email to ${selectedUsers.length} user(s)`}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowEmailModal(false);
+                    setEmailRecipient(null);
+                    setEmailForm({ subject: "", message: "" });
+                  }}
+                  className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                >
+                  <i className="ri-close-line text-xl"></i>
+                </button>
+              </div>
+            </div>
+
+            <div className="p-4 sm:p-6">
+              {emailRecipient ? (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {language === "ar" ? "إلى" : "To"}
+                  </label>
+                  <input
+                    type="email"
+                    value={emailRecipient.email}
+                    disabled
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 text-sm"
+                  />
+                </div>
+              ) : (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {language === "ar" ? "المستلمون" : "Recipients"}
+                  </label>
+                  <div className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 text-sm">
+                    {selectedUsers.length}{" "}
+                    {language === "ar" ? "مستخدم محدد" : "selected users"}
+                  </div>
+                </div>
+              )}
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {language === "ar" ? "الموضوع" : "Subject"}
+                </label>
+                <input
+                  type="text"
+                  value={emailForm.subject}
+                  onChange={(e) =>
+                    setEmailForm({ ...emailForm, subject: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
+                  placeholder={
+                    language === "ar"
+                      ? "أدخل موضوع البريد الإلكتروني"
+                      : "Enter email subject"
+                  }
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {language === "ar" ? "الرسالة" : "Message"}
+                </label>
+                <textarea
+                  value={emailForm.message}
+                  onChange={(e) =>
+                    setEmailForm({ ...emailForm, message: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm resize-none"
+                  rows={6}
+                  placeholder={
+                    language === "ar"
+                      ? "اكتب رسالتك هنا..."
+                      : "Type your message here..."
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="p-4 sm:p-6 border-t border-gray-200 flex flex-col sm:flex-row justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowEmailModal(false);
+                  setEmailRecipient(null);
+                  setEmailForm({ subject: "", message: "" });
+                }}
+                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-sm whitespace-nowrap cursor-pointer order-2 sm:order-1"
+              >
+                {language === "ar" ? "إلغاء" : "Cancel"}
+              </button>
+              <button
+                onClick={emailRecipient ? sendEmail : sendBulkEmail}
+                disabled={
+                  !emailForm.subject.trim() || !emailForm.message.trim()
+                }
+                className={`px-6 py-2 rounded-lg font-medium text-sm whitespace-nowrap cursor-pointer transition-all order-1 sm:order-2 ${
+                  emailForm.subject.trim() && emailForm.message.trim()
+                    ? "bg-red-500 text-white hover:bg-red-600"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+              >
+                {language === "ar" ? "إرسال البريد الإلكتروني" : "Send Email"}
               </button>
             </div>
           </div>
