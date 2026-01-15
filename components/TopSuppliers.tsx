@@ -260,7 +260,7 @@ export default function TopSuppliers() {
                   disableOnInteraction: false,
                   pauseOnMouseEnter: true, // إضافة هذه الخاصية لتوقيف الأوتوبلاي عند التمرير بالفأرة
                 }}
-                loop
+                loop={topSuppliers.length > 3}
                 dir={isRTL ? "rtl" : "ltr"}
                 className="custom-swiper"
                 breakpoints={{

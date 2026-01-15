@@ -3,9 +3,10 @@
  * This file contains all API endpoints from the Postman collection
  */
 
+import { API_BASE_URL } from "../config";
+
 export const API_CONFIG = {
-  baseUrl:
-    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api",
+  baseUrl: `${API_BASE_URL}/api`,
 
   // Auth endpoints
   auth: {
@@ -133,16 +134,19 @@ export const API_CONFIG = {
 /**
  * Helper function to build full URL
  */
-export function buildUrl(endpoint: string, params?: Record<string, string | number>): string {
+export function buildUrl(
+  endpoint: string,
+  params?: Record<string, string | number>
+): string {
   let url = endpoint;
-  
+
   // Replace path parameters
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
       url = url.replace(`:${key}`, String(value));
     });
   }
-  
+
   return `${API_CONFIG.baseUrl}${url}`;
 }
 
@@ -154,11 +158,10 @@ export function getAuthHeaders(token?: string): HeadersInit {
     "Content-Type": "application/json",
     Accept: "application/json",
   };
-  
+
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
-  
+
   return headers;
 }
-

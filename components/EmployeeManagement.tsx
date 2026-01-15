@@ -10,8 +10,7 @@ import {
   UpdateAdminRequest,
 } from "../types/auth";
 import { getAvatarUrl } from "../lib/avatarHelper";
-
-const API_BASE_URL = "http://localhost:8000";
+import { API_BASE_URL } from "../lib/config";
 type RoleDef = { name: string; permissions: string[]; description: string };
 type PermissionDef = { id: string; name: string; category: string };
 

@@ -10,6 +10,7 @@ import DashboardStats from "../../components/DashboardStats";
 import BusinessManagement from "../../components/BusinessManagement";
 import DashboardAnalytics from "../../components/DashboardAnalytics";
 import DashboardMessages from "../../components/DashboardMessages";
+import { getAvatarUrl } from "../../lib/avatarHelper";
 import DashboardSettings from "../../components/DashboardSettings";
 import { apiService } from "../../lib/api";
 
@@ -289,7 +290,7 @@ function DashboardContent() {
                     <img
                       alt={user?.name || "User"}
                       className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-yellow-100 shadow-lg"
-                      src={user?.avatar || avatarUrl}
+                      src={getAvatarUrl(user?.avatar, user?.name || "")}
                     />
                     <button
                       onClick={() => setShowPhotoUpload(true)}
@@ -474,7 +475,8 @@ function DashboardContent() {
                       <div className="relative">
                         <img
                           src={
-                            pendingAvatarPreview || user?.avatar || avatarUrl
+                            pendingAvatarPreview ||
+                            getAvatarUrl(user?.avatar, user?.name || "")
                           }
                           alt="Avatar Preview"
                           className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-yellow-100 shadow"
