@@ -13,6 +13,7 @@ import SystemSettings from "../../components/SystemSettings";
 import AdminAnalytics from "../../components/AdminAnalytics";
 import PartnershipsManagement from "../../components/PartnershipsManagement";
 import BusinessStatistics from "../../components/BusinessStatistics";
+import SupplierCommunications from "../../components/SupplierCommunications";
 import { ToastProvider } from "../../components/ToastContext";
 import { useAuth } from "../../hooks/useAuth";
 
@@ -30,6 +31,11 @@ export default function AdminDashboard() {
     { id: "users", name: "User Management", icon: "ri-user-settings-line" },
     { id: "employees", name: "Employee Management", icon: "ri-team-line" },
     { id: "content", name: "Content Management", icon: "ri-file-list-3-line" },
+    {
+      id: "communications",
+      name: "Supplier Communications",
+      icon: "ri-message-3-line",
+    },
     {
       id: "partnerships",
       name: "Partnerships Management",
@@ -160,6 +166,9 @@ export default function AdminDashboard() {
                     {activeTab === "users" && <UserManagement />}
                     {activeTab === "employees" && <EmployeeManagement />}
                     {activeTab === "content" && <ContentManagement />}
+                    {activeTab === "communications" && (
+                      <SupplierCommunications />
+                    )}
                     {activeTab === "partnerships" && <PartnershipsManagement />}
                     {activeTab === "business-statistics" && (
                       <BusinessStatistics />

@@ -23,6 +23,8 @@ import {
   CreateSupplierRequest,
   AdminInquiry,
   AdminInquiryListResponse,
+  CommunicationsResponse,
+  CommunicationsSummaryResponse,
 } from "./types";
 import { TopRatedSuppliersResponse } from "./types/topRatedSuppliers";
 import { AdminDashboardResponse } from "./types/adminDashboard";
@@ -2052,6 +2054,43 @@ class ApiService {
         body: JSON.stringify(data),
       },
       true // requires authentication
+    );
+  }
+
+  // ====== ADMIN COMMUNICATIONS ======
+  async getCommunications(
+    supplier1Id: number,
+    supplier2Id: number
+  ): Promise<CommunicationsResponse> {
+    const params = new URLSearchParams({
+      supplier1_id: supplier1Id.toString(),
+      supplier2_id: supplier2Id.toString(),
+    });
+
+    return this.request<CommunicationsResponse>(
+      `/api/admin/communications?${params}`,
+      {
+        method: "GET",
+      },
+      true
+    );
+  }
+
+  async getCommunicationsSummary(
+    supplier1Id: number,
+    supplier2Id: number
+  ): Promise<CommunicationsSummaryResponse> {
+    const params = new URLSearchParams({
+      supplier1_id: supplier1Id.toString(),
+      supplier2_id: supplier2Id.toString(),
+    });
+
+    return this.request<CommunicationsSummaryResponse>(
+      `/api/admin/communications/summary?${params}`,
+      {
+        method: "GET",
+      },
+      true
     );
   }
 }

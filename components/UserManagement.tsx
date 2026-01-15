@@ -11,21 +11,13 @@ import {
   UpdateSupplierRequest,
   CreateSupplierRequest,
 } from "../lib/types";
+import { getAvatarUrl } from "../lib/avatarHelper";
 
 export default function UserManagement() {
   const { t, language } = useLanguage();
   const { user, loading } = useAuth();
   const [permissions, setPermissions] = useState<any>(null);
   const [permissionsLoading, setPermissionsLoading] = useState(true);
-
-  // Helper function to get avatar with fallback
-  const getAvatarUrl = (avatar: string | null | undefined, name: string) => {
-    if (avatar && avatar !== "") {
-      return avatar;
-    }
-    // Use local default avatar
-    return "/placeholder-avatar.jpg";
-  };
 
   // Fetch permissions when component mounts
   useEffect(() => {

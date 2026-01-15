@@ -5094,6 +5094,7 @@ export const translations = {
         fromTypes: {
           supplier: "المورد",
           admin: "المشرف",
+          anonymous: "مجهول",
         },
         statusTypes: {
           read: "مقروء",

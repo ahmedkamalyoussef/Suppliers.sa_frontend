@@ -9,13 +9,7 @@ import {
   CreateAdminRequest,
   UpdateAdminRequest,
 } from "../types/auth";
-
-// Helper function to get full image URL
-const getImageUrl = (imagePath: string | null) => {
-  if (!imagePath) return "/icon.png";
-  if (imagePath.startsWith("http")) return imagePath;
-  return `${API_BASE_URL}/${imagePath}`;
-};
+import { getAvatarUrl } from "../lib/avatarHelper";
 
 const API_BASE_URL = "http://localhost:8000";
 type RoleDef = { name: string; permissions: string[]; description: string };
@@ -687,7 +681,10 @@ export default function EmployeeManagement() {
                       <td className="py-4 px-6">
                         <div className="flex items-center space-x-3">
                           <img
-                            src={getImageUrl(employee.profile_image)}
+                            src={getAvatarUrl(
+                              employee.profile_image,
+                              employee.name
+                            )}
                             alt={employee.name}
                             className="w-10 h-10 rounded-full object-cover"
                           />
@@ -1218,7 +1215,10 @@ export default function EmployeeManagement() {
                 <div className="p-6 space-y-6">
                   <div className="flex items-center space-x-4">
                     <img
-                      src={getImageUrl(selectedEmployee.profile_image)}
+                      src={getAvatarUrl(
+                        selectedEmployee.profile_image,
+                        selectedEmployee.name
+                      )}
                       alt={selectedEmployee.name}
                       className="w-16 h-16 rounded-full object-cover"
                     />

@@ -319,3 +319,71 @@ export interface BranchActionResponse {
   message: string;
   branch?: BranchResponse;
 }
+
+// ====== COMMUNICATIONS INTERFACES ======
+
+export interface CommunicationItem {
+  id: number;
+  type: "inquiry" | "message";
+  sender_id: number;
+  sender_name: string;
+  sender_email: string;
+  sender_image?: string;
+  receiver_id: number;
+  receiver_name: string;
+  receiver_email: string;
+  receiver_image?: string;
+  subject: string;
+  message: string;
+  phone?: string;
+  company?: string;
+  is_read: boolean;
+  read_at: string | null;
+  parent_id: number | null;
+  inquiry_type?: string;
+  message_type?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CommunicationStatistics {
+  total_communications: number;
+  total_inquiries: number;
+  total_messages: number;
+  unread_count: number;
+  last_communication: string;
+}
+
+export interface CommunicationSuppliers {
+  supplier1: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  supplier2: {
+    id: number;
+    name: string;
+    email: string;
+  };
+}
+
+export interface CommunicationsResponse {
+  message: string;
+  suppliers: CommunicationSuppliers;
+  statistics: CommunicationStatistics;
+  communications: CommunicationItem[];
+}
+
+export interface CommunicationSummary {
+  total_inquiries: number;
+  total_messages: number;
+  total_communications: number;
+  last_communication_at: string;
+}
+
+export interface CommunicationsSummaryResponse {
+  message: string;
+  supplier1_id: number;
+  supplier2_id: number;
+  summary: CommunicationSummary;
+}
