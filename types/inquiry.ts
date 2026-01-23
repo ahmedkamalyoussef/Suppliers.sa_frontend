@@ -4,6 +4,7 @@ export interface InquiryRequest {
   phone: string;
   subject: string;
   message: string;
+  receiver_id?: number;
 }
 
 export interface BusinessRequest {

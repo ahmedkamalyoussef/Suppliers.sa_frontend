@@ -100,7 +100,7 @@ class ApiService {
   private async request<T>(
     endpoint: string,
     options: RequestInit = {},
-    requiresAuth: boolean = false
+    requiresAuth: boolean = false,
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
 
@@ -155,13 +155,13 @@ class ApiService {
         if (response.status === 422) {
           const validationError = new ValidationError(
             "Validation failed",
-            responseData.errors || responseData
+            responseData.errors || responseData,
           );
           throw validationError;
         }
 
         throw new Error(
-          responseData.message || `HTTP error ${response.status}`
+          responseData.message || `HTTP error ${response.status}`,
         );
       }
 
@@ -187,13 +187,13 @@ class ApiService {
         method: "POST",
         body: JSON.stringify(data),
       },
-      true
+      true,
     );
   }
 
   async replyToInquiry(
     inquiryId: number,
-    data: { message: string }
+    data: { message: string },
   ): Promise<SupplierInquiryResponse> {
     return this.request(
       `/api/supplier/supplier-inquiries/${inquiryId}/reply`,
@@ -201,7 +201,7 @@ class ApiService {
         method: "POST",
         body: JSON.stringify(data),
       },
-      true
+      true,
     );
   }
 
@@ -211,7 +211,7 @@ class ApiService {
       {
         method: "POST",
       },
-      true
+      true,
     );
   }
 
@@ -221,7 +221,7 @@ class ApiService {
       {
         method: "GET",
       },
-      true
+      true,
     );
   }
 
@@ -231,12 +231,12 @@ class ApiService {
       {
         method: "GET",
       },
-      true
+      true,
     );
   }
 
   async createBusinessRequest(
-    request: BusinessRequest
+    request: BusinessRequest,
   ): Promise<BusinessRequestResponse> {
     return this.request(
       "/api/supplier/business-requests",
@@ -247,7 +247,7 @@ class ApiService {
         },
         body: JSON.stringify(request),
       },
-      true
+      true,
     );
   }
 
@@ -272,7 +272,7 @@ class ApiService {
         headers,
         body: JSON.stringify(data),
       },
-      false // doesn't require authentication
+      false, // doesn't require authentication
     )) as PublicInquiryResponse;
 
     return response;
@@ -280,7 +280,7 @@ class ApiService {
 
   // ====== API METHODS ======
   async registerSupplier(
-    data: RegistrationData
+    data: RegistrationData,
   ): Promise<RegistrationResponse> {
     return this.request("/api/supplier/register", {
       method: "POST",
@@ -328,7 +328,7 @@ class ApiService {
         localStorage.setItem("user_type", "supplier");
         localStorage.setItem(
           "supplier_user",
-          JSON.stringify(response.supplier)
+          JSON.stringify(response.supplier),
         );
         this.setCookie("user_type", "supplier", 7);
       } else if (response.userType === "admin" && response.admin) {
@@ -339,7 +339,7 @@ class ApiService {
         localStorage.setItem("user_type", "admin");
         localStorage.setItem(
           "admin_user",
-          JSON.stringify(response.super_admin)
+          JSON.stringify(response.super_admin),
         );
         this.setCookie("user_type", "admin", 7);
       }
@@ -353,7 +353,7 @@ class ApiService {
           const permissionsResponse = await this.getPermissions();
           localStorage.setItem(
             "admin_permissions",
-            JSON.stringify(permissionsResponse.permissions)
+            JSON.stringify(permissionsResponse.permissions),
           );
         } catch (error) {
           console.warn("Failed to fetch permissions:", error);
@@ -382,7 +382,7 @@ class ApiService {
         throw new Error("Invalid email or password. Please try again.");
       } else if (error.status === 423) {
         throw new Error(
-          "Account temporarily locked due to security reasons. Please contact support."
+          "Account temporarily locked due to security reasons. Please contact support.",
         );
       }
 
@@ -400,7 +400,7 @@ class ApiService {
         {
           method: "GET",
         },
-        true
+        true,
       );
       return response;
     } catch (error: any) {
@@ -442,7 +442,7 @@ class ApiService {
   }
 
   async forgotPassword(
-    data: ForgotPasswordRequest
+    data: ForgotPasswordRequest,
   ): Promise<{ message: string }> {
     return this.request("/api/auth/forgot-password", {
       method: "POST",
@@ -451,7 +451,7 @@ class ApiService {
   }
 
   async resetPassword(
-    data: ResetPasswordRequest
+    data: ResetPasswordRequest,
   ): Promise<{ message: string }> {
     return this.request("/api/auth/reset-password", {
       method: "POST",
@@ -486,7 +486,7 @@ class ApiService {
         localStorage.setItem("user_type", "supplier");
         localStorage.setItem(
           "supplier_user",
-          JSON.stringify(response.supplier)
+          JSON.stringify(response.supplier),
         );
         this.setCookie("user_type", "supplier", 7);
       } else if (response.userType === "admin" && response.admin) {
@@ -497,7 +497,7 @@ class ApiService {
         localStorage.setItem("user_type", "admin");
         localStorage.setItem(
           "admin_user",
-          JSON.stringify(response.super_admin)
+          JSON.stringify(response.super_admin),
         );
         this.setCookie("user_type", "admin", 7);
       }
@@ -565,7 +565,7 @@ class ApiService {
       {
         method: "GET",
       },
-      false // doesn't require auth
+      false, // doesn't require auth
     );
   }
   async getSupplierLocation(): Promise<{
@@ -578,7 +578,7 @@ class ApiService {
       {
         method: "GET",
       },
-      true
+      true,
     );
   }
 
@@ -589,12 +589,12 @@ class ApiService {
         method: "PATCH",
         body: JSON.stringify(data),
       },
-      true
+      true,
     ); // requiresAuth = true
   }
 
   async updateProfileWithFormData(
-    formData: FormData
+    formData: FormData,
   ): Promise<ProfileUpdateResponse> {
     const token = localStorage.getItem("supplier_token");
     const tokenType = localStorage.getItem("token_type") || "Bearer";
@@ -624,12 +624,12 @@ class ApiService {
         console.error("Validation Errors:", errorData.errors || errorData);
         throw new ValidationError(
           errorData.message || "Validation failed",
-          errorData.errors || errorData
+          errorData.errors || errorData,
         );
       }
 
       throw new Error(
-        errorData.message || `HTTP ${response.status}: ${response.statusText}`
+        errorData.message || `HTTP ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -642,7 +642,7 @@ class ApiService {
       {
         method: "GET",
       },
-      true
+      true,
     );
   }
 
@@ -674,7 +674,7 @@ class ApiService {
   }
 
   async uploadProfileImage(
-    file: File
+    file: File,
   ): Promise<{ success: boolean; data: { url: string } }> {
     const formData = new FormData();
     formData.append("profile_image", file);
@@ -697,7 +697,7 @@ class ApiService {
           headers,
           body: formData,
           credentials: "include",
-        }
+        },
       );
 
       // First, check if the response is OK
@@ -753,7 +753,8 @@ class ApiService {
         // Handle Error objects
         if (error instanceof Error) {
           throw new Error(
-            error.message || "حدث خطأ أثناء رفع الصورة. يرجى المحاولة مرة أخرى."
+            error.message ||
+              "حدث خطأ أثناء رفع الصورة. يرجى المحاولة مرة أخرى.",
           );
         }
       }
@@ -794,14 +795,14 @@ class ApiService {
           method: "GET",
           headers,
           credentials: "include",
-        }
+        },
       );
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
           errorData.message ||
-            `Failed to fetch business profile (${response.status})`
+            `Failed to fetch business profile (${response.status})`,
         );
       }
 
@@ -841,7 +842,7 @@ class ApiService {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
-          errorData.message || "Failed to fetch supplier profile"
+          errorData.message || "Failed to fetch supplier profile",
         );
       }
       const d = await response.json();
@@ -855,7 +856,7 @@ class ApiService {
   async submitReview(
     supplierId: number,
     rating: number,
-    comment: string
+    comment: string,
   ): Promise<{ message: string }> {
     const token = localStorage.getItem("supplier_token");
     if (!token) {
@@ -895,13 +896,13 @@ class ApiService {
    * @returns Promise with the profile picture URL
    */
   async getProfilePicture(
-    userId: string | number
+    userId: string | number,
   ): Promise<{ profile_image: string }> {
     return this.request<{ profile_image: string }>(
       `/api/auth/profile/picture/${userId}`,
       {
         method: "GET",
-      }
+      },
     );
   }
 
@@ -915,7 +916,7 @@ class ApiService {
   async changePassword(
     currentPassword: string,
     newPassword: string,
-    confirmPassword: string
+    confirmPassword: string,
   ): Promise<{ message: string }> {
     return this.request<{ message: string }>(
       "/api/auth/change-password",
@@ -930,7 +931,7 @@ class ApiService {
           password_confirmation: confirmPassword,
         }),
       },
-      true // requires authentication
+      true, // requires authentication
     );
   }
 
@@ -941,7 +942,7 @@ class ApiService {
       {
         method: "GET",
       },
-      true
+      true,
     );
   }
 
@@ -955,7 +956,7 @@ class ApiService {
         },
         body: JSON.stringify(preferences),
       },
-      true
+      true,
     );
   }
 
@@ -975,13 +976,13 @@ class ApiService {
           // Don't set Content-Type for FormData - browser sets it with boundary
         },
         body: formData,
-      }
+      },
     );
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(
-        errorData.message || `HTTP ${response.status}: ${response.statusText}`
+        errorData.message || `HTTP ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -1001,13 +1002,13 @@ class ApiService {
         headers: {
           Authorization: `${tokenType} ${token}`,
         },
-      }
+      },
     );
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(
-        errorData.message || `HTTP ${response.status}: ${response.statusText}`
+        errorData.message || `HTTP ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -1027,13 +1028,13 @@ class ApiService {
         headers: {
           Authorization: `${tokenType} ${token}`,
         },
-      }
+      },
     );
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(
-        errorData.message || `HTTP ${response.status}: ${response.statusText}`
+        errorData.message || `HTTP ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -1043,7 +1044,7 @@ class ApiService {
 
   // ====== SUPPLIER MANAGEMENT ======
   async getSuppliers(
-    params?: GetSuppliersParams
+    params?: GetSuppliersParams,
   ): Promise<SuppliersListResponse> {
     const queryParams = new URLSearchParams();
 
@@ -1060,13 +1061,13 @@ class ApiService {
       {
         method: "GET",
       },
-      true
+      true,
     );
   }
 
   async updateSupplier(
     supplierId: number,
-    data: UpdateSupplierRequest
+    data: UpdateSupplierRequest,
   ): Promise<SupplierActionResponse> {
     return this.request<SupplierActionResponse>(
       `/api/admin/suppliers/${supplierId}`,
@@ -1074,7 +1075,7 @@ class ApiService {
         method: "PUT",
         body: JSON.stringify(data),
       },
-      true
+      true,
     );
   }
 
@@ -1084,12 +1085,12 @@ class ApiService {
       {
         method: "DELETE",
       },
-      true
+      true,
     );
   }
 
   async createSupplier(
-    data: CreateSupplierRequest
+    data: CreateSupplierRequest,
   ): Promise<SupplierActionResponse> {
     return this.request<SupplierActionResponse>(
       `/api/admin/suppliers`,
@@ -1097,13 +1098,13 @@ class ApiService {
         method: "POST",
         body: JSON.stringify(data),
       },
-      true
+      true,
     );
   }
 
   // ====== PARTNERSHIPS ======
   async createPartnership(
-    formData: FormData
+    formData: FormData,
   ): Promise<CreatePartnershipResponse> {
     const token = localStorage.getItem("supplier_token");
     const tokenType = localStorage.getItem("token_type") || "Bearer";
@@ -1123,7 +1124,7 @@ class ApiService {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(
-        errorData.message || `HTTP ${response.status}: ${response.statusText}`
+        errorData.message || `HTTP ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -1132,7 +1133,7 @@ class ApiService {
 
   async updatePartnership(
     partnershipId: number,
-    formData: FormData
+    formData: FormData,
   ): Promise<UpdatePartnershipResponse> {
     const token = localStorage.getItem("supplier_token");
     const tokenType = localStorage.getItem("token_type") || "Bearer";
@@ -1149,13 +1150,13 @@ class ApiService {
         },
         body: formData,
         credentials: "include",
-      }
+      },
     );
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(
-        errorData.message || `HTTP ${response.status}: ${response.statusText}`
+        errorData.message || `HTTP ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -1163,14 +1164,14 @@ class ApiService {
   }
 
   async deletePartnership(
-    partnershipId: number
+    partnershipId: number,
   ): Promise<DeletePartnershipResponse> {
     return this.request<DeletePartnershipResponse>(
       `/api/admin/partnerships/${partnershipId}`,
       {
         method: "DELETE",
       },
-      true
+      true,
     );
   }
 
@@ -1180,7 +1181,7 @@ class ApiService {
       {
         method: "GET",
       },
-      false // doesn't require authentication
+      false, // doesn't require authentication
     );
   }
 
@@ -1207,7 +1208,7 @@ class ApiService {
         headers: {
           Authorization: `${tokenType} ${token}`,
         },
-      }
+      },
     );
 
     if (!response.ok) {
@@ -1242,7 +1243,7 @@ class ApiService {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(
-        errorData.message || `HTTP ${response.status}: ${response.statusText}`
+        errorData.message || `HTTP ${response.status}: ${response.statusText}`,
       );
     }
 
@@ -1257,7 +1258,7 @@ class ApiService {
       {
         method: "GET",
       },
-      true // requiresAuth = true to send token
+      true, // requiresAuth = true to send token
     );
   }
 
@@ -1278,7 +1279,7 @@ class ApiService {
         },
         body: JSON.stringify(data),
       },
-      true
+      true,
     );
   }
 
@@ -1296,7 +1297,7 @@ class ApiService {
         },
         body: JSON.stringify(data),
       },
-      true
+      true,
     );
   }
 
@@ -1315,14 +1316,14 @@ class ApiService {
     return this.request(
       "/api/supplier/analytics/performance",
       { method: "GET" },
-      true
+      true,
     );
   }
 
   // Charts Data
   async getChartsData(
     range: number = 30,
-    type: "views" | "contacts" | "inquiries"
+    type: "views" | "contacts" | "inquiries",
   ): Promise<{
     type: string;
     range: number;
@@ -1332,7 +1333,7 @@ class ApiService {
     return this.request(
       `/api/supplier/analytics/charts?range=${range}&type=${type}`,
       { method: "GET" },
-      true
+      true,
     );
   }
 
@@ -1352,7 +1353,7 @@ class ApiService {
     return this.request(
       `/api/supplier/analytics/keywords?range=${range}`,
       { method: "GET" },
-      true
+      true,
     );
   }
 
@@ -1375,7 +1376,7 @@ class ApiService {
     return this.request(
       `/api/supplier/analytics/insights?range=${range}`,
       { method: "GET" },
-      true
+      true,
     );
   }
 
@@ -1397,7 +1398,7 @@ class ApiService {
     return this.request(
       "/api/supplier/analytics/recommendations",
       { method: "GET" },
-      true
+      true,
     );
   }
 
@@ -1408,7 +1409,7 @@ class ApiService {
       {
         method: "GET",
       },
-      true
+      true,
     );
   }
 
@@ -1423,7 +1424,7 @@ class ApiService {
         method: "POST",
         body: JSON.stringify(data),
       },
-      true
+      true,
     );
   }
 
@@ -1444,7 +1445,7 @@ class ApiService {
         method: "POST",
         body: JSON.stringify(data),
       },
-      true
+      true,
     );
   }
 
@@ -1470,7 +1471,7 @@ class ApiService {
         method: "POST",
         body: JSON.stringify(data),
       },
-      true
+      true,
     );
   }
 
@@ -1488,7 +1489,7 @@ class ApiService {
         method: "POST",
         body: JSON.stringify(data),
       },
-      true
+      true,
     );
   }
 
@@ -1498,7 +1499,7 @@ class ApiService {
       {
         method: "POST",
       },
-      true
+      true,
     );
   }
 
@@ -1512,7 +1513,7 @@ class ApiService {
         method: "POST",
         body: JSON.stringify(data),
       },
-      true
+      true,
     );
   }
 
@@ -1532,7 +1533,7 @@ class ApiService {
         method: "POST",
         body: JSON.stringify(data),
       },
-      true
+      true,
     );
   }
 
@@ -1544,7 +1545,7 @@ class ApiService {
       return this.request(
         `/api/supplier/analytics/export?format=${format}`,
         { method: "GET" },
-        true
+        true,
       );
     }
   }
@@ -1565,7 +1566,7 @@ class ApiService {
           Accept: "text/csv",
         },
         credentials: "include",
-      }
+      },
     );
 
     if (!response.ok) {
@@ -1597,7 +1598,7 @@ class ApiService {
   // ====== ADMIN MANAGEMENT ======
 
   async createAdmin(
-    adminData: CreateAdminRequest
+    adminData: CreateAdminRequest,
   ): Promise<AdminActionResponse> {
     return this.request(
       "/api/admins",
@@ -1608,7 +1609,7 @@ class ApiService {
         },
         body: JSON.stringify(adminData),
       },
-      true
+      true,
     );
   }
 
@@ -1618,13 +1619,13 @@ class ApiService {
       {
         method: "GET",
       },
-      true
+      true,
     );
   }
 
   async updateAdmin(
     id: number,
-    adminData: UpdateAdminRequest
+    adminData: UpdateAdminRequest,
   ): Promise<AdminActionResponse> {
     return this.request(
       `/api/admins/${id}`,
@@ -1635,7 +1636,7 @@ class ApiService {
         },
         body: JSON.stringify(adminData),
       },
-      true
+      true,
     );
   }
 
@@ -1645,7 +1646,7 @@ class ApiService {
       {
         method: "DELETE",
       },
-      true
+      true,
     );
   }
 
@@ -1656,7 +1657,7 @@ class ApiService {
       {
         method: "GET",
       },
-      false // No auth required
+      false, // No auth required
     );
   }
 
@@ -1668,7 +1669,7 @@ class ApiService {
       {
         method: "GET",
       },
-      true // Requires authentication
+      true, // Requires authentication
     );
   }
 
@@ -1680,7 +1681,7 @@ class ApiService {
       {
         method: "GET",
       },
-      true // Requires authentication
+      true, // Requires authentication
     );
   }
 
@@ -1705,7 +1706,7 @@ class ApiService {
         headers: {
           Authorization: `${tokenType} ${token}`,
         },
-      }
+      },
     );
 
     if (!response.ok) {
@@ -1731,13 +1732,13 @@ class ApiService {
       {
         method: "GET",
       },
-      true // Requires authentication
+      true, // Requires authentication
     );
   }
 
   // Update system settings
   async updateSystemSettings(
-    settings: UpdateSystemSettingsRequest
+    settings: UpdateSystemSettingsRequest,
   ): Promise<UpdateSystemSettingsResponse> {
     return this.request<UpdateSystemSettingsResponse>(
       "/api/admin/system/settings",
@@ -1745,7 +1746,7 @@ class ApiService {
         method: "PUT",
         body: JSON.stringify(settings),
       },
-      true // Requires authentication
+      true, // Requires authentication
     );
   }
 
@@ -1759,7 +1760,7 @@ class ApiService {
       {
         method: "POST",
       },
-      true // Requires authentication
+      true, // Requires authentication
     );
   }
 
@@ -1790,7 +1791,7 @@ class ApiService {
       {
         method: "POST",
       },
-      true // Requires authentication
+      true, // Requires authentication
     );
   }
 
@@ -1828,7 +1829,7 @@ class ApiService {
   async getRatings(
     status: string = "all",
     page: number = 1,
-    perPage: number = 15
+    perPage: number = 15,
   ): Promise<RatingsResponse> {
     const params = new URLSearchParams({
       status,
@@ -1841,7 +1842,7 @@ class ApiService {
       {
         method: "GET",
       },
-      true // Requires authentication
+      true, // Requires authentication
     );
   }
 
@@ -1851,7 +1852,7 @@ class ApiService {
       {
         method: "POST",
       },
-      true // Requires authentication
+      true, // Requires authentication
     );
   }
 
@@ -1861,7 +1862,7 @@ class ApiService {
       {
         method: "POST",
       },
-      true // Requires authentication
+      true, // Requires authentication
     );
   }
 
@@ -1871,7 +1872,7 @@ class ApiService {
       {
         method: "POST",
       },
-      true // Requires authentication
+      true, // Requires authentication
     );
   }
 
@@ -1881,7 +1882,7 @@ class ApiService {
   async getDocuments(
     status: string = "all",
     page: number = 1,
-    perPage: number = 15
+    perPage: number = 15,
   ): Promise<DocumentsResponse> {
     const params = new URLSearchParams({
       status,
@@ -1894,7 +1895,7 @@ class ApiService {
       {
         method: "GET",
       },
-      true // Requires authentication
+      true, // Requires authentication
     );
   }
 
@@ -1904,13 +1905,13 @@ class ApiService {
       {
         method: "POST",
       },
-      true // Requires authentication
+      true, // Requires authentication
     );
   }
 
   async rejectDocument(
     documentId: number,
-    reason?: string
+    reason?: string,
   ): Promise<DocumentActionResponse> {
     return this.request<DocumentActionResponse>(
       `/api/admin/documents/${documentId}/reject`,
@@ -1918,7 +1919,7 @@ class ApiService {
         method: "POST",
         body: JSON.stringify({ reason }),
       },
-      true // Requires authentication
+      true, // Requires authentication
     );
   }
 
@@ -1928,7 +1929,7 @@ class ApiService {
       {
         method: "GET",
       },
-      true // Requires authentication
+      true, // Requires authentication
     );
   }
 
@@ -1952,7 +1953,7 @@ class ApiService {
       {
         method: "GET",
       },
-      true // Requires authentication
+      true, // Requires authentication
     );
   }
 
@@ -1963,7 +1964,7 @@ class ApiService {
       {
         method: "GET",
       },
-      true
+      true,
     );
   }
 
@@ -1974,13 +1975,13 @@ class ApiService {
         method: "POST",
         body: JSON.stringify(data),
       },
-      true
+      true,
     );
   }
 
   async updateBranch(
     branchId: string,
-    data: BranchUpdateRequest
+    data: BranchUpdateRequest,
   ): Promise<BranchActionResponse> {
     return this.request<BranchActionResponse>(
       `/api/branches/${branchId}`,
@@ -1988,7 +1989,7 @@ class ApiService {
         method: "PATCH",
         body: JSON.stringify(data),
       },
-      true
+      true,
     );
   }
 
@@ -1998,7 +1999,7 @@ class ApiService {
       {
         method: "DELETE",
       },
-      true
+      true,
     );
   }
 
@@ -2017,7 +2018,7 @@ class ApiService {
       {
         method: "GET",
       },
-      false // doesn't require authentication
+      false, // doesn't require authentication
     );
   }
 
@@ -2052,14 +2053,14 @@ class ApiService {
         method: "PUT",
         body: JSON.stringify(data),
       },
-      true // requires authentication
+      true, // requires authentication
     );
   }
 
   // ====== ADMIN COMMUNICATIONS ======
   async getCommunications(
     supplier1Id: number,
-    supplier2Id: number
+    supplier2Id: number,
   ): Promise<CommunicationsResponse> {
     const params = new URLSearchParams({
       supplier1_id: supplier1Id.toString(),
@@ -2071,13 +2072,13 @@ class ApiService {
       {
         method: "GET",
       },
-      true
+      true,
     );
   }
 
   async getCommunicationsSummary(
     supplier1Id: number,
-    supplier2Id: number
+    supplier2Id: number,
   ): Promise<CommunicationsSummaryResponse> {
     const params = new URLSearchParams({
       supplier1_id: supplier1Id.toString(),
@@ -2089,7 +2090,7 @@ class ApiService {
       {
         method: "GET",
       },
-      true
+      true,
     );
   }
 }

@@ -17,20 +17,22 @@ export default function SupplierCommunications() {
   const { language, t } = useLanguage();
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [selectedSupplier1, setSelectedSupplier1] = useState<number | null>(
-    null
+    null,
   );
   const [selectedSupplier2, setSelectedSupplier2] = useState<number | null>(
-    null
+    null,
   );
   const [communications, setCommunications] =
     useState<CommunicationsResponse | null>(null);
   const [summary, setSummary] = useState<CommunicationsSummaryResponse | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(false);
   const [loadingSuppliers, setLoadingSuppliers] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [showCommunications, setShowCommunications] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState<any>(null);
+  const [showMessageModal, setShowMessageModal] = useState(false);
 
   // Fetch suppliers from API
   const fetchSuppliers = async () => {
@@ -46,7 +48,7 @@ export default function SupplierCommunications() {
       toast.error(
         language === "ar"
           ? "فشل في جلب قائمة السبلايرين"
-          : "Failed to fetch suppliers list"
+          : "Failed to fetch suppliers list",
       );
     } finally {
       setLoadingSuppliers(false);
@@ -61,15 +63,15 @@ export default function SupplierCommunications() {
     (supplier) =>
       supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       supplier.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      supplier.businessName?.toLowerCase().includes(searchTerm.toLowerCase())
+      supplier.businessName?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   // Suppliers available for selection in each column
   const suppliersForColumn1 = filteredSuppliers.filter(
-    (s) => s.id !== selectedSupplier2
+    (s) => s.id !== selectedSupplier2,
   );
   const suppliersForColumn2 = filteredSuppliers.filter(
-    (s) => s.id !== selectedSupplier1
+    (s) => s.id !== selectedSupplier1,
   );
 
   // Check if date is default Unix epoch (1970-01-01)
@@ -95,7 +97,7 @@ export default function SupplierCommunications() {
       toast.error(
         language === "ar"
           ? "يرجى اختيار سبلايرين"
-          : "Please select two suppliers"
+          : "Please select two suppliers",
       );
       return;
     }
@@ -104,7 +106,7 @@ export default function SupplierCommunications() {
       toast.error(
         language === "ar"
           ? "يرجى اختيار سبلايرين مختلفين"
-          : "Please select different suppliers"
+          : "Please select different suppliers",
       );
       return;
     }
@@ -115,7 +117,7 @@ export default function SupplierCommunications() {
         apiService.getCommunications(selectedSupplier1, selectedSupplier2),
         apiService.getCommunicationsSummary(
           selectedSupplier1,
-          selectedSupplier2
+          selectedSupplier2,
         ),
       ]);
 
@@ -127,7 +129,7 @@ export default function SupplierCommunications() {
       toast.error(
         language === "ar"
           ? "فشل في جلب بيانات التواصل"
-          : "Failed to fetch communications data"
+          : "Failed to fetch communications data",
       );
     } finally {
       setLoading(false);
@@ -149,6 +151,16 @@ export default function SupplierCommunications() {
     return isRead
       ? "bg-gray-100 text-gray-800"
       : "bg-yellow-100 text-yellow-800";
+  };
+
+  const handleMessageClick = (message: any) => {
+    setSelectedMessage(message);
+    setShowMessageModal(true);
+  };
+
+  const closeMessageModal = () => {
+    setShowMessageModal(false);
+    setSelectedMessage(null);
   };
 
   return (
@@ -248,7 +260,7 @@ export default function SupplierCommunications() {
                         suppliers.find((s) => s.id === selectedSupplier1)
                           ?.avatar || null,
                         suppliers.find((s) => s.id === selectedSupplier1)
-                          ?.name || ""
+                          ?.name || "",
                       )}
                       alt={
                         suppliers.find((s) => s.id === selectedSupplier1)?.name
@@ -361,7 +373,7 @@ export default function SupplierCommunications() {
                         suppliers.find((s) => s.id === selectedSupplier2)
                           ?.avatar || null,
                         suppliers.find((s) => s.id === selectedSupplier2)
-                          ?.name || ""
+                          ?.name || "",
                       )}
                       alt={
                         suppliers.find((s) => s.id === selectedSupplier2)?.name
@@ -503,6 +515,9 @@ export default function SupplierCommunications() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       {language === "ar" ? "التاريخ" : "Date"}
                     </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {language === "ar" ? "الإجراءات" : "Actions"}
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -511,7 +526,7 @@ export default function SupplierCommunications() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
                           className={`px-2 py-1 text-xs rounded-full ${getTypeColor(
-                            comm.type
+                            comm.type,
                           )}`}
                         >
                           {comm.type === "inquiry"
@@ -519,8 +534,8 @@ export default function SupplierCommunications() {
                               ? "استفسار"
                               : "Inquiry"
                             : language === "ar"
-                            ? "رسالة"
-                            : "Message"}
+                              ? "رسالة"
+                              : "Message"}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -584,7 +599,7 @@ export default function SupplierCommunications() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
                           className={`px-2 py-1 text-xs rounded-full ${getStatusColor(
-                            comm.is_read
+                            comm.is_read,
                           )}`}
                         >
                           {comm.is_read
@@ -592,17 +607,188 @@ export default function SupplierCommunications() {
                               ? "مقروء"
                               : "Read"
                             : language === "ar"
-                            ? "غير مقروء"
-                            : "Unread"}
+                              ? "غير مقروء"
+                              : "Unread"}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {formatDate(comm.created_at)}
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <button
+                          onClick={() => handleMessageClick(comm)}
+                          className="text-blue-600 hover:text-blue-800 transition-colors"
+                          title={
+                            language === "ar" ? "عرض التفاصيل" : "View Details"
+                          }
+                        >
+                          <i className="ri-eye-line text-lg"></i>
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Message Details Modal */}
+      {showMessageModal && selectedMessage && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-gray-800">
+                  {language === "ar" ? "تفاصيل الرسالة" : "Message Details"}
+                </h3>
+                <button
+                  onClick={closeMessageModal}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <i className="ri-close-line text-2xl"></i>
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-6">
+              {/* Message Type and Status */}
+              <div className="flex items-center gap-4">
+                <span
+                  className={`px-3 py-1 text-sm rounded-full ${getTypeColor(
+                    selectedMessage.type,
+                  )}`}
+                >
+                  {selectedMessage.type === "inquiry"
+                    ? language === "ar"
+                      ? "استفسار"
+                      : "Inquiry"
+                    : language === "ar"
+                      ? "رسالة"
+                      : "Message"}
+                </span>
+                <span
+                  className={`px-3 py-1 text-sm rounded-full ${getStatusColor(
+                    selectedMessage.is_read,
+                  )}`}
+                >
+                  {selectedMessage.is_read
+                    ? language === "ar"
+                      ? "مقروء"
+                      : "Read"
+                    : language === "ar"
+                      ? "غير مقروء"
+                      : "Unread"}
+                </span>
+              </div>
+
+              {/* Sender and Receiver */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 mb-2">
+                    {language === "ar" ? "المرسل" : "Sender"}
+                  </h4>
+                  <div className="flex items-center gap-3">
+                    {getSupplierAvatar(selectedMessage.sender_image) ? (
+                      <img
+                        src={getSupplierAvatar(selectedMessage.sender_image)!}
+                        alt={selectedMessage.sender_name}
+                        className="w-12 h-12 rounded-full object-cover"
+                      />
+                    ) : (
+                      <img
+                        src={defaultAvatar.src}
+                        alt={selectedMessage.sender_name}
+                        className="w-12 h-12 rounded-full object-cover"
+                      />
+                    )}
+                    <div>
+                      <div className="font-medium text-gray-900">
+                        {selectedMessage.sender_name}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {selectedMessage.sender_email}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 mb-2">
+                    {language === "ar" ? "المستلم" : "Receiver"}
+                  </h4>
+                  <div className="flex items-center gap-3">
+                    {getSupplierAvatar(selectedMessage.receiver_image) ? (
+                      <img
+                        src={getSupplierAvatar(selectedMessage.receiver_image)!}
+                        alt={selectedMessage.receiver_name}
+                        className="w-12 h-12 rounded-full object-cover"
+                      />
+                    ) : (
+                      <img
+                        src={defaultAvatar.src}
+                        alt={selectedMessage.receiver_name}
+                        className="w-12 h-12 rounded-full object-cover"
+                      />
+                    )}
+                    <div>
+                      <div className="font-medium text-gray-900">
+                        {selectedMessage.receiver_name}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {selectedMessage.receiver_email}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Subject */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-500 mb-2">
+                  {language === "ar" ? "الموضوع" : "Subject"}
+                </h4>
+                <div className="text-gray-900 font-medium">
+                  {selectedMessage.subject}
+                </div>
+              </div>
+
+              {/* Message */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-500 mb-2">
+                  {language === "ar" ? "الرسالة" : "Message"}
+                </h4>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <p className="text-gray-800 whitespace-pre-wrap">
+                    {selectedMessage.message}
+                  </p>
+                </div>
+              </div>
+
+              {/* Date */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-500 mb-2">
+                  {language === "ar" ? "التاريخ" : "Date"}
+                </h4>
+                <div className="text-gray-900">
+                  {formatDate(selectedMessage.created_at)}
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-6 border-t border-gray-200">
+              <div className="flex justify-end">
+                <button
+                  onClick={closeMessageModal}
+                  className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                >
+                  {language === "ar" ? "إغلاق" : "Close"}
+                </button>
+              </div>
             </div>
           </div>
         </div>

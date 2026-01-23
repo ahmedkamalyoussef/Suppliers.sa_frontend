@@ -130,6 +130,17 @@ export default function UserManagement() {
     subject: "",
     message: "",
   });
+  const [showInquiryModal, setShowInquiryModal] = useState<boolean>(false);
+  const [inquiryRecipient, setInquiryRecipient] = useState<Supplier | null>(
+    null,
+  );
+  const [inquiryForm, setInquiryForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: "",
+  });
   const [editingUser, setEditingUser] = useState<Supplier | null>(null);
   const [userForm, setUserForm] = useState<
     Omit<
@@ -356,10 +367,16 @@ export default function UserManagement() {
         setEmailForm({ subject: "", message: "" });
         setShowEmailModal(true);
       } else if (action === "sendMessage") {
-        // TODO: Implement internal messaging functionality
-        toast.info(
-          `Internal messaging for ${target.name} will be implemented soon`,
-        );
+        // Open inquiry modal
+        setInquiryRecipient(target);
+        setInquiryForm({
+          name: "Admin",
+          email: user?.email || "admin@supplier.sa",
+          phone: "",
+          subject: "",
+          message: "",
+        });
+        setShowInquiryModal(true);
       }
     } catch (error) {
       console.error(`Failed to ${action} supplier:`, error);
@@ -472,6 +489,62 @@ export default function UserManagement() {
       toast.error(
         language === "ar" ? "فشل في تنفيذ الإجراء" : "Failed to perform action",
       );
+    }
+  };
+
+  const sendInquiry = async () => {
+    if (
+      !inquiryRecipient ||
+      !inquiryForm.email.trim() ||
+      !inquiryForm.subject.trim() ||
+      !inquiryForm.message.trim()
+    ) {
+      toast.error(
+        language === "ar"
+          ? "يرجى ملء جميع حقول الاستفسار"
+          : "Please fill in all inquiry fields",
+      );
+      return;
+    }
+
+    try {
+      await apiService.createInquiry({
+        receiver_id: inquiryRecipient.id,
+        name: "Admin",
+        email: inquiryForm.email,
+        phone: "",
+        subject: inquiryForm.subject,
+        message: inquiryForm.message,
+      });
+
+      toast.success(
+        language === "ar"
+          ? `تم إرسال الاستفسار بنجاح إلى ${inquiryRecipient.name}`
+          : `Inquiry sent successfully to ${inquiryRecipient.name}`,
+      );
+      setShowInquiryModal(false);
+      setInquiryRecipient(null);
+      setInquiryForm({
+        name: "",
+        email: "",
+        phone: "",
+        subject: "",
+        message: "",
+      });
+    } catch (error: any) {
+      console.error("Failed to send inquiry:", error);
+
+      // Handle validation errors
+      if (error.message && typeof error.message === "object") {
+        const errorMessages = Object.values(error.message).flat();
+        toast.error(errorMessages.join(", "));
+      } else {
+        toast.error(
+          language === "ar"
+            ? "فشل في إرسال الاستفسار"
+            : "Failed to send inquiry",
+        );
+      }
     }
   };
 
@@ -1456,6 +1529,146 @@ export default function UserManagement() {
                 }`}
               >
                 {language === "ar" ? "إرسال البريد الإلكتروني" : "Send Email"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Inquiry Modal */}
+      {showInquiryModal && inquiryRecipient && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full max-h-screen overflow-y-auto">
+            <div className="p-4 sm:p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  {language === "ar"
+                    ? `إرسال استفسار إلى ${inquiryRecipient.name}`
+                    : `Send Inquiry to ${inquiryRecipient.name}`}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowInquiryModal(false);
+                    setInquiryRecipient(null);
+                    setInquiryForm({
+                      name: "",
+                      email: "",
+                      phone: "",
+                      subject: "",
+                      message: "",
+                    });
+                  }}
+                  className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                >
+                  <i className="ri-close-line text-xl"></i>
+                </button>
+              </div>
+            </div>
+
+            <div className="p-4 sm:p-6">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {language === "ar" ? "إلى" : "To"}
+                </label>
+                <input
+                  type="text"
+                  value={`${inquiryRecipient.name} (${inquiryRecipient.email})`}
+                  disabled
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 text-sm"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {language === "ar" ? "بريدك الإلكتروني" : "Your Email"}
+                </label>
+                <input
+                  type="email"
+                  value={inquiryForm.email}
+                  onChange={(e) =>
+                    setInquiryForm({ ...inquiryForm, email: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
+                  placeholder={
+                    language === "ar"
+                      ? "أدخل بريدك الإلكتروني"
+                      : "Enter your email"
+                  }
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {language === "ar" ? "الموضوع" : "Subject"}
+                </label>
+                <input
+                  type="text"
+                  value={inquiryForm.subject}
+                  onChange={(e) =>
+                    setInquiryForm({ ...inquiryForm, subject: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
+                  placeholder={
+                    language === "ar"
+                      ? "أدخل موضوع الاستفسار"
+                      : "Enter inquiry subject"
+                  }
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {language === "ar" ? "الرسالة" : "Message"}
+                </label>
+                <textarea
+                  value={inquiryForm.message}
+                  onChange={(e) =>
+                    setInquiryForm({ ...inquiryForm, message: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm resize-none"
+                  rows={6}
+                  placeholder={
+                    language === "ar"
+                      ? "اكتب رسالتك هنا..."
+                      : "Type your message here..."
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="p-4 sm:p-6 border-t border-gray-200 flex flex-col sm:flex-row justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowInquiryModal(false);
+                  setInquiryRecipient(null);
+                  setInquiryForm({
+                    name: "",
+                    email: "",
+                    phone: "",
+                    subject: "",
+                    message: "",
+                  });
+                }}
+                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-sm whitespace-nowrap cursor-pointer order-2 sm:order-1"
+              >
+                {language === "ar" ? "إلغاء" : "Cancel"}
+              </button>
+              <button
+                onClick={sendInquiry}
+                disabled={
+                  !inquiryForm.email.trim() ||
+                  !inquiryForm.subject.trim() ||
+                  !inquiryForm.message.trim()
+                }
+                className={`px-6 py-2 rounded-lg font-medium text-sm whitespace-nowrap cursor-pointer transition-all order-1 sm:order-2 ${
+                  inquiryForm.email.trim() &&
+                  inquiryForm.subject.trim() &&
+                  inquiryForm.message.trim()
+                    ? "bg-red-500 text-white hover:bg-red-600"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+              >
+                {language === "ar" ? "إرسال الاستفسار" : "Send Inquiry"}
               </button>
             </div>
           </div>
