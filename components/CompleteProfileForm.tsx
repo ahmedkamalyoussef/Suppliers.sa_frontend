@@ -2,6 +2,7 @@
 
 import { SetStateAction, useEffect, useState, useRef } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import BranchManagement from "./BranchManagement";
 import { useLanguage } from "./../lib/LanguageContext";
 import { apiService, type ProfileUpdateData } from "./../lib/api";
@@ -13,7 +14,10 @@ import {
   CompleteProfileFormProps,
   type Branch,
 } from "./../lib/types";
-import BusinessLocationMap from "./BusinessLocationMap";
+
+const BusinessLocationMap = dynamic(() => import("./BusinessLocationMap"), {
+  ssr: false,
+});
 
 // Specific category options for the dropdown
 const categoryOptions = [
@@ -136,10 +140,10 @@ export default function CompleteProfileForm({
   >([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [productKeywords, setProductKeywords] = useState<string[]>(
-    formData.productKeywords || []
+    formData.productKeywords || [],
   );
   const [keywordInput, setKeywordInput] = useState<string>(
-    formData.productKeywords?.join(", ") || ""
+    formData.productKeywords?.join(", ") || "",
   );
 
   const [keywordSuggestions, setKeywordSuggestions] = useState<string[]>([]);
@@ -169,7 +173,7 @@ export default function CompleteProfileForm({
   // Helper function to get translated text
   const getTranslatedText = (
     items: Array<{ en: string; ar: string }>,
-    value: string
+    value: string,
   ): string => {
     const item = items.find((item) => item.en === value);
     return item ? item[language as keyof typeof item] : value;
@@ -177,7 +181,7 @@ export default function CompleteProfileForm({
 
   const getTranslatedTextWithValue = (
     items: Array<{ value: string; en: string; ar: string }>,
-    value: string
+    value: string,
   ): string => {
     const item = items.find((item) => item.value === value);
     if (!item) return value;
@@ -187,10 +191,10 @@ export default function CompleteProfileForm({
   // Helper function to get English value from translated text
   const getEnglishValue = (
     items: Array<{ en: string; ar: string }>,
-    translatedValue: string
+    translatedValue: string,
   ): string => {
     const item = items.find(
-      (item) => item.en === translatedValue || item.ar === translatedValue
+      (item) => item.en === translatedValue || item.ar === translatedValue,
     );
     return item ? item.en : translatedValue;
   };
@@ -742,7 +746,7 @@ export default function CompleteProfileForm({
 
   const handleInputChange = (
     field: keyof ProfileFormData,
-    value: string
+    value: string,
   ): void => {
     setFormData((prev) => ({
       ...prev,
@@ -813,7 +817,7 @@ export default function CompleteProfileForm({
   const handleWorkingHoursChange = (
     day: keyof typeof formData.workingHours,
     field: "open" | "close" | "closed",
-    value: string | boolean
+    value: string | boolean,
   ): void => {
     setFormData((prev) => ({
       ...prev,
@@ -828,23 +832,26 @@ export default function CompleteProfileForm({
   };
 
   const applyWorkingHoursToAllDays = (
-    sourceDay: keyof typeof formData.workingHours
+    sourceDay: keyof typeof formData.workingHours,
   ) => {
     setFormData((prev) => {
       const source = prev.workingHours[sourceDay];
       return {
         ...prev,
-        workingHours: Object.keys(prev.workingHours).reduce((acc, dayKey) => {
-          const day = dayKey as keyof typeof prev.workingHours;
-          acc[day] = { ...source };
-          return acc;
-        }, {} as typeof prev.workingHours),
+        workingHours: Object.keys(prev.workingHours).reduce(
+          (acc, dayKey) => {
+            const day = dayKey as keyof typeof prev.workingHours;
+            acc[day] = { ...source };
+            return acc;
+          },
+          {} as typeof prev.workingHours,
+        ),
       };
     });
   };
 
   const applyWorkingHoursToNextDays = (
-    sourceDay: keyof typeof formData.workingHours
+    sourceDay: keyof typeof formData.workingHours,
   ) => {
     const dayOrder: Array<keyof typeof formData.workingHours> = [
       "monday",
@@ -922,11 +929,11 @@ export default function CompleteProfileForm({
   // Function to get city name from coordinates
   const getCityFromCoordinates = async (
     lat: number,
-    lng: number
+    lng: number,
   ): Promise<string> => {
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=${language}`
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=${language}`,
       );
       const data = await response.json();
       return (
@@ -1185,7 +1192,7 @@ export default function CompleteProfileForm({
         setSubmitStatus(`Validation failed: ${errorMessages}`);
       } else {
         setSubmitStatus(
-          error.message || "Failed to save profile. Please try again."
+          error.message || "Failed to save profile. Please try again.",
         );
       }
     } finally {
@@ -1265,11 +1272,11 @@ export default function CompleteProfileForm({
           id: Date.now(),
           type:
             phoneTypes.find(
-              (type) => !prev.some((phone) => phone.type === type)
+              (type) => !prev.some((phone) => phone.type === type),
             ) || "General Inquiry",
           number: "",
           name: "",
-        })
+        }),
       );
     }
   };
@@ -1281,10 +1288,10 @@ export default function CompleteProfileForm({
   const handlePhoneChange = (
     id: number,
     field: keyof AdditionalPhone,
-    value: string
+    value: string,
   ): void => {
     const updatedPhones = additionalPhones.map((phone) =>
-      phone.id === id ? { ...phone, [field]: value } : phone
+      phone.id === id ? { ...phone, [field]: value } : phone,
     );
 
     setAdditionalPhones(updatedPhones);
@@ -1436,7 +1443,7 @@ export default function CompleteProfileForm({
                     />
                     <i
                       className={`${getBusinessTypeIcon(
-                        type.value
+                        type.value,
                       )} text-base md:text-lg text-gray-600`}
                     ></i>
                     <span className="text-sm md:text-base text-gray-700">
@@ -1466,7 +1473,7 @@ export default function CompleteProfileForm({
                     errors.description ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder={t(
-                    "completeProfile.step1.descriptionPlaceholder"
+                    "completeProfile.step1.descriptionPlaceholder",
                   )}
                   required
                 />
@@ -1504,7 +1511,7 @@ export default function CompleteProfileForm({
                       checked={selectedCategories.includes(category.en)}
                       onChange={() =>
                         handleCategoryToggle(
-                          category[language as keyof typeof category]
+                          category[language as keyof typeof category],
                         )
                       }
                       className="w-4 h-4 text-yellow-400 border-gray-300 rounded focus:ring-yellow-400"
@@ -1547,7 +1554,7 @@ export default function CompleteProfileForm({
                   <div className="flex flex-wrap gap-1 md:gap-2">
                     {selectedCategories.map((category) => {
                       const categoryObj = categories.find(
-                        (c) => c.en === category
+                        (c) => c.en === category,
                       );
                       return (
                         <span
@@ -1700,7 +1707,7 @@ export default function CompleteProfileForm({
                   >
                     {errors.productKeywords ||
                       `${productKeywords.length} ${t(
-                        "completeProfile.step1.keywordsCount"
+                        "completeProfile.step1.keywordsCount",
                       )}`}
                   </span>
                   <span
@@ -1781,7 +1788,7 @@ export default function CompleteProfileForm({
                     type="button"
                     onClick={() => {
                       const newKeywords = productKeywords.filter(
-                        (k) => k !== keyword
+                        (k) => k !== keyword,
                       );
                       setProductKeywords(newKeywords);
                       setKeywordInput(newKeywords.join(", "));
@@ -1833,7 +1840,7 @@ export default function CompleteProfileForm({
                       checked={selectedTargetCustomers.includes(customer.en)}
                       onChange={() =>
                         handleTargetCustomerToggle(
-                          customer[language as keyof typeof customer]
+                          customer[language as keyof typeof customer],
                         )
                       }
                       className="w-4 h-4 text-yellow-400 border-gray-300 rounded focus:ring-yellow-400"
@@ -1902,7 +1909,7 @@ export default function CompleteProfileForm({
                       checked={selectedServices.includes(service.en)}
                       onChange={() =>
                         handleServiceToggle(
-                          service[language as keyof typeof service]
+                          service[language as keyof typeof service],
                         )
                       }
                       className="w-4 h-4 text-yellow-400 border-gray-300 rounded focus:ring-yellow-400"
@@ -2021,7 +2028,7 @@ export default function CompleteProfileForm({
                         }
                         className="flex-1 px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
                         placeholder={t(
-                          "completeProfile.step3.contactNamePlaceholder"
+                          "completeProfile.step3.contactNamePlaceholder",
                         )}
                       />
                       {additionalPhones.length > 1 && (
@@ -2112,7 +2119,7 @@ export default function CompleteProfileForm({
                         type="button"
                         onClick={() =>
                           applyWorkingHoursToNextDays(
-                            day as keyof typeof formData.workingHours
+                            day as keyof typeof formData.workingHours,
                           )
                         }
                         className="text-[10px] md:text-xs px-1.5 py-0.5 rounded border border-blue-200 text-blue-700 hover:bg-blue-50 whitespace-nowrap cursor-pointer"
@@ -2123,7 +2130,7 @@ export default function CompleteProfileForm({
                         type="button"
                         onClick={() =>
                           applyWorkingHoursToAllDays(
-                            day as keyof typeof formData.workingHours
+                            day as keyof typeof formData.workingHours,
                           )
                         }
                         className="text-[10px] md:text-xs px-1.5 py-0.5 rounded border border-blue-200 text-blue-700 hover:bg-blue-50 whitespace-nowrap cursor-pointer"
@@ -2144,7 +2151,7 @@ export default function CompleteProfileForm({
                           handleWorkingHoursChange(
                             day as keyof typeof formData.workingHours,
                             "closed",
-                            e.target.checked
+                            e.target.checked,
                           )
                         }
                         className="w-3 h-3 text-yellow-400 border-gray-300 rounded focus:ring-yellow-400 mr-1"
@@ -2169,7 +2176,7 @@ export default function CompleteProfileForm({
                             handleWorkingHoursChange(
                               day as keyof typeof formData.workingHours,
                               "open",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           onKeyDown={(e) => {
@@ -2227,7 +2234,7 @@ export default function CompleteProfileForm({
                             handleWorkingHoursChange(
                               day as keyof typeof formData.workingHours,
                               "close",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           onKeyDown={(e) => {
@@ -2524,8 +2531,8 @@ export default function CompleteProfileForm({
                   errors.crFile
                     ? "border-red-300 bg-red-50"
                     : crFile
-                    ? "border-green-300 bg-green-50"
-                    : "border-gray-300 hover:border-yellow-400 hover:bg-yellow-50"
+                      ? "border-green-300 bg-green-50"
+                      : "border-gray-300 hover:border-yellow-400 hover:bg-yellow-50"
                 }`}
               >
                 <input
@@ -2660,7 +2667,7 @@ export default function CompleteProfileForm({
                     </span>{" "}
                     {getTranslatedTextWithValue(
                       businessTypes,
-                      formData.businessType
+                      formData.businessType,
                     )}
                   </p>
                   <p>

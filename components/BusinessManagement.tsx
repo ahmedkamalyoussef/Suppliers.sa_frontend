@@ -2,6 +2,7 @@
 
 import { useState, useRef, useMemo, useEffect } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { toast } from "react-toastify";
 import BranchManagement from "./BranchManagement";
 import { useLanguage } from "./../lib/LanguageContext";
@@ -15,13 +16,51 @@ import {
   CompleteProfileFormProps,
   type Branch,
 } from "./../lib/types";
-import BusinessLocationMap, { findNearestCity } from "./BusinessLocationMap";
+
+const BusinessLocationMap = dynamic(() => import("./BusinessLocationMap"), {
+  ssr: false,
+});
 
 interface DayWorkingHours {
   open: string;
   close: string;
   closed: boolean;
 }
+
+const saudiCities = [
+  { name: "Riyadh", lat: 24.7136, lng: 46.6753 },
+  { name: "Jeddah", lat: 21.4858, lng: 39.1925 },
+  { name: "Mecca", lat: 21.3891, lng: 39.8579 },
+  { name: "Medina", lat: 24.5247, lng: 39.5692 },
+  { name: "Dammam", lat: 26.4207, lng: 50.0888 },
+  { name: "Al Khobar", lat: 26.2172, lng: 50.1971 },
+  { name: "Tabuk", lat: 28.3998, lng: 36.566 },
+  { name: "Abha", lat: 18.2164, lng: 42.5047 },
+  { name: "Buraidah", lat: 26.326, lng: 43.975 },
+  { name: "Khamis Mushait", lat: 18.3061, lng: 42.7326 },
+  { name: "Hail", lat: 27.5114, lng: 41.69 },
+  { name: "Najran", lat: 17.4924, lng: 44.1277 },
+  { name: "Jazan", lat: 16.8892, lng: 42.5511 },
+  { name: "Taif", lat: 21.2703, lng: 40.4158 },
+  { name: "Al Jubail", lat: 27.0174, lng: 49.6584 },
+];
+
+const findNearestCity = (lat: number, lng: number) => {
+  let nearestCity = saudiCities[0];
+  let minDistance = Infinity;
+
+  saudiCities.forEach((city) => {
+    const distance = Math.sqrt(
+      Math.pow(lat - city.lat, 2) + Math.pow(lng - city.lng, 2),
+    );
+    if (distance < minDistance) {
+      minDistance = distance;
+      nearestCity = city;
+    }
+  });
+
+  return nearestCity;
+};
 
 interface WorkingHours {
   [key: string]: DayWorkingHours;
