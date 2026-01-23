@@ -165,7 +165,7 @@ export default function Footer() {
                         e.preventDefault();
                         // Dispatch a custom event to open contact modal
                         window.dispatchEvent(
-                          new CustomEvent("openContactModal")
+                          new CustomEvent("openContactModal"),
                         );
                       }}
                       className="w-full text-left text-gray-600 hover:text-yellow-600 transition-colors flex items-center"
@@ -222,15 +222,19 @@ export default function Footer() {
       <div className="bg-yellow-400 text-white">
         <div className="w-full px-3 sm:px-4 md:px-6 py-4 sm:py-6">
           <div className="max-w-7xl mx-auto">
-            <div className="flex justify-center items-center">
-              {/* Copyright */}
-              <div className="flex flex-col items-center space-y-2 text-center">
+            <div className="flex justify-between items-center w-full">
+              {/* Copyright - Left Side */}
+              <div className="text-left">
                 <p className="text-white text-xs sm:text-sm">
                   {t("footer.copyright")}
                 </p>
-                <div className="flex flex-col sm:flex-row items-center space-y-1 sm:space-y-0 sm:space-x-2 text-xs text-yellow-100">
-                  <span>{t("footer.commercialRegistered")}</span>
-                </div>
+              </div>
+
+              {/* Commercial Register - Right Side */}
+              <div className="text-right">
+                <p className="text-xs text-yellow-100">
+                  {t("footer.commercialRegistered")}
+                </p>
               </div>
             </div>
           </div>
