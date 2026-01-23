@@ -81,7 +81,7 @@ export default function ContentManagement() {
   const [reportedContent, setReportedContent] = useState<ReportedContent[]>([]);
   const [inquiries, setInquiries] = useState<AdminInquiry[]>([]);
   const [selectedInquiry, setSelectedInquiry] = useState<AdminInquiry | null>(
-    null
+    null,
   );
   const [showInquiryModal, setShowInquiryModal] = useState(false);
   const [replyMessage, setReplyMessage] = useState("");
@@ -312,7 +312,7 @@ export default function ContentManagement() {
   // Combine business data with inquiries data
   const businessesWithInquiries = filteredBusinesses.map((business) => {
     const businessInquiries = (inquiries || []).filter(
-      (inquiry) => inquiry.from === "supplier" && inquiry.sender_id !== null
+      (inquiry) => inquiry.from === "supplier" && inquiry.sender_id !== null,
     );
     return {
       ...business,
@@ -356,7 +356,7 @@ export default function ContentManagement() {
 
           // Use the new markAsReadForAdmin method
           const response = await apiService.markAsReadForAdmin(
-            selectedInquiry.id
+            selectedInquiry.id,
           );
 
           // Update the local state to mark the inquiry as read
@@ -364,8 +364,8 @@ export default function ContentManagement() {
             prevInquiries.map((inquiry) =>
               inquiry.id === selectedInquiry.id
                 ? { ...inquiry, is_read: true }
-                : inquiry
-            )
+                : inquiry,
+            ),
           );
         }
       } catch (error) {
@@ -376,6 +376,12 @@ export default function ContentManagement() {
     setSelectedInquiry(null);
   };
 
+  const handleReplyToInquiryClick = (inquiry: AdminInquiry) => {
+    setSelectedInquiry(inquiry);
+    setReplyMessage("");
+    setShowInquiryModal(true);
+  };
+
   const handleReplyToInquiry = async () => {
     if (!selectedInquiry || !replyMessage.trim()) return;
 
@@ -384,11 +390,15 @@ export default function ContentManagement() {
     try {
       const { apiService } = await import("../lib/api");
 
-      const response = await apiService.replyToInquiryAdmin({
-        id: selectedInquiry.id,
+      // Use the same endpoint as User Management
+      await apiService.createInquiry({
+        receiver_id: selectedInquiry.sender_id,
+        name: "Admin",
+        email: user?.email || "admin@supplier.sa",
+        phone: "",
+        subject: `${selectedInquiry.subject}`,
         message: replyMessage.trim(),
       });
-
 
       // Show success message
       toast.success(t("contentManagement.inquiries.replySuccess"));
@@ -439,20 +449,20 @@ export default function ContentManagement() {
           // Approve businesses
           await Promise.all(
             selectedItems.map((itemId) =>
-              apiService.updateSupplier(itemId, { status: "approved" })
-            )
+              apiService.updateSupplier(itemId, { status: "approved" }),
+            ),
           );
 
           // Update local state
           setBusinesses((prev) =>
             prev.map((b) =>
-              selectedItems.includes(b.id) ? { ...b, status: "approved" } : b
-            )
+              selectedItems.includes(b.id) ? { ...b, status: "approved" } : b,
+            ),
           );
         } else if (activeTab === "reviews") {
           // Approve reviews
           await Promise.all(
-            selectedItems.map((itemId) => apiService.approveRating(itemId))
+            selectedItems.map((itemId) => apiService.approveRating(itemId)),
           );
 
           // Refresh reviews data
@@ -481,7 +491,7 @@ export default function ContentManagement() {
         } else if (activeTab === "documents") {
           // Approve documents
           await Promise.all(
-            selectedItems.map((itemId) => apiService.approveDocument(itemId))
+            selectedItems.map((itemId) => apiService.approveDocument(itemId)),
           );
 
           // Refresh documents data
@@ -509,8 +519,8 @@ export default function ContentManagement() {
         toast.success(
           t("contentManagement.notifications.bulkApproved").replace(
             "{count}",
-            selectedItems.length.toString()
-          )
+            selectedItems.length.toString(),
+          ),
         );
       } else if (action === "reject") {
         // Handle bulk reject if needed
@@ -559,7 +569,7 @@ export default function ContentManagement() {
 
   const handleReviewAction = async (
     action: string,
-    reviewId: number
+    reviewId: number,
   ): Promise<void> => {
     // Check permissions for delete actions
     if (action === "reject" || action === "delete") {
@@ -626,7 +636,7 @@ export default function ContentManagement() {
 
       toast.success(
         actionMessages[action as keyof typeof actionMessages] ||
-          t("contentManagement.notifications.reviewActionCompleted")
+          t("contentManagement.notifications.reviewActionCompleted"),
       );
     } catch (error) {
       console.error(`Failed to ${action} review:`, error);
@@ -638,7 +648,7 @@ export default function ContentManagement() {
 
   const handleDocumentAction = async (
     action: string,
-    docId: number
+    docId: number,
   ): Promise<void> => {
     // Check permissions for delete actions
     if (action === "reject" || action === "delete") {
@@ -663,7 +673,7 @@ export default function ContentManagement() {
         case "view":
           // Handle view action - open document link
           const document = documentVerifications.find(
-            (doc) => doc.id === docId
+            (doc) => doc.id === docId,
           );
           if (document?.documentLink) {
             window.open(document.documentLink, "_blank");
@@ -706,7 +716,7 @@ export default function ContentManagement() {
 
       toast.success(
         actionMessages[action as keyof typeof actionMessages] ||
-          t("contentManagement.notifications.documentActionCompleted")
+          t("contentManagement.notifications.documentActionCompleted"),
       );
     } catch (error) {
       console.error(`Failed to ${action} document:`, error);
@@ -719,7 +729,7 @@ export default function ContentManagement() {
   const handleContentAction = (
     action: string,
     reportId: number,
-    type: string
+    type: string,
   ): void => {
     // Check permissions for delete actions
     if (action === "reject" || action === "delete") {
@@ -728,7 +738,7 @@ export default function ContentManagement() {
       }
     }
     setReportedContent((prev) =>
-      prev.filter((report) => report.id !== reportId)
+      prev.filter((report) => report.id !== reportId),
     );
   };
 
@@ -920,7 +930,7 @@ export default function ContentManagement() {
                           onChange={(e) => {
                             if (e.target.checked) {
                               setSelectedItems(
-                                businessesWithInquiries.map((b) => b.id)
+                                businessesWithInquiries.map((b) => b.id),
                               );
                             } else {
                               setSelectedItems([]);
@@ -972,8 +982,8 @@ export default function ContentManagement() {
                               } else {
                                 setSelectedItems(
                                   selectedItems.filter(
-                                    (id) => id !== business.id
-                                  )
+                                    (id) => id !== business.id,
+                                  ),
                                 );
                               }
                             }}
@@ -987,7 +997,7 @@ export default function ContentManagement() {
                           <p className="text-xs sm:text-sm text-gray-600">
                             {t("contentManagement.table.created")}:{" "}
                             {new Date(
-                              business.createdDate
+                              business.createdDate,
                             ).toLocaleDateString()}
                           </p>
                           {business.hasInquiries && (
@@ -1014,7 +1024,7 @@ export default function ContentManagement() {
                         <td className="py-4 px-4 sm:px-6">
                           <span
                             className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium capitalize ${getStatusColor(
-                              business.status
+                              business.status,
                             )}`}
                           >
                             {business.status.replace("_", " ")}
@@ -1028,7 +1038,7 @@ export default function ContentManagement() {
                         <td className="py-4 px-4 sm:px-6">
                           <p className="text-gray-800 text-sm sm:text-base">
                             {new Date(
-                              business.createdDate
+                              business.createdDate,
                             ).toLocaleDateString()}
                           </p>
                         </td>
@@ -1055,12 +1065,11 @@ export default function ContentManagement() {
                                 <button
                                   onClick={async () => {
                                     try {
-                                      const { apiService } = await import(
-                                        "../lib/api"
-                                      );
+                                      const { apiService } =
+                                        await import("../lib/api");
                                       await apiService.updateSupplier(
                                         business.id,
-                                        { status: "approved" }
+                                        { status: "approved" },
                                       );
 
                                       // Update local state
@@ -1068,8 +1077,8 @@ export default function ContentManagement() {
                                         prev.map((b) =>
                                           b.id === business.id
                                             ? { ...b, status: "approved" }
-                                            : b
-                                        )
+                                            : b,
+                                        ),
                                       );
 
                                       // Refresh approved today count
@@ -1077,18 +1086,18 @@ export default function ContentManagement() {
 
                                       toast.success(
                                         t(
-                                          "contentManagement.notifications.businessApproved"
-                                        )
+                                          "contentManagement.notifications.businessApproved",
+                                        ),
                                       );
                                     } catch (error) {
                                       console.error(
                                         "Failed to approve business:",
-                                        error
+                                        error,
                                       );
                                       toast.error(
                                         t(
-                                          "contentManagement.notifications.businessActionError"
-                                        )
+                                          "contentManagement.notifications.businessActionError",
+                                        ),
                                       );
                                     }
                                   }}
@@ -1103,8 +1112,8 @@ export default function ContentManagement() {
                                       prev.map((b) =>
                                         b.id === business.id
                                           ? { ...b, status: "flagged" }
-                                          : b
-                                      )
+                                          : b,
+                                      ),
                                     );
                                   }}
                                   className="text-yellow-600 hover:text-yellow-700 cursor-pointer"
@@ -1117,16 +1126,16 @@ export default function ContentManagement() {
                                     if (
                                       !confirm(
                                         t(
-                                          "contentManagement.messages.deleteConfirm"
-                                        )
+                                          "contentManagement.messages.deleteConfirm",
+                                        ),
                                       )
                                     )
                                       return;
                                     setBusinesses((prev) =>
-                                      prev.filter((b) => b.id !== business.id)
+                                      prev.filter((b) => b.id !== business.id),
                                     );
                                     setSelectedItems((prev) =>
-                                      prev.filter((id) => id !== business.id)
+                                      prev.filter((id) => id !== business.id),
                                     );
                                   }}
                                   className="text-red-600 hover:text-red-700 cursor-pointer"
@@ -1268,7 +1277,7 @@ export default function ContentManagement() {
                           <p className="text-gray-600 text-sm">
                             {review.submissionDate
                               ? new Date(
-                                  review.submissionDate
+                                  review.submissionDate,
                                 ).toLocaleDateString()
                               : "N/A"}
                           </p>
@@ -1390,7 +1399,7 @@ export default function ContentManagement() {
                         </div>
                         <span
                           className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                            doc.status
+                            doc.status,
                           )} flex-shrink-0`}
                         >
                           {doc.status.replace("_", " ")}
@@ -1551,7 +1560,7 @@ export default function ContentManagement() {
                             }`}
                           >
                             {t(
-                              `contentManagement.inquiries.types.${inquiry.type}`
+                              `contentManagement.inquiries.types.${inquiry.type}`,
                             )}
                           </span>
                         </td>
@@ -1564,7 +1573,7 @@ export default function ContentManagement() {
                             }`}
                           >
                             {t(
-                              `contentManagement.inquiries.fromTypes.${inquiry.from}`
+                              `contentManagement.inquiries.fromTypes.${inquiry.from}`,
                             )}
                           </span>
                         </td>
@@ -1579,7 +1588,7 @@ export default function ContentManagement() {
                             {t(
                               `contentManagement.inquiries.statusTypes.${
                                 inquiry.is_read ? "read" : "unread"
-                              }`
+                              }`,
                             )}
                           </span>
                         </td>
@@ -1597,6 +1606,17 @@ export default function ContentManagement() {
                             >
                               <i className="ri-eye-line text-lg"></i>
                             </button>
+                            {inquiry.from === "supplier" && (
+                              <button
+                                onClick={() =>
+                                  handleReplyToInquiryClick(inquiry)
+                                }
+                                className="text-green-600 hover:text-green-700 cursor-pointer"
+                                title={t("contentManagement.actions.reply")}
+                              >
+                                <i className="ri-reply-line text-lg"></i>
+                              </button>
+                            )}
                             {!inquiry.is_read && (
                               <span className="text-yellow-500" title="Unread">
                                 <i className="ri-circle-fill text-sm"></i>
@@ -1637,7 +1657,7 @@ export default function ContentManagement() {
                         </h4>
                         <span
                           className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                            report.status
+                            report.status,
                           )} flex-shrink-0`}
                         >
                           {report.status}
@@ -1686,7 +1706,7 @@ export default function ContentManagement() {
                               handleContentAction(
                                 "approve",
                                 report.id,
-                                "report"
+                                "report",
                               )
                             }
                             className="bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600 text-xs sm:text-sm cursor-pointer w-full lg:w-auto"
@@ -1698,7 +1718,7 @@ export default function ContentManagement() {
                               handleContentAction(
                                 "takedown",
                                 report.id,
-                                "report"
+                                "report",
                               )
                             }
                             className="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 text-xs sm:text-sm cursor-pointer w-full lg:w-auto"
@@ -1821,7 +1841,7 @@ export default function ContentManagement() {
                   <p className="text-gray-800 text-sm sm:text-base">
                     {selectedReview?.submissionDate
                       ? new Date(
-                          selectedReview.submissionDate
+                          selectedReview.submissionDate,
                         ).toLocaleDateString()
                       : "N/A"}
                   </p>
@@ -2064,8 +2084,8 @@ export default function ContentManagement() {
                     prev.map((b) =>
                       b.id === editingBusiness.id
                         ? { ...b, ...editingBusiness }
-                        : b
-                    )
+                        : b,
+                    ),
                   );
                   setShowEditBusiness(false);
                 }}
@@ -2165,7 +2185,7 @@ export default function ContentManagement() {
                         }`}
                       >
                         {t(
-                          `contentManagement.inquiries.types.${selectedInquiry.type}`
+                          `contentManagement.inquiries.types.${selectedInquiry.type}`,
                         )}
                       </span>
                     </div>
@@ -2181,7 +2201,7 @@ export default function ContentManagement() {
                         }`}
                       >
                         {t(
-                          `contentManagement.inquiries.fromTypes.${selectedInquiry.from}`
+                          `contentManagement.inquiries.fromTypes.${selectedInquiry.from}`,
                         )}
                       </span>
                     </div>
@@ -2199,7 +2219,7 @@ export default function ContentManagement() {
                         {t(
                           `contentManagement.inquiries.statusTypes.${
                             selectedInquiry.is_read ? "read" : "unread"
-                          }`
+                          }`,
                         )}
                       </span>
                     </div>
@@ -2209,7 +2229,7 @@ export default function ContentManagement() {
                       </p>
                       <p className="font-medium text-gray-800">
                         {new Date(
-                          selectedInquiry.created_at
+                          selectedInquiry.created_at,
                         ).toLocaleDateString()}
                       </p>
                     </div>
@@ -2239,7 +2259,7 @@ export default function ContentManagement() {
                         className="w-full p-2 border border-gray-300 rounded-lg mb-2"
                         rows={3}
                         placeholder={t(
-                          "contentManagement.inquiries.replyPlaceholder"
+                          "contentManagement.inquiries.replyPlaceholder",
                         )}
                       />
                       <div className="flex justify-end space-x-3">
