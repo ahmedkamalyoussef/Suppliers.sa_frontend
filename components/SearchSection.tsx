@@ -145,12 +145,12 @@ export default function SearchSection() {
       icon: "ri-computer-line",
       color: "from-indigo-400 to-indigo-600",
     },
-    {
-      id: "Construction & Real Estate",
-      name: t("cat.constructionRealEstate") || "Construction & Real Estate",
-      icon: "ri-building-line",
-      color: "from-orange-400 to-orange-600",
-    },
+    // {
+    //   id: "Construction & Real Estate",
+    //   name: t("cat.constructionRealEstate") || "Construction & Real Estate",
+    //   icon: "ri-building-line",
+    //   color: "from-orange-400 to-orange-600",
+    // },
     {
       id: "Consumer Electronics",
       name: t("cat.consumerElectronics") || "Consumer Electronics",
@@ -296,12 +296,12 @@ export default function SearchSection() {
       icon: "ri-printer-line",
       color: "from-purple-400 to-purple-600",
     },
-    {
-      id: "Real Estate",
-      name: t("cat.realEstate") || "Real Estate",
-      icon: "ri-building-2-line",
-      color: "from-orange-400 to-orange-600",
-    },
+    // {
+    //   id: "Real Estate",
+    //   name: t("cat.realEstate") || "Real Estate",
+    //   icon: "ri-building-2-line",
+    //   color: "from-orange-400 to-orange-600",
+    // },
     {
       id: "Scientific & Laboratory Instruments",
       name:
@@ -486,7 +486,7 @@ export default function SearchSection() {
         "business-services": "Business Services",
         chemicals: "Chemicals",
         "computer-hardware-software": "Computer Hardware & Software",
-        "construction-real-estate": "Construction & Real Estate",
+        // "construction-real-estate": "Construction & Real Estate",
         "consumer-electronics": "Consumer Electronics",
         "electronics-electrical": "Electronics & Electrical",
         "energy-power": "Energy & Power",
@@ -511,7 +511,7 @@ export default function SearchSection() {
         "pipes-tubes": "Pipes, Tubes & Fittings",
         "plastics-products": "Plastics & Products",
         "printing-publishing": "Printing & Publishing",
-        "real-estate": "Real Estate",
+        // "real-estate": "Real Estate",
         "scientific-laboratory": "Scientific & Laboratory Instruments",
         "security-protection": "Security & Protection",
         "sports-entertainment": "Sports & Entertainment",

@@ -382,7 +382,7 @@ function BusinessesContent() {
       filtered = filtered.filter((business) =>
         filters.categories.some((cat) => {
           const categoryMap: Record<string, string> = {
-            "construction-real-estate": "Construction & Real Estate",
+            // "construction-real-estate": "Construction & Real Estate",
             "consumer-electronics": "Consumer Electronics",
             "food-beverage": "Food & Beverage",
             "hospital-medical": "Hospital & Medical Supplies",
@@ -547,12 +547,12 @@ function BusinessesContent() {
         icon: "ri-computer-line",
         color: "from-indigo-400 to-indigo-600",
       },
-      {
-        id: "Construction & Real Estate",
-        name: t("cat.constructionRealEstate") || "Construction & Real Estate",
-        icon: "ri-building-line",
-        color: "from-orange-400 to-orange-600",
-      },
+      // {
+      //   id: "Construction & Real Estate",
+      //   name: t("cat.constructionRealEstate") || "Construction & Real Estate",
+      //   icon: "ri-building-line",
+      //   color: "from-orange-400 to-orange-600",
+      // },
       {
         id: "Consumer Electronics",
         name: t("cat.consumerElectronics") || "Consumer Electronics",

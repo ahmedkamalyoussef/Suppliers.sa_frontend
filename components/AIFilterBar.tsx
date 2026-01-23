@@ -133,8 +133,8 @@ export default function AIFilterBar({ onFilterChange }: AIFilterBarProps) {
 
     // Enhanced category mapping with more specific matching
     const categoryMappings: Record<string, string> = {
-      "glass|window|door|construction|building|cement|concrete|marble|tile|paint":
-        "Construction & Real Estate",
+      // "glass|window|door|construction|building|cement|concrete|marble|tile|paint":
+      //   "Construction & Real Estate",
       "electronic|computer|tech|software|hardware|smartphone|laptop":
         "Electronics & Electrical Supplies",
       "food|restaurant|catering|grocery|beverage|drink": "Food & Beverage",

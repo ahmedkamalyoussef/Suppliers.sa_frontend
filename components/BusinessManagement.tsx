@@ -99,7 +99,7 @@ const categories = [
   { en: "Business Services", ar: "الخدمات التجارية" },
   { en: "Chemicals", ar: "المواد الكيميائية" },
   { en: "Computer Hardware & Software", ar: "أجهزة وبرامج الكمبيوتر" },
-  { en: "Construction & Real Estate", ar: "البناء والعقارات" },
+  // { en: "Construction & Real Estate", ar: "البناء والعقارات" },
   { en: "Consumer Electronics", ar: "الإلكترونيات الاستهلاكية" },
   {
     en: "Electronics & Electrical Supplies",
@@ -127,7 +127,7 @@ const categories = [
   { en: "Pipes, Tubes & Fittings", ar: "الأنابيب والوصلات" },
   { en: "Plastics & Products", ar: "اللدائن والمنتجات" },
   { en: "Printing & Publishing", ar: "الطباعة والنشر" },
-  { en: "Real Estate", ar: "العقارات" },
+  // { en: "Real Estate", ar: "العقارات" },
   {
     en: "Scientific & Laboratory Instruments",
     ar: "الأدوات العلمية والمخبرية",

@@ -140,11 +140,11 @@ export default function BusinessFilters({
       name: t("cat.computerHardware"),
       icon: "ri-computer-line",
     },
-    {
-      id: "Construction & Real Estate",
-      name: t("cat.constructionRealEstate"),
-      icon: "ri-hammer-line",
-    },
+    // {
+    //   id: "Construction & Real Estate",
+    //   name: t("cat.constructionRealEstate"),
+    //   icon: "ri-hammer-line",
+    // },
     {
       id: "Consumer Electronics",
       name: t("cat.consumerElectronics"),
@@ -241,7 +241,7 @@ export default function BusinessFilters({
       name: t("cat.printingPublishing"),
       icon: "ri-printer-line",
     },
-    { id: "Real Estate", name: t("cat.realEstate"), icon: "ri-building-line" },
+    // { id: "Real Estate", name: t("cat.realEstate"), icon: "ri-building-line" },
     {
       id: "Scientific & Laboratory",
       name: t("cat.scientificLaboratory"),
