@@ -7,7 +7,7 @@ export interface InquiryRequest {
 }
 
 export interface BusinessRequest {
-  appearance: "showName" | "anonymous";
+  requestType: "product" | "pricing" | "contact";
   industry: string;
   preferred_distance: string;
   description: string;

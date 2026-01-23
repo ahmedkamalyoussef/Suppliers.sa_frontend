@@ -392,7 +392,7 @@ export default function SearchSection() {
   };
 
   const handleDescriptionChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLTextAreaElement>,
   ) => {
     const value = e.target.value;
     if (value.length <= 200) {
@@ -419,24 +419,24 @@ export default function SearchSection() {
 
   // Check if form is valid
   const isFormValid = () => {
-    const nameType = (
+    const requestType = (
       document.querySelector(
-        'select[name="nameType"]'
+        'select[name="requestType"]',
       ) as HTMLSelectElement | null
     )?.value;
     const category = (
       document.querySelector(
-        'select[name="category"]'
+        'select[name="category"]',
       ) as HTMLSelectElement | null
     )?.value;
     const distance = (
       document.querySelector(
-        'select[name="distance"]'
+        'select[name="distance"]',
       ) as HTMLSelectElement | null
     )?.value;
 
     return (
-      nameType &&
+      requestType &&
       category &&
       distance &&
       description.trim().length >= 10 &&
@@ -453,7 +453,7 @@ export default function SearchSection() {
       return;
     }
 
-    if (!user || (user.plan !== "Premium" && user.plan !== "Enterprise")) {
+    if (!user || user.plan !== "Premium") {
       setShowSubscriptionModal(true);
       return;
     }
@@ -467,8 +467,10 @@ export default function SearchSection() {
     setSubmitStatus("");
 
     try {
-      const nameType = (
-        document.querySelector('select[name="nameType"]') as HTMLSelectElement
+      const requestType = (
+        document.querySelector(
+          'select[name="requestType"]',
+        ) as HTMLSelectElement
       ).value;
       const category = (
         document.querySelector('select[name="category"]') as HTMLSelectElement
@@ -524,9 +526,7 @@ export default function SearchSection() {
       const industry = industryMap[category] || category;
 
       const businessRequest = {
-        appearance: (nameType === "anonymous" ? "anonymous" : "showName") as
-          | "showName"
-          | "anonymous",
+        requestType: requestType as "product" | "pricing" | "contact",
         industry,
         preferred_distance: distance === "anywhere" ? "anywhere" : distance,
         description: description,
@@ -536,11 +536,11 @@ export default function SearchSection() {
 
       if (response.inquiries_sent > 0) {
         setSubmitStatus(
-          `Request submitted successfully! Sent to ${response.inquiries_sent} supplier(s).`
+          `Request submitted successfully! Sent to ${response.inquiries_sent} supplier(s).`,
         );
       } else {
         setSubmitStatus(
-          response.note || "No suppliers found matching your criteria."
+          response.note || "No suppliers found matching your criteria.",
         );
       }
 
@@ -548,8 +548,10 @@ export default function SearchSection() {
       setDescription("");
       setSentenceCount(0);
       (
-        document.querySelector('select[name="nameType"]') as HTMLSelectElement
-      ).value = "profile";
+        document.querySelector(
+          'select[name="requestType"]',
+        ) as HTMLSelectElement
+      ).value = "";
       (
         document.querySelector('select[name="category"]') as HTMLSelectElement
       ).value = "";
@@ -729,7 +731,7 @@ export default function SearchSection() {
                           {t("showing") || "Showing"}:{" "}
                           {
                             categories.find(
-                              (cat) => cat.id === selectedCategory
+                              (cat) => cat.id === selectedCategory,
                             )?.name
                           }
                         </span>
@@ -797,17 +799,23 @@ export default function SearchSection() {
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
                     <div className="space-y-2">
                       <label className="block text-sm font-semibold text-gray-800 mb-3">
-                        {t("searchRequest.displayNameLabel")}
+                        {t("searchRequest.requestTypeLabel")}
                       </label>
                       <select
-                        name="nameType"
+                        name="requestType"
                         className="w-full py-3 md:py-4 px-4 md:px-5 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:outline-none transition-colors pr-8 md:pr-12 bg-gray-50 hover:bg-white"
                       >
-                        <option value="profile">
-                          {t("searchRequest.displayNameProfile")}
+                        <option value="">
+                          {t("searchRequest.selectType") || "Select Type"}
                         </option>
-                        <option value="anonymous">
-                          {t("searchRequest.displayNameAnonymous")}
+                        <option value="product">
+                          {t("searchRequest.productRequest")}
+                        </option>
+                        <option value="pricing">
+                          {t("searchRequest.pricingRequest")}
+                        </option>
+                        <option value="contact">
+                          {t("searchRequest.contactRequest")}
                         </option>
                       </select>
                     </div>
@@ -996,7 +1004,7 @@ export default function SearchSection() {
                         >
                           {t("searchRequest.sentencesCounter").replace(
                             "{{count}}",
-                            String(sentenceCount)
+                            String(sentenceCount),
                           )}
                         </span>
                         <span
@@ -1008,7 +1016,7 @@ export default function SearchSection() {
                         >
                           {t("searchRequest.charsCounter").replace(
                             "{{count}}",
-                            String(description.length)
+                            String(description.length),
                           )}
                         </span>
                       </div>

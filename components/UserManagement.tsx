@@ -118,9 +118,9 @@ export default function UserManagement() {
   const [filterStatus, setFilterStatus] = useState<
     "all" | "active" | "suspended" | "pending" | "inactive" | "approved"
   >("all");
-  const [filterPlan, setFilterPlan] = useState<
-    "all" | "Basic" | "Premium" | "Enterprise"
-  >("all");
+  const [filterPlan, setFilterPlan] = useState<"all" | "Basic" | "Premium">(
+    "all",
+  );
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [showUserDetails, setShowUserDetails] = useState<Supplier | null>(null);
   const [showUserModal, setShowUserModal] = useState<boolean>(false);
@@ -308,8 +308,6 @@ export default function UserManagement() {
 
   const getPlanColor = (plan: Supplier["plan"]) => {
     switch (plan) {
-      case "Enterprise":
-        return "bg-purple-100 text-purple-600";
       case "Premium":
         return "bg-blue-100 text-blue-600";
       case "Basic":
@@ -321,7 +319,7 @@ export default function UserManagement() {
 
   const handleUserAction = async (
     action: "edit" | "suspend" | "delete" | "sendEmail" | "sendMessage",
-    userId: number
+    userId: number,
   ) => {
     const target = users.find((u: Supplier) => u.id === userId);
     if (!target) return;
@@ -344,7 +342,7 @@ export default function UserManagement() {
         // Add confirmation for single delete
         if (
           !window.confirm(
-            `Are you sure you want to delete ${target.name}? This action cannot be undone.`
+            `Are you sure you want to delete ${target.name}? This action cannot be undone.`,
           )
         ) {
           return;
@@ -360,7 +358,7 @@ export default function UserManagement() {
       } else if (action === "sendMessage") {
         // TODO: Implement internal messaging functionality
         toast.info(
-          `Internal messaging for ${target.name} will be implemented soon`
+          `Internal messaging for ${target.name} will be implemented soon`,
         );
       }
     } catch (error) {
@@ -378,7 +376,7 @@ export default function UserManagement() {
       toast.error(
         language === "ar"
           ? "يرجى ملء جميع حقول البريد الإلكتروني"
-          : "Please fill in all email fields"
+          : "Please fill in all email fields",
       );
       return;
     }
@@ -393,7 +391,7 @@ export default function UserManagement() {
       toast.success(
         language === "ar"
           ? `تم إرسال البريد الإلكتروني بنجاح إلى ${emailRecipient.name}`
-          : `Email sent successfully to ${emailRecipient.name}`
+          : `Email sent successfully to ${emailRecipient.name}`,
       );
       setShowEmailModal(false);
       setEmailRecipient(null);
@@ -409,14 +407,14 @@ export default function UserManagement() {
         toast.error(
           language === "ar"
             ? "فشل في إرسال البريد الإلكتروني"
-            : "Failed to send email"
+            : "Failed to send email",
         );
       }
     }
   };
 
   const handleBulkAction = async (
-    action: "suspend" | "delete" | "sendEmail"
+    action: "suspend" | "delete" | "sendEmail",
   ) => {
     if (selectedUsers.length === 0) return;
 
@@ -435,8 +433,8 @@ export default function UserManagement() {
           ? `هل أنت متأكد من حذف ${selectedUsers.length} مستخدم؟`
           : `Are you sure you want to delete ${selectedUsers.length} user(s)? This action cannot be undone.`
         : language === "ar"
-        ? `هل أنت متأكد من تعليق ${selectedUsers.length} مستخدم؟`
-        : `Are you sure you want to suspend ${selectedUsers.length} user(s)?`;
+          ? `هل أنت متأكد من تعليق ${selectedUsers.length} مستخدم؟`
+          : `Are you sure you want to suspend ${selectedUsers.length} user(s)?`;
 
     if (!window.confirm(confirmMessage)) {
       return;
@@ -446,24 +444,24 @@ export default function UserManagement() {
       if (action === "delete") {
         // Delete suppliers one by one
         await Promise.all(
-          selectedUsers.map((userId) => apiService.deleteSupplier(userId))
+          selectedUsers.map((userId) => apiService.deleteSupplier(userId)),
         );
         toast.success(
           language === "ar"
             ? `تم حذف ${selectedUsers.length} مستخدم بنجاح`
-            : `Deleted ${selectedUsers.length} user(s) successfully`
+            : `Deleted ${selectedUsers.length} user(s) successfully`,
         );
       } else if (action === "suspend") {
         // Suspend suppliers one by one
         await Promise.all(
           selectedUsers.map((userId) =>
-            apiService.updateSupplier(userId, { status: "suspended" })
-          )
+            apiService.updateSupplier(userId, { status: "suspended" }),
+          ),
         );
         toast.success(
           language === "ar"
             ? `تم تعليق ${selectedUsers.length} مستخدم بنجاح`
-            : `Suspended ${selectedUsers.length} user(s) successfully`
+            : `Suspended ${selectedUsers.length} user(s) successfully`,
         );
       }
 
@@ -472,7 +470,7 @@ export default function UserManagement() {
     } catch (error) {
       console.error(`Failed to ${action} suppliers:`, error);
       toast.error(
-        language === "ar" ? "فشل في تنفيذ الإجراء" : "Failed to perform action"
+        language === "ar" ? "فشل في تنفيذ الإجراء" : "Failed to perform action",
       );
     }
   };
@@ -482,7 +480,7 @@ export default function UserManagement() {
       toast.error(
         language === "ar"
           ? "يرجى ملء جميع حقول البريد الإلكتروني"
-          : "Please fill in all email fields"
+          : "Please fill in all email fields",
       );
       return;
     }
@@ -491,14 +489,14 @@ export default function UserManagement() {
       toast.error(
         language === "ar"
           ? "يرجى تحديد مستخدمين على الأقل"
-          : "Please select at least one user"
+          : "Please select at least one user",
       );
       return;
     }
 
     try {
       const selectedUsersData = users.filter((user) =>
-        selectedUsers.includes(user.id)
+        selectedUsers.includes(user.id),
       );
       const recipients = selectedUsersData.map((user) => user.email);
 
@@ -540,7 +538,7 @@ export default function UserManagement() {
         toast.error(
           language === "ar"
             ? "فشل في إرسال البريد الإلكتروني الجماعي"
-            : "Failed to send bulk email"
+            : "Failed to send bulk email",
         );
       }
     }
@@ -602,8 +600,8 @@ export default function UserManagement() {
                       ? `إرسال بريد إلكتروني إلى ${selectedUsers.length} مستخدم`
                       : `Send email to ${selectedUsers.length} user(s)`
                     : language === "ar"
-                    ? "يرجى تحديد مستخدمين أولاً"
-                    : "Please select users first"
+                      ? "يرجى تحديد مستخدمين أولاً"
+                      : "Please select users first"
                 }
               >
                 <i className="ri-mail-send-line mr-2"></i>
@@ -625,8 +623,8 @@ export default function UserManagement() {
                       ? `تعليق ${selectedUsers.length} مستخدم`
                       : `Suspend ${selectedUsers.length} user(s)`
                     : language === "ar"
-                    ? "ليس لديك صلاحية تعليق المستخدمين"
-                    : "You need Edit Users or Full User Management permission to suspend users"
+                      ? "ليس لديك صلاحية تعليق المستخدمين"
+                      : "You need Edit Users or Full User Management permission to suspend users"
                 }
               >
                 <i className="ri-pause-circle-line mr-2"></i>
@@ -648,8 +646,8 @@ export default function UserManagement() {
                       ? `حذف ${selectedUsers.length} مستخدم`
                       : `Delete ${selectedUsers.length} user(s)`
                     : language === "ar"
-                    ? "ليس لديك صلاحية حذف المستخدمين"
-                    : "You need Delete Users or Full User Management permission to delete users"
+                      ? "ليس لديك صلاحية حذف المستخدمين"
+                      : "You need Delete Users or Full User Management permission to delete users"
                 }
               >
                 <i className="ri-delete-bin-line mr-2"></i>
@@ -673,8 +671,8 @@ export default function UserManagement() {
                   ? "إضافة مستخدم"
                   : "Add User"
                 : language === "ar"
-                ? "ليس لديك صلاحية إضافة المستخدمين"
-                : "You need Full User Management permission to add users"
+                  ? "ليس لديك صلاحية إضافة المستخدمين"
+                  : "You need Full User Management permission to add users"
             }
           >
             <i className="ri-add-line mr-2"></i>
@@ -718,7 +716,7 @@ export default function UserManagement() {
                     | "suspended"
                     | "pending"
                     | "inactive"
-                    | "approved"
+                    | "approved",
                 )
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
@@ -751,9 +749,7 @@ export default function UserManagement() {
             <select
               value={filterPlan}
               onChange={(e) =>
-                setFilterPlan(
-                  e.target.value as "all" | "Basic" | "Premium" | "Enterprise"
-                )
+                setFilterPlan(e.target.value as "all" | "Basic" | "Premium")
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
             >
@@ -765,9 +761,6 @@ export default function UserManagement() {
               </option>
               <option value="Premium">
                 {language === "ar" ? "متميز" : "Premium"}
-              </option>
-              <option value="Enterprise">
-                {language === "ar" ? "تجاري" : "Enterprise"}
               </option>
             </select>
           </div>
@@ -787,8 +780,8 @@ export default function UserManagement() {
                     ? "تصدير البيانات"
                     : "Export Data"
                   : language === "ar"
-                  ? "ليس لديك صلاحية تصدير البيانات"
-                  : "You need Full User Management permission to export data"
+                    ? "ليس لديك صلاحية تصدير البيانات"
+                    : "You need Full User Management permission to export data"
               }
             >
               <i className="ri-download-line mr-2"></i>
@@ -852,7 +845,7 @@ export default function UserManagement() {
                           setSelectedUsers([...selectedUsers, user.id]);
                         } else {
                           setSelectedUsers(
-                            selectedUsers.filter((id) => id !== user.id)
+                            selectedUsers.filter((id) => id !== user.id),
                           );
                         }
                       }}
@@ -902,7 +895,7 @@ export default function UserManagement() {
                   <td className="py-4 px-4 sm:px-6">
                     <span
                       className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium ${getPlanColor(
-                        user.plan
+                        user.plan,
                       )}`}
                     >
                       {user.plan}
@@ -911,7 +904,7 @@ export default function UserManagement() {
                   <td className="py-4 px-4 sm:px-6">
                     <span
                       className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium capitalize ${getStatusColor(
-                        user.status
+                        user.status,
                       )}`}
                     >
                       {user.status}
@@ -966,8 +959,8 @@ export default function UserManagement() {
                               ? "تعديل المستخدم"
                               : "Edit User"
                             : language === "ar"
-                            ? "ليس لديك صلاحية تعديل المستخدمين"
-                            : "You need Edit Users or Full User Management permission to edit users"
+                              ? "ليس لديك صلاحية تعديل المستخدمين"
+                              : "You need Edit Users or Full User Management permission to edit users"
                         }
                       >
                         <i className="ri-edit-line text-sm sm:text-base"></i>
@@ -986,8 +979,8 @@ export default function UserManagement() {
                               ? "تعليق المستخدم"
                               : "Suspend User"
                             : language === "ar"
-                            ? "ليس لديك صلاحية تعليق المستخدمين"
-                            : "You need Edit Users or Full User Management permission to suspend users"
+                              ? "ليس لديك صلاحية تعليق المستخدمين"
+                              : "You need Edit Users or Full User Management permission to suspend users"
                         }
                       >
                         <i className="ri-pause-circle-line text-sm sm:text-base"></i>
@@ -1006,8 +999,8 @@ export default function UserManagement() {
                               ? "حذف المستخدم"
                               : "Delete User"
                             : language === "ar"
-                            ? "ليس لديك صلاحية حذف المستخدمين"
-                            : "You need Delete Users or Full User Management permission to delete users"
+                              ? "ليس لديك صلاحية حذف المستخدمين"
+                              : "You need Delete Users or Full User Management permission to delete users"
                         }
                       >
                         <i className="ri-delete-bin-line text-sm sm:text-base"></i>
@@ -1070,7 +1063,7 @@ export default function UserManagement() {
                   <img
                     src={getAvatarUrl(
                       showUserDetails.avatar,
-                      showUserDetails.name
+                      showUserDetails.name,
                     )}
                     alt={showUserDetails.name}
                     className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-gray-200 shadow-sm"
@@ -1101,7 +1094,7 @@ export default function UserManagement() {
                   </label>
                   <span
                     className={`px-3 py-1 rounded-full text-sm font-medium ${getPlanColor(
-                      showUserDetails.plan
+                      showUserDetails.plan,
                     )}`}
                   >
                     {showUserDetails.plan}
@@ -1113,7 +1106,7 @@ export default function UserManagement() {
                   </label>
                   <span
                     className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${getStatusColor(
-                      showUserDetails.status
+                      showUserDetails.status,
                     )}`}
                   >
                     {showUserDetails.status}
@@ -1185,8 +1178,8 @@ export default function UserManagement() {
                     ? "تعديل المستخدم"
                     : "Edit User"
                   : language === "ar"
-                  ? "إضافة مستخدم"
-                  : "Add User"}
+                    ? "إضافة مستخدم"
+                    : "Add User"}
               </h3>
               <button
                 onClick={() => {
@@ -1265,9 +1258,6 @@ export default function UserManagement() {
                     </option>
                     <option value="Premium">
                       {language === "ar" ? "متميز" : "Premium"}
-                    </option>
-                    <option value="Enterprise">
-                      {language === "ar" ? "تجاري" : "Enterprise"}
                     </option>
                   </select>
                 </div>
@@ -1363,8 +1353,8 @@ export default function UserManagement() {
                       ? `إرسال بريد إلكتروني إلى ${emailRecipient.name}`
                       : `Send Email to ${emailRecipient.name}`
                     : language === "ar"
-                    ? `إرسال بريد إلكتروني إلى ${selectedUsers.length} مستخدم`
-                    : `Send Email to ${selectedUsers.length} user(s)`}
+                      ? `إرسال بريد إلكتروني إلى ${selectedUsers.length} مستخدم`
+                      : `Send Email to ${selectedUsers.length} user(s)`}
                 </h3>
                 <button
                   onClick={() => {
