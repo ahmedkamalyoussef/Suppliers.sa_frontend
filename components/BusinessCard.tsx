@@ -5,6 +5,8 @@ import { useLanguage } from "../lib/LanguageContext";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import MessageModal from "./MessageModal";
+import companyImg from "../lib/assets/company.png";
+import { getApiUrl } from "../lib/config";
 
 interface Business {
   id: number;
@@ -87,6 +89,20 @@ export default function BusinessCard({
 
   // Log business data when it changes
   useEffect(() => {}, [business]);
+
+  // Helper function to get business avatar with fallback
+  const getBusinessAvatarUrl = (avatar: string | null | undefined) => {
+    if (
+      avatar &&
+      avatar !== "" &&
+      !avatar.includes("uploads/default.png") &&
+      !avatar.includes("images/default-avatar.png")
+    ) {
+      return getApiUrl(avatar);
+    }
+    // Use local default company avatar
+    return companyImg.src;
+  };
 
   // Get the image URL with fallback
   const getImageUrl = (imgUrl?: string) => {
@@ -172,23 +188,25 @@ export default function BusinessCard({
             {/* Image */}
             <div className="md:w-48 h-32 md:h-auto relative overflow-hidden rounded-lg flex-shrink-0">
               <img
-                src={getImageUrl(business.profileImage || business.image)}
+                src={getBusinessAvatarUrl(
+                  business.profileImage || business.image,
+                )}
                 alt={business.name}
                 className="w-full h-full object-cover object-top"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = "/images/placeholder-business.jpg";
+                  target.src = companyImg.src;
                 }}
               />
               <div className="absolute top-2 right-2 bg-white rounded-full px-2 py-1 shadow-md">
                 <div
                   className={`${getStatusColor(
-                    business.status || "unknown"
+                    business.status || "unknown",
                   )} px-2 py-1 rounded-full flex items-center space-x-1`}
                 >
                   <i
                     className={`${getStatusIcon(
-                      business.status || "unknown"
+                      business.status || "unknown",
                     )} text-xs`}
                   ></i>
                   <span className="text-xs font-medium">
@@ -214,17 +232,17 @@ export default function BusinessCard({
                     </h3>
                     <div
                       className={`${getBusinessTypeColor(
-                        business.businessType
+                        business.businessType,
                       )} px-2 py-1 rounded-full flex items-center space-x-1`}
                     >
                       <i
                         className={`${getBusinessTypeIcon(
-                          business.businessType
+                          business.businessType,
                         )} text-xs`}
                       ></i>
                       <span className="text-xs font-medium">
                         {t(
-                          `publicProfile.businessTypes.${business.businessType?.toLowerCase()}`
+                          `publicProfile.businessTypes.${business.businessType?.toLowerCase()}`,
                         ) ||
                           business.businessType?.charAt(0).toUpperCase() +
                             business.businessType?.slice(1)}
@@ -329,19 +347,23 @@ export default function BusinessCard({
     <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 cursor-pointer h-full flex flex-col">
       <div className="relative h-48 overflow-hidden">
         <img
-          src={business.image}
+          src={getBusinessAvatarUrl(business.image)}
           alt={business.name}
           className="w-full h-full object-cover object-top"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = companyImg.src;
+          }}
         />
         <div className="absolute top-4 right-4  rounded-full shadow-md">
           <div
             className={`${getStatusColor(
-              business.status || "unknown"
+              business.status || "unknown",
             )} px-3 py-1 rounded-full flex items-center space-x-1`}
           >
             <i
               className={`${getStatusIcon(
-                business.status || "unknown"
+                business.status || "unknown",
               )} text-xs`}
             ></i>
             <span className="text-xs font-medium">
@@ -353,17 +375,17 @@ export default function BusinessCard({
         <div className="absolute top-4 left-4 flex items-center space-x-2">
           <div
             className={`${getBusinessTypeColor(
-              business.businessType
+              business.businessType,
             )} px-3 py-1 rounded-full flex items-center space-x-1 shadow-md`}
           >
             <i
               className={`${getBusinessTypeIcon(
-                business.businessType
+                business.businessType,
               )} text-sm`}
             ></i>
             <span className="text-xs font-medium">
               {t(
-                `publicProfile.businessTypes.${business.businessType?.toLowerCase()}`
+                `publicProfile.businessTypes.${business.businessType?.toLowerCase()}`,
               ) ||
                 business.businessType?.charAt(0).toUpperCase() +
                   business.businessType?.slice(1)}
