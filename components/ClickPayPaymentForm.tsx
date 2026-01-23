@@ -118,7 +118,9 @@ const ClickPayPaymentForm: React.FC<ClickPayPaymentFormProps> = ({
 
       if (result.success && result.redirectUrl) {
         // Redirect to ClickPay payment page
-        window.location.href = result.redirectUrl;
+        if (typeof window !== "undefined") {
+          window.location.href = result.redirectUrl;
+        }
       } else {
         onPaymentError(result.message);
       }

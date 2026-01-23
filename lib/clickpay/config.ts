@@ -32,7 +32,7 @@ export const paymentPlans = [
     id: "professional",
     name: "Professional Plan",
     description: "Ideal for growing businesses",
-    price: 49,
+    price: 199,
     currency: "SAR",
     duration: "monthly",
     features: [

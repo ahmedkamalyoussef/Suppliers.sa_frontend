@@ -23,7 +23,7 @@ export default function PricingPlans() {
   const [paymentError, setPaymentError] = useState("");
   const [transactionId, setTransactionId] = useState("");
 
-  const monthlyPrice = 49;
+  const monthlyPrice = 199;
   const yearlyPrice = 1799;
   const yearlySavings = Math.round(
     ((monthlyPrice * 12 - yearlyPrice) / (monthlyPrice * 12)) * 100

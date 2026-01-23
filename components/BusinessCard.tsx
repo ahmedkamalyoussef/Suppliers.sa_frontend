@@ -84,7 +84,9 @@ export default function BusinessCard({
     }
 
     // If we reach here, allow navigation
-    window.location.href = `/business/${business.id}`;
+    if (typeof window !== "undefined") {
+      window.location.href = `/business/${business.id}`;
+    }
   };
 
   // Log business data when it changes

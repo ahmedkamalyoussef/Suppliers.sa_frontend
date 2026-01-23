@@ -12,12 +12,12 @@ import VerificationStep from "@/components/VerificationStep";
 
 export default function RegisterPage() {
   const { t, translations, language } = useLanguage();
-  
+
   // Auth guard - redirect authenticated users away
   useEffect(() => {
     const token = localStorage.getItem("supplier_token");
     const user = localStorage.getItem("supplier_user");
-    
+
     if (token && user) {
       try {
         const userData = JSON.parse(user);
@@ -41,12 +41,14 @@ export default function RegisterPage() {
     email: string;
     password: string;
     confirmPassword: string;
+    acceptPolicies: boolean;
   }>({
     businessName: "",
     phone: "",
     email: "",
     password: "",
     confirmPassword: "",
+    acceptPolicies: false,
   });
   const [verificationMethod, setVerificationMethod] = useState<
     "phone" | "email" | ""
@@ -117,6 +119,7 @@ export default function RegisterPage() {
             : `+966${formData.phone}`,
           password: formData.password,
           password_confirmation: formData.confirmPassword,
+          accept_policies: true,
         };
 
         const response = await apiService.registerSupplier(apiData);
@@ -128,7 +131,7 @@ export default function RegisterPage() {
             ...formData,
             supplier: response.supplier,
             registeredAt: new Date().toISOString(),
-          })
+          }),
         );
 
         setStep(2);
@@ -177,7 +180,7 @@ export default function RegisterPage() {
 
   const handleCodeKeyDown = (
     index: number,
-    e: React.KeyboardEvent<HTMLInputElement>
+    e: React.KeyboardEvent<HTMLInputElement>,
   ) => {
     if (e.key === "Backspace" && !verificationCode[index] && index > 0) {
       const prevInput = document.getElementById(`code-${index - 1}`);
@@ -211,7 +214,7 @@ export default function RegisterPage() {
         ...formData,
         verificationMethod,
         verifiedAt: new Date().toISOString(),
-      })
+      }),
     );
 
     router.push("/complete-profile");

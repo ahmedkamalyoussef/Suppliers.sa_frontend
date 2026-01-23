@@ -106,22 +106,22 @@ export default function Header() {
       // Update recent messages to remove unread status
       setRecentMessages((prev) =>
         prev.map((msg) =>
-          msg.id === messageId ? { ...msg, unread: false } : msg
-        )
+          msg.id === messageId ? { ...msg, unread: false } : msg,
+        ),
       );
     };
 
     // Add event listener
     window.addEventListener(
       "messageMarkedAsRead",
-      handleMessageMarkedAsRead as EventListener
+      handleMessageMarkedAsRead as EventListener,
     );
 
     // Cleanup
     return () => {
       window.removeEventListener(
         "messageMarkedAsRead",
-        handleMessageMarkedAsRead as EventListener
+        handleMessageMarkedAsRead as EventListener,
       );
     };
   }, [inboxData]);
@@ -149,7 +149,7 @@ export default function Header() {
           setInboxData((prev: any) => ({
             ...prev,
             inbox: prev.inbox.map((m: any) =>
-              m.id === messageId ? { ...m, is_read: true } : m
+              m.id === messageId ? { ...m, is_read: true } : m,
             ),
             unread_count: Math.max(0, prev.unread_count - 1),
           }));
@@ -157,8 +157,8 @@ export default function Header() {
           // Update recent messages as well
           setRecentMessages((prev) =>
             prev.map((msg) =>
-              msg.id === messageId ? { ...msg, unread: false } : msg
-            )
+              msg.id === messageId ? { ...msg, unread: false } : msg,
+            ),
           );
         } catch (error) {
           console.error("Header - Failed to mark message as read:", error);
@@ -520,6 +520,7 @@ export default function Header() {
                   {/* If not logged in, show auth links - but not for admin pages */}
                   {!loading &&
                     !isAuthenticated &&
+                    typeof window !== "undefined" &&
                     !window.location.pathname.startsWith("/admin") && (
                       <div className="hidden sm:flex items-center space-x-2 md:space-x-3">
                         <Link
@@ -603,6 +604,7 @@ export default function Header() {
               {/* Show Auth Links for Guest on Mobile - but not for admin pages */}
               {!loading &&
                 !isAuthenticated &&
+                typeof window !== "undefined" &&
                 !window.location.pathname.startsWith("/admin") && (
                   <div className="pt-4 border-t border-gray-200 space-y-4">
                     <Link

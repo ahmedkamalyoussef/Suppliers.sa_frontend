@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
@@ -88,7 +90,7 @@ export default function CompleteProfilePage() {
         location: location,
       }));
     },
-    []
+    [],
   );
 
   // Sync initial location with formData
@@ -158,13 +160,13 @@ export default function CompleteProfilePage() {
         setCurrentStep(Math.min(Math.max(step, 1), TOTAL_STEPS));
       }
     },
-    [currentStep]
+    [currentStep],
   );
 
   // Memoized progress calculation
   const progressPercentage = useMemo(
     () => ((currentStep - 1) / (TOTAL_STEPS - 1)) * 100,
-    [currentStep]
+    [currentStep],
   );
 
   // Loading state
@@ -239,10 +241,10 @@ export default function CompleteProfilePage() {
                         step === currentStep
                           ? "bg-yellow-400 text-white"
                           : step < currentStep
-                          ? "bg-green-500 text-white hover:bg-green-600"
-                          : isAccessible
-                          ? "bg-gray-200 text-gray-500 hover:bg-gray-300"
-                          : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                            ? "bg-green-500 text-white hover:bg-green-600"
+                            : isAccessible
+                              ? "bg-gray-200 text-gray-500 hover:bg-gray-300"
+                              : "bg-gray-100 text-gray-400 cursor-not-allowed"
                       }`}
                       aria-label={`Go to step ${step}`}
                       title={
@@ -258,7 +260,7 @@ export default function CompleteProfilePage() {
                       )}
                     </button>
                   );
-                }
+                },
               )}
             </div>
           </div>

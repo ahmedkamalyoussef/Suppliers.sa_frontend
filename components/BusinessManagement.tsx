@@ -214,7 +214,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
   // Helper functions
   const getTranslatedText = (
     items: Array<{ en: string; ar: string }>,
-    value: string
+    value: string,
   ): string => {
     const item = items.find((item) => item.en === value);
     return item ? item[isRTL ? "ar" : "en"] : value;
@@ -222,7 +222,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
 
   const getTranslatedTextWithValue = (
     items: Array<{ value: string; en: string; ar: string }>,
-    value: string
+    value: string,
   ): string => {
     const item = items.find((item) => item.value === value);
     if (!item) return value;
@@ -240,7 +240,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
       if (response) {
         // Show success message
         alert(
-          "Document uploaded successfully! It will be reviewed by our team."
+          "Document uploaded successfully! It will be reviewed by our team.",
         );
       } else {
         alert("Upload failed. Please try again.");
@@ -287,7 +287,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
   const handleTargetCustomerToggle = (customer: string) => {
     const englishCustomer =
       targetCustomerOptions.find(
-        (opt) => opt.en === customer || opt.ar === customer
+        (opt) => opt.en === customer || opt.ar === customer,
       )?.en || customer;
 
     const newCustomers = businessData.targetCustomers.includes(englishCustomer)
@@ -321,7 +321,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
     setBusinessData({
       ...businessData,
       additionalPhones: businessData.additionalPhones.filter(
-        (phone) => phone.id !== id
+        (phone) => phone.id !== id,
       ),
     });
   };
@@ -329,10 +329,10 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
   const handlePhoneChange = (
     id: number,
     field: "type" | "number" | "name",
-    value: string
+    value: string,
   ) => {
     const updatedPhones = businessData.additionalPhones.map((phone) =>
-      phone.id === id ? { ...phone, [field]: value } : phone
+      phone.id === id ? { ...phone, [field]: value } : phone,
     );
 
     setBusinessData({
@@ -537,7 +537,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
           id: img.id,
           url: img.image_url,
           image: img.image_url,
-        }))
+        })),
       );
     }
 
@@ -560,7 +560,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
   const handleWorkingHoursChange = (
     day: keyof typeof businessData.workingHours,
     field: "open" | "close" | "closed",
-    value: string | boolean
+    value: string | boolean,
   ): void => {
     setBusinessData((prev) => ({
       ...prev,
@@ -575,23 +575,26 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
   };
 
   const applyWorkingHoursToAllDays = (
-    sourceDay: keyof typeof businessData.workingHours
+    sourceDay: keyof typeof businessData.workingHours,
   ) => {
     setBusinessData((prev) => {
       const source = prev.workingHours[sourceDay];
       return {
         ...prev,
-        workingHours: Object.keys(prev.workingHours).reduce((acc, dayKey) => {
-          const day = dayKey as keyof typeof prev.workingHours;
-          acc[day] = { ...source };
-          return acc;
-        }, {} as typeof prev.workingHours),
+        workingHours: Object.keys(prev.workingHours).reduce(
+          (acc, dayKey) => {
+            const day = dayKey as keyof typeof prev.workingHours;
+            acc[day] = { ...source };
+            return acc;
+          },
+          {} as typeof prev.workingHours,
+        ),
       };
     });
   };
 
   const applyWorkingHoursToNextDays = (
-    sourceDay: keyof typeof businessData.workingHours
+    sourceDay: keyof typeof businessData.workingHours,
   ) => {
     const dayOrder: Array<keyof typeof businessData.workingHours> = [
       "monday",
@@ -620,7 +623,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
   const handleSave = async () => {
     try {
       const currentUser = JSON.parse(
-        localStorage.getItem("supplier_user") || "{}"
+        localStorage.getItem("supplier_user") || "{}",
       );
 
       const updateData: Record<string, any> = {};
@@ -696,7 +699,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
             originalProfile.services ||
             originalProfile.services_offered ||
             []
-          ).sort()
+          ).sort(),
         )
       ) {
         updateData.services = businessData.services;
@@ -721,7 +724,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
         ? businessData.targetCustomers
         : [];
       const originalTargetCustomers = Array.isArray(
-        originalProfile.targetCustomers
+        originalProfile.targetCustomers,
       )
         ? originalProfile.targetCustomers
         : [];
@@ -772,7 +775,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
         // Update localStorage with the new data
         localStorage.setItem(
           "supplier_user",
-          JSON.stringify(response.supplier)
+          JSON.stringify(response.supplier),
         );
 
         // Process the updated data to refresh the component state
@@ -802,14 +805,14 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
       window.dispatchEvent(
         new CustomEvent("userProfileUpdated", {
           detail: { message: "Profile updated successfully" },
-        })
+        }),
       );
 
       // Also trigger a general data refresh event
       window.dispatchEvent(
         new CustomEvent("dataRefresh", {
           detail: { section: "businessProfile" },
-        })
+        }),
       );
     } catch (error) {
       // Show error toast
@@ -826,7 +829,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
   };
 
   const handleImageUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const files = event.target.files;
     if (files && files[0]) {
@@ -915,7 +918,11 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
         </h2>
         <div className="flex space-x-3">
           <button
-            onClick={() => (window.location.href = "/manage-businesses/")}
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                window.location.href = "/manage-businesses/";
+              }
+            }}
             className="px-4 py-3 rounded-lg font-medium whitespace-nowrap cursor-pointer transition-all bg-blue-500 text-white hover:bg-blue-600"
           >
             <i className="ri-branch-line mr-2"></i>
@@ -1083,7 +1090,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                 <div className="space-y-2">
                   {targetCustomerOptions.map((customer) => {
                     const isSelected = businessData.targetCustomers.includes(
-                      customer.en
+                      customer.en,
                     );
 
                     return (
@@ -1107,7 +1114,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                         <span className="text-sm text-gray-700">
                           {getTranslatedText(
                             targetCustomerOptions,
-                            customer.en
+                            customer.en,
                           )}
                         </span>
                       </label>
@@ -1197,7 +1204,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                             handlePhoneChange(
                               phone.id,
                               "number",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className="w-full px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
@@ -1289,7 +1296,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                       />
                       <i
                         className={`${getBusinessTypeIcon(
-                          type.value
+                          type.value,
                         )} text-base md:text-lg text-gray-600`}
                       ></i>
                       <span className="text-sm md:text-base text-gray-700">
@@ -1435,7 +1442,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                         <input
                           type="checkbox"
                           checked={businessData.categories.some(
-                            (c) => c === category.en || c === category.ar
+                            (c) => c === category.en || c === category.ar,
                           )}
                           disabled={!isEditing}
                           onChange={(e) => {
@@ -1451,7 +1458,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                               setBusinessData({
                                 ...businessData,
                                 categories: businessData.categories.filter(
-                                  (c) => c !== category.en && c !== category.ar
+                                  (c) => c !== category.en && c !== category.ar,
                                 ),
                               });
                             }
@@ -1502,7 +1509,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                       <input
                         type="checkbox"
                         checked={businessData.services.some(
-                          (s) => s.toLowerCase() === service.toLowerCase()
+                          (s) => s.toLowerCase() === service.toLowerCase(),
                         )}
                         disabled={!isEditing}
                         onChange={(e) => {
@@ -1515,7 +1522,8 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                             setBusinessData({
                               ...businessData,
                               services: businessData.services.filter(
-                                (s) => s.toLowerCase() !== service.toLowerCase()
+                                (s) =>
+                                  s.toLowerCase() !== service.toLowerCase(),
                               ),
                             });
                           }
@@ -1549,7 +1557,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                       // Update address automatically based on nearest city
                       const nearestCity = findNearestCity(
                         location.lat,
-                        location.lng
+                        location.lng,
                       );
                       // Update both locationData and businessData
                       setLocationData(location);
@@ -1716,7 +1724,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                         type="button"
                         onClick={() =>
                           applyWorkingHoursToNextDays(
-                            day as keyof typeof businessData.workingHours
+                            day as keyof typeof businessData.workingHours,
                           )
                         }
                         disabled={!isEditing}
@@ -1728,7 +1736,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                         type="button"
                         onClick={() =>
                           applyWorkingHoursToAllDays(
-                            day as keyof typeof businessData.workingHours
+                            day as keyof typeof businessData.workingHours,
                           )
                         }
                         disabled={!isEditing}
@@ -1750,7 +1758,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                           handleWorkingHoursChange(
                             day as keyof typeof businessData.workingHours,
                             "closed",
-                            e.target.checked
+                            e.target.checked,
                           )
                         }
                         disabled={!isEditing}
@@ -1781,7 +1789,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                             handleWorkingHoursChange(
                               day as keyof typeof businessData.workingHours,
                               "open",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           disabled={!isEditing}
@@ -1807,7 +1815,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                                 "sunday",
                               ];
                               const currentIndex = dayOrder.indexOf(
-                                day as keyof typeof businessData.workingHours
+                                day as keyof typeof businessData.workingHours,
                               );
                               if (currentIndex > 0) {
                                 const prevDay = dayOrder[currentIndex - 1];
@@ -1831,7 +1839,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                                 "sunday",
                               ];
                               const currentIndex = dayOrder.indexOf(
-                                day as keyof typeof businessData.workingHours
+                                day as keyof typeof businessData.workingHours,
                               );
                               if (currentIndex < dayOrder.length - 1) {
                                 const nextDay = dayOrder[currentIndex + 1];
@@ -1855,7 +1863,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                                 "sunday",
                               ];
                               const currentIndex = dayOrder.indexOf(
-                                day as keyof typeof businessData.workingHours
+                                day as keyof typeof businessData.workingHours,
                               );
                               if (currentIndex > 0) {
                                 const prevDay = dayOrder[currentIndex - 1];
@@ -1900,7 +1908,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                             handleWorkingHoursChange(
                               day as keyof typeof businessData.workingHours,
                               "close",
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           disabled={!isEditing}
@@ -1924,7 +1932,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                                 "sunday",
                               ];
                               const currentIndex = dayOrder.indexOf(
-                                day as keyof typeof businessData.workingHours
+                                day as keyof typeof businessData.workingHours,
                               );
                               if (currentIndex < dayOrder.length - 1) {
                                 const nextDay = dayOrder[currentIndex + 1];
@@ -1948,7 +1956,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                                 "sunday",
                               ];
                               const currentIndex = dayOrder.indexOf(
-                                day as keyof typeof businessData.workingHours
+                                day as keyof typeof businessData.workingHours,
                               );
                               if (currentIndex < dayOrder.length - 1) {
                                 const nextDay = dayOrder[currentIndex + 1];
@@ -1972,7 +1980,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                                 "sunday",
                               ];
                               const currentIndex = dayOrder.indexOf(
-                                day as keyof typeof businessData.workingHours
+                                day as keyof typeof businessData.workingHours,
                               );
                               if (currentIndex > 0) {
                                 const prevDay = dayOrder[currentIndex - 1];
@@ -1996,7 +2004,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                                 "sunday",
                               ];
                               const currentIndex = dayOrder.indexOf(
-                                day as keyof typeof businessData.workingHours
+                                day as keyof typeof businessData.workingHours,
                               );
                               if (currentIndex < dayOrder.length - 1) {
                                 const nextDay = dayOrder[currentIndex + 1];
@@ -2122,7 +2130,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                         type="button"
                         onClick={() => {
                           const fileInput = document.querySelector(
-                            'input[type="file"]'
+                            'input[type="file"]',
                           ) as HTMLInputElement;
                           fileInput?.click();
                         }}

@@ -7,6 +7,8 @@ const nextConfig = {
   typescript: {
     // ignoreBuildErrors: true,
   },
+  // Disable static generation for all pages to avoid SSR issues
+  output: undefined,
   // Exclude API routes from static export
   // trailingSlash: true, // Temporarily disabled to fix redirect loop
   // distDir: 'out', // تم التعليق عليه أيضاً

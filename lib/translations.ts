@@ -1274,7 +1274,7 @@ export const translations = {
         },
         premium: {
           name: "Premium",
-          price: "49 ريال/شهرياً",
+          price: "199 ريال/شهرياً",
           features: [
             "Enhanced profile",
             "Unlimited photos",
@@ -4486,7 +4486,7 @@ export const translations = {
         },
         premium: {
           name: "مميز",
-          price: "49 ريال/شهرياً",
+          price: "199 ريال/شهرياً",
           features: [
             "ملف محسّن",
             "صور غير محدودة",

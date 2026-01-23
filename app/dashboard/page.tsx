@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -29,7 +31,7 @@ function DashboardContent() {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedMessageId, setSelectedMessageId] = useState<number | null>(
-    null
+    null,
   );
 
   // Auth guard - redirect to login if not authenticated
@@ -47,7 +49,7 @@ function DashboardContent() {
   const [showPhotoUpload, setShowPhotoUpload] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string>(
-    "https://readdy.ai/api/search-image?query=Professional%20middle%20eastern%20businessman%20portrait%2C%20clean%20background%2C%20modern%20business%20attire%2C%20confident%20smile%2C%20professional%20headshot%20style&width=100&height=100&seq=user-avatar&orientation=squarish"
+    "https://readdy.ai/api/search-image?query=Professional%20middle%20eastern%20businessman%20portrait%2C%20clean%20background%2C%20modern%20business%20attire%2C%20confident%20smile%2C%20professional%20headshot%20style&width=100&height=100&seq=user-avatar&orientation=squarish",
   );
   const [pendingAvatarPreview, setPendingAvatarPreview] = useState<
     string | null
@@ -94,7 +96,7 @@ function DashboardContent() {
         profileData.profileImage || "/images/default-avatar.png";
       try {
         const { profile_image } = await apiService.getProfilePicture(
-          profileData.id || parsedUser.id
+          profileData.id || parsedUser.id,
         );
         if (profile_image) {
           profileImage = profile_image;
@@ -126,8 +128,8 @@ function DashboardContent() {
         memberSince: profileData.createdAt
           ? new Date(profileData.createdAt).toLocaleDateString()
           : parsedUser.emailVerifiedAt
-          ? new Date(parsedUser.emailVerifiedAt).toLocaleDateString()
-          : "N/A",
+            ? new Date(parsedUser.emailVerifiedAt).toLocaleDateString()
+            : "N/A",
         plan: profileData.plan || parsedUser.plan || "Basic",
         avatar: profileImage,
       });
@@ -143,7 +145,7 @@ function DashboardContent() {
             parsedUser.profileImage || "/images/default-avatar.png";
           try {
             const { profile_image } = await apiService.getProfilePicture(
-              parsedUser.id
+              parsedUser.id,
             );
             if (profile_image) {
               profileImage = profile_image;
@@ -250,12 +252,12 @@ function DashboardContent() {
                 selectedTheme === "Professional Blue"
                   ? "bg-gradient-to-r from-blue-50 to-blue-100"
                   : selectedTheme === "Golden Success"
-                  ? "bg-gradient-to-r from-yellow-50 to-yellow-100"
-                  : selectedTheme === "Tech Green"
-                  ? "bg-gradient-to-r from-green-50 to-green-100"
-                  : selectedTheme === "Royal Purple"
-                  ? "bg-gradient-to-r from-purple-50 to-purple-100"
-                  : "bg-white"
+                    ? "bg-gradient-to-r from-yellow-50 to-yellow-100"
+                    : selectedTheme === "Tech Green"
+                      ? "bg-gradient-to-r from-green-50 to-green-100"
+                      : selectedTheme === "Royal Purple"
+                        ? "bg-gradient-to-r from-purple-50 to-purple-100"
+                        : "bg-white"
               }`}
             >
               {/* <div className="absolute inset-0 opacity-10">
@@ -418,7 +420,7 @@ function DashboardContent() {
                               if (typeof window !== "undefined") {
                                 localStorage.setItem(
                                   "dashboardTheme",
-                                  theme.name
+                                  theme.name,
                                 );
                               }
                             }}
@@ -566,15 +568,14 @@ function DashboardContent() {
                             setAvatarUrl(previewUrl);
 
                             // Upload the image
-                            const result = await apiService.uploadProfileImage(
-                              file
-                            );
+                            const result =
+                              await apiService.uploadProfileImage(file);
 
                             // If we get here, the upload was successful
                             if (typeof window !== "undefined") {
                               localStorage.setItem(
                                 "dashboardAvatar",
-                                previewUrl
+                                previewUrl,
                               );
 
                               // Fetch the latest profile picture from the API
@@ -585,13 +586,13 @@ function DashboardContent() {
                                   const parsedUser = JSON.parse(userData);
                                   const { profile_image } =
                                     await apiService.getProfilePicture(
-                                      parsedUser.id
+                                      parsedUser.id,
                                     );
                                   if (profile_image) {
                                     setAvatarUrl(profile_image);
                                     localStorage.setItem(
                                       "dashboardAvatar",
-                                      profile_image
+                                      profile_image,
                                     );
 
                                     // Update user avatar in the UI
@@ -601,7 +602,7 @@ function DashboardContent() {
                                             ...prev,
                                             avatar: profile_image,
                                           }
-                                        : null
+                                        : null,
                                     );
                                   }
                                 }

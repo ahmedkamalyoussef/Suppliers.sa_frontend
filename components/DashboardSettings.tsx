@@ -164,7 +164,7 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
       name: t("settings.plans.premium.name"),
       price: (
         <div className="flex items-center justify-center">
-          <span>49</span>
+          <span>199</span>
           <img
             src="/riyal.svg"
             alt="SAR"

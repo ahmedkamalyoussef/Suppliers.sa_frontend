@@ -93,7 +93,9 @@ export default function TopSuppliers() {
     }
 
     // If we reach here, allow navigation
-    window.location.href = `/business/${supplier.id}`;
+    if (typeof window !== "undefined") {
+      window.location.href = `/business/${supplier.id}`;
+    }
   };
 
   // Handle message button click
@@ -299,7 +301,7 @@ export default function TopSuppliers() {
                           onError={(e) => {
                             console.error(
                               "Image failed to load:",
-                              supplier.image
+                              supplier.image,
                             );
                             e.currentTarget.src =
                               "https://via.placeholder.com/400x300/e5e7eb/6b7280?text=No+Image";
@@ -308,12 +310,12 @@ export default function TopSuppliers() {
                         <div className="absolute top-2 left-2">
                           <div
                             className={`${getBadgeColor(
-                              supplier.businessType
+                              supplier.businessType,
                             )} text-white px-2 py-1 rounded-full shadow-lg`}
                           >
                             <span className="text-xs font-bold">
                               {t(
-                                `publicProfile.businessTypes.${supplier.businessType?.toLowerCase()}`
+                                `publicProfile.businessTypes.${supplier.businessType?.toLowerCase()}`,
                               ) || supplier.businessType}
                             </span>
                           </div>
@@ -353,7 +355,7 @@ export default function TopSuppliers() {
                           <span className="text-gray-600 ml-2">
                             {t("topSuppliers.reviews").replace(
                               "{{count}}",
-                              String(supplier.reviews)
+                              String(supplier.reviews),
                             )}
                           </span>
                         </div>
@@ -367,7 +369,7 @@ export default function TopSuppliers() {
                               >
                                 {feature}
                               </span>
-                            )
+                            ),
                           )}
                           {supplier.hasMoreCertifications && (
                             <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs font-medium">

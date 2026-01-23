@@ -53,7 +53,7 @@ export default function BusinessFilters({
 }: BusinessFiltersProps) {
   const [lastTrackedSearch, setLastTrackedSearch] = useState<string>("");
   const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(
-    null
+    null,
   );
 
   // Track search when user types (with 2-second debounce)
@@ -325,9 +325,11 @@ export default function BusinessFilters({
     }
 
     // Update URL without any query parameters
-    const url = new URL(window.location.href);
-    const baseUrl = url.origin + url.pathname;
-    window.history.pushState({}, "", baseUrl);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      const baseUrl = url.origin + url.pathname;
+      window.history.pushState({}, "", baseUrl);
+    }
   };
 
   return (

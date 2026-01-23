@@ -135,7 +135,7 @@ export const useAuth = (): UseAuthReturn => {
 
       // If we have token but no valid user data, clear everything
       console.warn(
-        "⚠️ Token exists but no valid user data found, clearing auth"
+        "⚠️ Token exists but no valid user data found, clearing auth",
       );
       logout();
     } catch (error) {
@@ -276,7 +276,9 @@ export const useAuth = (): UseAuthReturn => {
   useEffect(() => {
     if (
       authState.isAuthenticated &&
-      (authState.userType === "admin" || authState.userType === "super_admin")
+      (authState.userType === "admin" ||
+        authState.userType === "super_admin") &&
+      typeof window !== "undefined"
     ) {
       const currentPath = window.location.pathname;
       if (!canAccessCurrentPage(currentPath)) {
