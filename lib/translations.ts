@@ -1696,6 +1696,8 @@ export const translations = {
           "Build trust with detailed business information",
           "Receive direct inquiries and contact requests",
         ],
+        policiesAgreement: "I agree to the",
+        policiesLink: "Policies and Terms",
       },
       errors: {
         businessNameRequired: "Business name is required",
@@ -1707,6 +1709,8 @@ export const translations = {
           "Referral code is not valid. Please check and try again.",
         verificationIncomplete: "Please enter the complete 4-digit code",
         verificationInvalid: "Invalid verification code. Please try again.",
+        acceptPoliciesRequired:
+          "You must accept the policies and terms to continue",
       },
       notifications: {
         referralSuccessTitle: "New Referral Received!",
@@ -1715,8 +1719,6 @@ export const translations = {
           "You gained an additional 5% discount on your subscription! Your total discount is now",
         percent: "%",
       },
-      policiesAgreement: "I agree to the",
-      policiesLink: "Policies and Terms",
     },
     systemSettings: {
       title: "System Settings",
@@ -2559,6 +2561,9 @@ export const translations = {
       delete: "Delete",
       workingHours: "Working Hours",
       specialServices: "Special Services",
+      copyToNext: "Copy to next days",
+      applyAll: "Apply to all days",
+      to: "to",
       closed: "Closed",
       deleteConfirm: "Are you sure you want to delete this branch?",
 
@@ -4785,6 +4790,8 @@ export const translations = {
           "ابنِ الثقة بمعلومات نشاط مفصلة",
           "تلقّ استفسارات وطلبات تواصل مباشرة",
         ],
+        policiesAgreement: "أوافق على ",
+        policiesLink: "السياسات والشروط",
       },
       errors: {
         businessNameRequired: "اسم النشاط التجاري مطلوب",
@@ -4796,6 +4803,7 @@ export const translations = {
           "كود الإحالة غير صحيح. يرجى التحقق والمحاولة مرة أخرى.",
         verificationIncomplete: "يرجى إدخال الرمز المكون من 4 أرقام بالكامل",
         verificationInvalid: "رمز التحقق غير صحيح. حاول مرة أخرى.",
+        acceptPoliciesRequired: "يجب الموافقة على السياسات والشروط للمتابعة",
       },
       notifications: {
         referralSuccessTitle: "تم استقبال إحالة جديدة!",
@@ -4804,8 +4812,6 @@ export const translations = {
           "حصلت على خصم إضافي بنسبة 5% على اشتراكك! إجمالي الخصم الخاص بك الآن",
         percent: "%",
       },
-      policiesAgreement: "أوافق على",
-      policiesLink: "السياسات والشروط",
     },
 
     // Public Profile

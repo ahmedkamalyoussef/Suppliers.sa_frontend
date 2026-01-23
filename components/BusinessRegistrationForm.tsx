@@ -7,6 +7,7 @@ import { referralSystem } from "../lib/referralSystem";
 import ReferralNotification from "./ReferralNotification";
 import { apiService, ValidationError, type RegistrationData } from "../lib/api";
 import VerificationStep from "./VerificationStep";
+import PoliciesModal from "./PoliciesModal";
 
 interface LocalRegistrationData {
   businessName: string;
@@ -28,6 +29,7 @@ type VerificationMethod = "phone" | "email";
 export default function BusinessRegistrationForm() {
   const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState<CurrentStep>("register");
+  const [showPoliciesModal, setShowPoliciesModal] = useState(false);
   const [registrationData, setRegistrationData] =
     useState<LocalRegistrationData>({
       businessName: "",
@@ -49,7 +51,7 @@ export default function BusinessRegistrationForm() {
   const [errors, setErrors] = useState<Errors>({});
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [generatedCode] = useState<string>(
-    Math.floor(1000 + Math.random() * 9000).toString()
+    Math.floor(1000 + Math.random() * 9000).toString(),
   );
   const [referrerNotification, setReferrerNotification] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -58,7 +60,7 @@ export default function BusinessRegistrationForm() {
 
   const handleInputChange = (
     field: keyof LocalRegistrationData,
-    value: string | boolean
+    value: string | boolean,
   ): void => {
     setRegistrationData((prev) => ({
       ...prev,
@@ -104,7 +106,7 @@ export default function BusinessRegistrationForm() {
     if (registrationData.referralCode.trim()) {
       if (
         !referralSystem.isValidReferralCode(
-          registrationData.referralCode.trim()
+          registrationData.referralCode.trim(),
         )
       ) {
         newErrors.referralCode = t("business.errors.referralCodeInvalid");
@@ -115,7 +117,7 @@ export default function BusinessRegistrationForm() {
   };
 
   const handleRegistrationSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
+    e: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
     e.preventDefault();
     if (!validateRegistration()) return;
@@ -143,18 +145,18 @@ export default function BusinessRegistrationForm() {
           registrationData.businessName,
           registrationData.phone,
           registrationData.email,
-          registrationData.referralCode.trim() || undefined
+          registrationData.referralCode.trim() || undefined,
         );
 
         if (result.referrerEmail) {
           const referrerInfo = referralSystem.getReferrerInfo(
-            registrationData.referralCode.trim()
+            registrationData.referralCode.trim(),
           );
           if (referrerInfo) {
             notificationMessage = `${t(
-              "business.notifications.referralSuccessTitle"
+              "business.notifications.referralSuccessTitle",
             )} ${registrationData.businessName} ${t(
-              "business.notifications.referralSuccessMessage"
+              "business.notifications.referralSuccessMessage",
             )}. ${t("business.notifications.referralDiscountAdded")} ${
               referrerInfo.discount
             }${t("business.notifications.percent")}`;
@@ -198,7 +200,7 @@ export default function BusinessRegistrationForm() {
       setVerificationCode(newCode);
       if (value && index < 3) {
         const nextInput = document.querySelector<HTMLInputElement>(
-          `input[name="code-${index + 1}"]`
+          `input[name="code-${index + 1}"]`,
         );
         if (nextInput) nextInput.focus();
       }
@@ -206,7 +208,7 @@ export default function BusinessRegistrationForm() {
   };
 
   const handleVerificationSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
+    e: React.FormEvent<HTMLFormElement>,
   ): Promise<void> => {
     e.preventDefault();
     const enteredCode = verificationCode.join("");
@@ -448,13 +450,16 @@ export default function BusinessRegistrationForm() {
                 />
                 <span className="text-sm text-gray-700 leading-relaxed">
                   {t("business.form.policiesAgreement")}
-                  <Link
-                    href="/policies"
-                    className="text-yellow-600 hover:text-yellow-700 underline ml-1"
-                    target="_blank"
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setShowPoliciesModal(true);
+                    }}
+                    className="text-yellow-600 hover:text-yellow-700 underline ml-1 cursor-pointer"
                   >
                     {t("business.form.policiesLink")}
-                  </Link>
+                  </button>
                 </span>
               </label>
               {errors.acceptPolicies && (
@@ -489,6 +494,11 @@ export default function BusinessRegistrationForm() {
             </p>
           </div>
         </div>
+
+        <PoliciesModal
+          isOpen={showPoliciesModal}
+          onClose={() => setShowPoliciesModal(false)}
+        />
       </>
     );
   }
@@ -511,56 +521,58 @@ export default function BusinessRegistrationForm() {
     const checklistArray = Array.isArray(checklist) ? checklist : [];
 
     return (
-      <div className="bg-white rounded-xl md:rounded-2xl shadow-xl p-4 md:p-6 lg:p-8 border border-gray-100 mx-2 md:mx-0">
-        <div className="text-center mb-6 md:mb-8">
-          <div className="w-16 h-16 md:w-20 md:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6">
-            <i className="ri-check-line text-green-600 text-2xl md:text-3xl"></i>
+      <>
+        <div className="bg-white rounded-xl md:rounded-2xl shadow-xl p-4 md:p-6 lg:p-8 border border-gray-100 mx-2 md:mx-0">
+          <div className="text-center mb-6 md:mb-8">
+            <div className="w-16 h-16 md:w-20 md:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6">
+              <i className="ri-check-line text-green-600 text-2xl md:text-3xl"></i>
+            </div>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-3 md:mb-4">
+              {t("business.form.accountVerified")}
+            </h2>
+            <p className="text-gray-600 text-base md:text-lg mb-4 md:mb-6">
+              {t("business.form.successMessage")}
+            </p>
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-3 md:mb-4">
-            {t("business.form.accountVerified")}
-          </h2>
-          <p className="text-gray-600 text-base md:text-lg mb-4 md:mb-6">
-            {t("business.form.successMessage")}
-          </p>
-        </div>
 
-        <div className="bg-yellow-50 p-4 md:p-6 rounded-lg md:rounded-xl mb-6 md:mb-8">
-          <h3 className="text-base md:text-lg font-semibold text-gray-800 mb-3 md:mb-4">
-            <i className="ri-clipboard-line mr-2 text-yellow-600"></i>
-            {t("business.form.completeProfileTitle")}
-          </h3>
-          <p className="text-gray-700 text-sm md:text-base mb-3 md:mb-4">
-            {t("business.form.completeProfileSubtitle")}
-          </p>
+          <div className="bg-yellow-50 p-4 md:p-6 rounded-lg md:rounded-xl mb-6 md:mb-8">
+            <h3 className="text-base md:text-lg font-semibold text-gray-800 mb-3 md:mb-4">
+              <i className="ri-clipboard-line mr-2 text-yellow-600"></i>
+              {t("business.form.completeProfileTitle")}
+            </h3>
+            <p className="text-gray-700 text-sm md:text-base mb-3 md:mb-4">
+              {t("business.form.completeProfileSubtitle")}
+            </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-4 text-xs md:text-sm">
-            {checklistArray.map((item, index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <i className="ri-check-line text-green-500 text-xs md:text-sm"></i>
-                <span className="text-gray-700">{String(item)}</span>
-              </div>
-            ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-4 text-xs md:text-sm">
+              {checklistArray.map((item, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <i className="ri-check-line text-green-500 text-xs md:text-sm"></i>
+                  <span className="text-gray-700">{String(item)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-3 md:space-y-4">
+            <Link
+              href="/complete-profile"
+              className="w-full bg-yellow-400 text-white py-3 md:py-4 px-4 md:px-6 rounded-lg hover:bg-yellow-500 font-medium text-base md:text-lg text-center whitespace-nowrap cursor-pointer block"
+            >
+              <i className="ri-edit-line mr-1 md:mr-2"></i>
+              {t("business.form.completeProfileButton")}
+            </Link>
+
+            <Link
+              href="/"
+              className="w-full border border-gray-300 text-gray-700 py-3 md:py-4 px-4 md:px-6 rounded-lg hover:bg-gray-50 font-medium text-base md:text-lg text-center whitespace-nowrap cursor-pointer block"
+            >
+              <i className="ri-home-line mr-1 md:mr-2"></i>
+              {t("business.form.skipButton")}
+            </Link>
           </div>
         </div>
-
-        <div className="space-y-3 md:space-y-4">
-          <Link
-            href="/complete-profile"
-            className="w-full bg-yellow-400 text-white py-3 md:py-4 px-4 md:px-6 rounded-lg hover:bg-yellow-500 font-medium text-base md:text-lg text-center whitespace-nowrap cursor-pointer block"
-          >
-            <i className="ri-edit-line mr-1 md:mr-2"></i>
-            {t("business.form.completeProfileButton")}
-          </Link>
-
-          <Link
-            href="/"
-            className="w-full border border-gray-300 text-gray-700 py-3 md:py-4 px-4 md:px-6 rounded-lg hover:bg-gray-50 font-medium text-base md:text-lg text-center whitespace-nowrap cursor-pointer block"
-          >
-            <i className="ri-home-line mr-1 md:mr-2"></i>
-            {t("business.form.skipButton")}
-          </Link>
-        </div>
-      </div>
+      </>
     );
   }
 }
