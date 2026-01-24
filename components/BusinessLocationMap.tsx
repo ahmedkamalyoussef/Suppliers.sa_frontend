@@ -22,6 +22,7 @@ interface BusinessLocationMapProps {
   selectedLocation: Location;
   setSelectedLocation: (location: Location) => void;
   isEditing?: boolean; // Add isEditing prop
+  alwaysEditable?: boolean;
 }
 
 type LocationMethod = "map" | "city" | "address";
@@ -51,7 +52,7 @@ export const findNearestCity = (lat: number, lng: number): City => {
 
   saudiCities.forEach((city) => {
     const distance = Math.sqrt(
-      Math.pow(lat - city.lat, 2) + Math.pow(lng - city.lng, 2)
+      Math.pow(lat - city.lat, 2) + Math.pow(lng - city.lng, 2),
     );
     if (distance < minDistance) {
       minDistance = distance;
@@ -75,8 +76,10 @@ export default function BusinessLocationMap({
   selectedLocation,
   setSelectedLocation,
   isEditing = false, // Default to false
+  alwaysEditable = false,
 }: BusinessLocationMapProps) {
   const { t } = useLanguage();
+  const canEdit = alwaysEditable || isEditing;
   const [selectedCity, setSelectedCity] = useState<string>("");
   const [customAddress, setCustomAddress] = useState<string>("");
   const [locationMethod, setLocationMethod] = useState<LocationMethod>("map");
@@ -182,7 +185,7 @@ export default function BusinessLocationMap({
         },
         (error) => {
           alert(t("map.cannotGetLocation"));
-        }
+        },
       );
     } else {
       alert(t("map.notSupported"));
@@ -197,7 +200,7 @@ export default function BusinessLocationMap({
             {t("map.setLocationTitle")}
           </h3>
           <p className="text-sm text-gray-600">{t("map.setLocationDesc")}</p>
-          {!isEditing && (
+          {!canEdit && (
             <div className="mt-3 p-3 bg-yellow-100 border border-yellow-200 rounded-lg">
               <div className="flex items-center space-x-2">
                 <i className="ri-lock-line text-yellow-600"></i>
@@ -216,12 +219,12 @@ export default function BusinessLocationMap({
             <button
               type="button"
               onClick={() => setLocationMethod("map")}
-              disabled={!isEditing}
+              disabled={!canEdit}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 locationMethod === "map"
                   ? "bg-yellow-400 text-white"
                   : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
-              } ${!isEditing ? "opacity-50 cursor-not-allowed" : ""}`}
+              } ${!canEdit ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               <i className="ri-map-pin-line mr-2"></i>
               {t("map.methodPin")}
@@ -229,12 +232,12 @@ export default function BusinessLocationMap({
             <button
               type="button"
               onClick={() => setLocationMethod("city")}
-              disabled={!isEditing}
+              disabled={!canEdit}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 locationMethod === "city"
                   ? "bg-yellow-400 text-white"
                   : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
-              } ${!isEditing ? "opacity-50 cursor-not-allowed" : ""}`}
+              } ${!canEdit ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               <i className="ri-building-line mr-2"></i>
               {t("map.methodCity")}
@@ -242,12 +245,12 @@ export default function BusinessLocationMap({
             <button
               type="button"
               onClick={() => setLocationMethod("address")}
-              disabled={!isEditing}
+              disabled={!canEdit}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 locationMethod === "address"
                   ? "bg-yellow-400 text-white"
                   : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
-              } ${!isEditing ? "opacity-50 cursor-not-allowed" : ""}`}
+              } ${!canEdit ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               <i className="ri-road-map-line mr-2"></i>
               {t("map.methodAddress")}
@@ -262,9 +265,9 @@ export default function BusinessLocationMap({
               <select
                 value={selectedCity}
                 onChange={(e) => handleCitySelect(e.target.value)}
-                disabled={!isEditing}
+                disabled={!canEdit}
                 className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm pr-8 ${
-                  !isEditing ? "opacity-50 cursor-not-allowed bg-gray-100" : ""
+                  !canEdit ? "opacity-50 cursor-not-allowed bg-gray-100" : ""
                 }`}
               >
                 <option value="">{t("map.chooseCityPlaceholder")}</option>
@@ -287,15 +290,15 @@ export default function BusinessLocationMap({
                 value={customAddress}
                 onChange={(e) => setCustomAddress(e.target.value)}
                 placeholder={t("map.addressPlaceholder")}
-                disabled={!isEditing}
+                disabled={!canEdit}
                 className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ${
-                  !isEditing ? "opacity-50 cursor-not-allowed bg-gray-100" : ""
+                  !canEdit ? "opacity-50 cursor-not-allowed bg-gray-100" : ""
                 }`}
               />
               <button
                 type="button"
                 onClick={handleAddressGeocode}
-                disabled={!customAddress.trim() || !isEditing}
+                disabled={!customAddress.trim() || !canEdit}
                 className="w-full bg-yellow-400 text-white py-2 px-4 rounded-lg hover:bg-yellow-500 font-medium text-sm whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <i className="ri-search-line mr-2"></i>
@@ -309,7 +312,7 @@ export default function BusinessLocationMap({
               <button
                 type="button"
                 onClick={getCurrentLocation}
-                disabled={!isEditing}
+                disabled={!canEdit}
                 className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 font-medium text-sm whitespace-nowrap cursor-pointer mr-3 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <i className="ri-crosshair-line mr-2"></i>
@@ -353,9 +356,9 @@ export default function BusinessLocationMap({
                 <Marker
                   position={[selectedLocation.lat, selectedLocation.lng]}
                   icon={customIcon}
-                  draggable={isEditing} // Only draggable if editing
+                  draggable={canEdit} // Only draggable if editing
                   eventHandlers={{
-                    dragend: isEditing ? onMarkerDragEnd : undefined, // Only handle dragend if editing
+                    dragend: canEdit ? onMarkerDragEnd : undefined, // Only handle dragend if editing
                   }}
                 />
               )}
@@ -381,7 +384,7 @@ export default function BusinessLocationMap({
             <button
               type="button"
               onClick={handleMapClick}
-              disabled={!isEditing}
+              disabled={!canEdit}
               className="w-full bg-yellow-400 text-white py-2 px-4 rounded-lg hover:bg-yellow-500 font-medium text-sm whitespace-nowrap cursor-pointer transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <i className="ri-crosshair-line mr-2"></i>

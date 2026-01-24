@@ -2450,6 +2450,7 @@ export default function CompleteProfileForm({
                 <BusinessLocationMap
                   selectedLocation={selectedLocation}
                   setSelectedLocation={handleLocationChange}
+                  alwaysEditable
                 />
               </div>
 

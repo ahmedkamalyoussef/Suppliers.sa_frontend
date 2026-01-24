@@ -451,6 +451,7 @@ export const translations = {
         "Location detected outside Saudi Arabia. Defaulted to Riyadh.",
       cannotGetLocation: "Unable to get your location. Please select manually.",
       notSupported: "Geolocation is not supported by this browser.",
+      editModeRequired: "Click 'Edit Profile' to modify location",
     },
 
     // Dashboard Stats
@@ -3497,6 +3498,7 @@ export const translations = {
       outsideSaudi: "تم اكتشاف موقع خارج السعودية. تم الافتراضي إلى الرياض.",
       cannotGetLocation: "تعذر الحصول على موقعك. يرجى التحديد يدوياً.",
       notSupported: "المتصفح لا يدعم تحديد الموقع الجغرافي.",
+      editModeRequired: "انقر على 'تعديل الملف' لتعديل الموقع",
     },
 
     // Dashboard Stats
