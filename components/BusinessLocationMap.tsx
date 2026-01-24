@@ -1,11 +1,88 @@
 "use client";
 
-import { useState, useRef, useMemo, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useLanguage } from "../lib/LanguageContext"; // تأكد من المسار
-// استيراد المكونات ديناميكياً لتجنب مشاكل السيرفر
-import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+
+const GOOGLE_MAPS_SCRIPT_ID = "google-maps-js";
+
+function waitForGoogleMapsReady(
+  timeoutMs = 10000,
+  intervalMs = 50,
+): Promise<void> {
+  const startedAt = Date.now();
+
+  return new Promise((resolve, reject) => {
+    const tick = () => {
+      const g = (window as any).google;
+      if (g?.maps && typeof g.maps.Map === "function") {
+        resolve();
+        return;
+      }
+
+      if (Date.now() - startedAt > timeoutMs) {
+        reject(new Error("Google Maps loaded but API is not ready"));
+        return;
+      }
+
+      setTimeout(tick, intervalMs);
+    };
+
+    tick();
+  });
+}
+
+function loadGoogleMapsScript(apiKey: string): Promise<void> {
+  if (typeof window === "undefined") return Promise.resolve();
+
+  const w = window as any;
+  if (w.google?.maps && typeof w.google.maps.Map === "function") {
+    return Promise.resolve();
+  }
+
+  const existing = document.getElementById(
+    GOOGLE_MAPS_SCRIPT_ID,
+  ) as HTMLScriptElement | null;
+
+  if (existing) {
+    return new Promise((resolve, reject) => {
+      if (w.google?.maps && typeof w.google.maps.Map === "function") {
+        resolve();
+        return;
+      }
+
+      existing.addEventListener("load", () => {
+        waitForGoogleMapsReady().then(resolve).catch(reject);
+      });
+      existing.addEventListener("error", () =>
+        reject(new Error("Failed to load Google Maps script")),
+      );
+    });
+  }
+
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.id = GOOGLE_MAPS_SCRIPT_ID;
+    script.async = true;
+    script.defer = true;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(
+      apiKey,
+    )}&v=weekly&loading=async`;
+    script.onload = () => {
+      waitForGoogleMapsReady().then(resolve).catch(reject);
+    };
+    script.onerror = () => reject(new Error("Failed to load Google Maps"));
+    document.head.appendChild(script);
+  });
+}
+
+function normalizeLocation(
+  location: { lat: unknown; lng: unknown } | null | undefined,
+): { lat: number; lng: number } | null {
+  const lat = Number(location?.lat);
+  const lng = Number(location?.lng);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  return { lat, lng };
+}
 
 // --- Types ---
 interface City {
@@ -63,15 +140,6 @@ export const findNearestCity = (lat: number, lng: number): City => {
   return nearestCity;
 };
 
-// مكون مساعد لتحديث موقع الخريطة عند تغيير الإحداثيات من الخارج
-function MapUpdater({ center }: { center: [number, number] }) {
-  const map = useMap();
-  useEffect(() => {
-    map.flyTo(center, map.getZoom());
-  }, [center, map]);
-  return null;
-}
-
 export default function BusinessLocationMap({
   selectedLocation,
   setSelectedLocation,
@@ -86,67 +154,166 @@ export default function BusinessLocationMap({
 
   // FIX: حالة للتأكد أننا في المتصفح وليس السيرفر
   const [isMounted, setIsMounted] = useState(false);
-  const mapRef = useRef<L.Map | null>(null);
+  const [isMapsReady, setIsMapsReady] = useState(false);
+  const [mapsError, setMapsError] = useState<string | null>(null);
+  const mapDivRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<any>(null);
+  const markerRef = useRef<any>(null);
+  const canEditRef = useRef<boolean>(canEdit);
+  const mapClickListenerRef = useRef<any>(null);
+  const markerDragListenerRef = useRef<any>(null);
 
   useEffect(() => {
     setIsMounted(true);
-    // حل مشكلة أيقونات Leaflet المختفية في Next.js
-    // هذا الكود يضمن تحميل الصور الافتراضية بشكل صحيح
-    /* eslint-disable global-require */
-    /* eslint-disable @typescript-eslint/no-var-requires */
-    // @ts-ignore
-    delete L.Icon.Default.prototype._getIconUrl;
-
-    // Fix: Use dynamic imports for static export compatibility
-    if (typeof window !== "undefined") {
-      // Client-side only
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png")
-          .default,
-        iconUrl: require("leaflet/dist/images/marker-icon.png").default,
-        shadowUrl: require("leaflet/dist/images/marker-shadow.png").default,
-      });
-    }
   }, []);
 
-  // تعريف شكل العلامة الحمراء الخاصة بك (Custom Marker)
-  const customIcon = useMemo(() => {
-    if (!isMounted) return null; // لا تقم بإنشاء الأيقونة على السيرفر
+  useEffect(() => {
+    canEditRef.current = canEdit;
+  }, [canEdit]);
 
-    return L.divIcon({
-      className: "custom-marker",
-      html: `
-        <div class="relative w-0 h-0">
-          <div class="absolute -left-4 -top-4 w-8 h-8 bg-red-500 rounded-full border-4 border-white shadow-lg animate-bounce cursor-move">
-            <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-red-500"></div>
-          </div>
-          <div class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black text-white px-2 py-1 rounded text-xs whitespace-nowrap">
-            ${t("map.yourBusiness") || "Your Business"}
-          </div>
-        </div>
-      `,
-      iconSize: [0, 0],
-      iconAnchor: [0, 0],
-    });
-  }, [t, isMounted]);
+  useEffect(() => {
+    if (!isMounted) return;
 
-  // عند سحب الماركر وترك الماوس
-  const onMarkerDragEnd = (event: L.DragEndEvent) => {
-    const marker = event.target;
-    const position = marker.getLatLng();
-    setSelectedLocation({
-      lat: parseFloat(position.lat.toFixed(6)),
-      lng: parseFloat(position.lng.toFixed(6)),
+    const apiKey = "AIzaSyBcMJlGvV2VKLfIRmpjBV53pbwLDcfOS-Q";
+    if (!apiKey) {
+      setMapsError(
+        "Missing NEXT_PUBLIC_GOOGLE_MAPS_API_KEY. Please set it in your environment.",
+      );
+      return;
+    }
+
+    loadGoogleMapsScript(apiKey)
+      .then(() => {
+        setIsMapsReady(true);
+        setMapsError(null);
+      })
+      .catch((err) => {
+        setMapsError(err instanceof Error ? err.message : "Failed to load map");
+      });
+  }, [isMounted]);
+
+  useEffect(() => {
+    if (!isMounted || !isMapsReady) return;
+    if (!mapDivRef.current) return;
+    if (mapRef.current) return;
+
+    const g = (window as any).google;
+    if (!g?.maps) return;
+    if (typeof g.maps.Map !== "function") {
+      setMapsError(
+        "Google Maps API is not ready. If you see RefererNotAllowedMapError, allow http://localhost:3000/* in your API key referrers.",
+      );
+      return;
+    }
+
+    const initialLocation =
+      normalizeLocation(selectedLocation) ?? normalizeLocation(saudiCities[0]);
+    if (!initialLocation) return;
+
+    mapRef.current = new g.maps.Map(mapDivRef.current, {
+      center: { lat: initialLocation.lat, lng: initialLocation.lng },
+      zoom: 13,
+      streetViewControl: false,
+      mapTypeControl: false,
+      fullscreenControl: false,
     });
-  };
+
+    markerRef.current = new g.maps.Marker({
+      position: { lat: initialLocation.lat, lng: initialLocation.lng },
+      map: mapRef.current,
+      draggable: canEdit,
+      title: t("map.yourBusiness") || "Your Business",
+    });
+
+    if (markerDragListenerRef.current) {
+      g.maps.event.removeListener(markerDragListenerRef.current);
+      markerDragListenerRef.current = null;
+    }
+    markerDragListenerRef.current = markerRef.current.addListener(
+      "dragend",
+      (e: any) => {
+        if (!e?.latLng) return;
+        setSelectedLocation({
+          lat: parseFloat(e.latLng.lat().toFixed(6)),
+          lng: parseFloat(e.latLng.lng().toFixed(6)),
+        });
+      },
+    );
+
+    if (mapClickListenerRef.current) {
+      g.maps.event.removeListener(mapClickListenerRef.current);
+      mapClickListenerRef.current = null;
+    }
+    mapClickListenerRef.current = mapRef.current.addListener(
+      "click",
+      (e: any) => {
+        if (!canEditRef.current) return;
+        if (!e?.latLng) return;
+        setSelectedLocation({
+          lat: parseFloat(e.latLng.lat().toFixed(6)),
+          lng: parseFloat(e.latLng.lng().toFixed(6)),
+        });
+      },
+    );
+
+    return () => {
+      try {
+        if (markerDragListenerRef.current) {
+          g.maps.event.removeListener(markerDragListenerRef.current);
+          markerDragListenerRef.current = null;
+        }
+        if (mapClickListenerRef.current) {
+          g.maps.event.removeListener(mapClickListenerRef.current);
+          mapClickListenerRef.current = null;
+        }
+        if (markerRef.current) {
+          markerRef.current.setMap(null);
+          markerRef.current = null;
+        }
+        mapRef.current = null;
+      } catch {
+        // ignore cleanup errors
+      }
+    };
+  }, [isMounted, isMapsReady]);
+
+  useEffect(() => {
+    if (!isMounted || !isMapsReady) return;
+    if (!mapRef.current || !markerRef.current) return;
+
+    markerRef.current.setDraggable(canEdit);
+  }, [isMounted, isMapsReady, canEdit]);
+
+  useEffect(() => {
+    if (!isMounted || !isMapsReady) return;
+    if (!mapRef.current || !markerRef.current) return;
+
+    const g = (window as any).google;
+    if (!g?.maps) return;
+
+    const nextLocation = normalizeLocation(selectedLocation);
+    if (!nextLocation) return;
+
+    const next = new g.maps.LatLng(nextLocation.lat, nextLocation.lng);
+    mapRef.current.panTo(next);
+    markerRef.current.setPosition(next);
+  }, [isMounted, isMapsReady, selectedLocation.lat, selectedLocation.lng]);
+
+  useEffect(() => {
+    if (!isMounted || !isMapsReady) return;
+    if (!markerRef.current) return;
+
+    markerRef.current.setTitle(t("map.yourBusiness") || "Your Business");
+  }, [isMounted, isMapsReady, t]);
 
   // وظيفة الزر: يجيب منتصف الخريطة الحالي ويحط الماركر فيه
   const handleMapClick = (): void => {
     if (mapRef.current) {
       const center = mapRef.current.getCenter();
+      if (!center) return;
       setSelectedLocation({
-        lat: parseFloat(center.lat.toFixed(6)),
-        lng: parseFloat(center.lng.toFixed(6)),
+        lat: parseFloat(center.lat().toFixed(6)),
+        lng: parseFloat(center.lng().toFixed(6)),
       });
     }
   };
@@ -164,12 +331,30 @@ export default function BusinessLocationMap({
 
   const handleAddressGeocode = async (): Promise<void> => {
     if (!customAddress.trim()) return;
-    const randomCity =
-      saudiCities[Math.floor(Math.random() * saudiCities.length)];
-    setSelectedLocation({
-      lat: randomCity.lat,
-      lng: randomCity.lng,
-    });
+    if (!isMapsReady) return;
+    const g = (window as any).google;
+    if (!g?.maps?.Geocoder) return;
+
+    try {
+      const geocoder = new g.maps.Geocoder();
+      const { results } = await geocoder.geocode({
+        address: customAddress,
+        region: "SA",
+      });
+
+      const first = results?.[0];
+      const loc = first?.geometry?.location;
+      if (!loc) {
+        alert(t("map.cannotGetLocation"));
+        return;
+      }
+      setSelectedLocation({
+        lat: parseFloat(loc.lat().toFixed(6)),
+        lng: parseFloat(loc.lng().toFixed(6)),
+      });
+    } catch {
+      alert(t("map.cannotGetLocation"));
+    }
   };
 
   const getCurrentLocation = (): void => {
@@ -333,36 +518,17 @@ export default function BusinessLocationMap({
               <i className="ri-loader-4-line animate-spin text-2xl mr-2"></i>
               {t("map.loading") || "Loading Map..."}
             </div>
+          ) : mapsError ? (
+            <div className="w-full h-full flex items-center justify-center text-gray-500 p-6 text-center">
+              {mapsError}
+            </div>
+          ) : !isMapsReady ? (
+            <div className="w-full h-full flex items-center justify-center text-gray-500">
+              <i className="ri-loader-4-line animate-spin text-2xl mr-2"></i>
+              {t("map.loading") || "Loading Map..."}
+            </div>
           ) : (
-            <MapContainer
-              center={[selectedLocation.lat, selectedLocation.lng]}
-              zoom={13}
-              scrollWheelZoom={true}
-              style={{ height: "100%", width: "100%" }}
-              ref={mapRef}
-              className="z-0"
-            >
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-
-              <MapUpdater
-                center={[selectedLocation.lat, selectedLocation.lng]}
-              />
-
-              {/* التأكد من وجود الأيقونة قبل الرسم */}
-              {customIcon && (
-                <Marker
-                  position={[selectedLocation.lat, selectedLocation.lng]}
-                  icon={customIcon}
-                  draggable={canEdit} // Only draggable if editing
-                  eventHandlers={{
-                    dragend: canEdit ? onMarkerDragEnd : undefined, // Only handle dragend if editing
-                  }}
-                />
-              )}
-            </MapContainer>
+            <div ref={mapDivRef} className="w-full h-full" />
           )}
         </div>
 

@@ -8,7 +8,7 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { useLanguage } from "../../lib/LanguageContext";
 import { useRouter } from "next/navigation";
-import InteractiveMap from "../../components/InteractiveMap";
+import InteractiveMapGoogle from "../../components/InteractiveMap.google";
 import BusinessFilters from "../../components/BusinessFilters";
 import BusinessCard from "../../components/BusinessCard";
 import AIChatWidget from "../../components/AIChatWidget";
@@ -411,21 +411,21 @@ function BusinessesContent() {
               (business.categories.includes(mappedCategory) ||
                 business.categories.includes(cat)))
           );
-        })
+        }),
       );
     }
 
     if (filters.locations.length > 0) {
       filtered = filtered.filter((business: Business) =>
         filters.locations.some((loc: string) =>
-          business.location.toLowerCase().includes(loc.toLowerCase())
-        )
+          business.location.toLowerCase().includes(loc.toLowerCase()),
+        ),
       );
     }
 
     if (filters.rating) {
       filtered = filtered.filter(
-        (business: Business) => business.rating >= (filters.rating as number)
+        (business: Business) => business.rating >= (filters.rating as number),
       );
     }
 
@@ -435,9 +435,9 @@ function BusinessesContent() {
           (feature: string) =>
             business.services &&
             business.services.some((service: string) =>
-              service.toLowerCase().includes(feature.toLowerCase())
-            )
-        )
+              service.toLowerCase().includes(feature.toLowerCase()),
+            ),
+        ),
       );
     }
 
@@ -445,8 +445,8 @@ function BusinessesContent() {
       filtered = filtered.filter((business: Business) =>
         filters.businessTypes.some(
           (type: string) =>
-            business.businessType.toLowerCase() === type.toLowerCase()
-        )
+            business.businessType.toLowerCase() === type.toLowerCase(),
+        ),
       );
     }
 
@@ -466,8 +466,8 @@ function BusinessesContent() {
           business.category.toLowerCase().includes(query.toLowerCase()) ||
           business.location.toLowerCase().includes(query.toLowerCase()) ||
           business.services.some((service: string) =>
-            service.toLowerCase().includes(query.toLowerCase())
-          )
+            service.toLowerCase().includes(query.toLowerCase()),
+          ),
       );
     }
 
@@ -488,11 +488,11 @@ function BusinessesContent() {
           business.location.includes(searchQuery) ||
           (business.categories &&
             business.categories.some((cat: string) =>
-              cat.includes(searchQuery)
+              cat.includes(searchQuery),
             )) ||
           business.services.some((service: string) =>
-            service.includes(searchQuery)
-          )
+            service.includes(searchQuery),
+          ),
       );
     }
 
@@ -699,7 +699,7 @@ function BusinessesContent() {
       filtered = filtered.filter((business: Business) => {
         // Find the category object to get the display name
         const categoryObj = categories.find(
-          (cat) => cat.id === selectedCategory
+          (cat) => cat.id === selectedCategory,
         );
         const categoryName = categoryObj ? categoryObj.name : selectedCategory;
 
@@ -712,7 +712,7 @@ function BusinessesContent() {
               business.categories.some(
                 (cat) =>
                   typeof cat === "string" &&
-                  (cat === selectedCategory || cat === categoryName)
+                  (cat === selectedCategory || cat === categoryName),
               )))
         );
       });
@@ -724,21 +724,23 @@ function BusinessesContent() {
         (business: Business) =>
           business.businessType &&
           business.businessType.toLowerCase() ===
-            selectedBusinessType.toLowerCase()
+            selectedBusinessType.toLowerCase(),
       );
     }
 
     // Apply location filter
     if (selectedLocation) {
       filtered = filtered.filter((business: Business) =>
-        business.location.toLowerCase().includes(selectedLocation.toLowerCase())
+        business.location
+          .toLowerCase()
+          .includes(selectedLocation.toLowerCase()),
       );
     }
 
     // Apply rating filter
     if (selectedRating) {
       filtered = filtered.filter(
-        (business: Business) => business.rating >= parseFloat(selectedRating)
+        (business: Business) => business.rating >= parseFloat(selectedRating),
       );
     }
 
@@ -789,7 +791,7 @@ function BusinessesContent() {
         default:
           return 0;
       }
-    }
+    },
   );
 
   // Handle business click on map
@@ -851,7 +853,7 @@ function BusinessesContent() {
                   <p className="text-gray-600 text-lg">
                     {t("businessesPage.headerSub").replace(
                       "{{count}}",
-                      String(filteredBusinesses.length)
+                      String(filteredBusinesses.length),
                     )}
                   </p>
                   {searchParams.get("search") && (
@@ -899,7 +901,7 @@ function BusinessesContent() {
                           | "rating"
                           | "distance"
                           | "reviews"
-                          | "name"
+                          | "name",
                       )
                     }
                     className="border border-gray-300 rounded-lg px-4 py-2 bg-white focus:border-yellow-400 focus:outline-none pr-8"
@@ -962,14 +964,14 @@ function BusinessesContent() {
                           <span className="text-sm text-gray-600">
                             {t("businessesPage.showingLocations").replace(
                               "{{count}}",
-                              String(sortedBusinesses.length)
+                              String(sortedBusinesses.length),
                             )}
                           </span>
                         </div>
                       </div>
 
                       <div className="h-[500px] w-full rounded-lg overflow-hidden">
-                        <InteractiveMap
+                        <InteractiveMapGoogle
                           businesses={mapBusinesses}
                           onBusinessClick={handleBusinessClick}
                         />
@@ -1022,11 +1024,11 @@ function BusinessesContent() {
                           setSortBy("rating");
                           setViewMode("grid");
                           setCurrentPage(1);
-                          
+
                           // Update URL without any query parameters
                           const url = new URL(window.location.href);
                           const baseUrl = url.origin + url.pathname;
-                          window.history.pushState({}, '', baseUrl);
+                          window.history.pushState({}, "", baseUrl);
                         }}
                         className="bg-yellow-400 text-white px-6 py-3 rounded-lg hover:bg-yellow-500 font-medium cursor-pointer transition-colors duration-200"
                       >

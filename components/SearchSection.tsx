@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useLanguage } from "../lib/LanguageContext";
 import { useAuth } from "../hooks/useAuth";
 import FeaturedBusinesses from "./FeaturedBusinesses";
-import InteractiveMap from "./InteractiveMap";
+import InteractiveMapGoogle from "./InteractiveMap.google";
 import { apiService } from "../lib/api";
 export default function SearchSection() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -697,7 +697,7 @@ export default function SearchSection() {
                 {/* Enhanced Interactive Map Section */}
                 <div className="bg-gray-100 rounded-2xl overflow-hidden shadow-xl relative h-64 sm:h-80 md:h-[28rem] mb-3 sm:mb-4 md:mb-6">
                   {/* Interactive Map Component */}
-                  <InteractiveMap
+                  <InteractiveMapGoogle
                     key={`map-${selectedCategory}`} // Force re-render when category changes
                     businesses={filteredBusinesses}
                     onBusinessClick={handleMarkerClick}
