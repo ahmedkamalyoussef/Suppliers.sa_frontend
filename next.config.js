@@ -8,7 +8,8 @@ const nextConfig = {
     // ignoreBuildErrors: true,
   },
   // Disable static generation for all pages to avoid SSR issues
-  output: undefined,
+  output: process.env.NEXT_OUTPUT === "export" ? "export" : undefined,
+  trailingSlash: process.env.NEXT_OUTPUT === "export" ? true : undefined,
   // Exclude API routes from static export
   // trailingSlash: true, // Temporarily disabled to fix redirect loop
   // distDir: 'out', // تم التعليق عليه أيضاً
