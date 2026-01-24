@@ -12,6 +12,7 @@ import DashboardStats from "../../components/DashboardStats";
 import BusinessManagement from "../../components/BusinessManagement";
 import DashboardAnalytics from "../../components/DashboardAnalytics";
 import DashboardMessages from "../../components/DashboardMessages";
+import { useLanguage } from "../../lib/LanguageContext";
 import { getAvatarUrl } from "../../lib/avatarHelper";
 import DashboardSettings from "../../components/DashboardSettings";
 import { apiService } from "../../lib/api";
@@ -28,6 +29,7 @@ interface User {
 }
 
 function DashboardContent() {
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedMessageId, setSelectedMessageId] = useState<number | null>(
@@ -232,11 +234,31 @@ function DashboardContent() {
   }, [activeTab]);
 
   const tabs = [
-    { id: "overview", name: "Overview", icon: "ri-dashboard-line" },
-    { id: "business", name: "Business Profile", icon: "ri-store-line" },
-    { id: "analytics", name: "Analytics", icon: "ri-bar-chart-line" },
-    { id: "messages", name: "Messages", icon: "ri-message-line" },
-    { id: "settings", name: "Settings", icon: "ri-settings-line" },
+    {
+      id: "overview",
+      name: t("dashboard.tabs.overview"),
+      icon: "ri-dashboard-line",
+    },
+    {
+      id: "business",
+      name: t("dashboard.tabs.business"),
+      icon: "ri-store-line",
+    },
+    {
+      id: "analytics",
+      name: t("dashboard.tabs.analytics"),
+      icon: "ri-bar-chart-line",
+    },
+    {
+      id: "messages",
+      name: t("dashboard.tabs.messages"),
+      icon: "ri-message-line",
+    },
+    {
+      id: "settings",
+      name: t("dashboard.tabs.settings"),
+      icon: "ri-settings-line",
+    },
   ];
 
   return (

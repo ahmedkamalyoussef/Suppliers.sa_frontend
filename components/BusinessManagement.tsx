@@ -201,7 +201,7 @@ interface BusinessManagementProps {
 
 export default function BusinessManagement({}: BusinessManagementProps = {}) {
   const { user } = useAuth();
-  const { isRTL } = useLanguage();
+  const { t, isRTL } = useLanguage();
   const [activeSection, setActiveSection] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
 
@@ -584,14 +584,34 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
   };
 
   const sections = [
-    { id: "profile", name: "Basic Info", icon: "ri-user-line" },
-    { id: "details", name: "Business Details", icon: "ri-briefcase-line" },
-    { id: "location", name: "Location", icon: "ri-map-pin-line" },
-    { id: "photos", name: "Photos", icon: "ri-image-line" },
-    { id: "hours", name: "Hours", icon: "ri-time-line" },
+    {
+      id: "profile",
+      name: t("businessManagement.sections.profile"),
+      icon: "ri-user-line",
+    },
+    {
+      id: "details",
+      name: t("businessManagement.sections.details"),
+      icon: "ri-briefcase-line",
+    },
+    {
+      id: "location",
+      name: t("businessManagement.sections.location"),
+      icon: "ri-map-pin-line",
+    },
+    {
+      id: "photos",
+      name: t("businessManagement.sections.photos"),
+      icon: "ri-image-line",
+    },
+    {
+      id: "hours",
+      name: t("businessManagement.sections.hours"),
+      icon: "ri-time-line",
+    },
     {
       id: "verification",
-      name: "Submit Verification",
+      name: t("businessManagement.sections.verification"),
       icon: "ri-shield-check-line",
     },
   ];
@@ -953,7 +973,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
     <div className="space-y-8 p-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-800">
-          Business Management
+          {t("businessManagement.title")}
         </h2>
         <div className="flex space-x-3">
           <button
@@ -965,7 +985,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
             className="px-4 py-3 rounded-lg font-medium whitespace-nowrap cursor-pointer transition-all bg-blue-500 text-white hover:bg-blue-600"
           >
             <i className="ri-branch-line mr-2"></i>
-            Manage Branches
+            {t("businessManagement.manageBranches")}
           </button>
           <button
             onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
@@ -978,7 +998,9 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
             <i
               className={`${isEditing ? "ri-save-line" : "ri-edit-line"} mr-2`}
             ></i>
-            {isEditing ? "Save Changes" : "Edit Profile"}
+            {isEditing
+              ? t("businessManagement.saveChanges")
+              : t("businessManagement.editProfile")}
           </button>
         </div>
       </div>
@@ -1010,7 +1032,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Business Name
+                    {t("businessManagement.form.businessName")}
                   </label>
                   <input
                     type="text"
@@ -1029,7 +1051,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Phone
+                    {t("businessManagement.form.phone")}
                   </label>
                   <input
                     type="tel"
@@ -1051,7 +1073,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email
+                    {t("businessManagement.form.email")}
                   </label>
                   <input
                     type="email"
@@ -1073,7 +1095,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Website
+                    {t("businessManagement.form.website")}
                   </label>
                   <input
                     type="url"
@@ -1095,7 +1117,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Service Distance
+                    {t("businessManagement.form.serviceDistance")}
                   </label>
                   <select
                     value={businessData.serviceDistance}
@@ -1124,7 +1146,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Who do you serve?
+                  {t("businessManagement.form.whoDoYouServe")}
                 </label>
                 <div className="space-y-2">
                   {targetCustomerOptions.map((customer) => {
@@ -1164,7 +1186,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description
+                  {t("businessManagement.form.description")}
                 </label>
                 <textarea
                   value={businessData.description}
@@ -1184,7 +1206,8 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                   }`}
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  {businessData.description.length}/500 characters
+                  {businessData.description.length}/500{" "}
+                  {t("businessManagement.form.characters")}
                 </p>
               </div>
 
@@ -1192,7 +1215,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
               <div>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-2">
                   <label className="block text-sm font-medium text-gray-700">
-                    Additional Phone Numbers (Optional)
+                    {t("businessManagement.form.additionalPhones")}
                   </label>
                   {isEditing && businessData.additionalPhones.length < 4 && (
                     <button
@@ -1201,14 +1224,13 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                       className="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600"
                     >
                       <i className="ri-add-line mr-1"></i>
-                      Add Phone
+                      {t("businessManagement.form.addPhone")}
                     </button>
                   )}
                 </div>
 
                 <p className="text-xs text-gray-600 mb-3">
-                  Add additional contact numbers for different departments or
-                  services
+                  {t("businessManagement.form.additionalPhonesDescription")}
                 </p>
 
                 <div className="space-y-2 md:space-y-3">
@@ -1260,7 +1282,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                             handlePhoneChange(phone.id, "name", e.target.value)
                           }
                           className="flex-1 px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
-                          placeholder="Contact Name"
+                          placeholder={t("businessManagement.form.contactName")}
                         />
                         {isEditing &&
                           businessData.additionalPhones.length > 1 && (
@@ -1281,7 +1303,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                   <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
                     <i className="ri-phone-line text-gray-400 text-2xl mb-2"></i>
                     <p className="text-gray-600 text-sm mb-3">
-                      No additional phone numbers added
+                      {t("businessManagement.form.noAdditionalPhones")}
                     </p>
                     {isEditing && (
                       <button
@@ -1290,7 +1312,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                         className="bg-yellow-400 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg hover:bg-yellow-500 text-xs md:text-sm font-medium whitespace-nowrap cursor-pointer"
                       >
                         <i className="ri-add-line mr-1 md:mr-2"></i>
-                        Add First Phone Number
+                        {t("businessManagement.form.addFirstPhone")}
                       </button>
                     )}
                   </div>
@@ -1306,7 +1328,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                 <div className="flex items-center space-x-3 mb-4">
                   <i className="ri-briefcase-line text-yellow-600 text-xl"></i>
                   <h3 className="text-lg font-semibold text-yellow-800">
-                    Business Type
+                    {t("businessManagement.details.businessType")}
                   </h3>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
@@ -1350,13 +1372,13 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                 <div className="flex items-center space-x-3 mb-4">
                   <i className="ri-search-line text-green-600 text-xl"></i>
                   <h3 className="text-lg font-semibold text-green-800">
-                    Search Keywords
+                    {t("businessManagement.details.searchKeywords")}
                   </h3>
                 </div>
 
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Keywords
+                    {t("businessManagement.details.keywords")}
                   </label>
                   <div className="flex flex-wrap gap-2 mb-3">
                     {[
@@ -1436,13 +1458,13 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                   />
                   <p className="text-xs text-blue-600 mt-2">
                     <i className="ri-information-line mr-1"></i>
-                    These keywords help customers find your business
+                    {t("businessManagement.details.keywordsHelp")}
                   </p>
                 </div>
 
                 <div className="bg-white p-4 rounded-lg border border-green-200">
                   <h4 className="font-medium text-gray-800 mb-3">
-                    Current Keywords
+                    {t("businessManagement.details.currentKeywords")}
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {productKeywords.length > 0 ? (
@@ -1467,7 +1489,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                 <div className="flex items-center space-x-3 mb-4">
                   <i className="ri-price-tag-3-line text-blue-600 text-xl"></i>
                   <h3 className="text-lg font-semibold text-blue-800">
-                    Business Categories
+                    {t("businessManagement.details.businessCategories")}
                   </h3>
                 </div>
 
@@ -1514,7 +1536,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
 
                 <div className="bg-white p-4 rounded-lg border border-blue-200 mt-4">
                   <h4 className="font-medium text-gray-800 mb-3">
-                    Selected Categories
+                    {t("businessManagement.details.selectedCategories")}
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {businessData.categories.length > 0 ? (
@@ -1537,7 +1559,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Services Offered
+                  {t("businessManagement.details.servicesOffered")}
                 </label>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {availableServices.map((service) => (
@@ -1582,7 +1604,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Business Location
+                  {t("businessManagement.labels.businessLocation")}
                 </label>
                 <div
                   className={`rounded-lg overflow-hidden border ${
@@ -1615,22 +1637,27 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                   </div>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  Click on the map to update your business location
+                  {t("businessManagement.labels.clickOnMap")}
                 </p>
 
                 {/* Display current coordinates */}
                 <div className="mt-3 p-3 bg-gray-50 rounded-lg">
                   <p className="text-sm text-gray-600">
-                    <strong>Current Location:</strong>
+                    <strong>
+                      {t("businessManagement.labels.currentLocation")}:
+                    </strong>
                   </p>
                   <p className="text-xs text-gray-500">
-                    Latitude: {businessData.location.lat}
+                    {t("businessManagement.labels.latitude")}:{" "}
+                    {businessData.location.lat}
                   </p>
                   <p className="text-xs text-gray-500">
-                    Longitude: {businessData.location.lng}
+                    {t("businessManagement.labels.longitude")}:{" "}
+                    {businessData.location.lng}
                   </p>
                   <p className="text-xs text-gray-500">
-                    Address: {businessData.address}
+                    {t("businessManagement.labels.address")}:{" "}
+                    {businessData.address}
                   </p>
                 </div>
               </div>
@@ -1660,12 +1687,12 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
             <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold text-gray-800">
-                  Business Photos
+                  {t("businessManagement.photos.title")}
                 </h3>
                 {isEditing && (
                   <label className="bg-yellow-400 text-white px-4 py-2 rounded-lg hover:bg-yellow-500 cursor-pointer font-medium text-sm whitespace-nowrap">
                     <i className="ri-add-line mr-2"></i>
-                    Add Photos
+                    {t("businessManagement.photos.addPhotos")}
                     <input
                       type="file"
                       multiple
@@ -1716,7 +1743,9 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
               {businessImages.length === 0 && !isEditing && (
                 <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
                   <i className="ri-image-line text-gray-400 text-4xl mb-3"></i>
-                  <p className="text-gray-600">No photos added yet</p>
+                  <p className="text-gray-600">
+                    {t("businessManagement.photos.noPhotos")}
+                  </p>
                 </div>
               )}
             </div>
@@ -1728,10 +1757,10 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800">
-                    Working Hours
+                    {t("businessManagement.hours.title")}
                   </h3>
                   <p className="text-sm text-gray-600">
-                    Set your business operating hours for each day
+                    {t("businessManagement.hours.description")}
                   </p>
                 </div>
                 {!isEditing && (
@@ -1739,7 +1768,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                     <div className="flex items-center space-x-2">
                       <i className="ri-lock-line text-yellow-600"></i>
                       <span className="text-sm text-yellow-800 font-medium">
-                        Click 'Edit Profile' to modify working hours
+                        {t("businessManagement.messages.clickEditProfile")}
                       </span>
                     </div>
                   </div>
@@ -1754,7 +1783,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                   >
                     <div className="w-16">
                       <span className="text-xs font-medium text-gray-700 capitalize">
-                        {day}
+                        {t(`businessManagement.hours.days.${day}`)}
                       </span>
                     </div>
 
@@ -1769,7 +1798,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                         disabled={!isEditing}
                         className="text-[10px] md:text-xs px-1.5 py-0.5 rounded border border-gray-200 text-gray-700 hover:bg-gray-50 whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Copy to Next
+                        {t("businessManagement.hours.copyToNext")}
                       </button>
                       <button
                         type="button"
@@ -1781,7 +1810,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                         disabled={!isEditing}
                         className="text-[10px] md:text-xs px-1.5 py-0.5 rounded border border-gray-200 text-gray-700 hover:bg-gray-50 whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Apply to All
+                        {t("businessManagement.hours.applyToAll")}
                       </button>
                     </div>
 
@@ -1793,17 +1822,10 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                             day as keyof typeof businessData.workingHours
                           ].closed
                         }
-                        onChange={(e) =>
-                          handleWorkingHoursChange(
-                            day as keyof typeof businessData.workingHours,
-                            "closed",
-                            e.target.checked,
-                          )
-                        }
-                        disabled={!isEditing}
-                        className="w-3 h-3 text-yellow-400 border-gray-300 rounded focus:ring-yellow-400 mr-1 disabled:opacity-50"
                       />
-                      <span className="text-xs text-gray-600">Closed</span>
+                      <span className="text-xs text-gray-600">
+                        {t("businessManagement.hours.closed")}
+                      </span>
                     </label>
 
                     {!businessData.workingHours[
@@ -2074,7 +2096,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                     </div>
                     <div>
                       <h4 className="text-sm font-medium text-blue-800 mb-1">
-                        Working Hours Tips
+                        {t("businessManagement.hours.tips")}
                       </h4>
                       <ul className="text-xs text-blue-700 space-y-1">
                         <li>
@@ -2103,22 +2125,20 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                   <i className="ri-shield-check-line text-yellow-600 text-2xl"></i>
                   <div>
                     <h3 className="text-xl font-bold text-gray-800 mb-2">
-                      Business Verification Required
+                      {t("businessManagement.verification.title")}
                     </h3>
                     <p className="text-gray-600 mb-4">
-                      Upload your Commercial Registration to verify your
-                      business legitimacy
+                      {t("businessManagement.verification.description")}
                     </p>
                     <div className="space-y-2">
                       <div className="flex items-start space-x-2">
                         <i className="ri-check-line text-green-600 mt-1"></i>
                         <div>
                           <h4 className="font-semibold text-gray-800">
-                            Why is this required?
+                            {t("businessManagement.verification.whyRequired")}
                           </h4>
                           <p className="text-sm text-gray-600">
-                            Ensures only legitimate businesses are listed on our
-                            platform
+                            {t("businessManagement.verification.reason1")}
                           </p>
                         </div>
                       </div>
@@ -2126,10 +2146,10 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                         <i className="ri-check-line text-green-600 mt-1"></i>
                         <div>
                           <h4 className="font-semibold text-gray-800">
-                            Builds trust with customers
+                            {t("businessManagement.verification.reason2")}
                           </h4>
                           <p className="text-sm text-gray-600">
-                            Verified businesses get more customer inquiries
+                            {t("businessManagement.verification.reason3")}
                           </p>
                         </div>
                       </div>
@@ -2139,7 +2159,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
 
                 <div className="bg-white p-6 rounded-xl border border-gray-200">
                   <h4 className="font-semibold text-gray-800 mb-4">
-                    Commercial Registration Document *
+                    {t("businessManagement.verification.documentLabel")} *
                   </h4>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                     <input
@@ -2159,10 +2179,10 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                       }}
                     />
                     <p className="text-gray-600 mb-4">
-                      Upload your Commercial Registration
+                      {t("businessManagement.verification.description")}
                     </p>
                     <p className="text-sm text-gray-500 mb-4">
-                      Supported formats: JPG, PNG, PDF (Max 5MB)
+                      {t("businessManagement.verification.supportedFormats")}
                     </p>
                     <div className="space-y-3">
                       <button
@@ -2177,8 +2197,10 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                         className="w-full bg-blue-500 text-white py-3 px-6 rounded-lg hover:bg-blue-600 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {verificationFile
-                          ? `Selected: ${verificationFile.name}`
-                          : "Choose File"}
+                          ? t(
+                              "businessManagement.verification.selected",
+                            ).replace("{{fileName}}", verificationFile.name)
+                          : t("businessManagement.verification.chooseFile")}
                       </button>
                       <button
                         type="button"
@@ -2191,27 +2213,23 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                         className="w-full bg-yellow-400 text-white py-3 px-6 rounded-lg hover:bg-yellow-500 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {isUploadingVerification
-                          ? "Uploading..."
-                          : "Upload Document"}
+                          ? t("businessManagement.verification.uploading")
+                          : t("businessManagement.verification.uploadDocument")}
                       </button>
                     </div>
                   </div>
 
                   <div className="mt-6 space-y-3">
                     <h4 className="font-semibold text-gray-800">
-                      What happens next?
+                      {t("businessManagement.verification.whatHappensNext")}
                     </h4>
                     <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600">
-                      <li>
-                        Your document will be reviewed by our verification team
-                      </li>
-                      <li>
-                        You'll receive a notification about verification status
-                      </li>
-                      <li>Once approved, your business profile will go live</li>
+                      <li>{t("businessManagement.verification.step1")}</li>
+                      <li>{t("businessManagement.verification.step2")}</li>
+                      <li>{t("businessManagement.verification.step3")}</li>
                     </ol>
                     <p className="text-xs text-gray-500 mt-4">
-                      Verification typically takes 1-2 business days
+                      {t("businessManagement.verification.timeline")}
                     </p>
                   </div>
                 </div>
@@ -2241,7 +2259,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                 className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 font-medium text-sm whitespace-nowrap cursor-pointer"
               >
                 <i className="ri-save-line mr-2"></i>
-                Save Changes
+                {t("businessManagement.saveChanges")}
               </button>
             </div>
           </div>

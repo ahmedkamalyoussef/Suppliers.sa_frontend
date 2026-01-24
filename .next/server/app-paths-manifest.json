@@ -2,6 +2,7 @@
   "/page": "app/page.js",
   "/dashboard/page": "app/dashboard/page.js",
   "/add-business/page": "app/add-business/page.js",
-  "/complete-profile/page": "app/complete-profile/page.js",
-  "/policies/page": "app/policies/page.js"
+  "/policies/page": "app/policies/page.js",
+  "/not-found": "app/not-found.js",
+  "/login/page": "app/login/page.js"
 }
