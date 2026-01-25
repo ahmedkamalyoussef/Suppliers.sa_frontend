@@ -108,21 +108,30 @@ const ClickPayPaymentForm: React.FC<ClickPayPaymentFormProps> = ({
         callback: `${window.location.origin}/api/payment/callback`,
       };
 
-      const response = await fetch("/api/payment/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(paymentData),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api"}/tap/subscription/payment`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({
+            plan_id: plan.id,
+            customer: sanitizedCustomer,
+          }),
+        },
+      );
 
       const result = await response.json();
 
-      if (result.success && result.redirectUrl) {
-        // Redirect to ClickPay payment page
+      if (result.success && result.data?.payment_url) {
+        // Redirect to Tap payment page
         if (typeof window !== "undefined") {
-          window.location.href = result.redirectUrl;
+          window.location.href = result.data.payment_url;
         }
       } else {
-        onPaymentError(result.message);
+        onPaymentError(result.message || "Payment failed");
       }
     } catch (error: any) {
       onPaymentError(error.message || "Payment initialization failed");

@@ -1,465 +1,298 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "../../lib/LanguageContext";
-import ClickPayButton from "../../components/ClickPayButton";
-import PaymentModal from "../../components/PaymentModal";
-import PaymentSuccess from "../../components/PaymentSuccess";
-import PaymentError from "../../components/PaymentError";
-import { PaymentPlan } from "../../lib/clickpay/types";
-import { paymentPlans } from "../../lib/clickpay/config";
+import { useRouter } from "next/navigation";
 
 export default function PricingPlans() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const router = useRouter();
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
-    "monthly"
+    "monthly",
   );
+  const [loading, setLoading] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
+  const [plans, setPlans] = useState<any[]>([]);
 
-  // Payment state
-  const [selectedPlan, setSelectedPlan] = useState<PaymentPlan | null>(null);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
-  const [showPaymentError, setShowPaymentError] = useState(false);
-  const [paymentError, setPaymentError] = useState("");
-  const [transactionId, setTransactionId] = useState("");
+  useEffect(() => {
+    // Clear only old test data, keep authentication
+    localStorage.removeItem("temp_token");
+    localStorage.removeItem("test_user");
+    fetchPlans();
+  }, []);
 
-  const monthlyPrice = 199;
-  const yearlyPrice = 1799;
-  const yearlySavings = Math.round(
-    ((monthlyPrice * 12 - yearlyPrice) / (monthlyPrice * 12)) * 100
-  );
-
-  // Payment handlers
-  const handlePaymentInitiate = (plan: PaymentPlan) => {
-    setSelectedPlan(plan);
-    setShowPaymentModal(true);
+  const fetchPlans = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api"}/tap/subscription/plans`,
+      );
+      const data = await response.json();
+      if (data.success) {
+        setPlans(data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching plans:", error);
+    }
   };
 
-  const handlePaymentSuccess = (transactionId: string) => {
-    setTransactionId(transactionId);
-    setShowPaymentModal(false);
-    setShowPaymentSuccess(true);
+  const handleSubscribe = async (planId: number) => {
+    setLoading(true);
+    setSelectedPlan(planId);
+
+    try {
+      const token = localStorage.getItem("supplier_token");
+      console.log("Token found:", !!token);
+      console.log("Token value:", token);
+
+      // Debug: Check all localStorage items
+      console.log("All localStorage items:");
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        const value = localStorage.getItem(key);
+        console.log(`  ${key}: ${value?.substring(0, 50)}...`);
+      }
+
+      if (!token) {
+        console.log("No token, redirecting to login");
+        router.push("/login?redirect=" + encodeURIComponent("/subscription"));
+        return;
+      }
+
+      const userData = JSON.parse(
+        localStorage.getItem("supplier_user") || "{}",
+      );
+      console.log("User data:", userData);
+
+      const customerData = {
+        first_name: userData.name?.split(" ")[0] || "Test",
+        last_name: userData.name?.split(" ")[1] || "User",
+        email: userData.email || "test@example.com",
+        phone: {
+          country_code: "966",
+          number: userData.phone?.replace("966", "") || "500000000",
+        },
+      };
+
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api"}/tap/subscription/payment-test`;
+      console.log("API URL:", apiUrl);
+      console.log("Request data:", { plan_id: planId, customer: customerData });
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          plan_id: planId,
+          customer: customerData,
+        }),
+      });
+
+      console.log("Response status:", response.status);
+      const data = await response.json();
+      console.log("Response data:", data);
+
+      if (data.success) {
+        console.log("Payment URL:", data.data.payment_url);
+        window.location.href = data.data.payment_url;
+      } else {
+        console.log("Payment failed:", data.message);
+        alert(
+          language === "ar"
+            ? "فشل إنشاء الدفع: " + data.message
+            : "Payment creation failed: " + data.message,
+        );
+      }
+    } catch (error) {
+      console.log("Error in handleSubscribe:", error);
+      alert(language === "ar" ? "خطأ في الاتصال" : "Connection error");
+    } finally {
+      setLoading(false);
+      setSelectedPlan(null);
+    }
   };
 
-  const handlePaymentError = (error: string) => {
-    setPaymentError(error);
-    setShowPaymentModal(false);
-    setShowPaymentError(true);
+  const getLocalizedFeatures = (features: any) => {
+    if (typeof features === "object" && features[language]) {
+      return features[language];
+    }
+    return Array.isArray(features) ? features : [];
   };
 
-  const handleRetryPayment = () => {
-    setShowPaymentError(false);
-    setShowPaymentModal(true);
+  const formatPrice = (plan: any) => {
+    const currency = language === "ar" ? "ريال" : "SAR";
+    const period =
+      plan.billing_cycle === "monthly"
+        ? language === "ar"
+          ? "/شهرياً"
+          : "/month"
+        : language === "ar"
+          ? "/سنوياً"
+          : "/year";
+
+    return `${plan.price} ${currency}${period}`;
   };
 
-  const handleCancelPayment = () => {
-    setShowPaymentModal(false);
-    setShowPaymentError(false);
-    setSelectedPlan(null);
+  const getPlanByCycle = (cycle: "monthly" | "yearly") => {
+    return plans.find((plan) => plan.billing_cycle === cycle && plan.price > 0);
   };
 
-  const handleContinueToDashboard = () => {
-    setShowPaymentSuccess(false);
-    setSelectedPlan(null);
-    // Redirect to dashboard or handle success
-    window.location.href = "/dashboard";
+  const basicPlan = plans.find((plan) => plan.price === 0);
+  const monthlyPlan = getPlanByCycle("monthly");
+  const yearlyPlan = getPlanByCycle("yearly");
+
+  const renderPlanCard = (plan: any, isPopular: boolean = false) => {
+    const features = getLocalizedFeatures(plan.features);
+
+    return (
+      <div
+        key={plan.id}
+        className={`relative bg-white rounded-2xl shadow-lg p-8 transition-all duration-300 hover:shadow-xl hover:scale-105 ${
+          isPopular ? "ring-2 ring-blue-500" : ""
+        }`}
+      >
+        {isPopular && (
+          <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+            <span className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
+              {language === "ar" ? "🚀 الأكثر شهرة" : "🚀 Most Popular"}
+            </span>
+          </div>
+        )}
+
+        <div className="text-center mb-8">
+          <h3 className="text-2xl font-bold text-gray-900 mb-2">
+            {plan.display_name}
+          </h3>
+          <p className="text-gray-600 mb-4">{plan.description}</p>
+          <div className="text-4xl font-bold text-blue-600 mb-2">
+            {formatPrice(plan)}
+          </div>
+          {plan.billing_cycle === "yearly" && (
+            <p className="text-green-600 text-sm font-medium">
+              {language === "ar"
+                ? "💡 وفر 25% مقارنة بالاشتراك الشهري"
+                : "💡 Save 25% compared to monthly"}
+            </p>
+          )}
+        </div>
+
+        <div className="mb-8">
+          <h4 className="font-semibold text-gray-900 mb-4">
+            {language === "ar" ? "يشمل:" : "What's included:"}
+          </h4>
+          <ul className="space-y-3">
+            {features.map((feature: string, index: number) => (
+              <li key={index} className="flex items-start text-gray-700">
+                <span className="text-green-500 ml-2 mt-1">✓</span>
+                <span className="text-sm">{feature}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="space-y-3">
+          {plan.price > 0 && (
+            <div className="text-center text-sm text-gray-600">
+              <span className="font-medium">
+                {language === "ar"
+                  ? "🛡️ ضمان استرداد 30 يوماً"
+                  : "🛡️ 30-day money-back guarantee"}
+              </span>
+              <span className="mx-2">•</span>
+              <span className="font-medium">
+                {language === "ar"
+                  ? "🎯 موثوق من +5000 نشاط سعودي"
+                  : "🎯 Trusted by 5000+ Saudi businesses"}
+              </span>
+            </div>
+          )}
+
+          <button
+            onClick={() => handleSubscribe(plan.id)}
+            disabled={loading || selectedPlan === plan.id}
+            className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 ${
+              plan.price === 0
+                ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                : "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
+            } ${
+              loading && selectedPlan === plan.id
+                ? "opacity-50 cursor-not-allowed"
+                : ""
+            }`}
+          >
+            {loading && selectedPlan === plan.id
+              ? language === "ar"
+                ? "جاري المعالجة..."
+                : "Processing..."
+              : plan.price === 0
+                ? language === "ar"
+                  ? "ابدأ مجاناً"
+                  : "Get Started"
+                : language === "ar"
+                  ? "اشترك الآن"
+                  : "Subscribe Now"}
+          </button>
+        </div>
+      </div>
+    );
   };
 
   return (
-    <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-        <div className="text-center mb-8 sm:mb-12 md:mb-16">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
-            {t("subscription.plansTitle")}
-          </h2>
-          <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-6 sm:mb-8">
-            {t("subscription.plansDesc")}
-          </p>
-
-          {/* Billing Toggle */}
-          <div className="inline-flex items-center bg-gray-100 rounded-full p-1 mb-8 sm:mb-10 md:mb-12">
+    <section className="py-20 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-center mb-16">
+          <div className="bg-gray-100 rounded-full p-1 flex">
             <button
               onClick={() => setBillingCycle("monthly")}
-              className={`px-4 sm:px-6 py-2 sm:py-3 rounded-full font-medium transition-all cursor-pointer text-sm sm:text-base ${
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
                 billingCycle === "monthly"
-                  ? "bg-white text-gray-800 shadow-sm"
-                  : "text-gray-600 hover:text-gray-800"
+                  ? "bg-white text-blue-600 shadow-md"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
             >
-              {t("subscription.monthly")}
+              {language === "ar" ? "شهري" : "Monthly"}
             </button>
             <button
               onClick={() => setBillingCycle("yearly")}
-              className={`px-4 sm:px-6 py-2 sm:py-3 rounded-full font-medium transition-all cursor-pointer text-sm sm:text-base ${
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
                 billingCycle === "yearly"
-                  ? "bg-white text-gray-800 shadow-sm"
-                  : "text-gray-600 hover:text-gray-800"
+                  ? "bg-white text-blue-600 shadow-md"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
             >
-              {t("subscription.yearly")}
-              <span className="ml-1 sm:ml-2 bg-green-100 text-green-800 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs">
-                {t("subscription.saveXPercent").replace(
-                  "{{percent}}",
-                  String(yearlySavings)
-                )}
+              {language === "ar" ? "سنوي" : "Yearly"}
+              <span className="ml-2 text-green-600 font-semibold">
+                25% {language === "ar" ? "وفر" : "off"}
               </span>
             </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 max-w-6xl mx-auto">
-          {/* Free Plan */}
-          <div className="bg-white rounded-2xl border-2 border-gray-200 p-4 sm:p-6 md:p-8 relative shadow-lg">
-            <div className="text-center mb-6 sm:mb-8">
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                {t("subscription.freeTitle")}
-              </h3>
-              <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">
-                {t("subscription.freeSubtitle")}
-              </p>
-              <div className="mb-4 sm:mb-6">
-                <span className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900">
-                  0
-                </span>
-                <img
-                  src="/riyal.svg"
-                  alt="SAR"
-                  className="w-6 h-6 inline-block ml-1"
-                />
-                <span className="text-gray-600 text-base sm:text-lg">
-                  {t("subscription.perMonth")}
-                </span>
-              </div>
-              <button className="w-full bg-gray-800 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-lg font-semibold text-base sm:text-lg hover:bg-gray-700 transition-colors whitespace-nowrap cursor-pointer">
-                <i className="ri-play-line mr-1 sm:mr-2"></i>
-                {t("subscription.getStartedFree")}
-              </button>
-              <p className="text-xs sm:text-sm text-gray-500 mt-2">
-                {t("subscription.noCard")}
-              </p>
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {basicPlan && renderPlanCard(basicPlan, false)}
+          {billingCycle === "monthly" &&
+            monthlyPlan &&
+            renderPlanCard(monthlyPlan, true)}
+          {billingCycle === "yearly" &&
+            yearlyPlan &&
+            renderPlanCard(yearlyPlan, true)}
+        </div>
 
-            <div className="space-y-3 sm:space-y-4">
-              <h4 className="font-semibold text-gray-900 mb-3 sm:mb-4 text-base sm:text-lg">
-                {t("subscription.whatsIncluded")}
-              </h4>
-              <div className="flex items-center">
-                <i className="ri-check-line text-green-500 mr-2 sm:mr-3 text-base sm:text-lg"></i>
-                <span className="text-gray-700 text-sm sm:text-base">
-                  {t("subscription.incl1")}
-                </span>
-              </div>
-              <div className="flex items-center">
-                <i className="ri-check-line text-green-500 mr-2 sm:mr-3 text-base sm:text-lg"></i>
-                <span className="text-gray-700 text-sm sm:text-base">
-                  {t("subscription.incl2")}
-                </span>
-              </div>
-              <div className="flex items-center">
-                <i className="ri-check-line text-green-500 mr-2 sm:mr-3 text-base sm:text-lg"></i>
-                <span className="text-gray-700 text-sm sm:text-base">
-                  {t("subscription.incl3")}
-                </span>
-              </div>
-              <div className="flex items-center">
-                <i className="ri-check-line text-green-500 mr-2 sm:mr-3 text-base sm:text-lg"></i>
-                <span className="text-gray-700 text-sm sm:text-base">
-                  {t("subscription.incl4")}
-                </span>
-              </div>
-              <div className="flex items-center">
-                <i className="ri-check-line text-green-500 mr-2 sm:mr-3 text-base sm:text-lg"></i>
-                <span className="text-gray-700 text-sm sm:text-base">
-                  {t("subscription.incl5")}
-                </span>
-              </div>
-              <div className="flex items-center">
-                <i className="ri-check-line text-green-500 mr-2 sm:mr-3 text-base sm:text-lg"></i>
-                <span className="text-gray-700 text-sm sm:text-base">
-                  {t("subscription.incl6")}
-                </span>
-              </div>
-              <div className="flex items-center">
-                <i className="ri-check-line text-green-500 mr-2 sm:mr-3 text-base sm:text-lg"></i>
-                <span className="text-gray-700 text-sm sm:text-base">
-                  {t("subscription.incl7")}
-                </span>
-              </div>
-              <div className="flex items-center">
-                <i className="ri-check-line text-green-500 mr-2 sm:mr-3 text-base sm:text-lg"></i>
-                <span className="text-gray-700 text-sm sm:text-base">
-                  {t("subscription.incl8")}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Premium Plan */}
-          <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl border-2 border-yellow-400 p-4 sm:p-6 md:p-8 relative shadow-xl">
-            <div className="absolute -top-3 sm:-top-4 left-1/2 transform -translate-x-1/2">
-              <span className="bg-yellow-400 text-gray-900 px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg">
-                🚀 Most Popular Choice
-              </span>
-            </div>
-
-            <div className="text-center mb-6 sm:mb-8">
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-                {t("subscription.premiumTitle")}
-              </h3>
-              <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">
-                {t("subscription.premiumSubtitle")}
-              </p>
-
-              {/* Pricing Display */}
-              <div className="mb-4 sm:mb-6">
-                {billingCycle === "monthly" ? (
-                  <div>
-                    <span className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900">
-                      {monthlyPrice}
-                    </span>
-                    <img
-                      src="/riyal.svg"
-                      alt="SAR"
-                      className="w-6 h-6 inline-block ml-1"
-                    />
-                    <span className="text-gray-600 text-base sm:text-lg">
-                      {t("subscription.perMonth")}
-                    </span>
-                    <div className="mt-2 sm:mt-3 p-2 sm:p-3 bg-green-50 rounded-lg border border-green-200">
-                      <div className="text-xs sm:text-sm text-green-800">
-                        {t("subscription.saveWithYearly")}{" "}
-                        <strong>
-                          {yearlyPrice}
-                          <img
-                            src="/riyal.svg"
-                            alt="SAR"
-                            className="w-4 h-4 inline-block ml-1"
-                          />
-                          {t("subscription.perYear")}
-                        </strong>
-                        <span className="ml-1 font-bold text-green-700">
-                          (
-                          {t("subscription.saveXPercent").replace(
-                            "{{percent}}",
-                            String(yearlySavings)
-                          )}
-                          )
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <div className="flex items-center justify-center gap-2 sm:gap-3 mb-2">
-                      <span className="text-lg sm:text-2xl font-medium text-gray-500 line-through">
-                        {monthlyPrice * 12}
-                        <img
-                          src="/riyal.svg"
-                          alt="SAR"
-                          className="w-4 h-4 inline-block ml-1"
-                        />
-                      </span>
-                      <span className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900">
-                        {yearlyPrice}
-                        <img
-                          src="/riyal.svg"
-                          alt="SAR"
-                          className="w-6 h-6 inline-block ml-1"
-                        />
-                      </span>
-                    </div>
-                    <span className="text-gray-600 text-base sm:text-lg">
-                      {t("subscription.perYear")}
-                    </span>
-                    <div className="mt-2 sm:mt-3 p-2 sm:p-3 bg-green-50 rounded-lg border border-green-200">
-                      <span className="bg-green-100 text-green-800 px-2 sm:px-3 py-1 rounded-full font-bold text-xs sm:text-sm">
-                        {t("subscription.saveAmount")
-                          .replace(
-                            "{{amount}}",
-                            String(monthlyPrice * 12 - yearlyPrice)
-                          )
-                          .replace("{{percent}}", String(yearlySavings))}
-                      </span>
-                      <div className="mt-2 text-xs sm:text-sm text-green-700">
-                        {t("subscription.justPerMonth").replace(
-                          "{{amount}}",
-                          String(Math.round(yearlyPrice / 12))
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <ClickPayButton
-                plan={
-                  billingCycle === "monthly" ? paymentPlans[1] : paymentPlans[2]
-                } // Professional monthly or yearly
-                onPaymentInitiate={handlePaymentInitiate}
-                className="w-full py-3 sm:py-4 px-4 sm:px-6 rounded-lg font-bold text-base sm:text-lg shadow-lg"
-              />
-              <p className="text-xs sm:text-sm text-gray-600 mt-2">
-                {t("subscription.guarantee")}
-              </p>
-            </div>
-
-            <div className="mb-4 sm:mb-6">
-              <p className="font-bold text-gray-900 mb-3 sm:mb-4 text-base sm:text-lg flex items-center">
-                <i className="ri-gift-line mr-1 sm:mr-2 text-yellow-600"></i>
-                {t("subscription.premiumAllFreePlus")}
-              </p>
-            </div>
-
-            {/* Core Business Features */}
-            <div className="mb-4 sm:mb-6">
-              <h4 className="font-semibold text-gray-900 mb-2 sm:mb-3 flex items-center text-sm sm:text-base">
-                <i className="ri-building-line mr-1 sm:mr-2 text-yellow-600"></i>
-                {t("subscription.coreFeatures")}
-              </h4>
-              <div className="space-y-2 sm:space-y-3">
-                <div className="flex items-center">
-                  <i className="ri-check-line text-green-500 mr-2 sm:mr-3 text-base sm:text-lg"></i>
-                  <span className="text-gray-700 text-sm sm:text-base">
-                    {t("subscription.fCore1")}
-                  </span>
-                </div>
-                <div className="flex items-center">
-                  <i className="ri-check-line text-green-500 mr-2 sm:mr-3 text-base sm:text-lg"></i>
-                  <span className="text-gray-700 text-sm sm:text-base">
-                    {t("subscription.fCore2")}
-                  </span>
-                </div>
-                <div className="flex items-center">
-                  <i className="ri-check-line text-green-500 mr-2 sm:mr-3 text-base sm:text-lg"></i>
-                  <span className="text-gray-700 text-sm sm:text-base">
-                    {t("subscription.fCore3")}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Communication & Lead Generation */}
-            <div className="mb-4 sm:mb-6">
-              <h4 className="font-semibold text-gray-900 mb-2 sm:mb-3 flex items-center text-sm sm:text-base">
-                <i className="ri-message-line mr-1 sm:mr-2 text-yellow-600"></i>
-                {t("subscription.commLead")}
-              </h4>
-              <div className="space-y-2 sm:space-y-3">
-                <div className="flex items-center">
-                  <i className="ri-check-line text-green-500 mr-2 sm:mr-3 text-base sm:text-lg"></i>
-                  <span className="text-gray-700 text-sm sm:text-base">
-                    {t("subscription.fComm1")}
-                  </span>
-                </div>
-                <div className="flex items-center">
-                  <i className="ri-check-line text-green-500 mr-2 sm:mr-3 text-base sm:text-lg"></i>
-                  <span className="text-gray-700 text-sm sm:text-base">
-                    {t("subscription.fComm2")}
-                  </span>
-                </div>
-                <div className="flex items-center">
-                  <i className="ri-check-line text-green-500 mr-2 sm:mr-3 text-base sm:text-lg"></i>
-                  <span className="text-gray-700 text-sm sm:text-base">
-                    {t("subscription.fComm3")}
-                  </span>
-                </div>
-                <div className="flex items-center">
-                  <i className="ri-check-line text-green-500 mr-2 sm:mr-3 text-base sm:text-lg"></i>
-                  <span className="text-gray-700 text-sm sm:text-base">
-                    {t("subscription.fComm4")}
-                  </span>
-                </div>
-                <div className="flex items-center">
-                  <i className="ri-check-line text-green-500 mr-2 sm:mr-3 text-base sm:text-lg"></i>
-                  <span className="text-gray-700 text-sm sm:text-base">
-                    {t("subscription.fComm5")}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Premium Marketing & Analytics */}
-            <div className="mb-4 sm:mb-6">
-              <h4 className="font-semibold text-gray-900 mb-2 sm:mb-3 flex items-center text-sm sm:text-base">
-                <i className="ri-star-line mr-1 sm:mr-2 text-yellow-600"></i>
-                {t("subscription.marketingAnalytics")}
-              </h4>
-              <div className="space-y-2 sm:space-y-3">
-                <div className="flex items-center">
-                  <i className="ri-check-line text-green-500 mr-2 sm:mr-3 text-base sm:text-lg"></i>
-                  <span className="text-gray-700 text-sm sm:text-base">
-                    {t("subscription.fMark1")}
-                  </span>
-                </div>
-                <div className="flex items-center">
-                  <i className="ri-check-line text-green-500 mr-2 sm:mr-3 text-base sm:text-lg"></i>
-                  <span className="text-gray-700 text-sm sm:text-base">
-                    {t("subscription.fMark2")}
-                  </span>
-                </div>
-                <div className="flex items-center">
-                  <i className="ri-check-line text-green-500 mr-2 sm:mr-3 text-base sm:text-lg"></i>
-                  <span className="text-gray-700 text-sm sm:text-base">
-                    {t("subscription.fMark3")}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-4 sm:pt-6 border-t border-yellow-200 bg-yellow-25 rounded-lg p-3 sm:p-4">
-              <div className="text-center">
-                <p className="text-xs sm:text-sm text-gray-700 font-medium">
-                  🛡️ 30-day money-back guarantee • 🎯 Trusted by 5000+ Saudi
-                  businesses
-                </p>
-              </div>
-            </div>
-          </div>
+        <div className="text-center mt-16">
+          <p className="text-gray-600">
+            {language === "ar" ? "هل لديك أسئلة؟ " : "Have questions? "}
+            <a
+              href="/contact"
+              className="text-blue-600 hover:text-blue-700 font-medium"
+            >
+              {language === "ar"
+                ? "تواصل مع فريق المبيعات"
+                : "Contact our sales team"}
+            </a>
+          </p>
         </div>
       </div>
-
-      {/* Payment Modal */}
-      <PaymentModal
-        isOpen={showPaymentModal}
-        plan={selectedPlan}
-        onClose={handleCancelPayment}
-        onPaymentSuccess={handlePaymentSuccess}
-        onPaymentError={handlePaymentError}
-      />
-
-      {/* Payment Success */}
-      {showPaymentSuccess && selectedPlan && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"></div>
-            <div className="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
-              <PaymentSuccess
-                transactionId={transactionId}
-                planName={selectedPlan.name}
-                amount={selectedPlan.price}
-                currency={selectedPlan.currency}
-                onContinue={handleContinueToDashboard}
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Payment Error */}
-      {showPaymentError && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"></div>
-            <div className="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
-              <PaymentError
-                error={paymentError}
-                onRetry={handleRetryPayment}
-                onCancel={handleCancelPayment}
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 }
