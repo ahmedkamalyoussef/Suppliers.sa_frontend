@@ -153,6 +153,7 @@ export default function BusinessLocationMap({
   const [selectedCity, setSelectedCity] = useState<string>("");
   const [customAddress, setCustomAddress] = useState<string>("");
   const [locationMethod, setLocationMethod] = useState<LocationMethod>("map");
+  const [isValidating, setIsValidating] = useState(false); // Add loading state
   
   // Set default to Riyadh if no location provided or if location is invalid
   useEffect(() => {
@@ -166,25 +167,38 @@ export default function BusinessLocationMap({
 
   // Wrapper function to validate Saudi boundaries before setting location (async)
   const setValidatedLocation = async (location: Location) => {
-    const validatedLocation = await validateSaudiLocation(location.lat, location.lng);
+    setIsValidating(true);
     
-    if (!validatedLocation.isWithinSaudi) {
-      // Show toast warning and automatically move marker to Riyadh
-      toast.warning(
-        language === 'ar' 
-          ? 'الموقع يجب أن يكون داخل السعودية. سيتم تحريك الموقع تلقائياً إلى الرياض.'
-          : 'Location must be within Saudi Arabia. The location will be automatically moved to Riyadh.',
-        {
-          position: "top-center",
-          autoClose: 4000,
-        }
-      );
+    try {
+      const validatedLocation = await validateSaudiLocation(location.lat, location.lng);
+      
+      if (!validatedLocation.isWithinSaudi) {
+        // Show toast warning and automatically move marker to Riyadh
+        toast.warning(
+          language === 'ar' 
+            ? 'الموقع يجب أن يكون داخل السعودية. سيتم تحريك الموقع تلقائياً إلى الرياض.'
+            : 'Location must be within Saudi Arabia. The location will be automatically moved to Riyadh.',
+          {
+            position: "top-center",
+            autoClose: 4000,
+          }
+        );
+      }
+      
+      setSelectedLocation({
+        lat: validatedLocation.lat,
+        lng: validatedLocation.lng
+      });
+    } catch (error) {
+      console.error("Error validating location:", error);
+      // Fallback to Riyadh if validation fails
+      setSelectedLocation({
+        lat: 24.7136,
+        lng: 46.6753
+      });
+    } finally {
+      setIsValidating(false);
     }
-    
-    setSelectedLocation({
-      lat: validatedLocation.lat,
-      lng: validatedLocation.lng
-    });
   };
 
   // FIX: حالة للتأكد أننا في المتصفح وليس السيرفر
@@ -256,7 +270,7 @@ export default function BusinessLocationMap({
     markerRef.current = new g.maps.Marker({
       position: { lat: initialLocation.lat, lng: initialLocation.lng },
       map: mapRef.current,
-      draggable: canEdit,
+      draggable: canEdit && !isValidating, // Disable dragging during validation
       title: t("map.yourBusiness") || "Your Business",
     });
 
@@ -266,9 +280,9 @@ export default function BusinessLocationMap({
     }
     markerDragListenerRef.current = markerRef.current.addListener(
       "dragend",
-      (e: any) => {
-        if (!e?.latLng) return;
-        setValidatedLocation({
+      async (e: any) => {
+        if (!e?.latLng || isValidating) return;
+        await setValidatedLocation({
           lat: parseFloat(e.latLng.lat().toFixed(6)),
           lng: parseFloat(e.latLng.lng().toFixed(6)),
         });
@@ -281,10 +295,10 @@ export default function BusinessLocationMap({
     }
     mapClickListenerRef.current = mapRef.current.addListener(
       "click",
-      (e: any) => {
-        if (!canEditRef.current) return;
+      async (e: any) => {
+        if (!canEditRef.current || isValidating) return;
         if (!e?.latLng) return;
-        setValidatedLocation({
+        await setValidatedLocation({
           lat: parseFloat(e.latLng.lat().toFixed(6)),
           lng: parseFloat(e.latLng.lng().toFixed(6)),
         });
@@ -316,8 +330,8 @@ export default function BusinessLocationMap({
     if (!isMounted || !isMapsReady) return;
     if (!mapRef.current || !markerRef.current) return;
 
-    markerRef.current.setDraggable(canEdit);
-  }, [isMounted, isMapsReady, canEdit]);
+    markerRef.current.setDraggable(canEdit && !isValidating);
+  }, [isMounted, isMapsReady, canEdit, isValidating]);
 
   useEffect(() => {
     if (!isMounted || !isMapsReady) return;
@@ -343,6 +357,7 @@ export default function BusinessLocationMap({
 
   // وظيفة الزر: يجيب منتصف الخريطة الحالي ويحط الماركر فيه
   const handleMapClick = (): void => {
+    if (isValidating) return; // Prevent changes during validation
     if (mapRef.current) {
       const center = mapRef.current.getCenter();
       if (!center) return;
@@ -354,6 +369,7 @@ export default function BusinessLocationMap({
   };
 
   const handleCitySelect = (cityName: string): void => {
+    if (isValidating) return; // Prevent changes during validation
     const city = saudiCities.find((c) => c.name === cityName);
     if (city) {
       setValidatedLocation({
@@ -365,8 +381,7 @@ export default function BusinessLocationMap({
   };
 
   const handleAddressGeocode = async (): Promise<void> => {
-    if (!customAddress.trim()) return;
-    if (!isMapsReady) return;
+    if (!customAddress.trim() || !isMapsReady || isValidating) return;
     const g = (window as any).google;
     if (!g?.maps?.Geocoder) return;
 
@@ -383,7 +398,7 @@ export default function BusinessLocationMap({
         alert(t("map.cannotGetLocation"));
         return;
       }
-      setValidatedLocation({
+      await setValidatedLocation({
         lat: parseFloat(loc.lat().toFixed(6)),
         lng: parseFloat(loc.lng().toFixed(6)),
       });
@@ -393,12 +408,13 @@ export default function BusinessLocationMap({
   };
 
   const getCurrentLocation = (): void => {
+    if (isValidating) return; // Prevent changes during validation
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
-          setValidatedLocation({
+          await setValidatedLocation({
             lat: parseFloat(lat.toFixed(6)),
             lng: parseFloat(lng.toFixed(6)),
           });
