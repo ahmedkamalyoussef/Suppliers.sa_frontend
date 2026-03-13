@@ -8,7 +8,6 @@ import { useAuth } from "../hooks/useAuth";
 import FeaturedBusinesses from "./FeaturedBusinesses";
 import InteractiveMapGoogle from "./InteractiveMap.google";
 import { apiService } from "../lib/api";
-import { categories, getCategoryName, getCategoryIcon, getCategoryColor } from "../lib/categories";
 export default function SearchSection() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -22,7 +21,7 @@ export default function SearchSection() {
   const [businesses, setBusinesses] = useState<any[]>([]);
   const [businessLocations, setBusinessLocations] = useState<any[]>([]);
   const [showAllBusinesses, setShowAllBusinesses] = useState(false);
-  const { t, isRTL, language } = useLanguage();
+  const { t, isRTL } = useLanguage();
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
 
@@ -36,10 +35,15 @@ export default function SearchSection() {
           sort: "name",
         };
 
-        // Only add categories param if a specific category is selected (not 'all')
+        // Add category to params if selected (using 'category' as parameter name to match backend)
         if (selectedCategory !== "all") {
-          params.categories = selectedCategory;
+          params.category = selectedCategory;
         }
+
+        console.log("=== API REQUEST DEBUG ===");
+        console.log("Selected Category:", selectedCategory);
+        console.log("Final API Params:", JSON.stringify(params, null, 2));
+        console.log("API URL:", `/api/public/businesses?${new URLSearchParams(params).toString()}`);
 
         const response = await apiService.getBusinesses(params);
 
@@ -85,19 +89,283 @@ export default function SearchSection() {
   const getFilteredBusinesses = () => {
     const filtered = enhancedBusinessLocations.filter((business) => {
       if (selectedCategory === "all") return true;
+      
       // Check both the category and categories array if it exists
       return (
         business.category === selectedCategory ||
         (business.categories && business.categories.includes(selectedCategory))
       );
     });
+    
+    // If no businesses match the selected category, show all businesses as fallback
+    if (filtered.length === 0 && selectedCategory !== "all") {
+      console.log("No businesses found for category:", selectedCategory, "- showing all businesses");
+      return enhancedBusinessLocations;
+    }
+    
     return filtered;
   };
 
   // Get filtered businesses
   const filteredBusinesses = getFilteredBusinesses();
+  
+  // Debug map filtering
+  console.log("=== MAP DEBUG ===");
+  console.log("Total Businesses:", businesses.length);
+  console.log("Filtered Businesses:", filteredBusinesses.length);
+  console.log("Selected Category:", selectedCategory);
+  console.log("Filtered Data:", filteredBusinesses.map(b => ({name: b.name, category: b.category, categories: b.categories})));
 
-  // Use centralized categories configuration
+  const categories = [
+    {
+      id: "all",
+      name: t("filters.allCategories") || "All Categories",
+      icon: "ri-apps-2-line",
+      color: "from-purple-400 to-purple-600",
+    },
+    {
+      id: "Agriculture",
+      name: t("cat.agriculture") || "Agriculture",
+      icon: "ri-leaf-line",
+      color: "from-green-400 to-green-600",
+    },
+    {
+      id: "Apparel & Fashion",
+      name: t("cat.apparelFashion") || "Apparel & Fashion",
+      icon: "ri-t-shirt-line",
+      color: "from-blue-400 to-blue-600",
+    },
+    {
+      id: "Automobile",
+      name: t("cat.automobile") || "Automobile",
+      icon: "ri-car-line",
+      color: "from-red-400 to-red-600",
+    },
+    {
+      id: "Brass Hardware & Components",
+      name: t("cat.brassHardware") || "Brass Hardware & Components",
+      icon: "ri-tools-line",
+      color: "from-yellow-400 to-yellow-600",
+    },
+    {
+      id: "Business Services",
+      name: t("cat.businessServices") || "Business Services",
+      icon: "ri-briefcase-line",
+      color: "from-purple-500 to-purple-700",
+    },
+    {
+      id: "Chemicals",
+      name: t("cat.chemicals") || "Chemicals",
+      icon: "ri-flask-line",
+      color: "from-blue-300 to-blue-500",
+    },
+    {
+      id: "Computer Hardware & Software",
+      name: t("cat.computerHardwareSoftware") || "Computer Hardware & Software",
+      icon: "ri-computer-line",
+      color: "from-indigo-400 to-indigo-600",
+    },
+    // {
+    //   id: "Construction & Real Estate",
+    //   name: t("cat.constructionRealEstate") || "Construction & Real Estate",
+    //   icon: "ri-building-line",
+    //   color: "from-orange-400 to-orange-600",
+    // },
+    {
+      id: "Consumer Electronics",
+      name: t("cat.consumerElectronics") || "Consumer Electronics",
+      icon: "ri-smartphone-line",
+      color: "from-blue-400 to-blue-600",
+    },
+    {
+      id: "Electronics & Electrical Supplies",
+      name:
+        t("cat.electronicsElectrical") || "Electronics & Electrical Supplies",
+      icon: "ri-plug-line",
+      color: "from-yellow-400 to-yellow-600",
+    },
+    {
+      id: "Energy & Power",
+      name: t("cat.energyPower") || "Energy & Power",
+      icon: "ri-flashlight-line",
+      color: "from-yellow-400 to-yellow-600",
+    },
+    {
+      id: "Environment & Pollution",
+      name: t("cat.environmentPollution") || "Environment & Pollution",
+      icon: "ri-leaf-line",
+      color: "from-green-500 to-green-700",
+    },
+    {
+      id: "Food & Beverage",
+      name: t("cat.foodBeverage") || "Food & Beverage",
+      icon: "ri-restaurant-line",
+      color: "from-orange-400 to-red-500",
+    },
+    {
+      id: "Furniture",
+      name: t("cat.furniture") || "Furniture",
+      icon: "ri-sofa-line",
+      color: "from-amber-400 to-orange-500",
+    },
+    {
+      id: "Gifts & Crafts",
+      name: t("cat.giftsCrafts") || "Gifts & Crafts",
+      icon: "ri-gift-line",
+      color: "from-pink-400 to-rose-500",
+    },
+    {
+      id: "Health & Beauty",
+      name: t("cat.healthBeauty") || "Health & Beauty",
+      icon: "ri-scissors-line",
+      color: "from-fuchsia-400 to-pink-500",
+    },
+    {
+      id: "Home Supplies",
+      name: t("cat.homeSupplies") || "Home Supplies",
+      icon: "ri-home-line",
+      color: "from-amber-300 to-amber-500",
+    },
+    {
+      id: "Home Textiles & Furnishings",
+      name: t("cat.homeTextiles") || "Home Textiles & Furnishings",
+      icon: "ri-store-line",
+      color: "from-emerald-300 to-emerald-500",
+    },
+    {
+      id: "Hospital & Medical Supplies",
+      name: t("cat.hospitalMedical") || "Hospital & Medical Supplies",
+      icon: "ri-hospital-line",
+      color: "from-red-300 to-red-500",
+    },
+    {
+      id: "Hotel Supplies & Equipment",
+      name: t("cat.hotelSupplies") || "Hotel Supplies & Equipment",
+      icon: "ri-hotel-line",
+      color: "from-blue-300 to-blue-500",
+    },
+    {
+      id: "Industrial Supplies",
+      name: t("cat.industrialSupplies") || "Industrial Supplies",
+      icon: "ri-tools-line",
+      color: "from-gray-400 to-gray-600",
+    },
+    {
+      id: "Jewelry & Gemstones",
+      name: t("cat.jewelryGemstones") || "Jewelry & Gemstones",
+      icon: "ri-gem-line",
+      color: "from-yellow-300 to-yellow-500",
+    },
+    {
+      id: "Leather & Leather Products",
+      name: t("cat.leatherProducts") || "Leather & Leather Products",
+      icon: "ri-suitcase-line",
+      color: "from-amber-600 to-amber-800",
+    },
+    {
+      id: "Machinery",
+      name: t("cat.machinery") || "Machinery",
+      icon: "ri-tools-fill",
+      color: "from-gray-500 to-gray-700",
+    },
+    {
+      id: "Mineral & Metals",
+      name: t("cat.mineralMetals") || "Mineral & Metals",
+      icon: "ri-copper-diamond-line",
+      color: "from-gray-400 to-gray-600",
+    },
+    {
+      id: "Office & School Supplies",
+      name: t("cat.officeSchool") || "Office & School Supplies",
+      icon: "ri-book-line",
+      color: "from-blue-300 to-blue-500",
+    },
+    {
+      id: "Oil and Gas",
+      name: t("cat.oilGas") || "Oil and Gas",
+      icon: "ri-oil-line",
+      color: "from-gray-700 to-gray-900",
+    },
+    {
+      id: "Packaging & Paper",
+      name: t("cat.packagingPaper") || "Packaging & Paper",
+      icon: "ri-boxing-line",
+      color: "from-amber-300 to-amber-500",
+    },
+    {
+      id: "Pharmaceuticals",
+      name: t("cat.pharmaceuticals") || "Pharmaceuticals",
+      icon: "ri-medicine-bottle-line",
+      color: "from-blue-400 to-blue-600",
+    },
+    {
+      id: "Pipes, Tubes & Fittings",
+      name: t("cat.pipesTubes") || "Pipes, Tubes & Fittings",
+      icon: "ri-tube-line",
+      color: "from-gray-500 to-gray-700",
+    },
+    {
+      id: "Plastics & Products",
+      name: t("cat.plasticsProducts") || "Plastics & Products",
+      icon: "ri-bubble-chart-line",
+      color: "from-blue-300 to-blue-500",
+    },
+    {
+      id: "Printing & Publishing",
+      name: t("cat.printingPublishing") || "Printing & Publishing",
+      icon: "ri-printer-line",
+      color: "from-purple-400 to-purple-600",
+    },
+    // {
+    //   id: "Real Estate",
+    //   name: t("cat.realEstate") || "Real Estate",
+    //   icon: "ri-building-2-line",
+    //   color: "from-orange-400 to-orange-600",
+    // },
+    {
+      id: "Scientific & Laboratory Instruments",
+      name:
+        t("cat.scientificLaboratory") || "Scientific & Laboratory Instruments",
+      icon: "ri-microscope-line",
+      color: "from-blue-400 to-blue-600",
+    },
+    {
+      id: "Security & Protection",
+      name: t("cat.securityProtection") || "Security & Protection",
+      icon: "ri-shield-line",
+      color: "from-red-500 to-red-700",
+    },
+    {
+      id: "Sports & Entertainment",
+      name: t("cat.sportsEntertainment") || "Sports & Entertainment",
+      icon: "ri-football-line",
+      color: "from-green-500 to-green-700",
+    },
+    {
+      id: "Telecommunications",
+      name: t("cat.telecommunications") || "Telecommunications",
+      icon: "ri-phone-line",
+      color: "from-blue-400 to-blue-600",
+    },
+    {
+      id: "Textiles & Fabrics",
+      name: t("cat.textilesFabrics") || "Textiles & Fabrics",
+      icon: "ri-scissors-line",
+      color: "from-pink-400 to-pink-600",
+    },
+    {
+      id: "Toys",
+      name: t("cat.toys") || "Toys",
+      icon: "ri-gamepad-line",
+      color: "from-red-400 to-red-600",
+    },
+    {
+      id: "Transportation",
+      name: t("cat.transportation") || "Transportation",
+      icon: "ri-truck-line",
+      color: "from-indigo-400 to-indigo-600",
+    },
+  ];
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -368,11 +636,13 @@ export default function SearchSection() {
                           className={`w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-lg flex items-center justify-center ${
                             selectedCategory === category.id
                               ? "bg-white/20"
-                              : `bg-gradient-to-r ${getCategoryColor(category.id)}`
+                              : `bg-gradient-to-r ${category.color}`
                           }`}
                         >
                           <i
-                            className={`${getCategoryIcon(category.id)} text-xs sm:text-sm md:text-base ${
+                            className={`${
+                              category.icon
+                            } text-xs sm:text-sm md:text-base ${
                               selectedCategory === category.id
                                 ? "text-white"
                                 : "text-white"
@@ -380,7 +650,7 @@ export default function SearchSection() {
                           ></i>
                         </div>
                         <span className="font-medium text-xs sm:text-xs md:text-sm">
-                          {getCategoryName(category.id, language === 'ar' ? 'ar' : 'en')}
+                          {category.name}
                         </span>
                       </button>
                     ))}
@@ -478,8 +748,12 @@ export default function SearchSection() {
                           } rounded-full`}
                         ></div>
                         <span className="text-xs sm:text-xs md:text-sm font-medium text-gray-700">
-                          {t("showing") || "Showing"}: {" "}
-                          {getCategoryName(selectedCategory, language === 'ar' ? 'ar' : 'en')}
+                          {t("showing") || "Showing"}:{" "}
+                          {
+                            categories.find(
+                              (cat) => cat.id === selectedCategory,
+                            )?.name
+                          }
                         </span>
                         <span className="text-xs text-gray-500">
                           ({getFilteredBusinesses().length}{" "}
