@@ -220,6 +220,9 @@ export const useAuth = (): UseAuthReturn => {
 
     // Redirect to login
     router.push("/login");
+    
+    // Refresh the page to clear all cached data
+    window.location.reload();
   };
 
   const refreshAuth = () => {

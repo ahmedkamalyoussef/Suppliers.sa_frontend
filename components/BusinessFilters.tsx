@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "../lib/LanguageContext";
 import { apiService } from "../lib/api";
+import { categories, getCategoryName, getCategoryIcon } from "../lib/categories";
 
 interface Category {
   id: string;
@@ -105,7 +106,7 @@ export default function BusinessFilters({
 
     fetchStats();
   }, []);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [stats, setStats] = useState<{
     total_businesses: number;
     total_suppliers: number;
@@ -115,165 +116,12 @@ export default function BusinessFilters({
 
   // Using props for verifiedOnly and openNow instead of local state
 
-  const categories: Category[] = [
-    { id: "all", name: t("filters.allCategories"), icon: "ri-apps-2-line" },
-    { id: "Agriculture", name: t("cat.agriculture"), icon: "ri-plant-line" },
-    {
-      id: "Apparel & Fashion",
-      name: t("cat.apparelFashion"),
-      icon: "ri-shirt-line",
-    },
-    { id: "Automobile", name: t("cat.automobile"), icon: "ri-car-line" },
-    {
-      id: "Brass & Hardware",
-      name: t("cat.brassHardware"),
-      icon: "ri-tools-line",
-    },
-    {
-      id: "Business Services",
-      name: t("cat.businessServices"),
-      icon: "ri-briefcase-line",
-    },
-    { id: "Chemicals", name: t("cat.chemicals"), icon: "ri-flask-line" },
-    {
-      id: "Computer Hardware & Software",
-      name: t("cat.computerHardware"),
-      icon: "ri-computer-line",
-    },
-    // {
-    //   id: "Construction & Real Estate",
-    //   name: t("cat.constructionRealEstate"),
-    //   icon: "ri-hammer-line",
-    // },
-    {
-      id: "Consumer Electronics",
-      name: t("cat.consumerElectronics"),
-      icon: "ri-smartphone-line",
-    },
-    {
-      id: "Electronics & Electrical Supplies",
-      name: t("cat.electronicsElectrical"),
-      icon: "ri-flashlight-line",
-    },
-    {
-      id: "Energy & Power",
-      name: t("cat.energyPower"),
-      icon: "ri-lightning-line",
-    },
-    {
-      id: "Environment & Pollution",
-      name: t("cat.environmentPollution"),
-      icon: "ri-leaf-line",
-    },
-    {
-      id: "Food & Beverage",
-      name: t("cat.foodBeverage"),
-      icon: "ri-restaurant-line",
-    },
-    { id: "Furniture", name: t("cat.furniture"), icon: "ri-sofa-line" },
-    { id: "Gifts & Crafts", name: t("cat.giftsCrafts"), icon: "ri-gift-line" },
-    {
-      id: "Health & Beauty",
-      name: t("cat.healthBeauty"),
-      icon: "ri-scissors-line",
-    },
-    { id: "Home Supplies", name: t("cat.homeSupplies"), icon: "ri-home-line" },
-    { id: "Home Textiles", name: t("cat.homeTextiles"), icon: "ri-shirt-line" },
-    {
-      id: "Hospital & Medical",
-      name: t("cat.hospitalMedical"),
-      icon: "ri-health-book-line",
-    },
-    {
-      id: "Hotel Supplies & Equipment",
-      name: t("cat.hotelSupplies"),
-      icon: "ri-hotel-line",
-    },
-    {
-      id: "Industrial Supplies",
-      name: t("cat.industrialSupplies"),
-      icon: "ri-settings-line",
-    },
-    {
-      id: "Jewelry & Gemstones",
-      name: t("cat.jewelryGemstones"),
-      icon: "ri-gem-line",
-    },
-    {
-      id: "Leather Products",
-      name: t("cat.leatherProducts"),
-      icon: "ri-handbag-line",
-    },
-    { id: "Machinery", name: t("cat.machinery"), icon: "ri-settings-2-line" },
-    {
-      id: "Mineral & Metals",
-      name: t("cat.mineralMetals"),
-      icon: "ri-copper-diamond-line",
-    },
-    {
-      id: "Office & School Supplies",
-      name: t("cat.officeSchool"),
-      icon: "ri-book-line",
-    },
-    { id: "Oil & Gas", name: t("cat.oilGas"), icon: "ri-oil-line" },
-    {
-      id: "Packaging & Paper",
-      name: t("cat.packagingPaper"),
-      icon: "ri-box-line",
-    },
-    {
-      id: "Pharmaceuticals",
-      name: t("cat.pharmaceuticals"),
-      icon: "ri-capsule-line",
-    },
-    {
-      id: "Pipes & Tubes",
-      name: t("cat.pipesTubes"),
-      icon: "ri-roadster-line",
-    },
-    {
-      id: "Plastics & Products",
-      name: t("cat.plasticsProducts"),
-      icon: "ri-recycle-line",
-    },
-    {
-      id: "Printing & Publishing",
-      name: t("cat.printingPublishing"),
-      icon: "ri-printer-line",
-    },
-    // { id: "Real Estate", name: t("cat.realEstate"), icon: "ri-building-line" },
-    {
-      id: "Scientific & Laboratory",
-      name: t("cat.scientificLaboratory"),
-      icon: "ri-microscope-line",
-    },
-    {
-      id: "Security & Protection",
-      name: t("cat.securityProtection"),
-      icon: "ri-shield-line",
-    },
-    {
-      id: "Sports & Entertainment",
-      name: t("cat.sportsEntertainment"),
-      icon: "ri-football-line",
-    },
-    {
-      id: "Telecommunications",
-      name: t("cat.telecommunications"),
-      icon: "ri-phone-line",
-    },
-    {
-      id: "Textiles & Fabrics",
-      name: t("cat.textilesFabrics"),
-      icon: "ri-shirt-line",
-    },
-    { id: "Toys", name: t("cat.toys"), icon: "ri-gamepad-line" },
-    {
-      id: "Transportation",
-      name: t("cat.transportation"),
-      icon: "ri-truck-line",
-    },
-  ];
+  // Use centralized categories configuration
+  const categoryList = categories.filter(cat => cat.id !== 'all').map(cat => ({
+    id: cat.id,
+    name: getCategoryName(cat.id, language === 'ar' ? 'ar' : 'en'),
+    icon: getCategoryIcon(cat.id)
+  }));
 
   const businessTypes: BusinessType[] = [
     { id: "all", name: t("filters.allTypes"), icon: "ri-building-line" },
@@ -343,7 +191,7 @@ export default function BusinessFilters({
         {/* Search Input */}
         <div className="space-y-1">
           <label className="block text-sm font-medium text-gray-700 rtl:text-right">
-            {t("filters.search")}
+            {t("filters.searchKeyword")}
           </label>
           <div className="relative rounded-md">
             <div
@@ -399,7 +247,19 @@ export default function BusinessFilters({
           {t("filters.categoriesTitle")}
         </h3>
         <div className="space-y-2 max-h-80 overflow-y-auto">
-          {categories.map((category) => (
+          <button
+            key="all"
+            onClick={() => setSelectedCategory("all")}
+            className={`w-full flex items-center space-x-3 p-3 rounded-xl transition-all cursor-pointer ${
+              selectedCategory === "all"
+                ? "bg-yellow-400 text-white shadow-md"
+                : "hover:bg-gray-50 text-gray-700"
+            }`}
+          >
+            <i className="ri-apps-2-line text-sm"></i>
+            <span className="font-medium text-sm">{t("filters.allCategories")}</span>
+          </button>
+          {categoryList.map((category) => (
             <button
               key={category.id}
               onClick={() => setSelectedCategory(category.id)}

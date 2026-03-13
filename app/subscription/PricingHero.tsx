@@ -37,10 +37,10 @@ export default function PricingHero() {
           <p className="text-xl md:text-2xl text-gray-100 mb-8 max-w-3xl mx-auto leading-relaxed">
             {t("subscription.heroDesc")}
           </p>
-
+ 
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-12">
             <button
-              onClick={() => router.push("/auth")}
+              onClick={() => router.push("/add-business")}
               className="bg-white text-gray-800 px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-100 transition-all transform hover:scale-105 shadow-lg whitespace-nowrap cursor-pointer"
             >
               <i className="ri-rocket-line mr-2"></i>

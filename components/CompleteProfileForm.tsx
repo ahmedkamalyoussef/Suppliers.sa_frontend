@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import BranchManagement from "./BranchManagement";
 import { useLanguage } from "./../lib/LanguageContext";
 import { apiService, type ProfileUpdateData } from "./../lib/api";
+import { categories, getCategoryName } from "./../lib/categories";
 import {
   ProfileFormData,
   AdditionalPhone,
@@ -27,55 +28,7 @@ const categoryOptions = [
   { en: "Technology", ar: "تكنولوجيا" },
 ];
 
-// Categories with translations
-const categories = [
-  { en: "Agriculture", ar: "الزراعة" },
-  { en: "Apparel & Fashion", ar: "الملابس والموضة" },
-  { en: "Automobile", ar: "السيارات" },
-  { en: "Brass Hardware & Components", ar: "أدوات ومكونات النحاس" },
-  { en: "Business Services", ar: "الخدمات التجارية" },
-  { en: "Chemicals", ar: "المواد الكيميائية" },
-  { en: "Computer Hardware & Software", ar: "أجهزة وبرامج الكمبيوتر" },
-  // { en: "Construction & Real Estate", ar: "البناء والعقارات" },
-  { en: "Consumer Electronics", ar: "الإلكترونيات الاستهلاكية" },
-  {
-    en: "Electronics & Electrical Supplies",
-    ar: "الإلكترونيات والمستلزمات الكهربائية",
-  },
-  { en: "Energy & Power", ar: "الطاقة والطاقة الكهربائية" },
-  { en: "Environment & Pollution", ar: "البيئة والتلوث" },
-  { en: "Food & Beverage", ar: "الطعام والمشروبات" },
-  { en: "Furniture", ar: "الأثاث" },
-  { en: "Gifts & Crafts", ar: "الهدايا والحرف اليدوية" },
-  { en: "Health & Beauty", ar: "الصحة والجمال" },
-  { en: "Home Supplies", ar: "مستلزمات المنزل" },
-  { en: "Home Textiles & Furnishings", ar: "منسوجات وتجهيزات المنزل" },
-  { en: "Hospital & Medical Supplies", ar: "المستشفيات والمستلزمات الطبية" },
-  { en: "Hotel Supplies & Equipment", ar: "مستلزمات ومعدات الفنادق" },
-  { en: "Industrial Supplies", ar: "المستلزمات الصناعية" },
-  { en: "Jewelry & Gemstones", ar: "المجوهرات والأحجار الكريمة" },
-  { en: "Leather & Leather Products", ar: "الجلد والمنتجات الجلدية" },
-  { en: "Machinery", ar: "المعدات والآلات" },
-  { en: "Mineral & Metals", ar: "المعادن والمعادن" },
-  { en: "Office & School Supplies", ar: "مستلزمات المكتب والمدرسة" },
-  { en: "Oil and Gas", ar: "النفط والغاز" },
-  { en: "Packaging & Paper", ar: "التغليف والورق" },
-  { en: "Pharmaceuticals", ar: "الأدوية" },
-  { en: "Pipes, Tubes & Fittings", ar: "الأنابيب والوصلات" },
-  { en: "Plastics & Products", ar: "اللدائن والمنتجات" },
-  { en: "Printing & Publishing", ar: "الطباعة والنشر" },
-  // { en: "Real Estate", ar: "العقارات" },
-  {
-    en: "Scientific & Laboratory Instruments",
-    ar: "الأدوات العلمية والمخبرية",
-  },
-  { en: "Security & Protection", ar: "الأمن والحماية" },
-  { en: "Sports & Entertainment", ar: "الرياضة والترفيه" },
-  { en: "Telecommunications", ar: "الاتصالات" },
-  { en: "Textiles & Fabrics", ar: "المنسوجات والأقمشة" },
-  { en: "Toys", ar: "الألعاب" },
-  { en: "Transportation", ar: "النقل" },
-];
+// Categories are now imported from centralized config
 
 // Business types with translations
 const businessTypes = [
@@ -170,13 +123,9 @@ export default function CompleteProfileForm({
   const [showBranchManagement, setShowBranchManagement] =
     useState<boolean>(false);
 
-  // Helper function to get translated text
-  const getTranslatedText = (
-    items: Array<{ en: string; ar: string }>,
-    value: string,
-  ): string => {
-    const item = items.find((item) => item.en === value);
-    return item ? item[language as keyof typeof item] : value;
+  // Helper function to get translated text using centralized config
+  const getTranslatedText = (value: string): string => {
+    return getCategoryName(value, language as 'en' | 'ar');
   };
 
   const getTranslatedTextWithValue = (
@@ -188,15 +137,15 @@ export default function CompleteProfileForm({
     return item[language as keyof typeof item] as string;
   };
 
-  // Helper function to get English value from translated text
-  const getEnglishValue = (
-    items: Array<{ en: string; ar: string }>,
-    translatedValue: string,
-  ): string => {
-    const item = items.find(
-      (item) => item.en === translatedValue || item.ar === translatedValue,
+  // Helper function to get English value from translated text using centralized config
+  const getEnglishValue = (translatedValue: string): string => {
+    // Check if the value matches any category name in English or Arabic
+    const category = categories.find(cat => 
+      cat.id === translatedValue || 
+      cat.name.en === translatedValue || 
+      cat.name.ar === translatedValue
     );
-    return item ? item.en : translatedValue;
+    return category ? category.id : translatedValue;
   };
   const saveKeywords = (): void => {
     if (keywordInput.trim()) {
@@ -1497,27 +1446,27 @@ export default function CompleteProfileForm({
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3 max-h-60 md:max-h-80 overflow-y-auto border border-gray-200 rounded-lg p-3 md:p-4">
-                {categories.map((category) => (
+                {categories.filter(cat => cat.id !== 'all').map((category) => (
                   <label
-                    key={category.en}
+                    key={category.id}
                     className={`flex items-center space-x-2 md:space-x-3 p-2 md:p-3 border rounded-lg cursor-pointer transition-all ${
-                      selectedCategories.includes(category.en)
+                      selectedCategories.includes(category.id)
                         ? "border-yellow-400 bg-yellow-50"
                         : "border-gray-200 hover:border-gray-300"
                     }`}
                   >
                     <input
                       type="checkbox"
-                      checked={selectedCategories.includes(category.en)}
+                      checked={selectedCategories.includes(category.id)}
                       onChange={() =>
                         handleCategoryToggle(
-                          category[language as keyof typeof category],
+                          category.name[language as 'en' | 'ar'],
                         )
                       }
                       className="w-4 h-4 text-yellow-400 border-gray-300 rounded focus:ring-yellow-400"
                     />
                     <span className="text-xs md:text-sm text-gray-700">
-                      {category[language as keyof typeof category]}
+                      {category.name[language as 'en' | 'ar']}
                     </span>
                   </label>
                 ))}
@@ -1553,17 +1502,12 @@ export default function CompleteProfileForm({
                   </p>
                   <div className="flex flex-wrap gap-1 md:gap-2">
                     {selectedCategories.map((category) => {
-                      const categoryObj = categories.find(
-                        (c) => c.en === category,
-                      );
                       return (
                         <span
                           key={category}
                           className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs"
                         >
-                          {categoryObj
-                            ? categoryObj[language as keyof typeof categoryObj]
-                            : category}
+                          {getCategoryName(category, language as 'en' | 'ar')}
                         </span>
                       );
                     })}

@@ -15,7 +15,6 @@ export default function PricingPlans() {
   const [plans, setPlans] = useState<any[]>([]);
 
   useEffect(() => {
-    // Clear only old test data, keep authentication
     localStorage.removeItem("temp_token");
     localStorage.removeItem("test_user");
     fetchPlans();
@@ -41,19 +40,8 @@ export default function PricingPlans() {
 
     try {
       const token = localStorage.getItem("supplier_token");
-      console.log("Token found:", !!token);
-      console.log("Token value:", token);
-
-      // Debug: Check all localStorage items
-      console.log("All localStorage items:");
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        const value = localStorage.getItem(key);
-        console.log(`  ${key}: ${value?.substring(0, 50)}...`);
-      }
 
       if (!token) {
-        console.log("No token, redirecting to login");
         router.push("/login?redirect=" + encodeURIComponent("/subscription"));
         return;
       }
@@ -61,7 +49,6 @@ export default function PricingPlans() {
       const userData = JSON.parse(
         localStorage.getItem("supplier_user") || "{}",
       );
-      console.log("User data:", userData);
 
       const customerData = {
         first_name: userData.name?.split(" ")[0] || "Test",
@@ -74,8 +61,6 @@ export default function PricingPlans() {
       };
 
       const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api"}/tap/subscription/payment-test`;
-      console.log("API URL:", apiUrl);
-      console.log("Request data:", { plan_id: planId, customer: customerData });
 
       const response = await fetch(apiUrl, {
         method: "POST",
@@ -89,15 +74,11 @@ export default function PricingPlans() {
         }),
       });
 
-      console.log("Response status:", response.status);
       const data = await response.json();
-      console.log("Response data:", data);
 
       if (data.success) {
-        console.log("Payment URL:", data.data.payment_url);
         window.location.href = data.data.payment_url;
       } else {
-        console.log("Payment failed:", data.message);
         alert(
           language === "ar"
             ? "فشل إنشاء الدفع: " + data.message
@@ -105,7 +86,6 @@ export default function PricingPlans() {
         );
       }
     } catch (error) {
-      console.log("Error in handleSubscribe:", error);
       alert(language === "ar" ? "خطأ في الاتصال" : "Connection error");
     } finally {
       setLoading(false);
@@ -135,10 +115,10 @@ export default function PricingPlans() {
   };
 
   const getPlanByCycle = (cycle: "monthly" | "yearly") => {
-    return plans.find((plan) => plan.billing_cycle === cycle && plan.price > 0);
+    return plans.find((plan) => plan.billing_cycle === cycle && parseFloat(plan.price) > 0);
   };
 
-  const basicPlan = plans.find((plan) => plan.price === 0);
+  const basicPlan = plans.find((plan) => parseFloat(plan.price) === 0);
   const monthlyPlan = getPlanByCycle("monthly");
   const yearlyPlan = getPlanByCycle("yearly");
 
@@ -192,18 +172,18 @@ export default function PricingPlans() {
         </div>
 
         <div className="space-y-3">
-          {plan.price > 0 && (
+          {parseFloat(plan.price) > 0 && (
             <div className="text-center text-sm text-gray-600">
-              <span className="font-medium">
+              {/* <span className="font-medium">
                 {language === "ar"
                   ? "🛡️ ضمان استرداد 30 يوماً"
                   : "🛡️ 30-day money-back guarantee"}
-              </span>
+              </span> */}
               <span className="mx-2">•</span>
               <span className="font-medium">
                 {language === "ar"
-                  ? "🎯 موثوق من +5000 نشاط سعودي"
-                  : "🎯 Trusted by 5000+ Saudi businesses"}
+                  ? "🎯 موثوق من النشاطات التجارية السعودية"
+                  : "🎯 Trusted by Saudi businesses"}
               </span>
             </div>
           )}
@@ -212,7 +192,7 @@ export default function PricingPlans() {
             onClick={() => handleSubscribe(plan.id)}
             disabled={loading || selectedPlan === plan.id}
             className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 ${
-              plan.price === 0
+              parseFloat(plan.price) === 0
                 ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 : "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
             } ${
@@ -225,7 +205,7 @@ export default function PricingPlans() {
               ? language === "ar"
                 ? "جاري المعالجة..."
                 : "Processing..."
-              : plan.price === 0
+              : parseFloat(plan.price) === 0
                 ? language === "ar"
                   ? "ابدأ مجاناً"
                   : "Get Started"
@@ -241,6 +221,7 @@ export default function PricingPlans() {
   return (
     <section className="py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
+
         <div className="flex justify-center mb-16">
           <div className="bg-gray-100 rounded-full p-1 flex">
             <button
@@ -253,6 +234,7 @@ export default function PricingPlans() {
             >
               {language === "ar" ? "شهري" : "Monthly"}
             </button>
+
             <button
               onClick={() => setBillingCycle("yearly")}
               className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
@@ -269,7 +251,7 @@ export default function PricingPlans() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto ">
           {basicPlan && renderPlanCard(basicPlan, false)}
           {billingCycle === "monthly" &&
             monthlyPlan &&
@@ -292,6 +274,7 @@ export default function PricingPlans() {
             </a>
           </p>
         </div>
+
       </div>
     </section>
   );

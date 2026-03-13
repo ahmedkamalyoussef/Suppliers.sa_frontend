@@ -174,7 +174,7 @@ export default function Footer() {
                       <span>{t("footer.helpCenter")}</span>
                     </button>
                   </li>
-                  <li>
+                  {/* <li>
                     <Link
                       href="/business-guides"
                       className="text-gray-600 hover:text-yellow-600 transition-colors flex items-center"
@@ -182,7 +182,7 @@ export default function Footer() {
                       <i className="ri-guide-line text-yellow-500 mr-2 w-4 h-4 flex items-center justify-center"></i>
                       <span>{t("footer.businessGuides")}</span>
                     </Link>
-                  </li>
+                  </li> */}
                   <li>
                     <Link
                       href="/success-stories"

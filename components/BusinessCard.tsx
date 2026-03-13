@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import MessageModal from "./MessageModal";
 import companyImg from "../lib/assets/company.png";
 import { getApiUrl } from "../lib/config";
+import { getCategoryIcon, getCategoryColor } from "../lib/categories";
 
 interface Business {
   id: number;
@@ -257,9 +258,14 @@ export default function BusinessCard({
                     )}
                   </div>
 
-                  <p className="text-yellow-600 font-medium text-sm mb-3">
-                    {business.category}
-                  </p>
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className={`bg-gradient-to-r ${getCategoryColor(business.category)} w-6 h-6 rounded-lg flex items-center justify-center`}>
+                      <i className={`${getCategoryIcon(business.category)} text-white text-xs`}></i>
+                    </div>
+                    <p className="text-gray-700 font-medium text-sm">
+                      {business.category}
+                    </p>
+                  </div>
 
                   <div className="flex items-center mb-3">
                     <div className="flex items-center space-x-1">
@@ -408,13 +414,18 @@ export default function BusinessCard({
 
       <div className="p-6 flex-1 flex flex-col">
         <div className="mb-3">
-          <h3 className="text-lg font-bold text-gray-800 mb-1">
+          <h3 className="text-lg font-bold text-gray-800 mb-2">
             {business.name}
           </h3>
-          <p className="text-yellow-600 font-medium text-sm">
-            {business.category}
-          </p>
-          <p className="text-gray-500 text-xs mt-1">{business.location}</p>
+          <div className="flex items-center gap-2 mb-1">
+            <div className={`bg-gradient-to-r ${getCategoryColor(business.category)} w-5 h-5 rounded-lg flex items-center justify-center`}>
+              <i className={`${getCategoryIcon(business.category)} text-white text-xs`}></i>
+            </div>
+            <p className="text-gray-700 font-medium text-sm">
+              {business.category}
+            </p>
+          </div>
+          <p className="text-gray-500 text-xs">{business.location}</p>
         </div>
 
         <div className="flex items-center mb-4">
