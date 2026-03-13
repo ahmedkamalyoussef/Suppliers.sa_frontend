@@ -95,7 +95,7 @@ export default function FeaturedBusinesses({
 
   return (
     <section className="py-8 sm:py-10 md:py-12 bg-white">
-      <div className="w-full px-3 sm:px-4 md:px-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8 sm:mb-10 md:mb-12">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-3 sm:mb-4">
             {t("featuredBusinessesTitle")}
@@ -105,7 +105,7 @@ export default function FeaturedBusinesses({
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
           {displayedBusinesses.map((business) => (
             <BusinessCard
               key={business.id}
@@ -120,7 +120,7 @@ export default function FeaturedBusinesses({
           <div className="text-center mt-8 sm:mt-10 md:mt-12">
             <button 
               onClick={() => setShowAllBusinesses(!showAllBusinesses)}
-              className="bg-yellow-400 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full hover:bg-yellow-500 font-semibold text-base sm:text-lg whitespace-nowrap cursor-pointer"
+              className="bg-yellow-400 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full hover:bg-yellow-500 font-semibold text-base sm:text-lg whitespace-nowrap cursor-pointer mx-4"
             >
               {showAllBusinesses ? t("showLess") : t("showMore")}
             </button>

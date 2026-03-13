@@ -292,8 +292,8 @@ export default function TopSuppliers() {
               >
                 {topSuppliers.map((supplier) => (
                   <SwiperSlide key={supplier.id}>
-                    <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 cursor-pointer h-full flex flex-col">
-                      <div className="relative h-32 sm:h-40 md:h-48 lg:h-56 overflow-hidden flex-shrink-0">
+                    <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100 cursor-pointer h-full flex flex-col max-w-xs">
+                      <div className="relative h-28 overflow-hidden flex-shrink-0">
                         <img
                           src={supplier.image}
                           alt={supplier.name}
@@ -330,18 +330,18 @@ export default function TopSuppliers() {
                         </div>
                       </div>
 
-                      <div className="p-4 flex-1 flex flex-col">
+                      <div className="p-3 flex-1 flex flex-col">
                         <h3 className="text-sm font-bold text-gray-800 mb-1">
                           {supplier.name}
                         </h3>
-                        <p className="text-yellow-600 font-medium text-xs">
+                        <p className="text-yellow-600 font-medium text-xs mb-1">
                           {supplier.category}
                         </p>
-                        <p className="text-gray-500 text-xs mt-1">
+                        <p className="text-gray-500 text-xs mb-2">
                           {supplier.specialization}
                         </p>
 
-                        <div className="flex items-center mt-2 text-xs">
+                        <div className="flex items-center mb-2 text-xs">
                           {[...Array(5)].map((_, i) => (
                             <i
                               key={i}
@@ -360,8 +360,8 @@ export default function TopSuppliers() {
                           </span>
                         </div>
 
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {supplier.features.map(
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          {supplier.features.slice(0, 2).map(
                             (feature: string, index: number) => (
                               <span
                                 key={index}
@@ -382,7 +382,7 @@ export default function TopSuppliers() {
                           {supplier.allow_direct_contact && isLoggedIn() && (
                             <button
                               onClick={() => handleMessageClick(supplier)}
-                              className="flex-1 bg-yellow-400 text-white py-2 rounded-lg hover:bg-yellow-500 text-xs font-medium transition-colors"
+                              className="flex-1 bg-yellow-400 text-white py-1.5 px-2 rounded-lg hover:bg-yellow-500 text-xs font-medium transition-colors"
                             >
                               <i className="ri-message-line mr-1"></i>{" "}
                               {t("topSuppliers.message")}
@@ -395,7 +395,7 @@ export default function TopSuppliers() {
                               supplier.allow_direct_contact && isLoggedIn()
                                 ? "flex-1"
                                 : "w-full"
-                            } border border-yellow-400 text-yellow-600 py-2 rounded-lg hover:bg-yellow-50 text-xs font-medium text-center transition-colors`}
+                            } border border-yellow-400 text-yellow-600 py-1.5 px-2 rounded-lg hover:bg-yellow-50 text-xs font-medium text-center transition-colors`}
                           >
                             {t("topSuppliers.viewDetails")}
                           </Link>

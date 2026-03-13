@@ -102,7 +102,7 @@ export default function PublicBusinessProfile({
   const [isSendingReply, setIsSendingReply] = useState(false);
   const [replyError, setReplyError] = useState("");
   const [supplierState, setSupplierState] = useState(supplier);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user } = useAuth();
 
   // Check if the current user is viewing their own profile

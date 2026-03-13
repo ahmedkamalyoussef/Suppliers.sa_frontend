@@ -352,8 +352,8 @@ export default function BusinessCard({
   }
 
   const businessCardElement = (
-    <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 cursor-pointer h-full flex flex-col">
-      <div className="relative h-48 overflow-hidden">
+    <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100 cursor-pointer h-full flex flex-col max-w-sm">
+      <div className="relative h-36 overflow-hidden">
         <img
           src={getBusinessAvatarUrl(business.image)}
           alt={business.name}
@@ -363,11 +363,11 @@ export default function BusinessCard({
             target.src = companyImg.src;
           }}
         />
-        <div className="absolute top-4 right-4  rounded-full shadow-md">
+        <div className="absolute top-3 right-3  rounded-full shadow-md">
           <div
             className={`${getStatusColor(
               business.status || "unknown",
-            )} px-3 py-1 rounded-full flex items-center space-x-1`}
+            )} px-2 py-1 rounded-full flex items-center space-x-1`}
           >
             <i
               className={`${getStatusIcon(
@@ -380,16 +380,16 @@ export default function BusinessCard({
             </span>
           </div>
         </div>
-        <div className="absolute top-4 left-4 flex items-center space-x-2">
+        <div className="absolute top-3 left-3 flex items-center space-x-2">
           <div
             className={`${getBusinessTypeColor(
               business.businessType,
-            )} px-3 py-1 rounded-full flex items-center space-x-1 shadow-md`}
+            )} px-2 py-1 rounded-full flex items-center space-x-1 shadow-md`}
           >
             <i
               className={`${getBusinessTypeIcon(
                 business.businessType,
-              )} text-sm`}
+              )} text-xs`}
             ></i>
             <span className="text-xs font-medium">
               {t(
@@ -406,34 +406,34 @@ export default function BusinessCard({
           )}
         </div>
         {business.openNow && (
-          <div className="absolute bottom-4 left-4 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium shadow-md">
+          <div className="absolute bottom-3 left-3 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium shadow-md">
             {t("businessCard.openNow")}
           </div>
         )}
       </div>
 
-      <div className="p-6 flex-1 flex flex-col">
-        <div className="mb-3">
-          <h3 className="text-lg font-bold text-gray-800 mb-2">
+      <div className="p-4 flex-1 flex flex-col">
+        <div className="mb-2">
+          <h3 className="text-base font-bold text-gray-800 mb-1">
             {business.name}
           </h3>
           <div className="flex items-center gap-2 mb-1">
-            <div className={`bg-gradient-to-r ${getCategoryColor(business.category)} w-5 h-5 rounded-lg flex items-center justify-center`}>
+            <div className={`bg-gradient-to-r ${getCategoryColor(business.category)} w-4 h-4 rounded-lg flex items-center justify-center`}>
               <i className={`${getCategoryIcon(business.category)} text-white text-xs`}></i>
             </div>
-            <p className="text-gray-700 font-medium text-sm">
+            <p className="text-gray-700 font-medium text-xs">
               {getCategoryName(business.category, language === 'ar' ? 'ar' : 'en')}
             </p>
           </div>
           <p className="text-gray-500 text-xs">{business.location}</p>
         </div>
 
-        <div className="flex items-center mb-4">
+        <div className="flex items-center mb-3">
           <div className="flex items-center space-x-1">
             {[...Array(5)].map((_, i) => (
               <i
                 key={i}
-                className={`text-sm ${
+                className={`text-xs ${
                   i < Math.floor(business.rating)
                     ? "ri-star-fill text-yellow-400"
                     : "ri-star-line text-gray-300"
@@ -441,38 +441,38 @@ export default function BusinessCard({
               ></i>
             ))}
           </div>
-          <span className="text-sm text-gray-600 ml-2">
+          <span className="text-xs text-gray-600 ml-2">
             {business.rating} ({business.reviews})
           </span>
         </div>
 
-        <div className="mb-4 space-y-2">
+        <div className="mb-3 space-y-1">
           <div className="flex items-center text-xs text-gray-600">
-            <i className="ri-group-line w-4 h-4 flex items-center justify-center mr-2"></i>
+            <i className="ri-group-line w-3 h-3 flex items-center justify-center mr-2"></i>
             <span>
-              {t("businessCard.serves")}: {business.services.join(", ")}
+              {t("businessCard.serves")}: {business.services.slice(0, 2).join(", ")}
             </span>
           </div>
           <div className="flex items-center text-xs text-gray-600">
-            <i className="ri-map-pin-range-line w-4 h-4 flex items-center justify-center mr-2"></i>
+            <i className="ri-map-pin-range-line w-3 h-3 flex items-center justify-center mr-2"></i>
             <span>
               {t("businessCard.serviceArea")}: {business.serviceDistance}
             </span>
           </div>
         </div>
 
-        <div className="mb-4 flex-1">
-          <div className="flex flex-wrap gap-2">
+        <div className="mb-3 flex-1">
+          <div className="flex flex-wrap gap-1">
             {business.services.slice(0, 2).map((service, index) => (
               <span
                 key={index}
-                className="bg-yellow-50 text-yellow-700 px-3 py-1 rounded-full text-xs font-medium"
+                className="bg-yellow-50 text-yellow-700 px-2 py-1 rounded-full text-xs font-medium"
               >
                 {service}
               </span>
             ))}
             {business.services.length > 2 && (
-              <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-medium">
+              <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs font-medium">
                 +{business.services.length - 2} {t("businessCard.more")}
               </span>
             )}
@@ -485,9 +485,9 @@ export default function BusinessCard({
             isLoggedIn() && (
               <button
                 onClick={() => setShowMessageModal(true)}
-                className={`flex-1 py-2 px-3 rounded-lg font-medium text-xs whitespace-nowrap cursor-pointer bg-yellow-400 text-white hover:bg-yellow-500`}
+                className={`flex-1 py-1.5 px-2 rounded-lg font-medium text-xs whitespace-nowrap cursor-pointer bg-yellow-400 text-white hover:bg-yellow-500`}
               >
-                <i className="ri-message-line mr-2"></i>
+                <i className="ri-message-line mr-1"></i>
                 {t("businessCard.message")}
               </button>
             )}
@@ -498,7 +498,7 @@ export default function BusinessCard({
               business.preferences?.allow_direct_contact !== false
                 ? "flex-1"
                 : "w-full"
-            } border border-yellow-400 text-yellow-600 py-2 px-3 rounded-lg hover:bg-yellow-50 font-medium text-xs whitespace-nowrap cursor-pointer text-center`}
+            } border border-yellow-400 text-yellow-600 py-1.5 px-2 rounded-lg hover:bg-yellow-50 font-medium text-xs whitespace-nowrap cursor-pointer text-center`}
           >
             {t("businessCard.viewProfile")}
           </button>

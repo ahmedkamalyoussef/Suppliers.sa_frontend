@@ -763,21 +763,7 @@ export default function SearchSection() {
                     </div>
                   )}
 
-                  {/* Map Controls Info */}
-                  <div
-                    className={`absolute bottom-2 sm:bottom-4 ${
-                      isRTL ? "left-2 sm:left-4" : "right-2 sm:right-4"
-                    } bg-white rounded-lg shadow-lg p-2 z-10`}
-                  >
-                    <p className="text-xs text-gray-600 flex items-center space-x-1">
-                      <i className="ri-information-line text-blue-500"></i>
-                      <span>
-                        {t("clickMarkersInfo") ||
-                          "Click on markers for details"}
-                      </span>
-                    </p>
                   </div>
-                </div>
 
                 {/* Removed bottom details panel; details now shown in map tooltip */}
               </div>
