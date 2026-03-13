@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import MessageModal from "./MessageModal";
 import companyImg from "../lib/assets/company.png";
 import { getApiUrl } from "../lib/config";
-import { getCategoryIcon, getCategoryColor } from "../lib/categories";
+import { getCategoryIcon, getCategoryColor, getCategoryName } from "../lib/categories";
 
 interface Business {
   id: number;
@@ -47,7 +47,7 @@ export default function BusinessCard({
   business,
   viewMode = "grid",
 }: BusinessCardProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const [showMessageModal, setShowMessageModal] = useState(false);
 
@@ -263,7 +263,7 @@ export default function BusinessCard({
                       <i className={`${getCategoryIcon(business.category)} text-white text-xs`}></i>
                     </div>
                     <p className="text-gray-700 font-medium text-sm">
-                      {business.category}
+                      {getCategoryName(business.category, language === 'ar' ? 'ar' : 'en')}
                     </p>
                   </div>
 
@@ -422,7 +422,7 @@ export default function BusinessCard({
               <i className={`${getCategoryIcon(business.category)} text-white text-xs`}></i>
             </div>
             <p className="text-gray-700 font-medium text-sm">
-              {business.category}
+              {getCategoryName(business.category, language === 'ar' ? 'ar' : 'en')}
             </p>
           </div>
           <p className="text-gray-500 text-xs">{business.location}</p>

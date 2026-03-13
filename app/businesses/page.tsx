@@ -14,6 +14,7 @@ import BusinessCard from "../../components/BusinessCard";
 import AIChatWidget from "../../components/AIChatWidget";
 import AIFilterBar from "../../components/AIFilterBar";
 import { apiService } from "../../lib/api";
+import { categories, getCategoryName } from "../../lib/categories";
 
 export interface Business {
   id: number;
@@ -64,7 +65,7 @@ type AIFilterPayload = {
 
 // Suspense wrapper for useSearchParams
 function BusinessesContent() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { aiSearchQuery } = useAISearch();
   const searchParams = useSearchParams();
   const [selectedDistance, setSelectedDistance] = useState<string>("");
@@ -496,212 +497,13 @@ function BusinessesContent() {
       );
     }
 
-    // Categories list matching SearchSection.tsx
-    const categories = [
-      {
-        id: "all",
-        name: t("filters.allCategories") || "All Categories",
-        icon: "ri-apps-2-line",
-        color: "from-purple-400 to-purple-600",
-      },
-      {
-        id: "Agriculture",
-        name: t("cat.agriculture") || "Agriculture",
-        icon: "ri-leaf-line",
-        color: "from-green-400 to-green-600",
-      },
-      {
-        id: "Apparel & Fashion",
-        name: t("cat.apparelFashion") || "Apparel & Fashion",
-        icon: "ri-t-shirt-line",
-        color: "from-blue-400 to-blue-600",
-      },
-      {
-        id: "Automobile",
-        name: t("cat.automobile") || "Automobile",
-        icon: "ri-car-line",
-        color: "from-red-400 to-red-600",
-      },
-      {
-        id: "Brass Hardware & Components",
-        name: t("cat.brassHardware") || "Brass Hardware & Components",
-        icon: "ri-tools-line",
-        color: "from-yellow-400 to-yellow-600",
-      },
-      {
-        id: "Business Services",
-        name: t("cat.businessServices") || "Business Services",
-        icon: "ri-briefcase-line",
-        color: "from-purple-500 to-purple-700",
-      },
-      {
-        id: "Chemicals",
-        name: t("cat.chemicals") || "Chemicals",
-        icon: "ri-flask-line",
-        color: "from-blue-300 to-blue-500",
-      },
-      {
-        id: "Computer Hardware & Software",
-        name:
-          t("cat.computerHardwareSoftware") || "Computer Hardware & Software",
-        icon: "ri-computer-line",
-        color: "from-indigo-400 to-indigo-600",
-      },
-      // {
-      //   id: "Construction & Real Estate",
-      //   name: t("cat.constructionRealEstate") || "Construction & Real Estate",
-      //   icon: "ri-building-line",
-      //   color: "from-orange-400 to-orange-600",
-      // },
-      {
-        id: "Consumer Electronics",
-        name: t("cat.consumerElectronics") || "Consumer Electronics",
-        icon: "ri-smartphone-line",
-        color: "from-blue-400 to-blue-600",
-      },
-      {
-        id: "Electronics & Electrical Supplies",
-        name:
-          t("cat.electronicsElectrical") || "Electronics & Electrical Supplies",
-        icon: "ri-plug-line",
-        color: "from-yellow-400 to-yellow-600",
-      },
-      {
-        id: "Energy & Power",
-        name: t("cat.energyPower") || "Energy & Power",
-        icon: "ri-flashlight-line",
-        color: "from-yellow-400 to-yellow-600",
-      },
-      {
-        id: "Environment & Pollution",
-        name: t("cat.environmentPollution") || "Environment & Pollution",
-        icon: "ri-leaf-line",
-        color: "from-green-500 to-green-700",
-      },
-      {
-        id: "Food & Beverage",
-        name: t("cat.foodBeverage") || "Food & Beverage",
-        icon: "ri-restaurant-line",
-        color: "from-orange-400 to-red-500",
-      },
-      {
-        id: "Furniture",
-        name: t("cat.furniture") || "Furniture",
-        icon: "ri-sofa-line",
-        color: "from-amber-400 to-orange-500",
-      },
-      {
-        id: "Gifts & Crafts",
-        name: t("cat.giftsCrafts") || "Gifts & Crafts",
-        icon: "ri-gift-line",
-        color: "from-pink-400 to-rose-500",
-      },
-      {
-        id: "Health & Beauty",
-        name: t("cat.healthBeauty") || "Health & Beauty",
-        icon: "ri-scissors-line",
-        color: "from-fuchsia-400 to-pink-500",
-      },
-      {
-        id: "Home Supplies",
-        name: t("cat.homeSupplies") || "Home Supplies",
-        icon: "ri-home-line",
-        color: "from-amber-300 to-amber-500",
-      },
-      {
-        id: "Home Textiles & Furnishings",
-        name: t("cat.homeTextiles") || "Home Textiles & Furnishings",
-        icon: "ri-store-line",
-        color: "from-emerald-300 to-emerald-500",
-      },
-      {
-        id: "Hospital & Medical Supplies",
-        name: t("cat.hospitalMedical") || "Hospital & Medical Supplies",
-        icon: "ri-hospital-line",
-        color: "from-red-300 to-red-500",
-      },
-      {
-        id: "Hotel Supplies & Equipment",
-        name: t("cat.hotelSupplies") || "Hotel Supplies & Equipment",
-        icon: "ri-hotel-line",
-        color: "from-blue-300 to-blue-500",
-      },
-      {
-        id: "Industrial Supplies",
-        name: t("cat.industrialSupplies") || "Industrial Supplies",
-        icon: "ri-tools-line",
-        color: "from-gray-400 to-gray-600",
-      },
-      {
-        id: "Jewelry & Gemstones",
-        name: t("cat.jewelryGemstones") || "Jewelry & Gemstones",
-        icon: "ri-gem-line",
-        color: "from-yellow-300 to-yellow-500",
-      },
-      {
-        id: "Leather & Leather Products",
-        name: t("cat.leatherProducts") || "Leather & Leather Products",
-        icon: "ri-suitcase-line",
-        color: "from-amber-600 to-amber-800",
-      },
-      {
-        id: "Office & School Supplies",
-        name: t("cat.officeSchool") || "Office & School Supplies",
-        icon: "ri-book-line",
-        color: "from-blue-300 to-blue-500",
-      },
-      {
-        id: "Oil and Gas",
-        name: t("cat.oilGas") || "Oil and Gas",
-        icon: "ri-oil-line",
-        color: "from-gray-700 to-gray-900",
-      },
-      {
-        id: "Plastics & Products",
-        name: t("cat.plasticsProducts") || "Plastics & Products",
-        icon: "ri-bubble-chart-line",
-        color: "from-blue-300 to-blue-500",
-      },
-      {
-        id: "Printing & Publishing",
-        name: t("cat.printingPublishing") || "Printing & Publishing",
-        icon: "ri-printer-line",
-        color: "from-purple-400 to-purple-600",
-      },
-      {
-        id: "Security & Protection",
-        name: t("cat.securityProtection") || "Security & Protection",
-        icon: "ri-shield-line",
-        color: "from-red-500 to-red-700",
-      },
-      {
-        id: "Sports & Entertainment",
-        name: t("cat.sportsEntertainment") || "Sports & Entertainment",
-        icon: "ri-football-line",
-        color: "from-green-500 to-green-700",
-      },
-      {
-        id: "Telecommunications",
-        name: t("cat.telecommunications") || "Telecommunications",
-        icon: "ri-phone-line",
-        color: "from-blue-400 to-blue-600",
-      },
-      {
-        id: "Textiles & Fabrics",
-        name: t("cat.textilesFabrics") || "Textiles & Fabrics",
-        icon: "ri-scissors-line",
-        color: "from-pink-400 to-pink-600",
-      },
-    ];
+    // Categories are now imported from centralized config
 
     // Apply category filter
     if (selectedCategory && selectedCategory !== "all") {
       filtered = filtered.filter((business: Business) => {
-        // Find the category object to get the display name
-        const categoryObj = categories.find(
-          (cat) => cat.id === selectedCategory,
-        );
-        const categoryName = categoryObj ? categoryObj.name : selectedCategory;
+        // Use centralized category name
+        const categoryName = getCategoryName(selectedCategory, language === 'ar' ? 'ar' : 'en');
 
         // Check if business category matches either ID or display name
         return (

@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import type React from "react";
 import { useLanguage } from "../lib/LanguageContext";
+import { getCategoryName } from "../lib/categories";
 import type { Branch } from "../lib/types";
 type BranchWorkingHoursDay = {
   open: string;
@@ -44,7 +45,7 @@ export default function BranchManagement({
   onDeleteBranch,
   onToggleBranchStatus,
 }: BranchManagementProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const workingHoursInputRefs = useRef<
     Record<
       string,
@@ -350,7 +351,10 @@ export default function BranchManagement({
               {mainBusinessData.businessName}
             </h3>
             <p className="text-blue-600 text-sm">
-              {mainBusinessData.category} • {mainBusinessData.businessType}
+              {typeof mainBusinessData.category === 'string' 
+                ? getCategoryName(mainBusinessData.category, language === 'ar' ? 'ar' : 'en')
+                : (mainBusinessData.category as any)?.en || mainBusinessData.category || 'Unknown'
+              } • {mainBusinessData.businessType}
             </p>
           </div>
         </div>

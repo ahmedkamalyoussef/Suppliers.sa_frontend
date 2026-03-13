@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import type React from "react";
 import { useLanguage } from "../lib/LanguageContext";
 import { useAuth } from "../hooks/useAuth";
+import { getCategoryName } from "../lib/categories";
 
 type TimeRange = "7days" | "30days" | "90days" | "1year";
 type ChartKey = "revenue" | "users" | "businesses" | "subscriptions";
@@ -35,7 +36,7 @@ type ActivityRow = {
 };
 
 export default function AdminAnalytics() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user } = useAuth();
 
   const [accessDenied, setAccessDenied] = useState<boolean>(false);

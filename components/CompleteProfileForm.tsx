@@ -3,10 +3,12 @@
 import { SetStateAction, useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { toast } from "react-toastify";
 import BranchManagement from "./BranchManagement";
 import { useLanguage } from "./../lib/LanguageContext";
 import { apiService, type ProfileUpdateData } from "./../lib/api";
 import { categories, getCategoryName } from "./../lib/categories";
+import { validateSaudiLocation } from "./../lib/saudiLocationValidation";
 import {
   ProfileFormData,
   AdditionalPhone,
@@ -737,8 +739,17 @@ export default function CompleteProfileForm({
     }));
   };
 
+  // Helper function to get English value from service/customer options
+  const getEnglishValueFromOptions = (
+    items: Array<{ en: string; ar: string }>,
+    value: string,
+  ): string => {
+    const item = items.find((item) => item.en === value || item.ar === value);
+    return item ? item.en : value;
+  };
+
   const handleServiceToggle = (service: string): void => {
-    const englishService = getEnglishValue(serviceOptions, service);
+    const englishService = getEnglishValueFromOptions(serviceOptions, service);
     const newServices = selectedServices.includes(englishService)
       ? selectedServices.filter((s) => s !== englishService)
       : [...selectedServices, englishService];
@@ -751,7 +762,7 @@ export default function CompleteProfileForm({
   };
 
   const handleTargetCustomerToggle = (customer: string): void => {
-    const englishCustomer = getEnglishValue(targetCustomerOptions, customer);
+    const englishCustomer = getEnglishValueFromOptions(targetCustomerOptions, customer);
     const newCustomers = selectedTargetCustomers.includes(englishCustomer)
       ? selectedTargetCustomers.filter((c) => c !== englishCustomer)
       : [...selectedTargetCustomers, englishCustomer];
@@ -899,16 +910,32 @@ export default function CompleteProfileForm({
     lat: number;
     lng: number;
   }) => {
-    const city = await getCityFromCoordinates(location.lat, location.lng);
+    // Validate if location is within Saudi Arabia using Google Maps API
+    const validatedLocation = await validateSaudiLocation(location.lat, location.lng);
+    
+    // Show warning if location is outside Saudi Arabia
+    if (!validatedLocation.isWithinSaudi) {
+      toast.warning(
+        language === 'ar' 
+          ? `تم اكتشاف موقع خارج السعودية. تم التعديل إلى ${validatedLocation.correctedTo}.`
+          : `Location detected outside Saudi Arabia. Adjusted to ${validatedLocation.correctedTo}.`,
+        {
+          position: "top-center",
+          autoClose: 5000,
+        }
+      );
+    }
+    
+    const city = await getCityFromCoordinates(validatedLocation.lat, validatedLocation.lng);
     setFormData((prev) => ({
       ...prev,
       address: city, // Set address to just the city name
       location: {
-        lat: location.lat,
-        lng: location.lng,
+        lat: validatedLocation.lat,
+        lng: validatedLocation.lng,
       },
     }));
-    setSelectedLocation(location);
+    setSelectedLocation({ lat: validatedLocation.lat, lng: validatedLocation.lng });
   };
 
   const validateStep = (step: number): boolean => {
@@ -1197,7 +1224,7 @@ export default function CompleteProfileForm({
   ];
 
   const handleCategoryToggle = (category: string): void => {
-    const englishCategory = getEnglishValue(categories, category);
+    const englishCategory = getEnglishValue(category);
     const newCategories = selectedCategories.includes(englishCategory)
       ? selectedCategories.filter((c) => c !== englishCategory)
       : [...selectedCategories, englishCategory];
@@ -1460,13 +1487,13 @@ export default function CompleteProfileForm({
                       checked={selectedCategories.includes(category.id)}
                       onChange={() =>
                         handleCategoryToggle(
-                          category.name[language as 'en' | 'ar'],
+                          category.id,
                         )
                       }
                       className="w-4 h-4 text-yellow-400 border-gray-300 rounded focus:ring-yellow-400"
                     />
                     <span className="text-xs md:text-sm text-gray-700">
-                      {category.name[language as 'en' | 'ar']}
+                      {getCategoryName(category.id, language as 'en' | 'ar')}
                     </span>
                   </label>
                 ))}
@@ -2604,7 +2631,7 @@ export default function CompleteProfileForm({
                     <span className="font-medium">
                       {t("completeProfile.step6.category")}:
                     </span>{" "}
-                    {formData.category}
+                    {getCategoryName(formData.category, language === 'ar' ? 'ar' : 'en')}
                   </p>
                   <p>
                     <span className="font-medium">

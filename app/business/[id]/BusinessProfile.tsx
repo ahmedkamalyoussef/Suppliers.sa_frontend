@@ -7,6 +7,7 @@ import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 import Link from "next/link";
 import { apiService } from "../../../lib/api";
+import { getCategoryName } from "@/lib/categories";
 import { BusinessProfile as BusinessProfileType } from "../../../lib/api";
 import { useAuth } from "@/lib/UserContext";
 
@@ -122,7 +123,7 @@ export default function BusinessProfile() {
     };
   }, [businessId, sessionId]);
 
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [businessProfile, setBusinessProfile] =
     useState<BusinessProfileType | null>(null);
   const [businessPreferences, setBusinessPreferences] = useState<any>(null);
@@ -592,7 +593,10 @@ export default function BusinessProfile() {
               <div className="max-w-4xl">
                 <div className="flex flex-wrap items-center gap-2 md:gap-4 mb-3 md:mb-4">
                   <span className="bg-yellow-400 text-white px-3 py-1 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium">
-                    {business.category}
+                    {typeof business.category === 'string' 
+                      ? getCategoryName(business.category, language === 'ar' ? 'ar' : 'en')
+                      : (business.category as any)?.en || business.category || 'Unknown'
+                    }
                   </span>
                   <div
                     className={`${getBusinessTypeColor(

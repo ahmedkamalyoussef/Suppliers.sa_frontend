@@ -5,6 +5,7 @@ import { useLanguage } from "@/lib/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-toastify";
 import { AdminInquiry } from "@/lib/types";
+import { getCategoryName } from "@/lib/categories";
 
 interface Business {
   id: number;
@@ -64,7 +65,7 @@ interface Tab {
 }
 
 export default function ContentManagement() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user } = useAuth();
 
   const [accessDenied, setAccessDenied] = useState<boolean>(false);
@@ -1018,7 +1019,7 @@ export default function ContentManagement() {
                         </td>
                         <td className="py-4 px-4 sm:px-6">
                           <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs sm:text-sm">
-                            {business.category}
+                            {getCategoryName(business.category, language === 'ar' ? 'ar' : 'en')}
                           </span>
                         </td>
                         <td className="py-4 px-4 sm:px-6">

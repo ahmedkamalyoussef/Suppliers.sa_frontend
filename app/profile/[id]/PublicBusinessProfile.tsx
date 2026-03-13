@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import type React from "react";
+import { getCategoryName } from "@/lib/categories";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 import Link from "next/link";
@@ -427,7 +428,10 @@ export default function PublicBusinessProfile({
                   <div>
                     <div className="flex items-center gap-3 mb-3">
                       <span className="bg-yellow-400 text-white px-4 py-2 rounded-full text-sm font-semibold">
-                        {business.category}
+                        {typeof business.category === 'string' 
+                          ? getCategoryName(business.category, language === 'ar' ? 'ar' : 'en')
+                          : (business.category as any)?.en || business.category || 'Unknown'
+                        }
                       </span>
                       <div className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full flex items-center gap-2 border border-yellow-200 backdrop-blur-sm">
                         <i className="ri-store-3-line text-sm"></i>

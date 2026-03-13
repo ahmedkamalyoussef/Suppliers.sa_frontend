@@ -2,6 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useLanguage } from "../lib/LanguageContext"; // تأكد من المسار
+import { validateSaudiLocation } from "../lib/saudiLocationValidation";
+import { toast } from "react-toastify";
 
 const GOOGLE_MAPS_SCRIPT_ID = "google-maps-js";
 
@@ -146,11 +148,44 @@ export default function BusinessLocationMap({
   isEditing = false, // Default to false
   alwaysEditable = false,
 }: BusinessLocationMapProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const canEdit = alwaysEditable || isEditing;
   const [selectedCity, setSelectedCity] = useState<string>("");
   const [customAddress, setCustomAddress] = useState<string>("");
   const [locationMethod, setLocationMethod] = useState<LocationMethod>("map");
+  
+  // Set default to Riyadh if no location provided or if location is invalid
+  useEffect(() => {
+    if (!selectedLocation || !selectedLocation.lat || !selectedLocation.lng) {
+      setSelectedLocation({
+        lat: 24.7136, // Riyadh coordinates
+        lng: 46.6753
+      });
+    }
+  }, [selectedLocation, setSelectedLocation]);
+
+  // Wrapper function to validate Saudi boundaries before setting location (async)
+  const setValidatedLocation = async (location: Location) => {
+    const validatedLocation = await validateSaudiLocation(location.lat, location.lng);
+    
+    if (!validatedLocation.isWithinSaudi) {
+      // Show toast warning and automatically move marker to Riyadh
+      toast.warning(
+        language === 'ar' 
+          ? 'الموقع يجب أن يكون داخل السعودية. سيتم تحريك الموقع تلقائياً إلى الرياض.'
+          : 'Location must be within Saudi Arabia. The location will be automatically moved to Riyadh.',
+        {
+          position: "top-center",
+          autoClose: 4000,
+        }
+      );
+    }
+    
+    setSelectedLocation({
+      lat: validatedLocation.lat,
+      lng: validatedLocation.lng
+    });
+  };
 
   // FIX: حالة للتأكد أننا في المتصفح وليس السيرفر
   const [isMounted, setIsMounted] = useState(false);
@@ -233,7 +268,7 @@ export default function BusinessLocationMap({
       "dragend",
       (e: any) => {
         if (!e?.latLng) return;
-        setSelectedLocation({
+        setValidatedLocation({
           lat: parseFloat(e.latLng.lat().toFixed(6)),
           lng: parseFloat(e.latLng.lng().toFixed(6)),
         });
@@ -249,7 +284,7 @@ export default function BusinessLocationMap({
       (e: any) => {
         if (!canEditRef.current) return;
         if (!e?.latLng) return;
-        setSelectedLocation({
+        setValidatedLocation({
           lat: parseFloat(e.latLng.lat().toFixed(6)),
           lng: parseFloat(e.latLng.lng().toFixed(6)),
         });
@@ -311,7 +346,7 @@ export default function BusinessLocationMap({
     if (mapRef.current) {
       const center = mapRef.current.getCenter();
       if (!center) return;
-      setSelectedLocation({
+      setValidatedLocation({
         lat: parseFloat(center.lat().toFixed(6)),
         lng: parseFloat(center.lng().toFixed(6)),
       });
@@ -321,7 +356,7 @@ export default function BusinessLocationMap({
   const handleCitySelect = (cityName: string): void => {
     const city = saudiCities.find((c) => c.name === cityName);
     if (city) {
-      setSelectedLocation({
+      setValidatedLocation({
         lat: city.lat,
         lng: city.lng,
       });
@@ -348,7 +383,7 @@ export default function BusinessLocationMap({
         alert(t("map.cannotGetLocation"));
         return;
       }
-      setSelectedLocation({
+      setValidatedLocation({
         lat: parseFloat(loc.lat().toFixed(6)),
         lng: parseFloat(loc.lng().toFixed(6)),
       });
@@ -363,7 +398,7 @@ export default function BusinessLocationMap({
         (position) => {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
-          setSelectedLocation({
+          setValidatedLocation({
             lat: parseFloat(lat.toFixed(6)),
             lng: parseFloat(lng.toFixed(6)),
           });

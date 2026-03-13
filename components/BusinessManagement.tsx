@@ -8,6 +8,7 @@ import BranchManagement from "./BranchManagement";
 import { useLanguage } from "./../lib/LanguageContext";
 import { useAuth } from "./../hooks/useAuth";
 import { apiService, type ProfileUpdateData } from "./../lib/api";
+import { categories, getCategoryName } from "./../lib/categories";
 import {
   ProfileFormData,
   AdditionalPhone,
@@ -129,55 +130,7 @@ const serviceDistanceOptions = [
   { en: "100+ km", ar: "100+ كم" },
 ];
 
-// Categories from CompleteProfileForm
-const categories = [
-  { en: "Agriculture", ar: "الزراعة" },
-  { en: "Apparel & Fashion", ar: "الملابس والموضة" },
-  { en: "Automobile", ar: "السيارات" },
-  { en: "Brass Hardware & Components", ar: "أدوات ومكونات النحاس" },
-  { en: "Business Services", ar: "الخدمات التجارية" },
-  { en: "Chemicals", ar: "المواد الكيميائية" },
-  { en: "Computer Hardware & Software", ar: "أجهزة وبرامج الكمبيوتر" },
-  // { en: "Construction & Real Estate", ar: "البناء والعقارات" },
-  { en: "Consumer Electronics", ar: "الإلكترونيات الاستهلاكية" },
-  {
-    en: "Electronics & Electrical Supplies",
-    ar: "الإلكترونيات والمستلزمات الكهربائية",
-  },
-  { en: "Energy & Power", ar: "الطاقة والطاقة الكهربائية" },
-  { en: "Environment & Pollution", ar: "البيئة والتلوث" },
-  { en: "Food & Beverage", ar: "الطعام والمشروبات" },
-  { en: "Furniture", ar: "الأثاث" },
-  { en: "Gifts & Crafts", ar: "الهدايا والحرف اليدوية" },
-  { en: "Health & Beauty", ar: "الصحة والجمال" },
-  { en: "Home Supplies", ar: "مستلزمات المنزل" },
-  { en: "Home Textiles & Furnishings", ar: "منسوجات وتجهيزات المنزل" },
-  { en: "Hospital & Medical Supplies", ar: "المستشفيات والمستلزمات الطبية" },
-  { en: "Hotel Supplies & Equipment", ar: "مستلزمات ومعدات الفنادق" },
-  { en: "Industrial Supplies", ar: "المستلزمات الصناعية" },
-  { en: "Jewelry & Gemstones", ar: "المجوهرات والأحجار الكريمة" },
-  { en: "Leather & Leather Products", ar: "الجلد والمنتجات الجلدية" },
-  { en: "Machinery", ar: "المعدات والآلات" },
-  { en: "Mineral & Metals", ar: "المعادن والمعادن" },
-  { en: "Office & School Supplies", ar: "مستلزمات المكتب والمدرسة" },
-  { en: "Oil and Gas", ar: "النفط والغاز" },
-  { en: "Packaging & Paper", ar: "التغليف والورق" },
-  { en: "Pharmaceuticals", ar: "الأدوية" },
-  { en: "Pipes, Tubes & Fittings", ar: "الأنابيب والوصلات" },
-  { en: "Plastics & Products", ar: "اللدائن والمنتجات" },
-  { en: "Printing & Publishing", ar: "الطباعة والنشر" },
-  // { en: "Real Estate", ar: "العقارات" },
-  {
-    en: "Scientific & Laboratory Instruments",
-    ar: "الأدوات العلمية والمخبرية",
-  },
-  { en: "Security & Protection", ar: "الأمن والحماية" },
-  { en: "Sports & Entertainment", ar: "الرياضة والترفيه" },
-  { en: "Telecommunications", ar: "الاتصالات" },
-  { en: "Textiles & Fabrics", ar: "المنسوجات والأقمشة" },
-  { en: "Toys", ar: "الألعاب" },
-  { en: "Transportation", ar: "النقل" },
-];
+// Categories are now imported from centralized config
 
 const availableServices = [
   "Wholesale",
@@ -201,7 +154,7 @@ interface BusinessManagementProps {
 
 export default function BusinessManagement({}: BusinessManagementProps = {}) {
   const { user } = useAuth();
-  const { t, isRTL } = useLanguage();
+  const { t, isRTL, language } = useLanguage();
   const [activeSection, setActiveSection] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
 
@@ -1495,15 +1448,15 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
 
                 <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-white">
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {categories.map((category) => (
+                    {categories.filter(cat => cat.id !== 'all').map((category) => (
                       <label
-                        key={category.en}
+                        key={category.id}
                         className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
                       >
                         <input
                           type="checkbox"
                           checked={businessData.categories.some(
-                            (c) => c === category.en || c === category.ar,
+                            (c) => c === category.id,
                           )}
                           disabled={!isEditing}
                           onChange={(e) => {
@@ -1512,14 +1465,14 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                                 ...businessData,
                                 categories: [
                                   ...businessData.categories,
-                                  category.en,
+                                  category.id,
                                 ],
                               });
                             } else {
                               setBusinessData({
                                 ...businessData,
                                 categories: businessData.categories.filter(
-                                  (c) => c !== category.en && c !== category.ar,
+                                  (c) => c !== category.id,
                                 ),
                               });
                             }
@@ -1527,7 +1480,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                           className="w-4 h-4 text-blue-400 border-gray-300 rounded focus:ring-blue-400"
                         />
                         <span className="text-sm text-gray-700">
-                          {isRTL ? category.ar : category.en}
+                          {getCategoryName(category.id, language === 'ar' ? 'ar' : 'en')}
                         </span>
                       </label>
                     ))}
@@ -1545,7 +1498,7 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                           key={index}
                           className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium"
                         >
-                          {category}
+                          {getCategoryName(category, language === 'ar' ? 'ar' : 'en')}
                         </span>
                       ))
                     ) : (
