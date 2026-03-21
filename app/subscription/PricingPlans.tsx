@@ -23,7 +23,7 @@ export default function PricingPlans() {
   const fetchPlans = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api"}/tap/subscription/plans`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api"}/subscription/plans`,
       );
       const data = await response.json();
       if (data.success) {
@@ -50,17 +50,23 @@ export default function PricingPlans() {
         localStorage.getItem("supplier_user") || "{}",
       );
 
+      const plan = plans.find(p => p.id === planId);
+      if (!plan) {
+        alert("Plan not found");
+        return;
+      }
+
       const customerData = {
         first_name: userData.name?.split(" ")[0] || "Test",
         last_name: userData.name?.split(" ")[1] || "User",
         email: userData.email || "test@example.com",
-        phone: {
-          country_code: "966",
-          number: userData.phone?.replace("966", "") || "500000000",
-        },
+        phone_number: userData.phone?.replace("966", "") || "500000000",
+        phone_country_code: "966",
+        description: `Payment for ${plan.display_name} subscription`,
+        order_id: `plan_${planId}_${Date.now()}`
       };
 
-      const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api"}/tap/subscription/payment-test`;
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api"}/payment/create`;
 
       const response = await fetch(apiUrl, {
         method: "POST",
@@ -69,15 +75,15 @@ export default function PricingPlans() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          plan_id: planId,
-          customer: customerData,
+          amount: parseFloat(plan.price),
+          ...customerData,
         }),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        window.location.href = data.data.payment_url;
+        window.location.href = data.data.transaction_url;
       } else {
         alert(
           language === "ar"

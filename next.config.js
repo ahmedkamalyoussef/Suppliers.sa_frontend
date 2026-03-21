@@ -1,18 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // output: "export", // 🎯 تم التعليق عليه مؤقتاً لحل مشاكل الـ static export
+  output: undefined, // Force disable export mode
   images: {
     unoptimized: true,
   },
   typescript: {
     // ignoreBuildErrors: true,
   },
-  // Disable static generation for all pages to avoid SSR issues
-  output: process.env.NEXT_OUTPUT === "export" ? "export" : undefined,
-  trailingSlash: process.env.NEXT_OUTPUT === "export" ? true : undefined,
-  // Exclude API routes from static export
-  // trailingSlash: true, // Temporarily disabled to fix redirect loop
-  // distDir: 'out', // تم التعليق عليه أيضاً
+  trailingSlash: false,
 };
 
 module.exports = nextConfig;
