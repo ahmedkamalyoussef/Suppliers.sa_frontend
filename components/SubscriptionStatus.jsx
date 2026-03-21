@@ -60,7 +60,9 @@ export default function SubscriptionStatus() {
           <div className="flex items-center mb-2">
             <span className="text-2xl mr-2">🎯</span>
             <h3 className="text-lg font-semibold text-green-800">
-              {subscription?.subscription_plan?.display_name}{" "}
+              {(subscription?.subscription_plan?.name === 'premium_monthly' || subscription?.subscription_plan?.name === 'premium_yearly')
+                ? (i18n.language === 'ar' ? 'مميزة' : 'Premium')
+                : subscription?.subscription_plan?.display_name}{" "}
               {i18n.language === "ar" ? "نشط" : "Active"}
             </h3>
           </div>

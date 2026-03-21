@@ -96,6 +96,14 @@ export default function SubscriptionPlans() {
     return `${plan.price} ${currency}${period}`;
   };
 
+  const getPlanDisplayName = (plan) => {
+    // Show "Premium" for both premium_monthly and premium_yearly
+    if (plan.name === 'premium_monthly' || plan.name === 'premium_yearly') {
+      return i18n.language === 'ar' ? 'مميزة' : 'Premium';
+    }
+    return plan.display_name;
+  };
+
   const renderPlanCard = (plan) => {
     const isPopular = plan.name !== "basic";
     const features = getLocalizedFeatures(plan.features);
@@ -117,7 +125,7 @@ export default function SubscriptionPlans() {
 
         <div className="text-center mb-8">
           <h3 className="text-2xl font-bold text-gray-900 mb-2">
-            {plan.display_name}
+            {getPlanDisplayName(plan)}
           </h3>
           <p className="text-gray-600 mb-4">{plan.description}</p>
           <div className="text-4xl font-bold text-blue-600 mb-2">

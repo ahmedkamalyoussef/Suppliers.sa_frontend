@@ -150,7 +150,7 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
 
   const plans = [
     // Only show Basic plan if user doesn't have Premium
-    ...(user.plan !== "Premium"
+    ...(user.plan !== "Premium" && user.plan !== "premium_monthly" && user.plan !== "premium_yearly"
       ? [
           {
             name: t("settings.plans.basic.name"),
@@ -886,12 +886,9 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="text-xl font-bold text-gray-800">
-                        {settings.subscription.plan}{" "}
-                        {t(
-                          "settings.plans." +
-                            settings.subscription.plan.toLowerCase() +
-                            ".name"
-                        )}
+                        {(settings.subscription.plan === 'premium_monthly' || settings.subscription.plan === 'premium_yearly')
+                          ? (language === 'ar' ? 'مميزة' : 'Premium')
+                          : settings.subscription.plan}
                       </h4>
                       <p className="text-gray-600">
                         {t("settings.subscription.billedMonthly")}
@@ -918,16 +915,16 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                       className={`border-2 rounded-xl p-6 transition-all ${
                         plan.current
                           ? "border-yellow-400 bg-yellow-50"
-                          : "border-gray-200 hover:border-gray-300"
+                          : "border-gray-200 hover:border-yellow-300"
                       }`}
                     >
-                      <div className="text-center mb-6">
-                        <h4 className="text-lg font-bold text-gray-800 mb-2">
+                      <div className="text-center mb-4">
+                        <h4 className="text-lg font-semibold text-gray-800 mb-2">
                           {plan.name}
                         </h4>
-                        <p className="text-2xl font-bold text-gray-900">
+                        <div className="text-2xl font-bold text-yellow-600 mb-1">
                           {plan.price}
-                        </p>
+                        </div>
                       </div>
 
                       <ul className="space-y-2 mb-6">

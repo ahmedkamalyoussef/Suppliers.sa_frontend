@@ -337,7 +337,11 @@ function DashboardContent() {
                       </span>
                       <span className="flex items-center">
                         <i className="ri-vip-crown-line mr-1 text-yellow-500"></i>
-                        {user ? `${user.plan} Plan` : "Loading..."}
+                        {user 
+                          ? (user.plan === 'premium_monthly' || user.plan === 'premium_yearly' 
+                            ? (document.documentElement.dir === 'rtl' ? 'Premium' : 'مميزة')
+                            : user.plan)
+                          : "Loading..."}
                       </span>
                     </div>
                   </div>

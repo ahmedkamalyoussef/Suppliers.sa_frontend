@@ -120,6 +120,14 @@ export default function PricingPlans() {
     return `${plan.price} ${currency}${period}`;
   };
 
+  const getPlanDisplayName = (plan: any) => {
+    // Show "Premium" for both premium_monthly and premium_yearly
+    if (plan.name === 'premium_monthly' || plan.name === 'premium_yearly') {
+      return language === 'ar' ? 'مميزة' : 'Premium';
+    }
+    return plan.display_name;
+  };
+
   const getPlanByCycle = (cycle: "monthly" | "yearly") => {
     return plans.find((plan) => plan.billing_cycle === cycle && parseFloat(plan.price) > 0);
   };
@@ -148,7 +156,7 @@ export default function PricingPlans() {
 
         <div className="text-center mb-8">
           <h3 className="text-2xl font-bold text-gray-900 mb-2">
-            {plan.display_name}
+            {getPlanDisplayName(plan)}
           </h3>
           <p className="text-gray-600 mb-4">{plan.description}</p>
           <div className="text-4xl font-bold text-blue-600 mb-2">
