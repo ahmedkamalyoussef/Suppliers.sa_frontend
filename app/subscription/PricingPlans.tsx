@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "../../lib/LanguageContext";
 import { useRouter } from "next/navigation";
+import { apiService } from "../../lib/api";
 
 export default function PricingPlans() {
   const { t, language } = useLanguage();
@@ -13,12 +14,53 @@ export default function PricingPlans() {
   const [loading, setLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const [plans, setPlans] = useState<any[]>([]);
+  const [userPlan, setUserPlan] = useState<string | null>(null);
+  const [hasUsedTrial, setHasUsedTrial] = useState<boolean>(false);
 
   useEffect(() => {
     localStorage.removeItem("temp_token");
     localStorage.removeItem("test_user");
     fetchPlans();
+    fetchUserPlanFromAPI();
   }, []);
+
+  const fetchUserPlanFromAPI = async () => {
+    try {
+      // Fetch fresh profile data from API like dashboard does
+      const profileData = await apiService.getProfile();
+      const plan = profileData.plan || null;
+      const trialUsed = profileData.has_used_free_trial || false;
+      console.log("User plan from API:", plan, "Trial used:", trialUsed);
+      setUserPlan(plan);
+      setHasUsedTrial(trialUsed);
+      
+      // Also update localStorage with fresh data
+      const userData = localStorage.getItem("supplier_user");
+      if (userData && plan) {
+        const parsedUser = JSON.parse(userData);
+        parsedUser.plan = plan;
+        parsedUser.has_used_free_trial = trialUsed;
+        localStorage.setItem("supplier_user", JSON.stringify(parsedUser));
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      // Fallback to localStorage if API fails
+      const userData = localStorage.getItem("supplier_user");
+      if (userData) {
+        const parsedUser = JSON.parse(userData);
+        setUserPlan(parsedUser.plan || null);
+        setHasUsedTrial(parsedUser.has_used_free_trial || false);
+      }
+    }
+  };
+
+  const hasActiveSubscription = () => {
+    if (!userPlan) return false;
+    const plan = userPlan.toLowerCase();
+    return plan === 'premium' || 
+           plan === 'premium_monthly' || 
+           plan === 'premium_yearly';
+  };
 
   const fetchPlans = async () => {
     try {
@@ -204,14 +246,20 @@ export default function PricingPlans() {
 
           <button
             onClick={() => handleSubscribe(plan.id)}
-            disabled={loading || selectedPlan === plan.id}
+            disabled={loading || selectedPlan === plan.id || hasActiveSubscription()}
             className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 ${
               parseFloat(plan.price) === 0
                 ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                : "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
+                : hasActiveSubscription()
+                  ? "bg-green-500 text-white cursor-default"
+                  : "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
             } ${
               loading && selectedPlan === plan.id
                 ? "opacity-50 cursor-not-allowed"
+                : ""
+            } ${
+              hasActiveSubscription()
+                ? "opacity-80 cursor-not-allowed"
                 : ""
             }`}
           >
@@ -219,13 +267,17 @@ export default function PricingPlans() {
               ? language === "ar"
                 ? "جاري المعالجة..."
                 : "Processing..."
-              : parseFloat(plan.price) === 0
+              : hasActiveSubscription()
                 ? language === "ar"
-                  ? "ابدأ مجاناً"
-                  : "Get Started"
-                : language === "ar"
-                  ? "اشترك الآن"
-                  : "Subscribe Now"}
+                  ? "✓ مشترك بالفعل"
+                  : "✓ Already Subscribed"
+                : parseFloat(plan.price) === 0
+                  ? language === "ar"
+                    ? "ابدأ مجاناً"
+                    : "Get Started"
+                  : language === "ar"
+                    ? "اشترك الآن"
+                    : "Subscribe Now"}
           </button>
         </div>
       </div>
@@ -235,6 +287,48 @@ export default function PricingPlans() {
   return (
     <section className="py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
+
+        {!hasActiveSubscription() && !hasUsedTrial && (
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-10 text-center">
+            <div className="flex items-center justify-center gap-2 text-blue-800">
+              <span className="text-2xl">🎁</span>
+              <h3 className="text-xl font-bold">
+                {language === "ar" 
+                  ? "30 يوم مجاني! اشترك لأول مرة واحصل على 30 يوم إضافية مجاناً"
+                  : "30 Days Free! Subscribe for the first time and get 30 extra days free"}
+              </h3>
+            </div>
+            <p className="text-blue-700 mt-2">
+              {language === "ar" 
+                ? "عرض حصري للمشتركين لأول مرة فقط. بعد التجربة المجانية، يبدأ الاشتراك المدفوع."
+                : "Exclusive offer for first-time subscribers only. After the free trial, your paid subscription begins."}
+            </p>
+          </div>
+        )}
+
+        {hasActiveSubscription() && (
+          <div className="bg-green-100 border border-green-300 rounded-xl p-6 mb-10 text-center">
+            <div className="flex items-center justify-center gap-2 text-green-800">
+              <span className="text-2xl">✓</span>
+              <h3 className="text-xl font-bold">
+                {language === "ar" 
+                  ? `أنت مشترك حالياً في باقة ${userPlan === 'premium_monthly' ? 'المميزة (شهري)' : userPlan === 'premium_yearly' ? 'المميزة (سنوي)' : 'المميزة'}`
+                  : `You are currently subscribed to the ${userPlan === 'premium_monthly' ? 'Premium (Monthly)' : userPlan === 'premium_yearly' ? 'Premium (Yearly)' : 'Premium'} plan`}
+              </h3>
+            </div>
+            <p className="text-green-700 mt-2">
+              {language === "ar" 
+                ? "لديك بالفعل اشتراك نشط. يمكنك إدارة اشتراكك من لوحة التحكم."
+                : "You already have an active subscription. You can manage your subscription from the dashboard."}
+            </p>
+            <button
+              onClick={() => router.push("/dashboard?tab=settings")}
+              className="mt-4 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 font-medium"
+            >
+              {language === "ar" ? "الذهاب إلى الإعدادات" : "Go to Settings"}
+            </button>
+          </div>
+        )}
 
         <div className="flex justify-center mb-16">
           <div className="bg-gray-100 rounded-full p-1 flex">
@@ -275,19 +369,9 @@ export default function PricingPlans() {
             renderPlanCard(yearlyPlan, true)}
         </div>
 
-        <div className="text-center mt-16">
-          <p className="text-gray-600">
-            {language === "ar" ? "هل لديك أسئلة؟ " : "Have questions? "}
-            <a
-              href="/contact"
-              className="text-blue-600 hover:text-blue-700 font-medium"
-            >
-              {language === "ar"
-                ? "تواصل مع فريق المبيعات"
-                : "Contact our sales team"}
-            </a>
-          </p>
-        </div>
+        
+        
+        
 
       </div>
     </section>

@@ -150,18 +150,18 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
 
   const plans = [
     // Only show Basic plan if user doesn't have Premium
-    ...(user.plan !== "Premium" && user.plan !== "premium_monthly" && user.plan !== "premium_yearly"
+    ...(user.plan !== "Premium" && user.plan !== "premium_monthly" && user.plan !== "premium_yearly" && user.plan !== "free"
       ? [
           {
             name: t("settings.plans.basic.name"),
             price: t("settings.plans.basic.price"),
             features: t("settings.plans.basic.features") || [],
-            current: user.plan === "Basic",
+            current: user.plan === "Basic" || user.plan === "free" || !user.plan,
           },
         ]
       : []),
     {
-      name: t("settings.plans.premium.name"),
+      name: t("settings.plans.premium.name") + (language === "ar" ? " (شهري)" : " (Monthly)"),
       price: (
         <div className="flex items-center justify-center">
           <span>199</span>
@@ -174,13 +174,10 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
         </div>
       ),
       features: t("settings.plans.premium.features") || [],
-      current: user.plan === "Premium",
+      current: user.plan === "premium_monthly",
     },
     {
-      name:
-        t("settings.plans.premium.name") +
-        " " +
-        (language === "ar" ? "(سنوي)" : "(Yearly)"),
+      name: t("settings.plans.premium.name") + (language === "ar" ? " (سنوي)" : " (Yearly)"),
       price: (
         <div className="flex items-center justify-center">
           <span>1799</span>
@@ -193,7 +190,7 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
         </div>
       ),
       features: t("settings.plans.premium.features") || [],
-      current: user.plan === "Premium",
+      current: user.plan === "premium_yearly" || user.plan === "Premium",
     },
   ];
 
@@ -882,25 +879,40 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
                   {t("settings.subscription.currentPlan")}
                 </h3>
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                <div className="bg-green-50 border border-green-200 rounded-lg p-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="text-xl font-bold text-gray-800">
                         {(settings.subscription.plan === 'premium_monthly' || settings.subscription.plan === 'premium_yearly')
-                          ? (language === 'ar' ? 'مميزة' : 'Premium')
+                          ? (language === 'ar' ? '✓ مميزة' : '✓ Premium')
                           : settings.subscription.plan}
                       </h4>
                       <p className="text-gray-600">
-                        {t("settings.subscription.billedMonthly")}
+                        {user.plan === 'premium_monthly'
+                          ? (language === "ar" ? "تُدفع شهرياً" : "Billed monthly")
+                          : user.plan === 'premium_yearly' || user.plan === 'Premium'
+                            ? (language === "ar" ? "تُدفع سنوياً" : "Billed yearly")
+                            : t("settings.subscription.billedMonthly")}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-yellow-600">Free</p>
+                      <p className="text-2xl font-bold text-green-600">
+                        {user.plan === 'premium_monthly'
+                          ? "199 SAR"
+                          : user.plan === 'premium_yearly' || user.plan === 'Premium'
+                            ? "1799 SAR"
+                          : language === "ar" ? "مجاني" : "Free"}
+                      </p>
                       <p className="text-sm text-gray-600">
-                        {t("settings.subscription.perMonth")}
+                        {user.plan === 'premium_monthly'
+                          ? (language === "ar" ? "/شهرياً" : "/month")
+                          : user.plan === 'premium_yearly' || user.plan === 'Premium'
+                            ? (language === "ar" ? "/سنوياً" : "/year")
+                          : ""}
                       </p>
                     </div>
                   </div>
+                  
                 </div>
               </div>
 
@@ -941,16 +953,31 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                       </ul>
 
                       <button
+                        onClick={() => {
+                          if (!plan.current && (user.plan === 'Basic' || user.plan === 'free' || !user.plan)) {
+                            window.location.href = '/subscription';
+                          }
+                        }}
                         className={`w-full py-2 px-4 rounded-lg font-medium text-sm whitespace-nowrap cursor-pointer transition-all ${
                           plan.current
-                            ? "bg-yellow-400 text-white cursor-default"
-                            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                            ? "bg-green-500 text-white cursor-default"
+                            : (user.plan === 'Basic' || user.plan === 'free' || !user.plan)
+                              ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
+                              : "bg-gray-300 text-gray-500 cursor-not-allowed"
                         }`}
-                        disabled={plan.current}
+                        disabled={plan.current || !(user.plan === 'Basic' || user.plan === 'free' || !user.plan)}
                       >
                         {plan.current
-                          ? t("settings.subscription.currentPlanButton")
-                          : t("settings.subscription.upgradeButton")}
+                          ? language === "ar"
+                            ? "✓ هذا اشتراكك الحالي"
+                            : "✓ Your Current Plan"
+                          : (user.plan === 'Basic' || user.plan === 'free' || !user.plan)
+                            ? language === "ar"
+                              ? "اشترك الآن →"
+                              : "Subscribe Now →"
+                            : language === "ar"
+                              ? "غير متاح"
+                              : "Not Available"}
                       </button>
                     </div>
                   ))}
