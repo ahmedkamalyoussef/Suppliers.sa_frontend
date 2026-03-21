@@ -1,6 +1,5 @@
 {
-  "/subscription/page": "app/subscription/page.js",
   "/payment-complete/page": "app/payment-complete/page.js",
   "/dashboard/page": "app/dashboard/page.js",
-  "/add-business/page": "app/add-business/page.js"
+  "/subscription/page": "app/subscription/page.js"
 }
