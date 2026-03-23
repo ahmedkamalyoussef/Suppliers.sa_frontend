@@ -1641,45 +1641,6 @@ export const translations = {
       security: "Security",
       protected: "Protected",
     },
-    admin: {
-      title: "Admin Control Panel",
-      welcome: "Welcome back",
-      logout: "Logout",
-      roles: {
-        superAdmin: "Super Administrator",
-        admin: "Administrator",
-        default: "Admin",
-      },
-      tabs: {
-        overview: "Overview",
-        userManagement: "User Management",
-        employeeManagement: "Employee Management",
-        contentManagement: "Content Management",
-        supplierCommunications: "Supplier Communications",
-        partnershipsManagement: "Partnerships Management",
-        businessStatistics: "Business Statistics",
-        systemAnalytics: "System Analytics",
-        systemSettings: "System Settings",
-      },
-    },
-    partnershipsManagement: {
-      title: "Partnerships Management",
-      description: "Manage your trusted partnerships and partners",
-      addPartnership: "Add Partnership",
-      editPartnership: "Edit Partnership",
-      addNewPartnership: "Add New Partnership",
-      image: "Image",
-      name: "Name",
-      createdAt: "Created At",
-      actions: "Actions",
-      edit: "Edit",
-      delete: "Delete",
-      noActionsAvailable: "No actions available",
-      noPartnershipsFound: "No partnerships found",
-      addFirstPartnership: "Add your first partnership to get started",
-      accessDenied: "You don't have permission to view partnerships management.",
-      fetchError: "Failed to fetch partnerships",
-    },
     register: {
       progress: {
         register: "Register",
@@ -3058,31 +3019,33 @@ export const translations = {
         title: "Manage Branches",
       },
     },
+    },
+
+    // Admin
+    admin: {
+      title: "Admin Control Panel",
+      welcome: "Welcome back",
+      logout: "Logout",
+      roles: {
+        superAdmin: "Super Administrator",
+        admin: "Administrator",
+        default: "Admin",
+      },
+      tabs: {
+        overview: "Overview",
+        userManagement: "User Management",
+        employeeManagement: "Employee Management",
+        contentManagement: "Content Management",
+        supplierCommunications: "Supplier Communications",
+        partnershipsManagement: "Partnerships Management",
+        businessStatistics: "Business Statistics",
+        systemAnalytics: "System Analytics",
+        systemSettings: "System Settings",
+      },
+    },
   },
 
   ar: {
-    // Admin
-    admin: {
-      title: "لوحة تحكم الإدارة",
-      welcome: "مرحباً بعودتك",
-      logout: "تسجيل الخروج",
-      roles: {
-        superAdmin: "مدير النظام",
-        admin: "مدير",
-        default: "مدير",
-      },
-      tabs: {
-        overview: "نظرة عامة",
-        userManagement: "إدارة المستخدمين",
-        employeeManagement: "إدارة الموظفين",
-        contentManagement: "إدارة المحتوى",
-        supplierCommunications: "اتصالات الموردين",
-        partnershipsManagement: "إدارة الشراكات",
-        businessStatistics: "إحصائيات الأعمال",
-        systemAnalytics: "تحليلات النظام",
-        systemSettings: "إعدادات النظام",
-      },
-    },
     // Navigation
     nav: {
       home: "الرئيسية",
@@ -5160,26 +5123,6 @@ export const translations = {
       },
     },
 
-    // Partnerships Management
-    partnershipsManagement: {
-      title: "إدارة الشراكات",
-      description: "إدارة شراكاتك الموثوقة والشركاء",
-      addPartnership: "إضافة شراكة",
-      editPartnership: "تعديل الشراكة",
-      addNewPartnership: "إضافة شراكة جديدة",
-      image: "الصورة",
-      name: "الاسم",
-      createdAt: "تاريخ الإنشاء",
-      actions: "الإجراءات",
-      edit: "تعديل",
-      delete: "حذف",
-      noActionsAvailable: "لا توجد إجراءات متاحة",
-      noPartnershipsFound: "لم يتم العثور على شراكات",
-      addFirstPartnership: "أضف أول شراكة للبدء",
-      accessDenied: "ليس لديك إذن لعرض إدارة الشراكات.",
-      fetchError: "فشل في جلب الشراكات",
-    },
-
     // Business Management
 
     // Content Management
@@ -6097,6 +6040,29 @@ export const translations = {
     notFound: {
       title: "هذه الصفحة لم يتم إنشاؤها بعد",
       message: "أخبرنا بما تريد أن تراه في هذه الصفحة",
+    },
+
+    // Admin
+    admin: {
+      title: "لوحة تحكم الإدارة",
+      welcome: "مرحباً بعودتك",
+      logout: "تسجيل الخروج",
+      roles: {
+        superAdmin: "مدير النظام",
+        admin: "مدير",
+        default: "مدير",
+      },
+      tabs: {
+        overview: "نظرة عامة",
+        userManagement: "إدارة المستخدمين",
+        employeeManagement: "إدارة الموظفين",
+        contentManagement: "إدارة المحتوى",
+        supplierCommunications: "اتصالات الموردين",
+        partnershipsManagement: "إدارة الشراكات",
+        businessStatistics: "إحصائيات الأعمال",
+        systemAnalytics: "تحليلات النظام",
+        systemSettings: "إعدادات النظام",
+      },
     },
   },
 };

@@ -891,6 +891,11 @@ export default function CompleteProfileForm({
     lat: number,
     lng: number,
   ): Promise<string> => {
+    // Check if coordinates are close to Riyadh (within ~10km)
+    if (Math.abs(lat - 24.7136) < 0.1 && Math.abs(lng - 46.6753) < 0.1) {
+      return language === 'ar' ? 'الرياض' : 'Riyadh';
+    }
+
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=${language}`,
@@ -901,7 +906,7 @@ export default function CompleteProfileForm({
       );
     } catch (error) {
       console.error("Error getting city from coordinates:", error);
-      return "";
+      return language === 'ar' ? 'الرياض' : 'Riyadh'; // Fallback to Riyadh
     }
   };
 
@@ -927,9 +932,11 @@ export default function CompleteProfileForm({
     }
     
     const city = await getCityFromCoordinates(validatedLocation.lat, validatedLocation.lng);
+    const finalCity = city || (language === 'ar' ? 'الرياض' : 'Riyadh'); // Fallback to Riyadh if no city found
+    
     setFormData((prev) => ({
       ...prev,
-      address: city, // Set address to just the city name
+      address: finalCity, // Set address to city name
       location: {
         lat: validatedLocation.lat,
         lng: validatedLocation.lng,

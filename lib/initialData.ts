@@ -22,7 +22,7 @@ export const initialFormData: ProfileFormData = {
   contactEmail: "",
   contactPhone: "",
   website: "",
-  address: "",
+  address: "Riyadh",
   mainPhone: "",
   businessType: "",
   categories: [],

@@ -16,42 +16,44 @@ import BusinessStatistics from "../../components/BusinessStatistics";
 import SupplierCommunications from "../../components/SupplierCommunications";
 import { ToastProvider } from "../../components/ToastContext";
 import { useAuth } from "../../hooks/useAuth";
+import { useLanguage } from "../../lib/LanguageContext";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
   const router = useRouter();
   const { user, logout, userType } = useAuth();
+  const { t } = useLanguage();
 
   const handleLogout = () => {
     logout();
   };
 
   const allTabs = [
-    { id: "overview", name: "Overview", icon: "ri-dashboard-3-line" },
-    { id: "users", name: "User Management", icon: "ri-user-settings-line" },
-    { id: "employees", name: "Employee Management", icon: "ri-team-line" },
-    { id: "content", name: "Content Management", icon: "ri-file-list-3-line" },
+    { id: "overview", name: t("admin.tabs.overview"), icon: "ri-dashboard-3-line" },
+    { id: "users", name: t("admin.tabs.userManagement"), icon: "ri-user-settings-line" },
+    { id: "employees", name: t("admin.tabs.employeeManagement"), icon: "ri-team-line" },
+    { id: "content", name: t("admin.tabs.contentManagement"), icon: "ri-file-list-3-line" },
     {
       id: "communications",
-      name: "Supplier Communications",
+      name: t("admin.tabs.supplierCommunications"),
       icon: "ri-message-3-line",
     },
     {
       id: "partnerships",
-      name: "Partnerships Management",
+      name: t("admin.tabs.partnershipsManagement"),
       icon: "ri-handshake-line",
     },
     {
       id: "business-statistics",
-      name: "Business Statistics",
+      name: t("admin.tabs.businessStatistics"),
       icon: "ri-bar-chart-2-line",
     },
     {
       id: "analytics",
-      name: "System Analytics",
+      name: t("admin.tabs.systemAnalytics"),
       icon: "ri-bar-chart-box-line",
     },
-    { id: "settings", name: "System Settings", icon: "ri-settings-3-line" },
+    { id: "settings", name: t("admin.tabs.systemSettings"), icon: "ri-settings-3-line" },
   ];
 
   // Filter tabs based on user role
@@ -97,19 +99,19 @@ export default function AdminDashboard() {
                       )}
                       <div>
                         <h1 className="text-2xl sm:text-3xl font-bold">
-                          Admin Control Panel
+                          {t("admin.title")}
                         </h1>
                         <p className="text-red-100 text-sm sm:text-base mb-1 sm:mb-2">
-                          Welcome back, {user?.name || "Admin"}
+                          {t("admin.welcome")}, {user?.name || "Admin"}
                         </p>
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-red-100">
                           <span className="flex items-center">
                             <i className="ri-shield-check-line mr-1"></i>
                             {user?.role === "super_admin"
-                              ? "Super Administrator"
+                              ? t("admin.roles.superAdmin")
                               : user?.role === "admin"
-                              ? "Administrator"
-                              : "Admin"}
+                              ? t("admin.roles.admin")
+                              : t("admin.roles.default")}
                           </span>
                           {user?.department && (
                             <span className="flex items-center">
@@ -133,7 +135,7 @@ export default function AdminDashboard() {
                         className="bg-red-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-red-800 font-medium whitespace-nowrap cursor-pointer transition-all flex items-center justify-center"
                       >
                         <i className="ri-logout-box-line mr-2"></i>
-                        Logout
+                        {t("admin.logout")}
                       </button>
                     </div>
                   </div>

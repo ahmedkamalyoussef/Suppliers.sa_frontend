@@ -1,8 +1,7 @@
 {
-  "/subscription/page": "app/subscription/page.js",
+  "/admin/page": "app/admin/page.js",
   "/dashboard/page": "app/dashboard/page.js",
+  "/complete-profile/page": "app/complete-profile/page.js",
   "/page": "app/page.js",
-  "/payment-complete/page": "app/payment-complete/page.js",
-  "/add-business/page": "app/add-business/page.js",
-  "/login/page": "app/login/page.js"
+  "/add-business/page": "app/add-business/page.js"
 }

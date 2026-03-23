@@ -34,7 +34,10 @@ export default function CompleteProfilePage() {
   });
 
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState<ProfileFormData>(initialFormData);
+  const [formData, setFormData] = useState<ProfileFormData>({
+    ...initialFormData,
+    address: "Riyadh", // Ensure Riyadh is set as default city
+  });
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 

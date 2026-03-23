@@ -187,8 +187,8 @@ export default function ContentManagement() {
         const documentsResponse = await apiService.getDocuments("all");
         const formattedDocuments = documentsResponse.data.map((doc: any) => ({
           id: doc.id,
-          businessName: doc.business?.name || "Unknown Business",
-          ownerName: doc.business?.owner_name || "Unknown Owner",
+          businessName: doc.supplier?.name || "Unknown Business",
+          ownerName: doc.supplier?.email || "Unknown Owner",
           documentType: doc.document_type || "Unknown",
           crNumber: doc.cr_number || "",
           uploadDate: doc.created_at,
@@ -196,8 +196,8 @@ export default function ContentManagement() {
           expiryDate: doc.expiry_date || "",
           status: doc.status,
           reviewer: doc.reviewer?.name || null,
-          notes: doc.notes || null,
-          documentLink: doc.document_link,
+          notes: doc.review_notes || doc.notes || null,
+          documentLink: doc.file_path || doc.document_link,
         }));
         setDocumentVerifications(formattedDocuments);
 
@@ -499,8 +499,8 @@ export default function ContentManagement() {
           const documentsResponse = await apiService.getDocuments("all");
           const formattedDocuments = documentsResponse.data.map((doc: any) => ({
             id: doc.id,
-            businessName: doc.business?.name || "Unknown Business",
-            ownerName: doc.business?.owner_name || "Unknown Owner",
+            businessName: doc.supplier?.name || "Unknown Business",
+            ownerName: doc.supplier?.email || "Unknown Owner",
             documentType: doc.document_type || "Unknown",
             crNumber: doc.cr_number || "",
             uploadDate: doc.created_at,
@@ -508,8 +508,8 @@ export default function ContentManagement() {
             expiryDate: doc.expiry_date || "",
             status: doc.status,
             reviewer: doc.reviewer?.name || null,
-            notes: doc.notes || null,
-            documentLink: doc.document_link,
+            notes: doc.review_notes || doc.notes || null,
+            documentLink: doc.file_path || doc.document_link,
           }));
           setDocumentVerifications(formattedDocuments);
         }
@@ -690,8 +690,8 @@ export default function ContentManagement() {
       const documentsResponse = await apiService.getDocuments("all");
       const formattedDocuments = documentsResponse.data.map((doc: any) => ({
         id: doc.id,
-        businessName: doc.business?.name || "Unknown Business",
-        ownerName: doc.business?.owner_name || "Unknown Owner",
+        businessName: doc.supplier?.name || "Unknown Business",
+        ownerName: doc.supplier?.email || "Unknown Owner",
         documentType: doc.document_type || "Unknown",
         crNumber: doc.cr_number || "",
         uploadDate: doc.created_at,
@@ -699,8 +699,8 @@ export default function ContentManagement() {
         expiryDate: doc.expiry_date || "",
         status: doc.status,
         reviewer: doc.reviewer?.name || null,
-        notes: doc.notes || null,
-        documentLink: doc.document_link,
+        notes: doc.review_notes || doc.notes || null,
+        documentLink: doc.file_path || doc.document_link,
       }));
       setDocumentVerifications(formattedDocuments);
 

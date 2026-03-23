@@ -28,7 +28,7 @@ export default function PartnershipsManagement() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { showToast } = useToast();
   const { user } = useAuth();
-  const { isRTL } = useLanguage();
+  const { t, isRTL } = useLanguage();
 
   // Fetch permissions from API
   useEffect(() => {
@@ -87,7 +87,7 @@ export default function PartnershipsManagement() {
     } catch (error) {
       console.error("Failed to fetch partnerships:", error);
       showToast(
-        isRTL ? "فشل في جلب الشراكات" : "Failed to fetch partnerships",
+        isRTL ? "فشل في جلب الشراكات" : t("partnershipsManagement.fetchError"),
         "error"
       );
     } finally {
@@ -263,7 +263,7 @@ export default function PartnershipsManagement() {
             Access Denied
           </h3>
           <p className="text-gray-600">
-            You don't have permission to view partnerships management.
+            {t("partnershipsManagement.accessDenied")}
           </p>
         </div>
       </div>
@@ -276,10 +276,10 @@ export default function PartnershipsManagement() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">
-            Partnerships Management
+            {t("partnershipsManagement.title")}
           </h2>
           <p className="text-gray-600 mt-1">
-            Manage your trusted partnerships and partners
+            {t("partnershipsManagement.description")}
           </p>
         </div>
         {canCreate && (
@@ -288,7 +288,7 @@ export default function PartnershipsManagement() {
             className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2"
           >
             <i className="ri-add-line"></i>
-            Add Partnership
+            {t("partnershipsManagement.addPartnership")}
           </button>
         )}
       </div>
@@ -300,16 +300,16 @@ export default function PartnershipsManagement() {
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Image
+                  {t("partnershipsManagement.image")}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Name
+                  {t("partnershipsManagement.name")}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created At
+                  {t("partnershipsManagement.createdAt")}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
+                  {t("partnershipsManagement.actions")}
                 </th>
               </tr>
             </thead>
@@ -343,7 +343,7 @@ export default function PartnershipsManagement() {
                           className="text-blue-600 hover:text-blue-900 transition-colors"
                         >
                           <i className="ri-edit-line"></i>
-                          Edit
+                          {t("partnershipsManagement.edit")}
                         </button>
                       )}
                       {canDelete && (
@@ -352,12 +352,12 @@ export default function PartnershipsManagement() {
                           className="text-red-600 hover:text-red-900 transition-colors"
                         >
                           <i className="ri-delete-bin-line"></i>
-                          Delete
+                          {t("partnershipsManagement.delete")}
                         </button>
                       )}
                       {!canEdit && !canDelete && (
                         <span className="text-gray-400 text-sm">
-                          No actions available
+                          {t("partnershipsManagement.noActionsAvailable")}
                         </span>
                       )}
                     </div>
@@ -372,9 +372,9 @@ export default function PartnershipsManagement() {
           <div className="text-center py-12">
             <div className="text-gray-500">
               <i className="ri-handshake-line text-4xl mb-4"></i>
-              <p>No partnerships found</p>
+              <p>{t("partnershipsManagement.noPartnershipsFound")}</p>
               <p className="text-sm mt-2">
-                Add your first partnership to get started
+                {t("partnershipsManagement.addFirstPartnership")}
               </p>
             </div>
           </div>
@@ -389,8 +389,8 @@ export default function PartnershipsManagement() {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900">
                   {editingPartnership
-                    ? "Edit Partnership"
-                    : "Add New Partnership"}
+                    ? t("partnershipsManagement.editPartnership")
+                    : t("partnershipsManagement.addNewPartnership")}
                 </h3>
                 <button
                   onClick={resetForm}

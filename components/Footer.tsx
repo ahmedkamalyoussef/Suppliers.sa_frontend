@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useLanguage } from "../lib/LanguageContext";
 import { useAuth } from "../hooks/useAuth";
 import { FaTwitter, FaLinkedin, FaWhatsapp } from "react-icons/fa";
+// import Logo from "./Logo";
 
 export default function Footer() {
   const { t, isRTL } = useLanguage();
@@ -41,34 +42,35 @@ export default function Footer() {
             {/* Brand Section - Reorganized and Better Aligned */}
             <div className="flex justify-center items-center flex-col md:justify-start lg:col-span-1 text-center lg:text-left">
               {/* Logo Section */}
-              <div
-                className={`flex items-center space-x-2 sm:space-x-3 mb-6 ${
-                  isRTL ? "flex-row-reverse" : "flex-row"
-                }`}
-              >
-                <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center">
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-400"
-                    fill="currentColor"
-                  >
-                    <circle cx="7" cy="7" r="3" />
-                    <circle cx="17" cy="17" r="3" />
-                    <circle cx="17" cy="7" r="3" />
-                    <path
-                      d="M10 7h4M10 10l7 7"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      fill="none"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </div>
-                <div className="text-xl sm:text-2xl md:text-3xl font-bold">
-                  <span className="text-gray-800">Supplier</span>
-                  <span className="text-green-400">.sa</span>
-                </div>
+              <Link
+              href="/"
+              className={`flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity ${
+                isRTL ? "flex-row-reverse" : "flex-row"
+              }`}
+            >
+              <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center">
+                <svg
+                  viewBox="0 0 24 24"
+                  className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-400"
+                  fill="currentColor"
+                >
+                  <circle cx="7" cy="7" r="3" />
+                  <circle cx="17" cy="17" r="3" />
+                  <circle cx="17" cy="7" r="3" />
+                  <path
+                    d="M10 7h4M10 10l7 7"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    fill="none"
+                    strokeLinecap="round"
+                  />
+                </svg>
               </div>
+              <div className="text-xl sm:text-2xl md:text-3xl font-bold">
+                <span className="text-gray-800">Supplier</span>
+                <span className="text-green-400">.sa</span>
+              </div>
+            </Link>
 
               {/* 100% Saudi Made Badge - Centered */}
               <div className="mb-6 sm:mb-8">
