@@ -130,6 +130,7 @@ export default function UserManagement() {
     subject: "",
     message: "",
   });
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [showInquiryModal, setShowInquiryModal] = useState<boolean>(false);
   const [inquiryRecipient, setInquiryRecipient] = useState<Supplier | null>(
     null,
@@ -567,6 +568,8 @@ export default function UserManagement() {
       return;
     }
 
+    setIsSendingEmail(true);
+
     try {
       const selectedUsersData = users.filter((user) =>
         selectedUsers.includes(user.id),
@@ -614,6 +617,8 @@ export default function UserManagement() {
             : "Failed to send bulk email",
         );
       }
+    } finally {
+      setIsSendingEmail(false);
     }
   };
 
@@ -1017,66 +1022,6 @@ export default function UserManagement() {
                         title="Send Message"
                       >
                         <i className="ri-message-3-line text-sm sm:text-base"></i>
-                      </button>
-                      <button
-                        onClick={() => handleUserAction("edit", user.id)}
-                        disabled={!(canEditUsers || hasFullUserManagement)}
-                        className={`text-sm sm:text-base cursor-pointer ${
-                          canEditUsers || hasFullUserManagement
-                            ? "text-green-600 hover:text-green-700"
-                            : "text-gray-400 cursor-not-allowed"
-                        }`}
-                        title={
-                          canEditUsers || hasFullUserManagement
-                            ? language === "ar"
-                              ? "تعديل المستخدم"
-                              : "Edit User"
-                            : language === "ar"
-                              ? "ليس لديك صلاحية تعديل المستخدمين"
-                              : "You need Edit Users or Full User Management permission to edit users"
-                        }
-                      >
-                        <i className="ri-edit-line text-sm sm:text-base"></i>
-                      </button>
-                      <button
-                        onClick={() => handleUserAction("suspend", user.id)}
-                        disabled={!(canEditUsers || hasFullUserManagement)}
-                        className={`text-sm sm:text-base cursor-pointer ${
-                          canEditUsers || hasFullUserManagement
-                            ? "text-yellow-600 hover:text-yellow-700"
-                            : "text-gray-400 cursor-not-allowed"
-                        }`}
-                        title={
-                          canEditUsers || hasFullUserManagement
-                            ? language === "ar"
-                              ? "تعليق المستخدم"
-                              : "Suspend User"
-                            : language === "ar"
-                              ? "ليس لديك صلاحية تعليق المستخدمين"
-                              : "You need Edit Users or Full User Management permission to suspend users"
-                        }
-                      >
-                        <i className="ri-pause-circle-line text-sm sm:text-base"></i>
-                      </button>
-                      <button
-                        onClick={() => handleUserAction("delete", user.id)}
-                        disabled={!(canDeleteUsers || hasFullUserManagement)}
-                        className={`text-sm sm:text-base cursor-pointer ${
-                          canDeleteUsers || hasFullUserManagement
-                            ? "text-red-600 hover:text-red-700"
-                            : "text-gray-400 cursor-not-allowed"
-                        }`}
-                        title={
-                          canDeleteUsers || hasFullUserManagement
-                            ? language === "ar"
-                              ? "حذف المستخدم"
-                              : "Delete User"
-                            : language === "ar"
-                              ? "ليس لديك صلاحية حذف المستخدمين"
-                              : "You need Delete Users or Full User Management permission to delete users"
-                        }
-                      >
-                        <i className="ri-delete-bin-line text-sm sm:text-base"></i>
                       </button>
                     </div>
                   </td>
@@ -1520,15 +1465,22 @@ export default function UserManagement() {
               <button
                 onClick={emailRecipient ? sendEmail : sendBulkEmail}
                 disabled={
-                  !emailForm.subject.trim() || !emailForm.message.trim()
+                  !emailForm.subject.trim() || !emailForm.message.trim() || isSendingEmail
                 }
                 className={`px-6 py-2 rounded-lg font-medium text-sm whitespace-nowrap cursor-pointer transition-all order-1 sm:order-2 ${
-                  emailForm.subject.trim() && emailForm.message.trim()
+                  emailForm.subject.trim() && emailForm.message.trim() && !isSendingEmail
                     ? "bg-red-500 text-white hover:bg-red-600"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
               >
-                {language === "ar" ? "إرسال البريد الإلكتروني" : "Send Email"}
+                {isSendingEmail ? (
+                  <span className="flex items-center gap-2">
+                    <i className="ri-loader-4-line animate-spin"></i>
+                    {language === "ar" ? "جاري الإرسال..." : "Sending..."}
+                  </span>
+                ) : (
+                  language === "ar" ? "إرسال البريد الإلكتروني" : "Send Email"
+                )}
               </button>
             </div>
           </div>

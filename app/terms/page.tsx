@@ -143,8 +143,6 @@ export default function TermsPage() {
                     <strong>{t("terms.email")}</strong>{" "}
                     Supplier.com.sa@gmail.com
                     <br />
-                    <strong>{t("terms.phone")}</strong> +966 54 274 1977
-                    <br />
                     <strong>{t("terms.address")}</strong> Riyadh, Saudi Arabia
                   </p>
                 </div>

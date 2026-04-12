@@ -583,84 +583,102 @@ export default function BusinessProfile() {
 
           <div className="absolute inset-0 flex items-end">
             <div className="w-full px-4 md:px-6 pb-6 md:pb-8">
-              <div className="max-w-4xl">
-                <div className="flex flex-wrap items-center gap-2 md:gap-4 mb-3 md:mb-4">
-                  <span className="bg-yellow-400 text-white px-3 py-1 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium">
-                    {typeof business.category === 'string' 
-                      ? getCategoryName(business.category, language === 'ar' ? 'ar' : 'en')
-                      : (business.category as any)?.en || business.category || 'Unknown'
-                    }
-                  </span>
-                  <div
-                    className={`${getBusinessTypeColor(
-                      business.businessType
-                    )} px-3 py-1 md:px-4 md:py-2 rounded-full flex items-center space-x-1 md:space-x-2 border text-xs md:text-sm`}
-                  >
-                    <i
-                      className={`${getBusinessTypeIcon(
-                        business.businessType
-                      )} text-xs md:text-sm`}
-                    ></i>
-                    <span className="font-medium">
-                      {t(
-                        `publicProfile.businessTypes.${business.businessType?.toLowerCase()}`
-                      ) || business.businessType}
-                    </span>
+              <div className="max-w-7xl mx-auto">
+                <div className="flex flex-col md:flex-row md:items-end gap-6">
+                  {/* Logo Box */}
+                  <div className="w-32 h-32 bg-white rounded-2xl shadow-lg border-4 border-white overflow-hidden flex-shrink-0 flex items-center justify-center mb-4 md:mb-0 relative z-10">
+                    <img
+                      src={businessProfile?.profile_image && businessProfile.profile_image.trim() !== "" ? businessProfile.profile_image : "/defaultLogo.png"}
+                      alt={`${business.name} Logo`}
+                      className="w-full h-full object-contain p-2"
+                      onError={(e) => { e.currentTarget.src = "/defaultLogo.png"; }}
+                    />
                   </div>
-                  <div className="flex items-center space-x-1">
-                    {[...Array(5)].map((_, i) => (
-                      <i
-                        key={i}
-                        className={`text-sm md:text-lg ${
-                          i < Math.floor(business.rating)
-                            ? "ri-star-fill text-yellow-400"
-                            : "ri-star-line text-white"
-                        }`}
-                      ></i>
-                    ))}
-                    <span className="text-white ml-1 md:ml-2 text-xs md:text-sm font-medium">
-                      {business.rating} ({business.reviewCount}{" "}
-                      {t("businessProfile.ratingReviewsSuffix")})
-                    </span>
+
+                  <div className="max-w-4xl flex-grow">
+                    <div className="flex flex-wrap items-center gap-2 md:gap-4 mb-3 md:mb-4">
+                      <span className="bg-yellow-400 text-white px-3 py-1 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium">
+                        {typeof business.category === 'string' 
+                          ? getCategoryName(business.category, language === 'ar' ? 'ar' : 'en')
+                          : (business.category as any)?.en || business.category || 'Unknown'
+                        }
+                      </span>
+                      <div
+                        className={`${getBusinessTypeColor(
+                          business.businessType
+                        )} px-3 py-1 md:px-4 md:py-2 rounded-full flex items-center space-x-1 md:space-x-2 border text-xs md:text-sm`}
+                      >
+                        <i
+                          className={`${getBusinessTypeIcon(
+                            business.businessType
+                          )} text-xs md:text-sm`}
+                        ></i>
+                        <span className="font-medium">
+                          {business.businessType && business.businessType.trim() !== "" ? (
+                            t(`publicProfile.businessTypes.${business.businessType.toLowerCase()}`) || business.businessType
+                          ) : (
+                            t("publicProfile.businessTypes.unspecified") || "غير محدد"
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        {[...Array(5)].map((_, i) => (
+                          <i
+                            key={i}
+                            className={`text-sm md:text-lg ${
+                              i < Math.floor(business.rating)
+                                ? "ri-star-fill text-yellow-400"
+                                : "ri-star-line text-white"
+                            }`}
+                          ></i>
+                        ))}
+                        <span className="text-white ml-1 md:ml-2 text-xs md:text-sm font-medium">
+                          {business.rating} ({business.reviewCount}{" "}
+                          {t("businessProfile.ratingReviewsSuffix")})
+                        </span>
+                      </div>
+                    </div>
+                    <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-2">
+                      {business.name}
+                    </h1>
+                    <div className="flex flex-col sm:flex-row sm:items-center text-white space-y-1 sm:space-y-0 sm:space-x-4 text-sm md:text-base">
+                      <span
+                        className={`font-semibold ${status.color.replace(
+                          "text-",
+                          "text-"
+                        )}`}
+                        style={{
+                          color: status.color.includes("green")
+                            ? "#10b981"
+                            : "#dc2626",
+                        }}
+                      >
+                        {status.status}
+                      </span>
+                      <span className="hidden sm:block">•</span>
+                      <span className="flex items-center">
+                        <i className="ri-map-pin-line mr-1"></i>
+                        <span className="truncate">{business.address}</span>
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-2">
-                  {business.name}
-                </h1>
-                <div className="flex flex-col sm:flex-row sm:items-center text-white space-y-1 sm:space-y-0 sm:space-x-4 text-sm md:text-base">
-                  <span
-                    className={`font-semibold ${status.color.replace(
-                      "text-",
-                      "text-"
-                    )}`}
-                    style={{
-                      color: status.color.includes("green")
-                        ? "#10b981"
-                        : "#dc2626",
-                    }}
-                  >
-                    {status.status}
-                  </span>
-                  <span className="hidden sm:block">•</span>
-                  <span className="flex items-center">
-                    <i className="ri-map-pin-line mr-1"></i>
-                    <span className="truncate">{business.address}</span>
-                  </span>
                 </div>
               </div>
             </div>
             {!isOwnProfile && (
-              <div className="flex gap-3 mt-4 px-4 md:px-6 pb-6 md:pb-8">
-                {businessPreferences?.allow_direct_contact !== false &&
-                  isLoggedIn() && (
-                    <button
-                      onClick={() => setShowInquiryModal(true)}
-                      className="px-8 py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors bg-yellow-400 hover:bg-yellow-500 text-white"
-                    >
-                      <i className="ri-message-line mr-2"></i>
-                      {t("publicProfile.buttons.message")}
-                    </button>
-                  )}
+              <div className="absolute bottom-6 md:bottom-8 right-4 md:right-6">
+                <div className="max-w-7xl mx-auto flex justify-end">
+                  {businessPreferences?.allow_direct_contact !== false &&
+                    isLoggedIn() && (
+                      <button
+                        onClick={() => setShowInquiryModal(true)}
+                        className="px-8 py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors bg-yellow-400 hover:bg-yellow-500 text-white shadow-md"
+                      >
+                        <i className="ri-message-line mr-2"></i>
+                        {t("publicProfile.buttons.message")}
+                      </button>
+                    )}
+                </div>
               </div>
             )}
           </div>
@@ -713,9 +731,11 @@ export default function BusinessProfile() {
                     {t("businessProfile.businessType")}
                   </p>
                   <p className="text-xs md:text-sm text-gray-600">
-                    {t(
-                      `publicProfile.businessTypes.${business.businessType?.toLowerCase()}`
-                    ) || business.businessType}
+                    {business.businessType && business.businessType.trim() !== "" ? (
+                      t(`publicProfile.businessTypes.${business.businessType.toLowerCase()}`) || business.businessType
+                    ) : (
+                      t("publicProfile.businessTypes.unspecified") || "غير محدد"
+                    )}
                   </p>
                 </div>
               </div>

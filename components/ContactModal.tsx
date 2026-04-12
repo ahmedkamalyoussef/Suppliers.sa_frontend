@@ -290,13 +290,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                 <p className="text-sm text-gray-600 mb-4">
                   {t("contactModal.directContact.title")}
                 </p>
-                <div className="flex justify-center space-x-6">
-                  <div className="flex items-center space-x-2">
-                    <i className="ri-phone-line text-yellow-600"></i>
-                    <span className="text-sm text-gray-700">
-                      +966 54 274 1977
-                    </span>
-                  </div>
+                <div className="flex justify-center">
                   <div className="flex items-center space-x-2">
                     <i className="ri-mail-line text-yellow-600"></i>
                     <span className="text-sm text-gray-700">

@@ -341,6 +341,7 @@ export const translations = {
       aboutThisBusiness: "About This Business",
       productsServices: "Products & Services",
       keywords: "Keywords",
+      noKeywords: "No keywords available",
       itemsCount: "{{count}} items",
       catalogTitle: "Complete Product & Service Catalog",
       catalogSubtitle:
@@ -1966,6 +1967,7 @@ export const translations = {
         count: "reviews",
       },
       businessTypes: {
+        unspecified: "Unspecified",
         supplier: "Supplier",
         store: "Retail Shop",
         office: "Company",
@@ -3500,6 +3502,7 @@ export const translations = {
       aboutThisBusiness: "نبذه عن النشاط",
       productsServices: "المنتجات والخدمات",
       keywords: "الكلمات المفتاحية",
+      noKeywords: "لا توجد كلمات مفتاحية",
       itemsCount: "{{count}} عنصر",
       catalogTitle: "فهرس كامل للمنتجات والخدمات",
       catalogSubtitle: "ابحث في قائمتنا الواسعة من المنتجات والخدمات",
@@ -5045,6 +5048,7 @@ export const translations = {
         count: "تقييم",
       },
       businessTypes: {
+        unspecified: "غير محدد",
         supplier: "مورد",
         store: "متجر تجزئة",
         office: "شركة",

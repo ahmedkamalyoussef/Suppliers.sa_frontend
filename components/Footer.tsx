@@ -95,12 +95,6 @@ export default function Footer() {
                 >
                   <FaLinkedin className="text-lg sm:text-xl text-blue-500" />
                 </a>
-                <a
-                  href="tel:+966542741977"
-                  className="flex items-center justify-center transition-colors cursor-pointer"
-                >
-                  <FaWhatsapp className="text-lg sm:text-xl text-green-500" />
-                </a>
               </div>
             </div>
 
