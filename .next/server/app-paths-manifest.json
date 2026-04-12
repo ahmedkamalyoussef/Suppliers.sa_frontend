@@ -1,7 +1,8 @@
 {
-  "/login/page": "app/login/page.js",
-  "/dashboard/page": "app/dashboard/page.js",
-  "/business/[id]/page": "app/business/[id]/page.js",
   "/profile/[id]/page": "app/profile/[id]/page.js",
-  "/admin/page": "app/admin/page.js"
+  "/businesses/page": "app/businesses/page.js",
+  "/subscription/page": "app/subscription/page.js",
+  "/about/page": "app/about/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/payment-complete/page": "app/payment-complete/page.js"
 }

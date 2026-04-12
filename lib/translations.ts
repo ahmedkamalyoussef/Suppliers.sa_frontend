@@ -1909,12 +1909,11 @@ export const translations = {
         maxDescription: "Maximum description characters",
       },
       payments: {
-        basicPlan: "Basic Plan Price",
-        premiumPlan: "Premium Plan Price",
-        enterprisePlan: "Enterprise Plan Price",
-        taxRate: "Tax Rate (%)",
+        premiumMonthly: "Premium Monthly Price",
+        premiumAnnual: "Premium Annual Price",
+        totalRevenue: "Total Revenue",
+        totalRevenueHint: "Auto-calculated from completed subscription payments",
         invoicePrefix: "Invoice Prefix",
-        paymentGateway: "Payment Gateway",
       },
       security: {
         twoFactor: "Require two-factor authentication",
@@ -4171,12 +4170,11 @@ export const translations = {
         maxDescription: "الحد الأقصى لحروف الوصف",
       },
       payments: {
-        basicPlan: "سعر الخطة الأساسية",
-        premiumPlan: "سعر الخطة المميزة",
-        enterprisePlan: "سعر الخطة المؤسسية",
-        taxRate: "معدل الضريبة (%)",
+        premiumMonthly: "سعر الباقة المميزة الشهرية",
+        premiumAnnual: "سعر الباقة المميزة السنوية",
+        totalRevenue: "إجمالي الإيرادات",
+        totalRevenueHint: "يتم حسابه تلقائياً من المدفوعات المكتملة",
         invoicePrefix: "بادئة الفاتورة",
-        paymentGateway: "بوابة الدفع",
       },
       security: {
         twoFactor: "مطلوب المصادقة الثنائية",

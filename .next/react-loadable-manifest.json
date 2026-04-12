@@ -3,16 +3,6 @@
     "id": "../components/AdminAnalytics.tsx -> ../lib/api",
     "files": []
   },
-  "../components/BusinessManagement.tsx -> ../lib/api": {
-    "id": "../components/BusinessManagement.tsx -> ../lib/api",
-    "files": []
-  },
-  "../components/BusinessManagement.tsx -> ./BusinessLocationMap": {
-    "id": "../components/BusinessManagement.tsx -> ./BusinessLocationMap",
-    "files": [
-      "static/chunks/_app-pages-browser_components_BusinessLocationMap_tsx.js"
-    ]
-  },
   "../components/ContentManagement.tsx -> ../lib/api": {
     "id": "../components/ContentManagement.tsx -> ../lib/api",
     "files": []

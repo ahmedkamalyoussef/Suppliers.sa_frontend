@@ -34,12 +34,10 @@ export default function SystemSettings() {
     },
     payments: {
       currency: "SAR",
-      basicPlanPrice: 0,
-      premiumPlanPrice: 290,
-      enterprisePlanPrice: 990,
-      paymentGateway: "stripe",
-      taxRate: 15,
-      invoicePrefix: "INV-",
+      premiumMonthlyPrice: 290,
+      premiumAnnualPrice: 2900,
+      totalRevenue: 0,
+      // invoicePrefix: "INV-",
     },
     security: {
       twoFactorRequired: false,
@@ -149,13 +147,11 @@ export default function SystemSettings() {
               premiumFeaturesEnabled: data.settings.premium_features_enabled,
             },
             payments: {
-              currency: "SAR", // Default since not in API
-              basicPlanPrice: 0, // Default since not in API
-              premiumPlanPrice: 290, // Default since not in API
-              enterprisePlanPrice: 990, // Default since not in API
-              paymentGateway: "stripe", // Default since not in API
-              taxRate: 15, // Default since not in API
-              invoicePrefix: "INV-", // Default since not in API
+              currency: "SAR",
+              premiumMonthlyPrice: data.settings.premium_monthly_price ?? 290,
+              premiumAnnualPrice: data.settings.premium_annual_price ?? 2900,
+              totalRevenue: data.settings.total_revenue ?? 0,
+              // invoicePrefix: "INV-",
             },
             security: {
               twoFactorRequired:
@@ -338,6 +334,8 @@ export default function SystemSettings() {
         maintenance_notifications:
           settings.notifications.maintenanceNotifications,
         backup_retention_days: settings.security.backupRetention,
+        premium_monthly_price: settings.payments.premiumMonthlyPrice,
+        premium_annual_price: settings.payments.premiumAnnualPrice,
       };
 
       const response = await apiService.updateSystemSettings(apiData);
@@ -428,12 +426,10 @@ export default function SystemSettings() {
                 },
                 payments: {
                   currency: "SAR",
-                  basicPlanPrice: 0,
-                  premiumPlanPrice: 290,
-                  enterprisePlanPrice: 990,
-                  paymentGateway: "stripe",
-                  taxRate: 15,
-                  invoicePrefix: "INV-",
+                  premiumMonthlyPrice: data.settings.premium_monthly_price ?? 290,
+                  premiumAnnualPrice: data.settings.premium_annual_price ?? 2900,
+                  totalRevenue: data.settings.total_revenue ?? 0,
+                  // invoicePrefix: "INV-",
                 },
                 security: {
                   twoFactorRequired:
@@ -786,7 +782,7 @@ export default function SystemSettings() {
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("systemSettings.payments.basicPlan")}
+                    {t("systemSettings.payments.premiumMonthly")}
                   </label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">
@@ -794,11 +790,11 @@ export default function SystemSettings() {
                     </span>
                     <input
                       type="number"
-                      value={settings.payments.basicPlanPrice}
+                      value={settings.payments.premiumMonthlyPrice}
                       onChange={(e) =>
                         handleSettingChange(
                           "payments",
-                          "basicPlanPrice",
+                          "premiumMonthlyPrice",
                           parseFloat(e.target.value)
                         )
                       }
@@ -809,7 +805,7 @@ export default function SystemSettings() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("systemSettings.payments.premiumPlan")}
+                    {t("systemSettings.payments.premiumAnnual")}
                   </label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">
@@ -817,11 +813,11 @@ export default function SystemSettings() {
                     </span>
                     <input
                       type="number"
-                      value={settings.payments.premiumPlanPrice}
+                      value={settings.payments.premiumAnnualPrice}
                       onChange={(e) =>
                         handleSettingChange(
                           "payments",
-                          "premiumPlanPrice",
+                          "premiumAnnualPrice",
                           parseFloat(e.target.value)
                         )
                       }
@@ -832,7 +828,7 @@ export default function SystemSettings() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("systemSettings.payments.enterprisePlan")}
+                    {t("systemSettings.payments.totalRevenue")}
                   </label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">
@@ -840,38 +836,17 @@ export default function SystemSettings() {
                     </span>
                     <input
                       type="number"
-                      value={settings.payments.enterprisePlanPrice}
-                      onChange={(e) =>
-                        handleSettingChange(
-                          "payments",
-                          "enterprisePlanPrice",
-                          parseFloat(e.target.value)
-                        )
-                      }
-                      className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
+                      value={settings.payments.totalRevenue}
+                      readOnly
+                      className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 text-sm cursor-not-allowed"
                     />
                   </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {t("systemSettings.payments.totalRevenueHint")}
+                  </p>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("systemSettings.payments.taxRate")}
-                  </label>
-                  <input
-                    type="number"
-                    value={settings.payments.taxRate}
-                    onChange={(e) =>
-                      handleSettingChange(
-                        "payments",
-                        "taxRate",
-                        parseFloat(e.target.value)
-                      )
-                    }
-                    className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
-                  />
-                </div>
-
-                <div>
+                {/* <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t("systemSettings.payments.invoicePrefix")}
                   </label>
@@ -887,28 +862,7 @@ export default function SystemSettings() {
                     }
                     className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
                   />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("systemSettings.payments.paymentGateway")}
-                  </label>
-                  <select
-                    value={settings.payments.paymentGateway}
-                    onChange={(e) =>
-                      handleSettingChange(
-                        "payments",
-                        "paymentGateway",
-                        e.target.value
-                      )
-                    }
-                    className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
-                  >
-                    <option value="stripe">Stripe</option>
-                    <option value="paypal">PayPal</option>
-                    <option value="razorpay">Razorpay</option>
-                  </select>
-                </div>
+                </div> */}
               </div>
             </div>
           )}

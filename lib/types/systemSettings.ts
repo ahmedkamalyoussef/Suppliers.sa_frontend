@@ -21,6 +21,9 @@ export interface SystemSettings {
   system_alerts: boolean;
   maintenance_notifications: boolean;
   backup_retention_days: number;
+  premium_monthly_price: number;
+  premium_annual_price: number;
+  total_revenue?: number;
   created_at: string;
   updated_at: string;
 }
@@ -52,6 +55,8 @@ export interface UpdateSystemSettingsRequest {
   system_alerts: boolean;
   maintenance_notifications: boolean;
   backup_retention_days: number;
+  premium_monthly_price: number;
+  premium_annual_price: number;
 }
 
 export interface UpdateSystemSettingsResponse {
