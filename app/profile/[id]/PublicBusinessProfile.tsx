@@ -406,29 +406,29 @@ export default function PublicBusinessProfile({
             <div className="absolute inset-0 bg-black bg-opacity-30"></div>
           </div>
 
-          <div className="absolute bottom-0 left-0 right-0 p-8">
+          <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8">
             <div className="max-w-7xl mx-auto">
-              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-                <div className="flex items-end gap-6">
-                  <div className="w-32 h-32 bg-yellow-100 rounded-2xl shadow-lg border-4 border-white overflow-hidden flex-shrink-0 flex items-center justify-center">
+              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 md:gap-6">
+                <div className="flex flex-col sm:flex-row sm:items-end gap-3 sm:gap-4 md:gap-6">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 bg-yellow-100 rounded-xl md:rounded-2xl shadow-lg border-2 md:border-4 border-white overflow-hidden flex-shrink-0 flex items-center justify-center">
                     <img
                       src={business.logo}
                       alt={`${business.name} Logo`}
-                      className="w-80 h-80 object-contain"
+                      className="w-full h-full object-contain p-1 md:p-2"
                     />
                   </div>
 
-                  <div>
-                    <div className="flex items-center gap-3 mb-3">
-                      <span className="bg-yellow-400 text-white px-4 py-2 rounded-full text-sm font-semibold">
-                        {typeof business.category === 'string' 
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 md:gap-3 mb-2 md:mb-3">
+                      <span className="bg-yellow-400 text-white px-2 py-0.5 md:px-4 md:py-2 rounded-full text-xs font-semibold">
+                        {typeof business.category === 'string'
                           ? getCategoryName(business.category, language === 'ar' ? 'ar' : 'en')
                           : (business.category as any)?.en || business.category || 'Unknown'
                         }
                       </span>
-                      <div className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full flex items-center gap-2 border border-yellow-200 backdrop-blur-sm">
-                        <i className="ri-store-3-line text-sm"></i>
-                        <span className="text-sm font-medium">
+                      <div className="bg-yellow-100 text-yellow-800 px-2 py-0.5 md:px-4 md:py-2 rounded-full flex items-center gap-1 md:gap-2 border border-yellow-200 backdrop-blur-sm text-xs">
+                        <i className="ri-store-3-line"></i>
+                        <span className="font-medium">
                           {getTranslatedBusinessType(
                             supplier?.profile?.business_type ||
                               business.businessType
@@ -443,33 +443,33 @@ export default function PublicBusinessProfile({
                               : supplier.status.toLowerCase() === "verified"
                               ? "bg-green-500"
                               : "bg-gray-500"
-                          } text-white px-4 py-2 rounded-full flex items-center gap-2`}
+                          } text-white px-2 py-0.5 md:px-4 md:py-2 rounded-full flex items-center gap-1 md:gap-2 text-xs`}
                         >
                           <i
                             className={`ri-${
                               supplier.status.toLowerCase() === "verified"
                                 ? "verified-badge-fill"
                                 : "time-line"
-                            } text-sm`}
+                            }`}
                           ></i>
-                          <span className="text-sm font-medium capitalize">
+                          <span className="font-medium capitalize">
                             {getTranslatedStatus(supplier.status)}
                           </span>
                         </div>
                       )}
                     </div>
 
-                    <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-3">
+                    <h1 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-bold text-gray-800 mb-2 md:mb-3 break-words">
                       {business.name}
                     </h1>
 
-                    <div className="flex items-center gap-6 text-gray-700">
-                      <div className="flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-x-4 sm:gap-y-1 text-gray-700 text-xs sm:text-sm md:text-base">
+                      <div className="flex items-center gap-1 sm:gap-2">
                         <div className="flex items-center">
                           {[...Array(5)].map((_, i) => (
                             <i
                               key={i}
-                              className={`text-lg ${
+                              className={`text-sm md:text-lg ${
                                 i < Math.floor(business.rating)
                                   ? "ri-star-fill text-yellow-400"
                                   : "ri-star-line text-gray-400"
@@ -483,13 +483,10 @@ export default function PublicBusinessProfile({
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 sm:gap-2">
                         <i className="ri-time-line"></i>
                         <span
-                          className={`font-medium ${status.color.replace(
-                            "text-",
-                            ""
-                          )}`}
+                          className="font-medium"
                           style={{
                             color: status.color.includes("green")
                               ? "#10b981"
@@ -500,9 +497,9 @@ export default function PublicBusinessProfile({
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <i className="ri-map-pin-line"></i>
-                        <span className="text-gray-600">
+                      <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+                        <i className="ri-map-pin-line flex-shrink-0"></i>
+                        <span className="text-gray-600 truncate">
                           {supplier?.profile?.business_address ||
                             t("publicProfile.defaultAddress")}
                         </span>
@@ -512,16 +509,16 @@ export default function PublicBusinessProfile({
                 </div>
 
                 {!isOwnProfile && (
-                  <div className="flex gap-3">
+                  <div className="flex flex-wrap gap-2 sm:gap-3">
                     <button
                       onClick={() => setShowInquiryModal(true)}
-                      className="bg-yellow-400 hover:bg-yellow-500 text-white px-8 py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors"
+                      className="bg-yellow-400 hover:bg-yellow-500 text-white px-4 sm:px-6 md:px-8 py-2 md:py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors text-xs sm:text-sm md:text-base"
                     >
-                      <i className="ri-message-line mr-2"></i>
+                      <i className="ri-message-line mr-1 sm:mr-2"></i>
                       {t("publicProfile.buttons.message")}
                     </button>
-                    <button className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-gray-700 px-8 py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors border border-gray-300">
-                      <i className="ri-phone-line mr-2"></i>
+                    <button className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-gray-700 px-4 sm:px-6 md:px-8 py-2 md:py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors border border-gray-300 text-xs sm:text-sm md:text-base">
+                      <i className="ri-phone-line mr-1 sm:mr-2"></i>
                       {t("publicProfile.buttons.callNow")}
                     </button>
                   </div>

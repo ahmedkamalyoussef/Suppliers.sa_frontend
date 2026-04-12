@@ -271,6 +271,21 @@ export default function BusinessProfile() {
     }>;
   };
 
+  const DefaultHeroBg = () => (
+    <div className="w-full h-full bg-gradient-to-br from-green-50 to-gray-100 flex items-center justify-center overflow-hidden relative">
+      <div className="absolute inset-0 opacity-75">
+        <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, var(--bs-white) 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
+      </div>
+      <div className="relative flex flex-col items-center">
+        <div className="text-4xl md:text-6xl font-black tracking-tighter flex items-center">
+          <span className="text-gray-800">Supplier</span>
+          <span className="text-yellow-400">.sa</span>
+        </div>
+        <div className="h-1 w-24 bg-yellow-400 mt-2 rounded-full opacity-9"></div>
+      </div>
+    </div>
+  );
+
   // Business data from API
   const business = {
     id: businessProfile?.id || "",
@@ -286,6 +301,7 @@ export default function BusinessProfile() {
     phone: businessProfile?.profile?.main_phone || "",
     email: businessProfile?.profile?.contact_email || "",
     website: businessProfile?.profile?.website || "",
+    business_image: businessProfile?.profile?.business_image || "",
     coordinates: {
       lat: businessProfile?.profile?.latitude
         ? parseFloat(businessProfile.profile.latitude)
@@ -573,32 +589,45 @@ export default function BusinessProfile() {
       <main>
         {/* Hero Section */}
         <section className="relative h-64 md:h-80 lg:h-96 overflow-hidden">
-          <img
-            src={businessProfile?.profile_image && businessProfile.profile_image.trim() !== "" ? businessProfile.profile_image : "/defaultLogo.png"}
-            alt={business.name}
-            className="w-full h-full object-cover object-center"
-            onError={(e) => { e.currentTarget.src = "/defaultLogo.png"; }}
-          />
-          <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+          {business.business_image && business.business_image.trim() !== "" ? (
+            <img
+              src={business.business_image}
+              alt={business.name}
+              className="w-full h-full object-cover object-center"
+              onError={(e) => { 
+                e.currentTarget.style.display = 'none';
+                const parent = e.currentTarget.parentElement;
+                if (parent) {
+                  const fallback = document.createElement('div');
+                  fallback.className = "w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center";
+                  fallback.innerHTML = `<div class="text-4xl md:text-6xl font-black tracking-tighter flex items-center"><span class="text-gray-800">Supplier</span><span class="text-yellow-400">.sa</span></div>`;
+                  parent.appendChild(fallback);
+                }
+              }}
+            />
+          ) : (
+            <DefaultHeroBg />
+          )}
+          <div className="absolute inset-0 bg-black bg-opacity-25"></div>
 
           <div className="absolute inset-0 flex items-end">
-            <div className="w-full px-4 md:px-6 pb-6 md:pb-8">
+            <div className="w-full px-3 sm:px-4 md:px-6 pb-4 sm:pb-6 md:pb-8">
               <div className="max-w-7xl mx-auto">
-                <div className="flex flex-col md:flex-row md:items-end gap-6">
+                <div className="flex flex-col md:flex-row md:items-end gap-3 md:gap-6">
                   {/* Logo Box */}
-                  <div className="w-32 h-32 bg-white rounded-2xl shadow-lg border-4 border-white overflow-hidden flex-shrink-0 flex items-center justify-center mb-4 md:mb-0 relative z-10">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 bg-white rounded-xl md:rounded-2xl shadow-lg border-2 md:border-4 border-white overflow-hidden flex-shrink-0 flex items-center justify-center mb-2 md:mb-0 relative z-10">
                     <img
                       src={businessProfile?.profile_image && businessProfile.profile_image.trim() !== "" ? businessProfile.profile_image : "/defaultLogo.png"}
                       alt={`${business.name} Logo`}
-                      className="w-full h-full object-contain p-2"
+                      className="w-full h-full object-contain p-1 md:p-2"
                       onError={(e) => { e.currentTarget.src = "/defaultLogo.png"; }}
                     />
                   </div>
 
-                  <div className="max-w-4xl flex-grow">
-                    <div className="flex flex-wrap items-center gap-2 md:gap-4 mb-3 md:mb-4">
-                      <span className="bg-yellow-400 text-white px-3 py-1 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium">
-                        {typeof business.category === 'string' 
+                  <div className="max-w-4xl flex-grow min-w-0">
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 md:gap-4 mb-2 md:mb-4">
+                      <span className="bg-yellow-400 text-white px-2 py-0.5 md:px-4 md:py-2 rounded-full text-xs font-medium">
+                        {typeof business.category === 'string'
                           ? getCategoryName(business.category, language === 'ar' ? 'ar' : 'en')
                           : (business.category as any)?.en || business.category || 'Unknown'
                         }
@@ -606,12 +635,12 @@ export default function BusinessProfile() {
                       <div
                         className={`${getBusinessTypeColor(
                           business.businessType
-                        )} px-3 py-1 md:px-4 md:py-2 rounded-full flex items-center space-x-1 md:space-x-2 border text-xs md:text-sm`}
+                        )} px-2 py-0.5 md:px-4 md:py-2 rounded-full flex items-center gap-1 md:gap-2 border text-xs`}
                       >
                         <i
                           className={`${getBusinessTypeIcon(
                             business.businessType
-                          )} text-xs md:text-sm`}
+                          )} text-xs`}
                         ></i>
                         <span className="font-medium">
                           {business.businessType && business.businessType.trim() !== "" ? (
@@ -621,32 +650,29 @@ export default function BusinessProfile() {
                           )}
                         </span>
                       </div>
-                      <div className="flex items-center space-x-1">
+                      <div className="flex items-center gap-0.5">
                         {[...Array(5)].map((_, i) => (
                           <i
                             key={i}
-                            className={`text-sm md:text-lg ${
+                            className={`text-xs md:text-lg ${
                               i < Math.floor(business.rating)
                                 ? "ri-star-fill text-yellow-400"
                                 : "ri-star-line text-white"
                             }`}
                           ></i>
                         ))}
-                        <span className="text-white ml-1 md:ml-2 text-xs md:text-sm font-medium">
+                        <span className="text-white ml-1 text-xs font-medium">
                           {business.rating} ({business.reviewCount}{" "}
                           {t("businessProfile.ratingReviewsSuffix")})
                         </span>
                       </div>
                     </div>
-                    <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-2">
+                    <h1 className="text-lg sm:text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-1 md:mb-2 break-words">
                       {business.name}
                     </h1>
-                    <div className="flex flex-col sm:flex-row sm:items-center text-white space-y-1 sm:space-y-0 sm:space-x-4 text-sm md:text-base">
+                    <div className="flex flex-col sm:flex-row sm:items-center text-white gap-1 sm:gap-0 sm:space-x-4 text-xs sm:text-sm md:text-base">
                       <span
-                        className={`font-semibold ${status.color.replace(
-                          "text-",
-                          "text-"
-                        )}`}
+                        className="font-semibold"
                         style={{
                           color: status.color.includes("green")
                             ? "#10b981"
@@ -656,8 +682,8 @@ export default function BusinessProfile() {
                         {status.status}
                       </span>
                       <span className="hidden sm:block">•</span>
-                      <span className="flex items-center">
-                        <i className="ri-map-pin-line mr-1"></i>
+                      <span className="flex items-center min-w-0">
+                        <i className="ri-map-pin-line mr-1 flex-shrink-0"></i>
                         <span className="truncate">{business.address}</span>
                       </span>
                     </div>
@@ -666,15 +692,15 @@ export default function BusinessProfile() {
               </div>
             </div>
             {!isOwnProfile && (
-              <div className="absolute bottom-6 md:bottom-8 right-4 md:right-6">
+              <div className="absolute bottom-16 sm:bottom-20 md:bottom-8 right-3 sm:right-4 md:right-6">
                 <div className="max-w-7xl mx-auto flex justify-end">
                   {businessPreferences?.allow_direct_contact !== false &&
                     isLoggedIn() && (
                       <button
                         onClick={() => setShowInquiryModal(true)}
-                        className="px-8 py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors bg-yellow-400 hover:bg-yellow-500 text-white shadow-md"
+                        className="px-4 sm:px-6 md:px-8 py-2 md:py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors bg-yellow-400 hover:bg-yellow-500 text-white shadow-md text-xs sm:text-sm md:text-base"
                       >
-                        <i className="ri-message-line mr-2"></i>
+                        <i className="ri-message-line mr-1 md:mr-2"></i>
                         {t("publicProfile.buttons.message")}
                       </button>
                     )}
