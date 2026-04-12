@@ -589,9 +589,9 @@ export default function BusinessProfile() {
       <main>
         {/* Hero Section */}
         <section className="relative h-64 md:h-80 lg:h-96 overflow-hidden">
-          {business.business_image && business.business_image.trim() !== "" ? (
+          {businessProfile?.profile_image && businessProfile.profile_image.trim() !== "" ? (
             <img
-              src={business.business_image}
+              src={businessProfile.profile_image}
               alt={business.name}
               className="w-full h-full object-cover object-center"
               onError={(e) => { 

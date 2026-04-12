@@ -73,6 +73,21 @@ type Review = {
   };
 };
 
+const DefaultHeroBg = () => (
+  <div className="w-full h-full bg-gradient-to-br from-green-50 to-gray-100 flex items-center justify-center overflow-hidden relative">
+    <div className="absolute inset-0 opacity-75">
+      <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, var(--bs-white) 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
+    </div>
+    <div className="relative flex flex-col items-center">
+      <div className="text-4xl md:text-6xl font-black tracking-tighter flex items-center">
+        <span className="text-gray-800">Supplier</span>
+        <span className="text-yellow-400">.sa</span>
+      </div>
+      <div className="h-1 w-24 bg-yellow-400 mt-2 rounded-full opacity-9"></div>
+    </div>
+  </div>
+);
+
 type PublicBusinessProfileProps = {
   supplier?: SupplierProfile;
   businessId?: string;
@@ -167,7 +182,7 @@ export default function PublicBusinessProfile({
   const business: Business = {
     id: supplier?.id?.toString() || businessId || "1",
     name: supplier?.name || "",
-    logo: supplier?.profile_image || "/images/business-logo.png",
+    logo: supplier?.profile_image || "/defaultLogo.png",
     category: supplier?.profile?.category || "",
     business_image:
       supplier?.profile?.business_image || supplier?.profile_image || "",
@@ -397,12 +412,25 @@ export default function PublicBusinessProfile({
         {/* Hero Section */}
         <section className="relative">
           <div className="h-64 sm:h-72 md:h-80 lg:h-96 relative overflow-hidden">
-            <img
-              src={business.business_image && business.business_image.trim() !== "" ? business.business_image : "/defaultLogo.png"}
-              alt={business.name}
-              className="w-full h-full object-cover object-center"
-              onError={(e) => { e.currentTarget.src = "/defaultLogo.png"; }}
-            />
+            {business.business_image && business.business_image.trim() !== "" ? (
+              <img
+                src={business.business_image}
+                alt={business.name}
+                className="w-full h-full object-cover object-center"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  const parent = e.currentTarget.parentElement;
+                  if (parent) {
+                    const fallback = document.createElement('div');
+                    fallback.className = "w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center";
+                    fallback.innerHTML = `<div class="text-4xl md:text-6xl font-black tracking-tighter flex items-center"><span class="text-gray-800">Supplier</span><span class="text-yellow-400">.sa</span></div>`;
+                    parent.appendChild(fallback);
+                  }
+                }}
+              />
+            ) : (
+              <DefaultHeroBg />
+            )}
             <div className="absolute inset-0 bg-black bg-opacity-30"></div>
           </div>
 
@@ -415,6 +443,7 @@ export default function PublicBusinessProfile({
                       src={business.logo}
                       alt={`${business.name} Logo`}
                       className="w-full h-full object-contain p-1 md:p-2"
+                      onError={(e) => { e.currentTarget.src = "/defaultLogo.png"; }}
                     />
                   </div>
 
