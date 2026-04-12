@@ -253,7 +253,7 @@ export default function SearchSection() {
     {
       id: "Jewelry & Gemstones",
       name: t("cat.jewelryGemstones") || "Jewelry & Gemstones",
-      icon: "ri-gem-line",
+      icon: "ri-vip-diamond-line",
       color: "from-yellow-300 to-yellow-500",
     },
     {
@@ -301,7 +301,7 @@ export default function SearchSection() {
     {
       id: "Pipes, Tubes & Fittings",
       name: t("cat.pipesTubes") || "Pipes, Tubes & Fittings",
-      icon: "ri-tube-line",
+      icon: "ri-settings-3-line",
       color: "from-gray-500 to-gray-700",
     },
     {
