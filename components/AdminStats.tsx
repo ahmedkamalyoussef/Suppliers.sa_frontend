@@ -5,7 +5,11 @@ import { useLanguage } from "../lib/LanguageContext";
 import { apiService } from "../lib/api";
 import { AdminDashboardResponse } from "../lib/types/adminDashboard";
 
-export default function AdminStats() {
+interface AdminStatsProps {
+  onTabChange?: (tab: string) => void;
+}
+
+export default function AdminStats({ onTabChange }: AdminStatsProps) {
   const { t } = useLanguage();
   const [timeRange, setTimeRange] = useState("30days");
   const [dashboardData, setDashboardData] = useState<AdminDashboardResponse | null>(null);
@@ -77,14 +81,16 @@ export default function AdminStats() {
       count: dashboardData.businessVerification.pending,
       priority: "high" as const,
       action: t("adminStats.reviewNow"),
+      tab: "content",
     },
     {
       title: t("adminStats.contentReports"),
       count: dashboardData.content_reports_count,
       priority: "medium" as const,
       action: t("adminStats.moderate"),
+      tab: "content",
     },
-  ] : [];
+  ].filter(item => item.count > 0) : [];
 
   const quickActions = [
     {
@@ -92,24 +98,28 @@ export default function AdminStats() {
       description: t("adminStats.addEmployeeDesc"),
       icon: "ri-user-add-line",
       color: "bg-blue-500",
+      tab: "employees",
     },
     {
       title: t("adminStats.broadcastMessage"),
       description: t("adminStats.broadcastMessageDesc"),
       icon: "ri-megaphone-line",
       color: "bg-green-500",
+      tab: "communications",
     },
     {
       title: t("adminStats.generateReport"),
       description: t("adminStats.generateReportDesc"),
       icon: "ri-file-chart-line",
       color: "bg-purple-500",
+      tab: "analytics",
     },
     {
       title: t("adminStats.systemMaintenance"),
       description: t("adminStats.systemMaintenanceDesc"),
       icon: "ri-tools-line",
       color: "bg-orange-500",
+      tab: "settings",
     },
   ];
 
@@ -175,6 +185,7 @@ export default function AdminStats() {
           {quickActions.map((action, index) => (
             <button
               key={index}
+              onClick={() => onTabChange && onTabChange(action.tab)}
               className="p-3 sm:p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:shadow-md transition-all text-left cursor-pointer w-full"
             >
               <div
@@ -235,7 +246,10 @@ export default function AdminStats() {
                     </span>
                   </div>
                 </div>
-                <button className="bg-red-500 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-red-600 font-medium text-xs sm:text-sm whitespace-nowrap cursor-pointer w-full sm:w-auto mt-2 sm:mt-0">
+                <button
+                  onClick={() => onTabChange && onTabChange(item.tab)}
+                  className="bg-red-500 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-red-600 font-medium text-xs sm:text-sm whitespace-nowrap cursor-pointer w-full sm:w-auto mt-2 sm:mt-0"
+                >
                   {item.action}
                 </button>
               </div>

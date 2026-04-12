@@ -224,37 +224,41 @@ const InteractiveMapGoogle = ({
     const bounds = new g.maps.LatLngBounds();
 
     businesses.forEach((business) => {
-      const markerColor = getBusinessMarkerColor(business.type);
+      // Create yellow pin with S marker content
+      const pinSvg = document.createElement("div");
+      pinSvg.innerHTML = `
+        <svg width="36" height="48" viewBox="0 0 36 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); cursor: pointer; transform: translate(-50%, -100%);">
+          <path d="M18 0C8.059 0 0 8.059 0 18c0 13.5 18 30 18 30s18-16.5 18-30C36 8.059 27.941 0 18 0z" fill="#FACC15"/>
+          <circle cx="18" cy="18" r="10" fill="white"/>
+          <text x="18" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#FACC15">S</text>
+        </svg>
+      `;
 
-      // Create custom marker using Google Maps AdvancedMarkerElement if available, otherwise fallback to Marker
       let marker: any;
       if (g.maps.marker?.AdvancedMarkerElement) {
-        // AdvancedMarkerElement (modern)
-        const pin = new g.maps.marker.PinElement({
-          background: markerColor,
-          borderColor: "#fff",
-          glyphColor: "#fff",
-          scale: 1.2,
-        });
+        // AdvancedMarkerElement with custom SVG content
         marker = new g.maps.marker.AdvancedMarkerElement({
           position: { lat: business.lat, lng: business.lng },
           map: mapRef.current,
           title: business.name,
-          content: pin.element,
+          content: pinSvg.firstElementChild,
         });
       } else {
-        // Fallback to classic Marker
+        // Fallback to classic Marker with SVG icon
         marker = new g.maps.Marker({
           position: { lat: business.lat, lng: business.lng },
           map: mapRef.current,
           title: business.name,
           icon: {
-            path: g.maps.SymbolPath.CIRCLE,
-            scale: 8,
-            fillColor: markerColor,
-            fillOpacity: 1,
-            strokeColor: "#fff",
-            strokeWeight: 2,
+            url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
+              <svg width="36" height="48" viewBox="0 0 36 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 0C8.059 0 0 8.059 0 18c0 13.5 18 30 18 30s18-16.5 18-30C36 8.059 27.941 0 18 0z" fill="#FACC15"/>
+                <circle cx="18" cy="18" r="10" fill="white"/>
+                <text x="18" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#FACC15">S</text>
+              </svg>
+            `),
+            scaledSize: new g.maps.Size(36, 48),
+            anchor: new g.maps.Point(18, 48),
           },
         });
       }

@@ -396,21 +396,14 @@ export default function PublicBusinessProfile({
       <main>
         {/* Hero Section */}
         <section className="relative">
-          <div className="h-80 relative overflow-hidden">
+          <div className="h-64 sm:h-72 md:h-80 lg:h-96 relative overflow-hidden">
             <img
-              src={business.business_image}
+              src={business.business_image && business.business_image.trim() !== "" ? business.business_image : "/defaultLogo.png"}
               alt={business.name}
-              className="w-full h-full object-cover object-top"
+              className="w-full h-full object-cover object-center"
+              onError={(e) => { e.currentTarget.src = "/defaultLogo.png"; }}
             />
-            <div
-              className="absolute inset-0 bg-yellow-100"
-              style={{
-                backgroundImage: `url(${business.business_image || ""})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                backgroundRepeat: "no-repeat",
-              }}
-            ></div>
+            <div className="absolute inset-0 bg-black bg-opacity-30"></div>
           </div>
 
           <div className="absolute bottom-0 left-0 right-0 p-8">

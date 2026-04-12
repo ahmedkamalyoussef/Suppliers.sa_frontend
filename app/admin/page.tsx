@@ -164,7 +164,7 @@ export default function AdminDashboard() {
 
                   {/* Tab Content */}
                   <div className="p-4 sm:p-6 md:p-8">
-                    {activeTab === "overview" && <AdminStats />}
+                    {activeTab === "overview" && <AdminStats onTabChange={setActiveTab} />}
                     {activeTab === "users" && <UserManagement />}
                     {activeTab === "employees" && <EmployeeManagement />}
                     {activeTab === "content" && <ContentManagement />}

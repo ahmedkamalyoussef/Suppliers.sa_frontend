@@ -573,19 +573,12 @@ export default function BusinessProfile() {
       <main>
         {/* Hero Section */}
         <section className="relative h-64 md:h-80 lg:h-96 overflow-hidden">
-          {businessProfile?.profile_image ? (
-            <div
-              className="w-full h-full bg-cover bg-center"
-              style={{
-                backgroundImage: `url(${businessProfile.profile_image})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                backgroundRepeat: "no-repeat",
-              }}
-            ></div>
-          ) : (
-            <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600"></div>
-          )}
+          <img
+            src={businessProfile?.profile_image && businessProfile.profile_image.trim() !== "" ? businessProfile.profile_image : "/defaultLogo.png"}
+            alt={business.name}
+            className="w-full h-full object-cover object-center"
+            onError={(e) => { e.currentTarget.src = "/defaultLogo.png"; }}
+          />
           <div className="absolute inset-0 bg-black bg-opacity-40"></div>
 
           <div className="absolute inset-0 flex items-end">

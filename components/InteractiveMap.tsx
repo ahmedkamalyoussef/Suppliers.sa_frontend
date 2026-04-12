@@ -268,22 +268,21 @@ const InteractiveMap = ({
       businesses.forEach((business) => {
         const markerColor = getBusinessMarkerColor(business.type);
 
-        // Create custom marker
+        // Create custom marker - Yellow Pin with S
         const customIcon = L.divIcon({
           className: "custom-marker",
           html: `
-            <div style="
-              background-color: ${markerColor};
-              width: 20px;
-              height: 20px;
-              border-radius: 50%;
-              border: 3px solid white;
-              box-shadow: none;
-              cursor: pointer;
-            "></div>
+            <svg width="36" height="48" viewBox="0 0 36 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); cursor: pointer;">
+              <!-- Pin shape -->
+              <path d="M18 0C8.059 0 0 8.059 0 18c0 13.5 18 30 18 30s18-16.5 18-30C36 8.059 27.941 0 18 0z" fill="#FACC15"/>
+              <!-- White circle background for S -->
+              <circle cx="18" cy="18" r="10" fill="white"/>
+              <!-- Letter S -->
+              <text x="18" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#FACC15">S</text>
+            </svg>
           `,
-          iconSize: [20, 20],
-          iconAnchor: [10, 10],
+          iconSize: [36, 48],
+          iconAnchor: [18, 48],
         });
 
         const marker = L.marker([business.lat, business.lng], {
