@@ -26,8 +26,6 @@ export default function TrustedPartners() {
           apiService.getBusinessesStatistics(),
         ]);
 
-        console.log("Partnerships:", partnershipsResponse);
-        console.log("Statistics:", statisticsResponse);
 
         // The response is directly an array, not nested under partnerships
         setPartnerships(

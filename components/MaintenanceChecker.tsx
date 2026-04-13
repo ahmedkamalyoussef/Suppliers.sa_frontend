@@ -57,7 +57,7 @@ export default function MaintenanceChecker({
 
     // If user is admin, allow admin pages only
     if (user && (user.role === "admin" || user.role === "super_admin")) {
-      if (!pathname.startsWith("/admin")) {
+      if (!pathname?.startsWith("/admin")) {
         router.push("/admin/dashboard");
       }
       return;

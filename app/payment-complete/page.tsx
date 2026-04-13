@@ -32,7 +32,7 @@ export default function PaymentComplete() {
   const verifyPayment = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api"}/payment/success?tap_id=${tapId}`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.supplier.sa"}/api/payment/success?tap_id=${tapId}`,
         {
           method: 'GET',
           headers: {
@@ -72,7 +72,7 @@ export default function PaymentComplete() {
       if (!token) return;
       
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api"}/payment/recent`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.supplier.sa"}/api/payment/recent`,
         {
           method: 'GET',
           headers: {

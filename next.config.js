@@ -1,13 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: undefined, // Force disable export mode
+  output: "export", // Force disable export mode
   images: {
     unoptimized: true,
   },
   typescript: {
     // ignoreBuildErrors: true,
   },
-  trailingSlash: false,
+  trailingSlash: true,
 };
 
 module.exports = nextConfig;

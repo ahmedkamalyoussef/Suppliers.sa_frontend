@@ -208,8 +208,8 @@ function BusinessesContent() {
         }
 
         // Handle URL parameters if they exist
-        const category = searchParams.get("category");
-        const aiSearch = searchParams.get("search");
+        const category = searchParams?.get("category");
+        const aiSearch = searchParams?.get("search");
 
         if (category) {
           params.category = category;
@@ -331,14 +331,14 @@ function BusinessesContent() {
 
   // Apply filters from URL parameters when component mounts
   useEffect(() => {
-    const category = searchParams.get("category");
-    const location = searchParams.get("location");
-    const address = searchParams.get("address");
-    const type = searchParams.get("type");
-    const rating = searchParams.get("rating");
-    const search = searchParams.get("search");
-    const features = searchParams.get("features");
-    const distance = searchParams.get("distance");
+    const category = searchParams?.get("category");
+    const location = searchParams?.get("location");
+    const address = searchParams?.get("address");
+    const type = searchParams?.get("type");
+    const rating = searchParams?.get("rating");
+    const search = searchParams?.get("search");
+    const features = searchParams?.get("features");
+    const distance = searchParams?.get("distance");
 
     if (category) setSelectedCategory(category);
     if (location) setSelectedLocation(location);
@@ -658,13 +658,13 @@ function BusinessesContent() {
                       String(filteredBusinesses.length),
                     )}
                   </p>
-                  {searchParams.get("search") && (
+                  {searchParams?.get("search") && (
                     <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                       <div className="flex items-center space-x-2">
                         <i className="ri-brain-line text-yellow-600"></i>
                         <span className="text-sm text-yellow-800">
                           <strong>{t("businessesPage.aiSearch")}</strong> "
-                          {searchParams.get("search")}"
+                          {searchParams?.get("search")}"
                         </span>
                       </div>
                     </div>

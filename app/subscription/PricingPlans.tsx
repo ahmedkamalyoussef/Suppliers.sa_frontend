@@ -30,7 +30,6 @@ export default function PricingPlans() {
       const profileData = await apiService.getProfile();
       const plan = profileData.plan || null;
       const trialUsed = profileData.has_used_free_trial || false;
-      console.log("User plan from API:", plan, "Trial used:", trialUsed);
       setUserPlan(plan);
       setHasUsedTrial(trialUsed);
       
@@ -65,7 +64,7 @@ export default function PricingPlans() {
   const fetchPlans = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api"}/subscription/plans`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.supplier.sa"}/api/subscription/plans`,
       );
       const data = await response.json();
       if (data.success) {
@@ -108,7 +107,7 @@ export default function PricingPlans() {
         order_id: `plan_${planId}_${Date.now()}`
       };
 
-      const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api"}/payment/create`;
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.supplier.sa"}/api/payment/create`;
 
       const response = await fetch(apiUrl, {
         method: "POST",

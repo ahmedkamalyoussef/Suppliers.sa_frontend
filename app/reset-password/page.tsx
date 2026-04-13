@@ -13,7 +13,7 @@ export default function ResetPasswordPage() {
   const { language } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const email = searchParams.get("email") || "";
+  const email = searchParams?.get("email") || "";
 
   // Auth guard - redirect authenticated users away
   useEffect(() => {

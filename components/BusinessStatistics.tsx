@@ -49,7 +49,6 @@ export default function BusinessStatistics() {
     try {
       setUpdating(true);
       const response = await apiService.updateBusinessesStatistics(formData);
-      console.log("Update response:", response);
       setStatistics(formData);
       setEditMode(false);
       showToast(

@@ -109,7 +109,7 @@ const ClickPayPaymentForm: React.FC<ClickPayPaymentFormProps> = ({
       };
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api"}/tap/subscription/payment`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.supplier.sa"}/api/tap/subscription/payment`,
         {
           method: "POST",
           headers: {

@@ -40,10 +40,7 @@ export default function SearchSection() {
           params.category = selectedCategory;
         }
 
-        console.log("=== API REQUEST DEBUG ===");
-        console.log("Selected Category:", selectedCategory);
-        console.log("Final API Params:", JSON.stringify(params, null, 2));
-        console.log("API URL:", `/api/public/businesses?${new URLSearchParams(params).toString()}`);
+
 
         const response = await apiService.getBusinesses(params);
 
@@ -99,7 +96,6 @@ export default function SearchSection() {
     
     // If no businesses match the selected category, show all businesses as fallback
     if (filtered.length === 0 && selectedCategory !== "all") {
-      console.log("No businesses found for category:", selectedCategory, "- showing all businesses");
       return enhancedBusinessLocations;
     }
     
@@ -109,12 +105,6 @@ export default function SearchSection() {
   // Get filtered businesses
   const filteredBusinesses = getFilteredBusinesses();
   
-  // Debug map filtering
-  console.log("=== MAP DEBUG ===");
-  console.log("Total Businesses:", businesses.length);
-  console.log("Filtered Businesses:", filteredBusinesses.length);
-  console.log("Selected Category:", selectedCategory);
-  console.log("Filtered Data:", filteredBusinesses.map(b => ({name: b.name, category: b.category, categories: b.categories})));
 
   const categories = [
     {

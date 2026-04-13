@@ -250,7 +250,7 @@ export default function BusinessLocationMap({
     if (!g?.maps) return;
     if (typeof g.maps.Map !== "function") {
       setMapsError(
-        "Google Maps API is not ready. If you see RefererNotAllowedMapError, allow http://localhost:3000/* in your API key referrers.",
+        "Google Maps API is not ready. If you see RefererNotAllowedMapError, allow https://supplier.sa/* in your API key referrers.",
       );
       return;
     }
