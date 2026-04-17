@@ -463,7 +463,12 @@ export default function SearchSection() {
       return;
     }
 
-    if (!user || user.plan !== "Premium") {
+    // Check if user has any premium plan (premium_monthly, premium_yearly, or Premium)
+    const isPremium = user && (
+      user.plan === "Premium" ||
+      user.plan?.toLowerCase().includes("premium")
+    );
+    if (!isPremium) {
       setShowSubscriptionModal(true);
       return;
     }
@@ -549,9 +554,11 @@ export default function SearchSection() {
           `Request submitted successfully! Sent to ${response.inquiries_sent} supplier(s).`,
         );
       } else {
-        setSubmitStatus(
-          response.note || "No suppliers found matching your criteria.",
-        );
+        // Use translation key if note matches the known message
+        const noSuppliersMessage = response.note?.includes("No suppliers found")
+          ? t("searchRequest.noSuppliersFound")
+          : response.note || t("searchRequest.noSuppliersFound");
+        setSubmitStatus(noSuppliersMessage);
       }
 
       // Reset form

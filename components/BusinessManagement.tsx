@@ -150,9 +150,10 @@ interface BusinessManagementProps {
     lat: number;
     lng: number;
   } | null;
+  initialSection?: string;
 }
 
-export default function BusinessManagement({}: BusinessManagementProps = {}) {
+export default function BusinessManagement({ initialSection }: BusinessManagementProps = {}) {
   const { user } = useAuth();
   const { t, isRTL, language } = useLanguage();
   const [activeSection, setActiveSection] = useState("profile");
@@ -359,6 +360,13 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
       window.removeEventListener("userProfileUpdated", handleProfileUpdate);
     };
   }, [user]);
+
+  // Set initial section when passed from Quick Actions
+  useEffect(() => {
+    if (initialSection) {
+      setActiveSection(initialSection);
+    }
+  }, [initialSection]);
 
   const [locationData, setLocationData] = useState<{
     lat: number;
@@ -1775,6 +1783,14 @@ export default function BusinessManagement({}: BusinessManagementProps = {}) {
                             day as keyof typeof businessData.workingHours
                           ].closed
                         }
+                        onChange={(e) =>
+                          handleWorkingHoursChange(
+                            day as keyof typeof businessData.workingHours,
+                            "closed",
+                            e.target.checked,
+                          )
+                        }
+                        disabled={!isEditing}
                       />
                       <span className="text-xs text-gray-600">
                         {t("businessManagement.hours.closed")}

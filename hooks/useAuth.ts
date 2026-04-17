@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiService } from "@/lib/api";
 
 export interface AdminUser {
   id: number;
@@ -229,6 +230,44 @@ export const useAuth = (): UseAuthReturn => {
     checkAuth();
   };
 
+  // Fetch fresh user data from API and update localStorage
+  const fetchAndUpdateUser = async () => {
+    try {
+      const token = localStorage.getItem("supplier_token");
+      const userType = localStorage.getItem("user_type");
+
+      if (!token || userType !== "supplier") return;
+
+      const freshData = await apiService.getProfile();
+      if (freshData && freshData.data) {
+        const userData = freshData.data;
+
+        // Update localStorage with fresh data including plan
+        const currentUserStr = localStorage.getItem("supplier_user");
+        if (currentUserStr) {
+          const currentUser = JSON.parse(currentUserStr);
+          const updatedUser = {
+            ...currentUser,
+            plan: userData.plan || currentUser.plan,
+            status: userData.status || currentUser.status,
+            profileCompletion: userData.profileCompletion || currentUser.profileCompletion,
+          };
+          localStorage.setItem("supplier_user", JSON.stringify(updatedUser));
+
+          // Update auth state
+          setAuthState({
+            isAuthenticated: true,
+            userType: "supplier",
+            user: updatedUser,
+            loading: false,
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching fresh user data:", error);
+    }
+  };
+
   // Function to check if user can access current page
   const canAccessCurrentPage = (currentPath: string): boolean => {
     if (!authState.isAuthenticated || !authState.user) {
@@ -273,6 +312,8 @@ export const useAuth = (): UseAuthReturn => {
 
   useEffect(() => {
     checkAuth();
+    // Fetch fresh user data to update plan status after subscription
+    fetchAndUpdateUser();
   }, []);
 
   // Client-side admin access restriction

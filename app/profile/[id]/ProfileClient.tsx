@@ -4,12 +4,14 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import PublicBusinessProfile from "./PublicBusinessProfile";
 import { apiService } from "../../../lib/api";
+import { useLanguage } from "../../../lib/LanguageContext";
 
 export default function ProfileClient({ id }: { id: string }) {
   const [profileData, setProfileData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { t } = useLanguage();
 
   // Auth guard - redirect to login if not authenticated
   useEffect(() => {
@@ -109,7 +111,7 @@ export default function ProfileClient({ id }: { id: string }) {
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
-          <p className="text-gray-600 text-lg">جاري تحميل الملف الشخصي...</p>
+          <p className="text-gray-600 text-lg">{t("searchRequest.loadingProfile")}</p>
         </div>
       </div>
     );

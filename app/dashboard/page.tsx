@@ -32,9 +32,16 @@ function DashboardContent() {
   const { t } = useLanguage();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState("overview");
+  const [activeSection, setActiveSection] = useState<string | undefined>(undefined);
   const [selectedMessageId, setSelectedMessageId] = useState<number | null>(
     null,
   );
+
+  // Handle tab change with optional section for Quick Actions
+  const handleTabChange = (tab: string, section?: string) => {
+    setActiveTab(tab);
+    setActiveSection(section);
+  };
 
   // Auth guard - redirect to login if not authenticated
   useEffect(() => {
@@ -383,8 +390,8 @@ function DashboardContent() {
 
               {/* Tab Content */}
               <div className="p-4 sm:p-6">
-                {activeTab === "overview" && <DashboardStats />}
-                {activeTab === "business" && <BusinessManagement />}
+                {activeTab === "overview" && <DashboardStats onTabChange={handleTabChange} />}
+                {activeTab === "business" && <BusinessManagement initialSection={activeSection} />}
                 {activeTab === "analytics" && <DashboardAnalytics />}
                 {activeTab === "messages" && (
                   <DashboardMessages selectedMessageId={selectedMessageId} />

@@ -4,7 +4,11 @@ import { useState, useEffect } from "react";
 import { useLanguage } from "../lib/LanguageContext";
 import { apiService } from "../lib/api";
 
-export default function DashboardStats() {
+interface DashboardStatsProps {
+  onTabChange?: (tab: string, section?: string) => void;
+}
+
+export default function DashboardStats({ onTabChange }: DashboardStatsProps) {
   const { t } = useLanguage();
   const [timeRange, setTimeRange] = useState("30");
   const [showAllActivity, setShowAllActivity] = useState(false);
@@ -66,32 +70,35 @@ export default function DashboardStats() {
 
   const quickActions = [
     {
-      title: "Update Business Hours",
-      description: "Modify your working schedule",
+      title: t("dashboard.updateHours"),
+      description: t("dashboard.updateHoursDesc"),
       icon: "ri-time-line",
       color: "bg-blue-500",
-      action: "hours",
+      tab: "business",
+      section: "hours",
     },
     {
-      title: "Add New Products",
-      description: "Update your product keywords",
+      title: t("dashboard.addProducts"),
+      description: t("dashboard.addProductsDesc"),
       icon: "ri-add-circle-line",
       color: "bg-green-500",
-      action: "products",
+      tab: "business",
+      section: "details",
     },
     {
-      title: "Respond to Reviews",
-      description: "3 reviews need responses",
+      title: t("dashboard.respondReviews"),
+      description: t("dashboard.respondReviewsDesc"),
       icon: "ri-chat-1-line",
       color: "bg-yellow-500",
-      action: "reviews",
+      tab: "messages",
     },
     {
-      title: "Upload Photos",
-      description: "Add more business images",
+      title: t("dashboard.uploadPhotos"),
+      description: t("dashboard.uploadPhotosDesc"),
       icon: "ri-camera-line",
       color: "bg-purple-500",
-      action: "photos",
+      tab: "business",
+      section: "photos",
     },
   ];
 
@@ -250,6 +257,7 @@ export default function DashboardStats() {
           {quickActions.map((action, index) => (
             <button
               key={index}
+              onClick={() => onTabChange && onTabChange(action.tab, action.section)}
               className="bg-white p-4 sm:p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all text-left cursor-pointer group"
             >
               <div
@@ -260,22 +268,10 @@ export default function DashboardStats() {
                 ></i>
               </div>
               <h4 className="font-semibold text-gray-800 mb-2 text-sm sm:text-base">
-                {index === 0
-                  ? t("dashboard.updateHours")
-                  : index === 1
-                  ? t("dashboard.addProducts")
-                  : index === 2
-                  ? t("dashboard.respondReviews")
-                  : t("dashboard.uploadPhotos")}
+                {action.title}
               </h4>
               <p className="text-gray-600 text-xs sm:text-sm">
-                {index === 0
-                  ? t("dashboard.updateHoursDesc")
-                  : index === 1
-                  ? t("dashboard.addProductsDesc")
-                  : index === 2
-                  ? t("dashboard.respondReviewsDesc")
-                  : t("dashboard.uploadPhotosDesc")}
+                {action.description}
               </p>
             </button>
           ))}
