@@ -1112,6 +1112,7 @@ export const translations = {
       submittingLong: "Submitting your request...",
       noSuppliersFound: "No suppliers found matching both industry and distance criteria",
       loadingProfile: "Loading business profile...",
+      userNotFound: "User not found",
     },
     howItWorks: {
       title: "How Supplier Works",
@@ -1244,6 +1245,7 @@ export const translations = {
       },
       errors: {
         codeIncomplete: "Please enter all 4 digits",
+        userNotFound: "User not found. Please check your email or create a new account.",
       },
     },
     dashboardAnalytics: {
@@ -2328,6 +2330,21 @@ export const translations = {
       business: "Business",
       phone: "Phone",
       email: "Email",
+      validation: {
+        required: "This field is required",
+        businessNameRequired: "Business name is required",
+        businessTypeRequired: "Business type is required",
+        descriptionRequired: "Business description is required",
+        categoryRequired: "At least one category is required",
+        keywordRequired: "At least one keyword is required",
+        targetCustomersRequired: "Please select who you serve",
+        serviceDistanceRequired: "Please select service distance",
+        phoneRequired: "Main phone number is required",
+        locationRequired: "Business location is required",
+        addressRequired: "Business address is required",
+        workingHoursRequired: "Please set working hours for at least one day",
+        documentRequired: "Commercial registration document is required",
+      },
 
       steps: {
         businessInfo: "Basic Business Information",
@@ -3413,6 +3430,7 @@ export const translations = {
       submittingLong: "جاري إرسال طلبك...",
       noSuppliersFound: "لم يتم العثور على موردين يطابقون معايير الصناعة والمسافة",
       loadingProfile: "جاري تحميل الملف الشخصي...",
+      userNotFound: "المستخدم غير موجود",
     },
 
     cat: {
@@ -4562,6 +4580,7 @@ export const translations = {
       },
       errors: {
         codeIncomplete: "يرجى إدخال الأرقام الأربعة بالكامل",
+        userNotFound: "المستخدم غير موجود. يرجى التحقق من بريدك الإلكتروني أو إنشاء حساب جديد.",
       },
     },
 
@@ -5430,6 +5449,21 @@ export const translations = {
       business: "العمل",
       phone: "الهاتف",
       email: "البريد الإلكتروني",
+      validation: {
+        required: "هذا الحقل مطلوب",
+        businessNameRequired: "اسم النشاط التجاري مطلوب",
+        businessTypeRequired: "نوع النشاط التجاري مطلوب",
+        descriptionRequired: "وصف النشاط التجاري مطلوب",
+        categoryRequired: "مطلوب اختيار فئة واحدة على الأقل",
+        keywordRequired: "مطلوب كلمة مفتاحية واحدة على الأقل",
+        targetCustomersRequired: "يرجى اختيار من تخدم",
+        serviceDistanceRequired: "يرجى اختيار مسافة الخدمة",
+        phoneRequired: "رقم الهاتف الرئيسي مطلوب",
+        locationRequired: "موقع النشاط التجاري مطلوب",
+        addressRequired: "عنوان النشاط التجاري مطلوب",
+        workingHoursRequired: "يرجى تحديد ساعات العمل ليوم واحد على الأقل",
+        documentRequired: "وثيقة السجل التجاري مطلوبة",
+      },
 
       steps: {
         businessInfo: "معلومات العمل الأساسي",

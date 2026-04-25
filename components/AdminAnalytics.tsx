@@ -35,6 +35,15 @@ type ActivityRow = {
   revenue: number;
 };
 
+type SubscriberRow = {
+  supplier_name: string;
+  business_name: string;
+  plan_name: string;
+  amount: number;
+  paid_at: string;
+  status: string;
+};
+
 export default function AdminAnalytics() {
   const { t, language } = useLanguage();
   const { user } = useAuth();
@@ -50,6 +59,7 @@ export default function AdminAnalytics() {
   const [topCategories, setTopCategories] = useState<CategoryRow[]>([]);
   const [revenueByPlan, setRevenueByPlan] = useState<RevenuePlan[]>([]);
   const [userActivity, setUserActivity] = useState<ActivityRow[]>([]);
+  const [subscribersList, setSubscribersList] = useState<SubscriberRow[]>([]);
   const [serverPerformance, setServerPerformance] = useState<any[]>([]);
   const [isExporting, setIsExporting] = useState<boolean>(false);
 
@@ -185,6 +195,11 @@ export default function AdminAnalytics() {
         // Set revenue by plan
         setRevenueByPlan(data.revenueByPlan);
 
+        // Set subscribers list
+        if (data.activeSubscriptionsList) {
+          setSubscribersList(data.activeSubscriptionsList);
+        }
+
         // Set user activity
         const newUserActivity: ActivityRow[] = data.dailyUserActivity
           .map((day) => ({
@@ -234,9 +249,9 @@ export default function AdminAnalytics() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("en-SA", {
       style: "currency",
-      currency: "USD",
+      currency: "SAR",
     }).format(amount);
   };
 
@@ -510,6 +525,77 @@ export default function AdminAnalytics() {
                     </div>
                   </div>
                 ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Active Subscribers Detail */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-800">
+            Active Subscribers Details
+          </h3>
+          <span className="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-xs font-medium">
+            {subscribersList.length} Active
+          </span>
+        </div>
+        <div className="overflow-x-auto">
+          <div className="max-h-96 overflow-y-auto">
+            <table className="w-full min-w-[800px]">
+              <thead className="bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
+                <tr>
+                  <th className="text-left py-3 px-6 text-xs sm:text-sm font-medium text-gray-700">Subscriber</th>
+                  <th className="text-left py-3 px-6 text-xs sm:text-sm font-medium text-gray-700">Business</th>
+                  <th className="text-left py-3 px-6 text-xs sm:text-sm font-medium text-gray-700">Plan</th>
+                  <th className="text-left py-3 px-6 text-xs sm:text-sm font-medium text-gray-700">Last Payment</th>
+                  <th className="text-left py-3 px-6 text-xs sm:text-sm font-medium text-gray-700">Date</th>
+                  <th className="text-left py-3 px-6 text-xs sm:text-sm font-medium text-gray-700">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {subscribersList.length > 0 ? (
+                  subscribersList.map((subscriber, index) => (
+                    <tr key={index} className="hover:bg-gray-50 transition-colors">
+                      <td className="py-4 px-6">
+                        <span className="font-medium text-gray-800 text-sm">{subscriber.supplier_name}</span>
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className="text-gray-600 text-sm">{subscriber.business_name}</span>
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className={`px-2 py-1 rounded-md text-xs font-medium ${
+                          subscriber.plan_name.toLowerCase().includes('premium') 
+                            ? 'bg-purple-100 text-purple-700' 
+                            : 'bg-blue-100 text-blue-700'
+                        }`}>
+                          {subscriber.plan_name}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6 text-sm font-semibold text-gray-800">
+                        SAR {formatNumber(subscriber.amount)}
+                      </td>
+                      <td className="py-4 px-6 text-sm text-gray-500">
+                        {subscriber.paid_at !== 'N/A' ? new Date(subscriber.paid_at).toLocaleDateString() : 'N/A'}
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className={`flex items-center text-xs ${
+                          subscriber.status === 'active' ? 'text-green-600' : 'text-yellow-600'
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+                            subscriber.status === 'active' ? 'bg-green-500' : 'bg-yellow-500'
+                          }`}></span>
+                          {subscriber.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={6} className="py-8 text-center text-gray-500">No active subscribers found</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

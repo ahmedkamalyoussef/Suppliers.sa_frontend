@@ -950,36 +950,46 @@ export default function CompleteProfileForm({
 
     switch (step) {
       case 1:
-        if (!formData.businessName || formData.businessName.trim() === "") {
-          newErrors.businessName = "Business name is required";
+        if (!formData.businessType || formData.businessType.trim() === "") {
+          newErrors.businessType = t("completeProfile.validation.businessTypeRequired");
         }
-
-        if (!formData.businessType) {
-          newErrors.businessType = "Business type is required";
+        if (!formData.description || formData.description.trim() === "") {
+          newErrors.description = t("completeProfile.validation.descriptionRequired");
         }
-        break;
-
-      case 2:
         if (!formData.categories || formData.categories.length === 0) {
-          newErrors.categories = "At least one category is required";
+          newErrors.categories = t("completeProfile.validation.categoryRequired");
         }
         if (
           !formData.productKeywords ||
           formData.productKeywords.length === 0
         ) {
-          newErrors.productKeywords = "At least one keyword is required";
+          newErrors.productKeywords = t("completeProfile.validation.keywordRequired");
+        }
+        break;
+
+      case 2:
+        if (!formData.targetCustomers || formData.targetCustomers.length === 0) {
+          newErrors.targetCustomers = t("completeProfile.validation.targetCustomersRequired");
+        }
+        if (!formData.serviceDistance || formData.serviceDistance === 0) {
+          newErrors.serviceDistance = t("completeProfile.validation.serviceDistanceRequired");
         }
         break;
 
       case 3:
         if (!formData.mainPhone || formData.mainPhone.trim() === "") {
-          newErrors.mainPhone = "Main phone is required";
+          newErrors.mainPhone = t("completeProfile.validation.phoneRequired");
         }
-        // Address is now handled automatically from coordinates
         break;
 
       case 4:
-        // Location validation if needed
+        // Working hours validation - at least one day should be open (not closed and has times)
+        const hasOpenDay = Object.values(formData.workingHours).some(
+          (day) => !day.closed && day.open && day.close && day.open !== "" && day.close !== ""
+        );
+        if (!hasOpenDay) {
+          newErrors.workingHours = t("completeProfile.validation.workingHoursRequired");
+        }
         break;
 
       case 5:
@@ -987,7 +997,10 @@ export default function CompleteProfileForm({
         break;
 
       case 6:
-        // Documents validation (optional)
+        // Documents validation - CR document required
+        if (!formData.document && !crPreview) {
+          newErrors.document = t("completeProfile.validation.documentRequired") || "Commercial registration document is required";
+        }
         break;
     }
 
@@ -1366,36 +1379,6 @@ export default function CompleteProfileForm({
         </div>
       </div>
 
-      {/* Pre-filled Account Info */}
-      <div className="bg-green-50 p-3 md:p-4 rounded-lg mb-4 md:mb-6 border border-green-200">
-        <div className="flex items-center space-x-2 mb-2 md:mb-3">
-          <i className="ri-check-line text-green-600 text-sm md:text-base"></i>
-          <h4 className="text-green-800 font-medium text-sm md:text-base">
-            {t("completeProfile.accountVerified")}
-          </h4>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 text-xs md:text-sm">
-          <div>
-            <span className="text-green-700 font-medium">
-              {t("completeProfile.business")}:
-            </span>
-            <p className="text-green-800 truncate">{formData.businessName}</p>
-          </div>
-          <div>
-            <span className="text-green-700 font-medium">
-              {t("completeProfile.phone")}:
-            </span>
-            <p className="text-green-800">{formData.contactPhone}</p>
-          </div>
-          <div>
-            <span className="text-green-700 font-medium">
-              {t("completeProfile.email")}:
-            </span>
-            <p className="text-green-800 truncate">{formData.contactEmail}</p>
-          </div>
-        </div>
-      </div>
-
       <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
         {currentStep === 1 && (
           <div className="space-y-4 md:space-y-6">
@@ -1629,40 +1612,56 @@ export default function CompleteProfileForm({
                     "professional service",
                     "reliable partner",
                     "expert consultation",
-                  ].map((keyword, index) => (
-                    <button
-                      key={index}
-                      type="button"
-                      onClick={() => {
-                        if (!productKeywords.includes(keyword)) {
-                          const newKeywords = [...productKeywords, keyword];
-                          setProductKeywords(newKeywords);
-                          setKeywordInput(newKeywords.join(", "));
-                          setFormData((prev) => ({
-                            ...prev,
-                            productKeywords: newKeywords,
-                          }));
-                        }
-                      }}
-                      className={`px-3 py-2 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                        productKeywords.includes(keyword)
-                          ? "bg-green-100 text-green-800 border border-green-300"
-                          : "bg-white text-gray-700 border border-gray-300 hover:bg-blue-50 hover:border-blue-300"
-                      }`}
-                    >
-                      {productKeywords.includes(keyword) ? (
-                        <>
-                          <i className="ri-check-line mr-1"></i>
-                          {keyword}
-                        </>
-                      ) : (
-                        <>
-                          <i className="ri-add-line mr-1"></i>
-                          {keyword}
-                        </>
-                      )}
-                    </button>
-                  ))}
+                  ].map((keyword, index) => {
+                    const isSelected = productKeywords.includes(keyword);
+                    return (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => {
+                          if (isSelected) {
+                            // Remove if already selected
+                            const newKeywords = productKeywords.filter(
+                              (k) => k !== keyword,
+                            );
+                            setProductKeywords(newKeywords);
+                            setKeywordInput(newKeywords.join(", "));
+                            setFormData((prev) => ({
+                              ...prev,
+                              productKeywords: newKeywords,
+                            }));
+                          } else {
+                            // Add if not selected
+                            const newKeywords = [...productKeywords, keyword];
+                            setProductKeywords(newKeywords);
+                            setKeywordInput(newKeywords.join(", "));
+                            setFormData((prev) => ({
+                              ...prev,
+                              productKeywords: newKeywords,
+                            }));
+                          }
+                        }}
+                        className={`px-3 py-2 rounded-full text-xs font-medium transition-all cursor-pointer flex items-center ${
+                          isSelected
+                            ? "bg-green-100 text-green-800 border border-green-300 hover:bg-green-200"
+                            : "bg-white text-gray-700 border border-gray-300 hover:bg-blue-50 hover:border-blue-300"
+                        }`}
+                      >
+                        {isSelected ? (
+                          <>
+                            <i className="ri-check-line mr-1"></i>
+                            {keyword}
+                            <i className="ri-close-circle-line text-red-500 ml-1 hover:text-red-700"></i>
+                          </>
+                        ) : (
+                          <>
+                            <i className="ri-add-line mr-1"></i>
+                            {keyword}
+                          </>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
 
                 <textarea
@@ -1713,79 +1712,54 @@ export default function CompleteProfileForm({
                       {t("completeProfile.step1.quickSuggestions")}
                     </p>
                     <div className="flex flex-wrap gap-1 md:gap-2">
-                      {keywordSuggestions
-                        .filter((keyword) => !productKeywords.includes(keyword))
-                        .map((keyword, index) => (
+                      {keywordSuggestions.map((keyword, index) => {
+                        const isSelected = productKeywords.includes(keyword);
+                        return (
                           <button
                             key={index}
                             type="button"
-                            onClick={() => addSuggestedKeyword(keyword)}
-                            className="bg-white border border-blue-300 text-blue-700 px-2 md:px-3 py-1 rounded-full text-xs hover:bg-blue-50 transition-colors cursor-pointer flex items-center"
+                            onClick={() => {
+                              if (isSelected) {
+                                // Remove if already selected
+                                const newKeywords = productKeywords.filter(
+                                  (k) => k !== keyword,
+                                );
+                                setProductKeywords(newKeywords);
+                                setKeywordInput(newKeywords.join(", "));
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  productKeywords: newKeywords,
+                                }));
+                              } else {
+                                // Add if not selected
+                                addSuggestedKeyword(keyword);
+                              }
+                            }}
+                            className={`px-2 md:px-3 py-1 rounded-full text-xs transition-colors cursor-pointer flex items-center ${
+                              isSelected
+                                ? "bg-green-50 border border-green-300 text-green-800 hover:bg-green-100"
+                                : "bg-white border border-blue-300 text-blue-700 hover:bg-blue-50"
+                            }`}
                           >
-                            <i className="ri-add-line mr-1"></i>
-                            {keyword}
+                            {isSelected ? (
+                              <>
+                                <i className="ri-check-line text-green-600 mr-1"></i>
+                                {keyword}
+                                <i className="ri-close-circle-line text-red-500 ml-1 hover:text-red-700"></i>
+                              </>
+                            ) : (
+                              <>
+                                <i className="ri-add-line mr-1"></i>
+                                {keyword}
+                              </>
+                            )}
                           </button>
-                        ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )}
             </div>
-          </div>
-        )}
-        {productKeywords.length > 0 && (
-          <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
-            <div className="flex items-center justify-between mb-3">
-              <h5 className="text-sm font-semibold text-green-800 flex items-center">
-                <i className="ri-price-tag-3-line mr-2"></i>
-                {t("completeProfile.step1.keywordsAdded")} (
-                {productKeywords.length})
-              </h5>
-              <button
-                type="button"
-                onClick={() => {
-                  setProductKeywords([]);
-                  setKeywordInput("");
-                  setFormData((prev) => ({ ...prev, productKeywords: [] }));
-                }}
-                className="text-xs text-red-600 hover:text-red-700 flex items-center"
-              >
-                <i className="ri-delete-bin-line mr-1"></i>
-                {t("completeProfile.step1.clearAll")}
-              </button>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {productKeywords.map((keyword, index) => (
-                <span
-                  key={index}
-                  className="bg-white border border-green-300 text-green-800 px-3 py-2 rounded-lg text-sm flex items-center shadow-sm"
-                >
-                  <i className="ri-check-line text-green-500 mr-2"></i>
-                  {keyword}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const newKeywords = productKeywords.filter(
-                        (k) => k !== keyword,
-                      );
-                      setProductKeywords(newKeywords);
-                      setKeywordInput(newKeywords.join(", "));
-                      setFormData((prev) => ({
-                        ...prev,
-                        productKeywords: newKeywords,
-                      }));
-                    }}
-                    className="mr-1 text-red-500 hover:text-red-700 transition-colors"
-                  >
-                    <i className="ri-close-line text-sm"></i>
-                  </button>
-                </span>
-              ))}
-            </div>
-
-            <p className="text-xs text-green-600 mt-2">
-              {t("completeProfile.step1.keywordsDesc")}
-            </p>
           </div>
         )}
         {productKeywords.length === 0 && keywordInput.trim() === "" && (
@@ -1931,10 +1905,15 @@ export default function CompleteProfileForm({
                 name="mainPhone"
                 value={formData.mainPhone || formData.contactPhone || ""}
                 onChange={(e) => handleInputChange("mainPhone", e.target.value)}
-                className="w-full px-3 md:px-4 py-2 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
+                className={`w-full px-3 md:px-4 py-2 md:py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ${
+                  errors.mainPhone ? "border-red-300" : "border-gray-300"
+                }`}
                 placeholder="+966 11 234 5678"
                 required
               />
+              {errors.mainPhone && (
+                <p className="text-red-500 text-xs mt-1">{errors.mainPhone}</p>
+              )}
               <p className="text-xs text-gray-500 mt-1">
                 {t("completeProfile.step3.mainPhoneDesc")}
               </p>
@@ -2079,6 +2058,10 @@ export default function CompleteProfileForm({
                   </p>
                 </div>
               </div>
+
+              {errors.workingHours && (
+                <p className="text-red-500 text-xs mb-2">{errors.workingHours}</p>
+              )}
 
               <div className="space-y-1 md:space-y-2">
                 {Object.keys(formData.workingHours).map((day) => (
@@ -2503,11 +2486,14 @@ export default function CompleteProfileForm({
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t("completeProfile.step6.crDocument")}
+                {t("completeProfile.step6.crDocument")} *
               </label>
+              {errors.document && (
+                <p className="text-red-500 text-xs mb-2">{errors.document}</p>
+              )}
               <div
                 className={`border-2 border-dashed rounded-lg p-4 md:p-6 text-center transition-all ${
-                  errors.crFile
+                  errors.crFile || errors.document
                     ? "border-red-300 bg-red-50"
                     : crFile
                       ? "border-green-300 bg-green-50"
@@ -2743,9 +2729,16 @@ export default function CompleteProfileForm({
             </button>
           ) : (
             <button
-              type="submit"
+              type="button"
               onClick={() => {
-                allowSubmission();
+                if (validateStep(currentStep)) {
+                  allowSubmission();
+                  // Trigger form submission
+                  const form = document.querySelector('form');
+                  if (form) {
+                    form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+                  }
+                }
               }}
               disabled={isSubmitting}
               className={`px-4 md:px-6 py-2 md:py-3 rounded-lg font-medium whitespace-nowrap cursor-pointer transition-all text-sm md:text-base ${

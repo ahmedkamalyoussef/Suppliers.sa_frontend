@@ -41,4 +41,12 @@ export interface AnalyticsResponse {
     color: string;
     usage: number;
   }>;
+  activeSubscriptionsList: Array<{
+    supplier_name: string;
+    business_name: string;
+    plan_name: string;
+    amount: number;
+    paid_at: string;
+    status: string;
+  }>;
 }

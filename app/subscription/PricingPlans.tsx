@@ -305,7 +305,7 @@ export default function PricingPlans() {
           </div>
         )}
 
-        {hasActiveSubscription() && (
+        {/* {hasActiveSubscription() && (
           <div className="bg-green-100 border border-green-300 rounded-xl p-6 mb-10 text-center">
             <div className="flex items-center justify-center gap-2 text-green-800">
               <span className="text-2xl">✓</span>
@@ -327,7 +327,7 @@ export default function PricingPlans() {
               {language === "ar" ? "الذهاب إلى الإعدادات" : "Go to Settings"}
             </button>
           </div>
-        )}
+        )} */}
 
         <div className="flex justify-center mb-16">
           <div className="bg-gray-100 rounded-full p-1 flex">

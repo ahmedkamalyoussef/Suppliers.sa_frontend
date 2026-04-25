@@ -73,7 +73,7 @@ export default function Footer() {
             </Link>
 
               {/* 100% Saudi Made Badge - Centered */}
-              <div className="mb-6 sm:mb-8">
+              <div className="mb-6 sm:mb-8 mt-4 ml-4">
                 <div className="inline-flex items-center justify-center bg-gradient-to-r from-green-50 to-yellow-50 px-4 sm:px-6 py-2 sm:py-3 rounded-full border border-green-200">
                   <span className="text-gray-800 text-base sm:text-lg md:text-xl font-bold">
                     {t("footer.brandMadeInSaudi")}
@@ -83,17 +83,14 @@ export default function Footer() {
 
               {/* Social Media Icons - Centered */}
               <div className="flex justify-center text-center gap-2 lg:justify-start space-x-3 sm:space-x-4">
+                
                 <a
-                  href="#"
+                  href="https://www.linkedin.com/company/supplierksa/?originalSubdomain=sa"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex items-center justify-center transition-colors cursor-pointer"
                 >
-                  <FaTwitter className="text-lg sm:text-xl text-cyan-500" />
-                </a>
-                <a
-                  href="#"
-                  className="flex items-center justify-center transition-colors cursor-pointer"
-                >
-                  <FaLinkedin className="text-lg sm:text-xl text-blue-500" />
+                  <FaLinkedin className="text-3xl lg:text-4xl text-blue-500" />
                 </a>
               </div>
             </div>
@@ -179,15 +176,7 @@ export default function Footer() {
                       <span>{t("footer.businessGuides")}</span>
                     </Link>
                   </li> */}
-                  <li>
-                    <Link
-                      href="/success-stories"
-                      className="text-gray-600 hover:text-yellow-600 transition-colors flex items-center"
-                    >
-                      <i className="ri-article-line text-yellow-500 mr-2 w-4 h-4 flex items-center justify-center"></i>
-                      <span>{t("footer.successStories")}</span>
-                    </Link>
-                  </li>
+                  
                 </ul>
               </div>
 

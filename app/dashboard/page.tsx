@@ -289,13 +289,13 @@ function DashboardContent() {
                         : "bg-white"
               }`}
             >
-              {/* <div className="absolute inset-0 opacity-10">
+              <div className="absolute inset-0 opacity-10">
                 <img
                   src="https://readdy.ai/api/search-image?query=Professional%20business%20background%20pattern%20with%20geometric%20shapes%2C%20modern%20corporate%20design%2C%20subtle%20gradient%20overlay%2C%20clean%20minimalist%20style%2C%20blue%20and%20yellow%20color%20scheme&width=800&height=200&seq=profile-bg&orientation=landscape"
                   alt="Profile Background"
                   className="w-full h-full object-cover"
                 />
-              </div> */}
+              </div>
 
               {/* Customization Buttons */}
               <div className="absolute top-1 end-4 flex space-x-2 rtl:space-x-reverse">
@@ -306,13 +306,13 @@ function DashboardContent() {
                 >
                   <i className="ri-palette-line text-lg"></i>
                 </button>
-                <button
+                {/* <button
                   onClick={() => setShowPhotoUpload(true)}
                   className="bg-white/90 backdrop-blur-sm text-gray-600 p-2 rounded-lg hover:bg-white shadow-sm cursor-pointer"
                   title="Change Profile Photo"
                 >
                   <i className="ri-camera-line text-lg"></i>
-                </button>
+                </button> */}
               </div>
 
               <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
@@ -427,23 +427,19 @@ function DashboardContent() {
                         {[
                           {
                             name: "Professional Blue",
-                            preview:
-                              "https://readdy.ai/api/search-image?query=Professional%20business%20background%20with%20blue%20gradient%2C%20corporate%20design%2C%20clean%20modern%20style%2C%20geometric%20patterns%2C%20business%20theme&width=300&height=150&seq=theme-blue&orientation=landscape",
+                            gradient: "from-blue-50 to-blue-200",
                           },
                           {
                             name: "Golden Success",
-                            preview:
-                              "https://readdy.ai/api/search-image?query=Elegant%20golden%20business%20background%2C%20luxury%20corporate%20design%2C%20warm%20professional%20atmosphere%2C%20success%20theme%2C%20modern%20gradient&width=300&height=150&seq=theme-gold&orientation=landscape",
+                            gradient: "from-amber-50 to-yellow-200",
                           },
                           {
                             name: "Tech Green",
-                            preview:
-                              "https://readdy.ai/api/search-image?query=Modern%20technology%20background%20with%20green%20theme%2C%20digital%20corporate%20design%2C%20innovation%20pattern%2C%20tech%20business%20style&width=300&height=150&seq=theme-green&orientation=landscape",
+                            gradient: "from-emerald-50 to-green-200",
                           },
                           {
                             name: "Royal Purple",
-                            preview:
-                              "https://readdy.ai/api/search-image?query=Royal%20purple%20business%20background&width=300&height=150&seq=theme-purple&orientation=landscape",
+                            gradient: "from-purple-50 to-violet-200",
                           },
                         ].map((theme) => (
                           <button
@@ -463,10 +459,8 @@ function DashboardContent() {
                                 : "border-gray-200"
                             }`}
                           >
-                            <img
-                              src={theme.preview}
-                              alt={theme.name}
-                              className="w-full h-24 object-cover rounded mb-2"
+                            <div
+                              className={`w-full h-24 rounded mb-2 bg-gradient-to-r ${theme.gradient}`}
                             />
                             <div className="font-medium">{theme.name}</div>
                           </button>

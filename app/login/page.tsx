@@ -117,7 +117,7 @@ export default function LoginPage() {
       ) {
         window.location.href = "/admin";
       } else {
-        window.location.href = "/dashboard";
+        window.location.href = "/";
       }
     } catch (error: any) {
       console.error("Login error:", error);
@@ -156,6 +156,10 @@ export default function LoginPage() {
           } else {
             errorMessage = "Invalid email or password. Please try again.";
           }
+        }
+        // Check for user not found
+        else if (error.message.includes("User not found")) {
+          errorMessage = t("auth.errors.userNotFound");
         }
         // Check for account locked
         else if (error.message.includes("locked") || error.message.includes("suspended")) {

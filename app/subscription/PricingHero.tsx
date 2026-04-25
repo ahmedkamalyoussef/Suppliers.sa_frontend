@@ -38,7 +38,7 @@ export default function PricingHero() {
             {t("subscription.heroDesc")}
           </p>
  
-          <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-12">
+          {/* <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-12">
             <button
               onClick={() => router.push("/add-business")}
               className="bg-white text-gray-800 px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-100 transition-all transform hover:scale-105 shadow-lg whitespace-nowrap cursor-pointer"
@@ -122,7 +122,7 @@ export default function PricingHero() {
                 <span>{t("subscription.heroSupport247")}</span>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </section>

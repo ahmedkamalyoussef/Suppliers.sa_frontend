@@ -1,4 +1,4 @@
-import img from "./assets/default.png";
+import img from "./assets/company.png";
 import { getApiUrl } from "./config";
 
 // Helper function to get avatar with fallback

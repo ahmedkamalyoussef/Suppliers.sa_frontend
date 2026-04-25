@@ -215,7 +215,7 @@ export default function BusinessFilters({
         </div>
 
         {/* Address Input */}
-        <div className="space-y-1">
+        {/* <div className="space-y-1">
           <label className="block text-sm font-medium text-gray-700 rtl:text-right">
             {t("filters.address")}
           </label>
@@ -238,7 +238,7 @@ export default function BusinessFilters({
               dir={isRTL ? "rtl" : "ltr"}
             />
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Categories */}
@@ -250,7 +250,7 @@ export default function BusinessFilters({
           <button
             key="all"
             onClick={() => setSelectedCategory("all")}
-            className={`w-full flex items-center space-x-3 p-3 rounded-xl transition-all cursor-pointer ${
+            className={`w-full flex items-start space-x-3 p-3 rounded-xl transition-all cursor-pointer ${
               selectedCategory === "all"
                 ? "bg-yellow-400 text-white shadow-md"
                 : "hover:bg-gray-50 text-gray-700"
@@ -263,14 +263,14 @@ export default function BusinessFilters({
             <button
               key={category.id}
               onClick={() => setSelectedCategory(category.id)}
-              className={`w-full flex items-center space-x-3 p-3 rounded-xl transition-all cursor-pointer ${
+              className={`w-full flex items-start space-x-3 p-3 rounded-xl transition-all cursor-pointer ${
                 selectedCategory === category.id
                   ? "bg-yellow-400 text-white shadow-md"
                   : "hover:bg-gray-50 text-gray-700"
               }`}
             >
               <i className={`${category.icon} text-sm`}></i>
-              <span className="font-medium text-sm">{category.name}</span>
+              <span className="font-medium text-start text-sm">{category.name}</span>
             </button>
           ))}
         </div>
@@ -286,14 +286,14 @@ export default function BusinessFilters({
             <button
               key={type.id}
               onClick={() => setSelectedBusinessType(type.id)}
-              className={`w-full flex items-center space-x-3 p-3 rounded-xl transition-all cursor-pointer ${
+              className={`w-full flex items-start space-x-3 p-3 rounded-xl transition-all cursor-pointer ${
                 selectedBusinessType === type.id
                   ? "bg-yellow-400 text-white shadow-md"
                   : "hover:bg-gray-50 text-gray-700"
               }`}
             >
               <i className={`${type.icon} text-sm`}></i>
-              <span className="font-medium text-sm">{type.name}</span>
+              <span className="font-medium text-start text-sm">{type.name}</span>
             </button>
           ))}
         </div>
@@ -369,7 +369,7 @@ export default function BusinessFilters({
       </div>
 
       {/* Quick Stats */}
-      <div className="bg-white rounded-2xl shadow-lg p-6">
+      {/* <div className="bg-white rounded-2xl shadow-lg p-6">
         <h3 className="text-lg font-semibold mb-4 text-gray-800">
           {t("filters.quickStats")}
         </h3>
@@ -407,7 +407,7 @@ export default function BusinessFilters({
             </span>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
