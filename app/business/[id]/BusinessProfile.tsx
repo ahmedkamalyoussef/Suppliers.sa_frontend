@@ -272,18 +272,7 @@ export default function BusinessProfile() {
   };
 
   const DefaultHeroBg = () => (
-    <div className="w-full h-full bg-gradient-to-br from-green-50 to-gray-100 flex items-center justify-center overflow-hidden relative">
-      <div className="absolute inset-0 opacity-75">
-        <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, var(--bs-white) 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
-      </div>
-      <div className="relative flex flex-col items-center">
-        <div className="text-4xl md:text-6xl font-black tracking-tighter flex items-center">
-          <span className="text-gray-800">Supplier</span>
-          <span className="text-yellow-400">.sa</span>
-        </div>
-        <div className="h-1 w-24 bg-yellow-400 mt-2 rounded-full opacity-9"></div>
-      </div>
-    </div>
+    <div className="w-full h-full bg-yellow-100" />
   );
 
   // Business data from API
@@ -599,8 +588,7 @@ export default function BusinessProfile() {
                 const parent = e.currentTarget.parentElement;
                 if (parent) {
                   const fallback = document.createElement('div');
-                  fallback.className = "w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center";
-                  fallback.innerHTML = `<div class="text-4xl md:text-6xl font-black tracking-tighter flex items-center"><span class="text-gray-800">Supplier</span><span class="text-yellow-400">.sa</span></div>`;
+                  fallback.className = "w-full h-full bg-yellow-200";
                   parent.appendChild(fallback);
                 }
               }}
@@ -608,7 +596,7 @@ export default function BusinessProfile() {
           ) : (
             <DefaultHeroBg />
           )}
-          <div className="absolute inset-0 bg-black bg-opacity-25"></div>
+          <div className="absolute inset-0 bg-black bg-opacity-10"></div>
 
           <div className="absolute inset-0 flex items-end">
             <div className="w-full px-3 sm:px-4 md:px-6 pb-4 sm:pb-6 md:pb-8">
@@ -626,12 +614,12 @@ export default function BusinessProfile() {
 
                   <div className="max-w-4xl flex-grow min-w-0">
                     <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 md:gap-4 mb-2 md:mb-4">
-                      <span className="bg-yellow-400 text-white px-2 py-0.5 md:px-4 md:py-2 rounded-full text-xs font-medium">
+                      {/* <span className="bg-yellow-400 text-white px-2 py-0.5 md:px-4 md:py-2 rounded-full text-xs font-medium">
                         {typeof business.category === 'string'
                           ? getCategoryName(business.category, language === 'ar' ? 'ar' : 'en')
                           : (business.category as any)?.en || business.category || 'Unknown'
                         }
-                      </span>
+                      </span> */}
                       <div
                         className={`${getBusinessTypeColor(
                           business.businessType
@@ -688,25 +676,23 @@ export default function BusinessProfile() {
                       </span>
                     </div>
                   </div>
+                  {!isOwnProfile && (
+                    <div className="mt-3 md:mt-0 md:ml-auto flex-shrink-0">
+                      {businessPreferences?.allow_direct_contact !== false &&
+                        isLoggedIn() && (
+                          <button
+                            onClick={() => setShowInquiryModal(true)}
+                            className="px-4 sm:px-6 md:px-8 py-2 md:py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors bg-yellow-400 hover:bg-yellow-500 text-white shadow-md text-xs sm:text-sm md:text-base"
+                          >
+                            <i className="ri-message-line mr-1 md:mr-2"></i>
+                            {t("publicProfile.buttons.message")}
+                          </button>
+                        )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-            {!isOwnProfile && (
-              <div className="absolute bottom-16 sm:bottom-20 md:bottom-8 right-3 sm:right-4 md:right-6">
-                <div className="max-w-7xl mx-auto flex justify-end">
-                  {businessPreferences?.allow_direct_contact !== false &&
-                    isLoggedIn() && (
-                      <button
-                        onClick={() => setShowInquiryModal(true)}
-                        className="px-4 sm:px-6 md:px-8 py-2 md:py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors bg-yellow-400 hover:bg-yellow-500 text-white shadow-md text-xs sm:text-sm md:text-base"
-                      >
-                        <i className="ri-message-line mr-1 md:mr-2"></i>
-                        {t("publicProfile.buttons.message")}
-                      </button>
-                    )}
-                </div>
-              </div>
-            )}
           </div>
         </section>
 

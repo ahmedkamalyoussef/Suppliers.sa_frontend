@@ -1867,6 +1867,10 @@ export const translations = {
         verificationInvalid: "Invalid verification code. Please try again.",
         acceptPoliciesRequired:
           "You must accept the policies and terms to continue",
+        passwordTooShort: "Password must be at least 8 characters",
+        passwordUppercase: "Password must contain at least one uppercase letter (A-Z)",
+        passwordLowercase: "Password must contain at least one lowercase letter (a-z)",
+        passwordSymbol: "Password must contain at least one special character (!@#$%^&* etc.)",
       },
       notifications: {
         referralSuccessTitle: "New Referral Received!",
@@ -2006,6 +2010,8 @@ export const translations = {
         website: "Website",
         visitWebsite: "Visit Website",
         address: "Address",
+        defaultAddress: "Address not available",
+        notAvailable: "Not available",
       },
       workingHours: {
         title: "Working Hours",
@@ -2879,6 +2885,13 @@ export const translations = {
       close: "Close",
       stars: "stars",
       letAIHelp: "Let AI Help",
+    },
+    aiFilterBar: {
+      title: "AI Smart Filter",
+      subtitle: "Tell me exactly what you're looking for - product, location, requirements",
+      placeholder: "e.g., 'Window Glass supplier in Jeddah with delivery service' or 'Electronics in Riyadh'",
+      processing: "Processing...",
+      button: "AI Search",
     },
     subscriptionFeatures: {
       title: "Everything You Need to",
@@ -5053,6 +5066,10 @@ export const translations = {
         verificationIncomplete: "يرجى إدخال الرمز المكون من 4 أرقام بالكامل",
         verificationInvalid: "رمز التحقق غير صحيح. حاول مرة أخرى.",
         acceptPoliciesRequired: "يجب الموافقة على السياسات والشروط للمتابعة",
+        passwordTooShort: "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+        passwordUppercase: "يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل (A-Z)",
+        passwordLowercase: "يجب أن تحتوي كلمة المرور على حرف صغير واحد على الأقل (a-z)",
+        passwordSymbol: "يجب أن تحتوي كلمة المرور على رمز خاص واحد على الأقل (!@#$%^&* إلخ)",
       },
       notifications: {
         referralSuccessTitle: "تم استقبال إحالة جديدة!",
@@ -5106,6 +5123,8 @@ export const translations = {
         website: "الموقع الإلكتروني",
         visitWebsite: "زيارة الموقع",
         address: "العنوان",
+        defaultAddress: "العنوان غير متوفر",
+        notAvailable: "غير متوفر",
       },
       workingHours: {
         title: "ساعات العمل",
@@ -5978,6 +5997,13 @@ export const translations = {
       close: "إغلاق",
       stars: "نجوم",
       letAIHelp: "دع الذكاء الاصطناعي يساعدك",
+    },
+    aiFilterBar: {
+      title: "البحث الذكي بالذكاء الاصطناعي",
+      subtitle: "أخبرني بالضبط ما تبحث عنه - المنتج، الموقع، المتطلبات",
+      placeholder: "مثال: 'مورد زجاج النوافذ في جدة مع خدمة التوصيل' أو 'إلكترونيات في الرياض'",
+      processing: "جاري المعالجة...",
+      button: "بحث ذكي",
     },
 
     // Subscription Features

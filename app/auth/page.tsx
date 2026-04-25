@@ -347,7 +347,7 @@ export default function AuthPage() {
           </div>
 
           <div className="flex items-center justify-between">
-            <label className="flex items-center cursor-pointer">
+            {/*<label className="flex items-center cursor-pointer">
               <input
                 type="checkbox"
                 checked={formData.rememberMe}
@@ -370,7 +370,7 @@ export default function AuthPage() {
               <span className="text-sm text-gray-700">
                 {t("auth.signin.rememberMe")}
               </span>
-            </label>
+            </label>*/}
 
             <Link
               href="/forgot-password"

@@ -3,6 +3,12 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { translations } from "./translations";
 
+// Define message translations
+const SESSION_TIMEOUT_MSGS = {
+  en: "Session timed out.",
+  ar: "انتهت مهلة الجلسة.",
+};
+
 type Language = "en" | "ar";
 
 interface LanguageContextType {
@@ -48,6 +54,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }, [language, mounted]);
 
   const t = (key: string): string => {
+    // Special handling for session timeout messages
+    if (key === "auth.session_timeout") {
+      return SESSION_TIMEOUT_MSGS[language];
+    }
+
     const keys = key.split(".");
     let value: any = translations[language];
 

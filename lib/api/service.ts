@@ -38,9 +38,16 @@ class ApiService {
       (response) => response,
       (error) => {
         if (error.response?.status === 401) {
+          const isTimeout = error.response.data?.code === "SESSION_TIMEOUT";
+          
           // Handle unauthorized - clear token and redirect to login
           this.clearToken();
+          
           if (typeof window !== "undefined") {
+            // Store timeout flag to show message on login page
+            if (isTimeout) {
+              localStorage.setItem("session_timeout_alert", "true");
+            }
             window.location.href = "/login";
           }
         }

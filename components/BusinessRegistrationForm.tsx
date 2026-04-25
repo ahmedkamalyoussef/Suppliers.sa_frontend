@@ -94,8 +94,16 @@ export default function BusinessRegistrationForm() {
     }
     if (!registrationData.password.trim()) {
       newErrors.password = t("business.errors.passwordRequired");
-    } else if (registrationData.password.length < 6) {
-      newErrors.password = t("business.errors.passwordTooShort");
+    } else {
+      if (registrationData.password.length < 8) {
+        newErrors.password = t("business.errors.passwordTooShort");
+      } else if (!/[A-Z]/.test(registrationData.password)) {
+        newErrors.password = t("business.errors.passwordUppercase");
+      } else if (!/[a-z]/.test(registrationData.password)) {
+        newErrors.password = t("business.errors.passwordLowercase");
+      } else if (!/[!@#$%^&*(),.?":{}|<>_\-\[\]\\\/;'+=`~]/.test(registrationData.password)) {
+        newErrors.password = t("business.errors.passwordSymbol");
+      }
     }
     if (registrationData.password !== registrationData.confirmPassword) {
       newErrors.confirmPassword = t("business.errors.passwordMismatch");

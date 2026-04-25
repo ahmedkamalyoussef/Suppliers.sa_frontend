@@ -44,6 +44,16 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState("");
+  const [sessionTimeoutAlert, setSessionTimeoutAlert] = useState(false);
+
+  // Check for session timeout alert on mount
+  useEffect(() => {
+    const alert = localStorage.getItem("session_timeout_alert");
+    if (alert === "true") {
+      setSessionTimeoutAlert(true);
+      localStorage.removeItem("session_timeout_alert");
+    }
+  }, []);
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({
@@ -198,6 +208,13 @@ export default function LoginPage() {
                 <p className="text-gray-600">{t("login.subtitle")}</p>
               </div>
 
+              {sessionTimeoutAlert && (
+                <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start">
+                  <i className="ri-error-warning-line text-yellow-600 text-xl mr-3 mt-0.5"></i>
+                  <p className="text-yellow-700 text-sm flex-1">{t("auth.session_timeout")}</p>
+                </div>
+              )}
+
               {loginError && (
                 <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
                   <i className="ri-error-warning-line text-red-500 text-xl mr-3 mt-0.5"></i>
@@ -274,7 +291,7 @@ export default function LoginPage() {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <label className="flex items-center cursor-pointer group">
+                  {/*<label className="flex items-center cursor-pointer group">
                     <input
                       type="checkbox"
                       checked={formData.rememberMe}
@@ -298,7 +315,7 @@ export default function LoginPage() {
                     <span className="text-sm text-gray-700">
                       {t("login.rememberMe")}
                     </span>
-                  </label>
+                  </label>*/}
 
                   <Link
                     href="/forgot-password"

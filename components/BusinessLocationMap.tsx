@@ -7,6 +7,15 @@ import { toast } from "react-toastify";
 
 const GOOGLE_MAPS_SCRIPT_ID = "google-maps-js";
 
+// Custom yellow marker with S - SVG data URI
+const customMarkerSvg = `data:image/svg+xml,${encodeURIComponent(`
+<svg width="36" height="48" viewBox="0 0 36 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M18 0C8.059 0 0 8.059 0 18c0 13.5 18 30 18 30s18-16.5 18-30C36 8.059 27.941 0 18 0z" fill="#FACC15"/>
+  <circle cx="18" cy="18" r="10" fill="white"/>
+  <text x="18" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#FACC15">S</text>
+</svg>
+`)}`;
+
 function waitForGoogleMapsReady(
   timeoutMs = 10000,
   intervalMs = 50,
@@ -122,7 +131,117 @@ const saudiCities: City[] = [
   { name: "Jazan", lat: 16.8892, lng: 42.5511 },
   { name: "Taif", lat: 21.2703, lng: 40.4158 },
   { name: "Al Jubail", lat: 27.0174, lng: 49.6584 },
+  // Additional cities
+  { name: "Al Ahsa", lat: 25.3833, lng: 49.5833 },
+  { name: "Al Afalaj", lat: 22.2833, lng: 46.7333 },
+  { name: "Al Jafr", lat: 28.4167, lng: 45.5333 },
+  { name: "Al Khafji", lat: 28.4667, lng: 48.5167 },
+  { name: "Al Kharj", lat: 24.1556, lng: 47.3342 },
+  { name: "Al Qatif", lat: 26.5208, lng: 50.0247 },
+  { name: "Al Qurayyat", lat: 31.3167, lng: 37.3667 },
+  { name: "Al Quwayiyah", lat: 24.0667, lng: 45.2833 },
+  { name: "Al Lith", lat: 20.15, lng: 40.2667 },
+  { name: "Al Majmaah", lat: 25.9, lng: 45.35 },
+  { name: "Al Mithnab", lat: 25.8667, lng: 44.2167 },
+  { name: "Al Nairyah", lat: 28.0167, lng: 48.1667 },
+  { name: "Al Zulfi", lat: 26.3, lng: 44.8 },
+  { name: "Amlaj", lat: 25.0333, lng: 37.2667 },
+  { name: "Arar", lat: 30.9833, lng: 41.0167 },
+  { name: "Badr", lat: 23.7833, lng: 38.8 },
+  { name: "Bahah", lat: 20.0167, lng: 41.4667 },
+  { name: "Baqeeq", lat: 25.9333, lng: 49.6667 },
+  { name: "Baljurashi", lat: 19.8667, lng: 41.5667 },
+  { name: "Bisha", lat: 20.0167, lng: 42.6 },
+  { name: "Duba", lat: 27.35, lng: 35.7 },
+  { name: "Dhurma", lat: 24.6, lng: 46.2 },
+  { name: "Dhahran", lat: 26.2361, lng: 50.0393 },
+  { name: "Afif", lat: 23.9, lng: 42.9333 },
+  { name: "Onaizah", lat: 26.0833, lng: 43.9667 },
+  { name: "Rafha", lat: 29.6333, lng: 43.5 },
+  { name: "Ras Tanura", lat: 26.7167, lng: 50.0667 },
+  { name: "Rabigh", lat: 22.8, lng: 39.0333 },
+  { name: "Al Rass", lat: 25.8667, lng: 43.5167 },
+  { name: "Sarat Abidah", lat: 18.5667, lng: 42.15 },
+  { name: "Sadir", lat: 24.25, lng: 46.7333 },
+  { name: "Sakaka", lat: 29.9667, lng: 40.2 },
+  { name: "Spark", lat: 27.5167, lng: 49.75 },
+  { name: "Sharorah", lat: 17.4833, lng: 47.1167 },
+  { name: "Shaqra", lat: 25.25, lng: 45.25 },
+  { name: "Sabia", lat: 17.15, lng: 42.6333 },
+  { name: "Thuwal", lat: 22.2833, lng: 39.1167 },
+  { name: "Tumair", lat: 25.4, lng: 46.3167 },
+  { name: "Dhahran Al Janub", lat: 17.6667, lng: 44.1333 },
+  { name: "Wadi Al Dawasir", lat: 20.5, lng: 44.9167 },
+  { name: "Yanbu", lat: 24.0891, lng: 38.0542 },
 ];
+
+// City name translations (English -> Arabic)
+const cityTranslations: Record<string, string> = {
+  "Riyadh": "الرياض",
+  "Jeddah": "جدة",
+  "Mecca": "مكة المكرمة",
+  "Medina": "المدينة المنورة",
+  "Dammam": "الدمام",
+  "Al Khobar": "الخبر",
+  "Tabuk": "تبوك",
+  "Abha": "أبها",
+  "Buraidah": "بريدة",
+  "Khamis Mushait": "خميس مشيط",
+  "Hail": "حائل",
+  "Najran": "نجران",
+  "Jazan": "جازان",
+  "Taif": "الطائف",
+  "Al Jubail": "الجبيل",
+  "Al Ahsa": "الأحساء",
+  "Al Afalaj": "الأفلاج",
+  "Al Jafr": "الجافورة",
+  "Al Khafji": "الخفجي",
+  "Al Kharj": "الخرج",
+  "Al Qatif": "القطيف",
+  "Al Qurayyat": "القريات",
+  "Al Quwayiyah": "القويعية",
+  "Al Lith": "الليث",
+  "Al Majmaah": "المجمعة",
+  "Al Mithnab": "المذنب",
+  "Al Nairyah": "النعيرية",
+  "Al Zulfi": "الزلفي",
+  "Amlaj": "أملج",
+  "Arar": "عرعر",
+  "Badr": "بدر",
+  "Bahah": "الباحة",
+  "Baqeeq": "بقيق",
+  "Baljurashi": "بلجرشي",
+  "Bisha": "بيشة",
+  "Duba": "ضباء",
+  "Dhurma": "ثول",
+  "Dhahran": "الظهران",
+  "Afif": "عفيف",
+  "Onaizah": "عنيزة",
+  "Rafha": "رفحاء",
+  "Ras Tanura": "رأس تنورة",
+  "Rabigh": "رابغ",
+  "Al Rass": "الرس",
+  "Sarat Abidah": "سراة عبيدة",
+  "Sadir": "سدير",
+  "Sakaka": "سكاكا",
+  "Spark": "سبارك",
+  "Sharorah": "شرورة",
+  "Shaqra": "شقراء",
+  "Sabia": "صبيا",
+  "Thuwal": "ثول",
+  "Tumair": "تمير",
+  "Dhahran Al Janub": "ظهران الجنوب",
+  "Wadi Al Dawasir": "وادي الدواسر",
+  "Yanbu": "ينبع",
+};
+
+// Helper function to get city name based on language
+const getCityName = (cityName: string, language: string): string => {
+  if (language === 'ar') {
+    return cityTranslations[cityName] || cityName;
+  }
+  return cityName;
+};
 
 // Function to find the nearest city to given coordinates
 export const findNearestCity = (lat: number, lng: number): City => {
@@ -272,6 +391,11 @@ export default function BusinessLocationMap({
       map: mapRef.current,
       draggable: canEdit && !isValidating, // Disable dragging during validation
       title: t("map.yourBusiness") || "Your Business",
+      icon: {
+        url: customMarkerSvg,
+        scaledSize: new g.maps.Size(36, 48),
+        anchor: new g.maps.Point(18, 48),
+      },
     });
 
     if (markerDragListenerRef.current) {
@@ -372,7 +496,8 @@ export default function BusinessLocationMap({
     if (isValidating) return; // Prevent changes during validation
     const city = saudiCities.find((c) => c.name === cityName);
     if (city) {
-      setValidatedLocation({
+      // Skip validation for known Saudi cities from dropdown
+      setSelectedLocation({
         lat: city.lat,
         lng: city.lng,
       });
@@ -509,7 +634,7 @@ export default function BusinessLocationMap({
                 <option value="">{t("map.chooseCityPlaceholder")}</option>
                 {saudiCities.map((city) => (
                   <option key={city.name} value={city.name}>
-                    {city.name}
+                    {getCityName(city.name, language)}
                   </option>
                 ))}
               </select>

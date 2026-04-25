@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import type React from "react";
 import { useAISearch } from "../contexts/AISearchContext";
+import { useLanguage } from "../lib/LanguageContext";
 
 type AISuggestions = {
   categories: string[];
@@ -20,6 +21,7 @@ type AIFilterBarProps = {
 };
 
 export default function AIFilterBar({ onFilterChange }: AIFilterBarProps) {
+  const { t } = useLanguage();
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
@@ -292,10 +294,9 @@ export default function AIFilterBar({ onFilterChange }: AIFilterBarProps) {
               <i className="ri-brain-line text-white text-sm"></i>
             </div>
             <div>
-              <h3 className="font-bold text-gray-800">AI Smart Filter</h3>
+              <h3 className="font-bold text-gray-800">{t("aiFilterBar.title")}</h3>
               <p className="text-xs text-gray-600">
-                Tell me exactly what you're looking for - product, location,
-                requirements
+                {t("aiFilterBar.subtitle")}
               </p>
             </div>
           </div>
@@ -322,7 +323,7 @@ export default function AIFilterBar({ onFilterChange }: AIFilterBarProps) {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="e.g., 'Window Glass supplier in Jeddah with delivery service' or 'Electronics in Riyadh'"
+                    placeholder={t("aiFilterBar.placeholder")}
                     className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-transparent text-sm"
                   />
                   <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
@@ -337,12 +338,12 @@ export default function AIFilterBar({ onFilterChange }: AIFilterBarProps) {
                   {isProcessing ? (
                     <>
                       <i className="ri-loader-4-line animate-spin"></i>
-                      <span>Processing...</span>
+                      <span>{t("aiFilterBar.processing")}</span>
                     </>
                   ) : (
                     <>
                       <i className="ri-search-line"></i>
-                      <span>AI Search</span>
+                      <span>{t("aiFilterBar.button")}</span>
                     </>
                   )}
                 </button>

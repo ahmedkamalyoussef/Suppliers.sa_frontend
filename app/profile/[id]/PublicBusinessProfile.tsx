@@ -74,18 +74,7 @@ type Review = {
 };
 
 const DefaultHeroBg = () => (
-  <div className="w-full h-full bg-gradient-to-br from-green-50 to-gray-100 flex items-center justify-center overflow-hidden relative">
-    <div className="absolute inset-0 opacity-75">
-      <div className="absolute top-0 left-0 w-full h-full" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, var(--bs-white) 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
-    </div>
-    <div className="relative flex flex-col items-center">
-      <div className="text-4xl md:text-6xl font-black tracking-tighter flex items-center">
-        <span className="text-gray-800">Supplier</span>
-        <span className="text-yellow-400">.sa</span>
-      </div>
-      <div className="h-1 w-24 bg-yellow-400 mt-2 rounded-full opacity-9"></div>
-    </div>
-  </div>
+  <div className="w-full h-full bg-yellow-200" />
 );
 
 type PublicBusinessProfileProps = {
@@ -422,8 +411,7 @@ export default function PublicBusinessProfile({
                   const parent = e.currentTarget.parentElement;
                   if (parent) {
                     const fallback = document.createElement('div');
-                    fallback.className = "w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center";
-                    fallback.innerHTML = `<div class="text-4xl md:text-6xl font-black tracking-tighter flex items-center"><span class="text-gray-800">Supplier</span><span class="text-yellow-400">.sa</span></div>`;
+                    fallback.className = "w-full h-full bg-yellow-200";
                     parent.appendChild(fallback);
                   }
                 }}
@@ -431,7 +419,7 @@ export default function PublicBusinessProfile({
             ) : (
               <DefaultHeroBg />
             )}
-            <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+            <div className="absolute inset-0 bg-black bg-opacity-10"></div>
           </div>
 
           <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8">
@@ -449,12 +437,12 @@ export default function PublicBusinessProfile({
 
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 md:gap-3 mb-2 md:mb-3">
-                      <span className="bg-yellow-400 text-white px-2 py-0.5 md:px-4 md:py-2 rounded-full text-xs font-semibold">
+                      {/* <span className="bg-yellow-400 text-white px-2 py-0.5 md:px-4 md:py-2 rounded-full text-xs font-semibold">
                         {typeof business.category === 'string'
                           ? getCategoryName(business.category, language === 'ar' ? 'ar' : 'en')
                           : (business.category as any)?.en || business.category || 'Unknown'
                         }
-                      </span>
+                      </span> */}
                       <div className="bg-yellow-100 text-yellow-800 px-2 py-0.5 md:px-4 md:py-2 rounded-full flex items-center gap-1 md:gap-2 border border-yellow-200 backdrop-blur-sm text-xs">
                         <i className="ri-store-3-line"></i>
                         <span className="font-medium">
@@ -493,23 +481,25 @@ export default function PublicBusinessProfile({
                     </h1>
 
                     <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-x-4 sm:gap-y-1 text-gray-700 text-xs sm:text-sm md:text-base">
-                      <div className="flex items-center gap-1 sm:gap-2">
-                        <div className="flex items-center">
+                      <div className="flex items-center gap-2 sm:gap-3 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm border border-gray-100">
+                        <div className="flex items-center gap-0.5">
                           {[...Array(5)].map((_, i) => (
                             <i
                               key={i}
-                              className={`text-sm md:text-lg ${
+                              className={`text-base md:text-xl ${
                                 i < Math.floor(business.rating)
                                   ? "ri-star-fill text-yellow-400"
-                                  : "ri-star-line text-gray-400"
+                                  : "ri-star-fill text-gray-200"
                               }`}
                             ></i>
                           ))}
                         </div>
-                        <span className="font-semibold">{business.rating}</span>
-                        <span className="text-gray-600">
-                          ({business.reviewCount} {t("publicProfile.reviews")})
-                        </span>
+                        <div className="flex items-center gap-1.5 border-l border-gray-200 pl-2">
+                          {/* <span className="font-bold text-gray-800 text-sm md:text-base">{business.rating}</span> */}
+                          <span className="text-gray-500 text-xs md:text-sm">
+                            ({business.reviewCount} {t("publicProfile.reviews.count")})
+                          </span>
+                        </div>
                       </div>
 
                       <div className="flex items-center gap-1 sm:gap-2">
@@ -529,8 +519,8 @@ export default function PublicBusinessProfile({
                       <div className="flex items-center gap-1 sm:gap-2 min-w-0">
                         <i className="ri-map-pin-line flex-shrink-0"></i>
                         <span className="text-gray-600 truncate">
-                          {supplier?.profile?.business_address ||
-                            t("publicProfile.defaultAddress")}
+                          {supplier?.profile?.business_address?.trim() ||
+                            t("publicProfile.contact.defaultAddress")}
                         </span>
                       </div>
                     </div>
@@ -604,8 +594,8 @@ export default function PublicBusinessProfile({
                     <div className="flex items-center gap-2">
                       <i className="ri-map-pin-line text-blue-600"></i>
                       <span className="text-gray-700">
-                        {supplier?.profile?.business_address ||
-                          t("publicProfile.about.riyadhArea")}
+                        {supplier?.profile?.business_address?.trim() ||
+                          t("publicProfile.contact.defaultAddress")}
                       </span>
                     </div>
                   </div>

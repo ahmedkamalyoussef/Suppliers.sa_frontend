@@ -92,8 +92,16 @@ export default function RegisterPage() {
     }
     if (!formData.password.trim()) {
       newErrors.password = t("business.errors.passwordRequired");
-    } else if (formData.password.length < 6) {
-      newErrors.password = t("business.errors.passwordTooShort");
+    } else {
+      if (formData.password.length < 8) {
+        newErrors.password = t("business.errors.passwordTooShort");
+      } else if (!/[A-Z]/.test(formData.password)) {
+        newErrors.password = t("business.errors.passwordUppercase");
+      } else if (!/[a-z]/.test(formData.password)) {
+        newErrors.password = t("business.errors.passwordLowercase");
+      } else if (!/[!@#$%^&*(),.?":{}|<>_\-\[\]\\\/;'+=`~]/.test(formData.password)) {
+        newErrors.password = t("business.errors.passwordSymbol");
+      }
     }
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = t("business.errors.passwordMismatch");

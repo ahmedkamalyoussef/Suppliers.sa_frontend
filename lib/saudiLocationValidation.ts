@@ -123,8 +123,53 @@ const isPointInPolygon = (lat: number, lng: number, polygon: number[][]): boolea
   return inside;
 };
 
+// Known Saudi city coordinates (approximate centers)
+const knownSaudiCityCoords = new Map<string, { lat: number; lng: number }>([
+  ["Riyadh", { lat: 24.7136, lng: 46.6753 }],
+  ["Jeddah", { lat: 21.4858, lng: 39.1925 }],
+  ["Mecca", { lat: 21.3891, lng: 39.8579 }],
+  ["Medina", { lat: 24.5247, lng: 39.5692 }],
+  ["Dammam", { lat: 26.4207, lng: 50.0888 }],
+  ["Khobar", { lat: 26.2172, lng: 50.1971 }],
+  ["Tabuk", { lat: 28.3835, lng: 36.5662 }],
+  ["Abha", { lat: 18.2164, lng: 42.5053 }],
+  ["Taif", { lat: 21.2841, lng: 40.4244 }],
+  ["Buraidah", { lat: 26.3317, lng: 43.9718 }],
+  ["Najran", { lat: 17.4933, lng: 44.1277 }],
+  ["Jubail", { lat: 27.0045, lng: 49.6231 }],
+  ["Hail", { lat: 27.5114, lng: 41.7208 }],
+  ["Yanbu", { lat: 23.8938, lng: 38.8816 }],
+  ["Qassim", { lat: 26.3317, lng: 43.9718 }],
+  ["Khamis Mushait", { lat: 18.3000, lng: 42.7333 }],
+  ["Dhahran", { lat: 26.2361, lng: 50.0393 }],
+  ["Al Ahsa", { lat: 25.4295, lng: 49.5877 }],
+  ["Arar", { lat: 30.9833, lng: 41.0167 }],
+  ["Sakaka", { lat: 29.9697, lng: 40.2064 }],
+  ["Qatif", { lat: 26.5208, lng: 50.0245 }],
+  ["Al Khafji", { lat: 28.4285, lng: 48.4913 }],
+  ["Rabigh", { lat: 22.7986, lng: 39.0349 }],
+  ["Bisha", { lat: 20.0000, lng: 42.6000 }],
+  ["Unaizah", { lat: 26.0833, lng: 43.9667 }],
+]);
+
+// Check if coordinates are near a known Saudi city (within 0.1 degrees ~ 11km)
+function isNearKnownSaudiCity(lat: number, lng: number): boolean {
+  for (const [, coords] of knownSaudiCityCoords) {
+    const latDiff = Math.abs(lat - coords.lat);
+    const lngDiff = Math.abs(lng - coords.lng);
+    if (latDiff < 0.1 && lngDiff < 0.1) {
+      return true;
+    }
+  }
+  return false;
+}
+
 // Function to check if coordinates are within Saudi Arabia (async version)
 export const isWithinSaudiArabia = async (lat: number, lng: number): Promise<boolean> => {
+  // If near a known Saudi city, consider it valid without API call
+  if (isNearKnownSaudiCity(lat, lng)) {
+    return true;
+  }
   return await isInsideSaudi(lat, lng);
 };
 

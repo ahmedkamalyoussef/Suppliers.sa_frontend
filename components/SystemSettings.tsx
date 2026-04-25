@@ -289,7 +289,7 @@ export default function SystemSettings() {
       name: t("systemSettings.sections.notifications"),
       icon: "ri-notification-3-line",
     },
-    { id: "api", name: t("systemSettings.sections.api"), icon: "ri-code-line" },
+    /*{ id: "api", name: t("systemSettings.sections.api"), icon: "ri-code-line" },*/
   ];
 
   const handleSettingChange = (
@@ -314,28 +314,27 @@ export default function SystemSettings() {
       const apiData = {
         site_name: settings.general.siteName,
         contact_email: settings.general.contactEmail,
-        support_email: settings.general.supportEmail,
-        site_description: settings.general.siteDescription,
-        maintenance_mode: settings.general.maintenanceMode,
-        maximum_photos_per_business: settings.business.maxPhotos,
-        maximum_description_characters: settings.business.maxDescription,
-        auto_approve_businesses: settings.business.autoApproval,
-        business_verification_required: settings.business.verificationRequired,
-        premium_features_enabled: settings.business.premiumFeaturesEnabled,
-        maximum_login_attempts: settings.security.maxLoginAttempts,
-        session_timeout_minutes: settings.security.sessionTimeout,
-        require_two_factor_authentication: settings.security.twoFactorRequired,
-        strong_password_required: settings.security.passwordStrengthRequired,
-        data_encryption_enabled: settings.security.dataEncryption,
-        email_notifications: settings.notifications.emailNotifications,
-        sms_notifications: settings.notifications.smsNotifications,
-        push_notifications: settings.notifications.pushNotifications,
-        system_alerts: settings.notifications.systemAlerts,
-        maintenance_notifications:
-          settings.notifications.maintenanceNotifications,
-        backup_retention_days: settings.security.backupRetention,
-        premium_monthly_price: settings.payments.premiumMonthlyPrice,
-        premium_annual_price: settings.payments.premiumAnnualPrice,
+        support_email: settings.general.supportEmail || settings.general.contactEmail || "support@suppliers.sa",
+        site_description: settings.general.siteDescription || "Professional suppliers directory platform",
+        maintenance_mode: Boolean(settings.general.maintenanceMode),
+        maximum_photos_per_business: Number(settings.business.maxPhotos) || 10,
+        maximum_description_characters: Number(settings.business.maxDescription) || 1000,
+        auto_approve_businesses: Boolean(settings.business.autoApproval),
+        business_verification_required: Boolean(settings.business.verificationRequired),
+        premium_features_enabled: Boolean(settings.business.premiumFeaturesEnabled),
+        maximum_login_attempts: Number(settings.security.maxLoginAttempts) || 5,
+        session_timeout_minutes: Math.max(15, Number(settings.security.sessionTimeout) || 120),
+        require_two_factor_authentication: Boolean(settings.security.twoFactorRequired),
+        strong_password_required: Boolean(settings.security.passwordStrengthRequired),
+        data_encryption_enabled: Boolean(settings.security.dataEncryption),
+        email_notifications: Boolean(settings.notifications.emailNotifications),
+        sms_notifications: Boolean(settings.notifications.smsNotifications),
+        push_notifications: Boolean(settings.notifications.pushNotifications),
+        system_alerts: Boolean(settings.notifications.systemAlerts),
+        maintenance_notifications: Boolean(settings.notifications.maintenanceNotifications),
+        backup_retention_days: Number(settings.security.backupRetention) || 30,
+        premium_monthly_price: Number(settings.payments.premiumMonthlyPrice) || 0,
+        premium_annual_price: Number(settings.payments.premiumAnnualPrice) || 0,
       };
 
       const response = await apiService.updateSystemSettings(apiData);
@@ -346,8 +345,14 @@ export default function SystemSettings() {
       } else {
         toast.error("Failed to update system settings");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating system settings:", error);
+      
+      // Log validation errors if available
+      if (error.errors) {
+        console.log("Validation errors details:", JSON.stringify(error.errors, null, 2));
+      }
+      
       // Show error toast with specific error message if available
       const errorMessage =
         error instanceof Error
@@ -576,7 +581,7 @@ export default function SystemSettings() {
                   />
                 </div>
 
-                <div>
+                {/*<div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t("systemSettings.general.supportEmail")}
                   </label>
@@ -592,7 +597,7 @@ export default function SystemSettings() {
                     }
                     className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
                   />
-                </div>
+                </div>*/}
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -612,7 +617,7 @@ export default function SystemSettings() {
                 </div>
               </div>
 
-              <div>
+              {/*<div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   {t("systemSettings.general.siteDescription")}
                 </label>
@@ -633,7 +638,7 @@ export default function SystemSettings() {
                   {(settings.general.siteDescription || "").length}/500 {" "}
                   {t("systemSettings.general.characters")}
                 </p>
-              </div>
+              </div>*/}
 
               <div className="bg-yellow-50 p-3 sm:p-4 rounded-lg border border-yellow-200">
                 <label className="flex items-start sm:items-center space-x-3">
@@ -703,7 +708,7 @@ export default function SystemSettings() {
                 </div>
               </div>
 
-              <div className="space-y-3 sm:space-y-4">
+              {/*<div className="space-y-3 sm:space-y-4">
                 <label className="flex items-start sm:items-center space-x-3">
                   <input
                     type="checkbox"
@@ -772,7 +777,7 @@ export default function SystemSettings() {
                     </p>
                   </div>
                 </label>
-              </div>
+              </div>*/}
             </div>
           )}
 
@@ -907,7 +912,7 @@ export default function SystemSettings() {
                   />
                 </div>
 
-                <div>
+                {/*<div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t("systemSettings.security.backupRetention")}
                   </label>
@@ -923,11 +928,11 @@ export default function SystemSettings() {
                     }
                     className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
                   />
-                </div>
+                </div>*/}
               </div>
 
               <div className="space-y-3 sm:space-y-4">
-                <label className="flex items-start sm:items-center space-x-3">
+                {/*<label className="flex items-start sm:items-center space-x-3">
                   <input
                     type="checkbox"
                     checked={settings.security.twoFactorRequired}
@@ -948,9 +953,9 @@ export default function SystemSettings() {
                       {t("systemSettings.security.twoFactorDescription")}
                     </p>
                   </div>
-                </label>
+                </label>*/}
 
-                <label className="flex items-start sm:items-center space-x-3">
+                {/*<label className="flex items-start sm:items-center space-x-3">
                   <input
                     type="checkbox"
                     checked={settings.security.passwordStrengthRequired}
@@ -971,9 +976,9 @@ export default function SystemSettings() {
                       {t("systemSettings.security.strongPasswordDescription")}
                     </p>
                   </div>
-                </label>
+                </label>*/}
 
-                <label className="flex items-start sm:items-center space-x-3">
+                {/*<label className="flex items-start sm:items-center space-x-3">
                   <input
                     type="checkbox"
                     checked={settings.security.dataEncryption}
@@ -994,7 +999,7 @@ export default function SystemSettings() {
                       {t("systemSettings.security.dataEncryptionDescription")}
                     </p>
                   </div>
-                </label>
+                </label>*/}
               </div>
             </div>
           )}
@@ -1124,7 +1129,7 @@ export default function SystemSettings() {
           )}
 
           {/* API Settings */}
-          {activeSection === "api" && (
+          {/*{activeSection === "api" && (
             <div className="space-y-4 sm:space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 <div>
@@ -1235,7 +1240,7 @@ export default function SystemSettings() {
                 </label>
               </div>
             </div>
-          )}
+          )}*/}
         </div>
       </div>
 

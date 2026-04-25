@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { apiService } from "@/lib/api";
 
@@ -68,6 +68,49 @@ export const useAuth = (): UseAuthReturn => {
   });
 
   const router = useRouter();
+  const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const resetIdleTimer = useCallback(async () => {
+    if (authState.userType !== "supplier" || !authState.isAuthenticated) return;
+
+    if (idleTimerRef.current) {
+      clearTimeout(idleTimerRef.current);
+    }
+
+    try {
+      // Get timeout from settings (cached or fetched)
+      const settingsStr = localStorage.getItem("system_settings");
+      let timeoutMinutes = 15; // Default to 15 minutes
+
+      if (settingsStr) {
+        const settings = JSON.parse(settingsStr);
+        timeoutMinutes = settings.session_timeout_minutes || 15;
+      }
+
+      console.log(`[Session Timeout] Timer reset: ${timeoutMinutes} minutes`);
+
+      idleTimerRef.current = setTimeout(() => {
+        console.log(`[Session Timeout] ${timeoutMinutes} minutes of inactivity - logging out`);
+        localStorage.setItem("session_timeout_alert", "true");
+        logout();
+      }, timeoutMinutes * 60 * 1000);
+    } catch (error) {
+      console.error("Error setting idle timer:", error);
+    }
+  }, [authState.userType, authState.isAuthenticated]);
+
+  useEffect(() => {
+    if (authState.userType === "supplier" && authState.isAuthenticated) {
+      const events = ["mousedown", "keydown", "touchstart", "scroll"];
+      events.forEach((event) => window.addEventListener(event, resetIdleTimer));
+      resetIdleTimer();
+
+      return () => {
+        events.forEach((event) => window.removeEventListener(event, resetIdleTimer));
+        if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+      };
+    }
+  }, [authState.userType, authState.isAuthenticated, resetIdleTimer]);
 
   const checkAuth = () => {
     try {
