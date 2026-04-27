@@ -365,9 +365,9 @@ const InteractiveMap = ({
                 business.name
               }</h3>
               <span style="padding:3px 6px;border-radius:12px;background:${
-                businessData.status === "approved" ? "#10B981" : "#F59E0B"
+                businessData.status === "approved" || businessData.status === "active" ? "#10B981" : "#F59E0B"
               };color:#fff;font-size:9px;font-weight:600;">
-                ${businessData.status === "approved" ? t.verified : t.pending}
+                ${businessData.status === "approved" || businessData.status === "active" ? t.verified : t.pending}
               </span>
             </div>
 
@@ -467,10 +467,10 @@ const InteractiveMap = ({
                 </div>
                 <div style="color:#374151;font-size:10px;display:flex;align-items:center;gap:2px;">
                   <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background-color:${
-                    businessData.status === "approved" ? "#10B981" : "#F59E0B"
+                    businessData.status === "approved" || businessData.status === "active" ? "#10B981" : "#F59E0B"
                   };"></span>
                   <span>${
-                    businessData.status === "approved"
+                    businessData.status === "approved" || businessData.status === "active"
                       ? t.verified || "Verified"
                       : t.pending || "Pending"
                   }</span>

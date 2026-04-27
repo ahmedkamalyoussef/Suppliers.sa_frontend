@@ -287,7 +287,7 @@ export default function PricingPlans() {
     <section className="py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
 
-        {!hasActiveSubscription() && !hasUsedTrial && (
+        {/* {!hasActiveSubscription() && !hasUsedTrial && (
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-10 text-center">
             <div className="flex items-center justify-center gap-2 text-blue-800">
               <span className="text-2xl">🎁</span>
@@ -303,7 +303,7 @@ export default function PricingPlans() {
                 : "Exclusive offer for first-time subscribers only. After the free trial, your paid subscription begins."}
             </p>
           </div>
-        )}
+        )} */}
 
         {/* {hasActiveSubscription() && (
           <div className="bg-green-100 border border-green-300 rounded-xl p-6 mb-10 text-center">

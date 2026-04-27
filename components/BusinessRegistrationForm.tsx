@@ -95,14 +95,21 @@ export default function BusinessRegistrationForm() {
     if (!registrationData.password.trim()) {
       newErrors.password = t("business.errors.passwordRequired");
     } else {
+      const passwordErrors: string[] = [];
       if (registrationData.password.length < 8) {
-        newErrors.password = t("business.errors.passwordTooShort");
-      } else if (!/[A-Z]/.test(registrationData.password)) {
-        newErrors.password = t("business.errors.passwordUppercase");
-      } else if (!/[a-z]/.test(registrationData.password)) {
-        newErrors.password = t("business.errors.passwordLowercase");
-      } else if (!/[!@#$%^&*(),.?":{}|<>_\-\[\]\\\/;'+=`~]/.test(registrationData.password)) {
-        newErrors.password = t("business.errors.passwordSymbol");
+        passwordErrors.push(t("business.errors.passwordTooShort"));
+      }
+      if (!/[A-Z]/.test(registrationData.password)) {
+        passwordErrors.push(t("business.errors.passwordUppercase"));
+      }
+      if (!/[a-z]/.test(registrationData.password)) {
+        passwordErrors.push(t("business.errors.passwordLowercase"));
+      }
+      if (!/[!@#$%^&*(),.?":{}|<>_\-\[\]\\\/;'+=`~]/.test(registrationData.password)) {
+        passwordErrors.push(t("business.errors.passwordSymbol"));
+      }
+      if (passwordErrors.length > 0) {
+        newErrors.password = passwordErrors.join(" - ");
       }
     }
     if (registrationData.password !== registrationData.confirmPassword) {
@@ -377,7 +384,14 @@ export default function BusinessRegistrationForm() {
                 </button>
               </div>
               {errors.password && (
-                <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+                <div className="mt-1.5 space-y-0.5">
+                  {errors.password.split(" - ").map((err, i) => (
+                    <p key={i} className="text-red-500 text-[10px] leading-tight flex items-start gap-1">
+                      <span className="mt-0.5">•</span>
+                      <span>{err}</span>
+                    </p>
+                  ))}
+                </div>
               )}
             </div>
 

@@ -10,6 +10,7 @@ import { apiService } from "../../../lib/api";
 import { getCategoryName } from "@/lib/categories";
 import { BusinessProfile as BusinessProfileType } from "../../../lib/api";
 import { useAuth } from "@/lib/UserContext";
+import companyLogo from "@/lib/assets/company.png";
 
 type BusinessProfileProps = {};
 
@@ -605,10 +606,10 @@ export default function BusinessProfile() {
                   {/* Logo Box */}
                   <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 bg-white rounded-xl md:rounded-2xl shadow-lg border-2 md:border-4 border-white overflow-hidden flex-shrink-0 flex items-center justify-center mb-2 md:mb-0 relative z-10">
                     <img
-                      src={businessProfile?.profile_image && businessProfile.profile_image.trim() !== "" ? businessProfile.profile_image : "/defaultLogo.png"}
+                      src={businessProfile?.profile_image && businessProfile.profile_image.trim() !== "" ? businessProfile.profile_image : companyLogo.src}
                       alt={`${business.name} Logo`}
-                      className="w-full h-full object-contain p-1 md:p-2"
-                      onError={(e) => { e.currentTarget.src = "/defaultLogo.png"; }}
+                      className="w-full h-full object-contain"
+                      onError={(e) => { e.currentTarget.src = companyLogo.src; }}
                     />
                   </div>
 

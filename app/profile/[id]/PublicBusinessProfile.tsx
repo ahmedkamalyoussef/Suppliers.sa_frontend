@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useLanguage } from "@/lib/LanguageContext";
 import { SupplierProfile, apiService } from "@/lib/api";
 import { useAuth } from "@/lib/UserContext";
+import companyLogo from "@/lib/assets/company.png";
 
 type WorkingDay = {
   open: string;
@@ -171,7 +172,7 @@ export default function PublicBusinessProfile({
   const business: Business = {
     id: supplier?.id?.toString() || businessId || "1",
     name: supplier?.name || "",
-    logo: supplier?.profile_image || "/defaultLogo.png",
+    logo: supplier?.profile_image || companyLogo.src,
     category: supplier?.profile?.category || "",
     business_image:
       supplier?.profile?.business_image || supplier?.profile_image || "",
@@ -430,8 +431,8 @@ export default function PublicBusinessProfile({
                     <img
                       src={business.logo}
                       alt={`${business.name} Logo`}
-                      className="w-full h-full object-contain p-1 md:p-2"
-                      onError={(e) => { e.currentTarget.src = "/defaultLogo.png"; }}
+                      className="w-full h-full object-contain"
+                      onError={(e) => { e.currentTarget.src = companyLogo.src; }}
                     />
                   </div>
 

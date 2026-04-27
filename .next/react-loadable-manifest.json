@@ -1,34 +1,34 @@
 {
   "../components/AdminAnalytics.tsx -> ../lib/api": {
-    "id": "../components/AdminAnalytics.tsx -> ../lib/api",
+    "id": 5592,
     "files": []
   },
   "../components/BusinessManagement.tsx -> ../lib/api": {
-    "id": "../components/BusinessManagement.tsx -> ../lib/api",
+    "id": 5592,
     "files": []
   },
   "../components/BusinessManagement.tsx -> ./BusinessLocationMap": {
-    "id": "../components/BusinessManagement.tsx -> ./BusinessLocationMap",
+    "id": 4099,
     "files": [
-      "static/chunks/_app-pages-browser_components_BusinessLocationMap_tsx-_17c51.js"
+      "static/chunks/4099.578c6ea99d88b2fb.js"
     ]
   },
   "../components/CompleteProfileForm.tsx -> ./BusinessLocationMap": {
-    "id": "../components/CompleteProfileForm.tsx -> ./BusinessLocationMap",
+    "id": 4099,
     "files": [
-      "static/chunks/_app-pages-browser_components_BusinessLocationMap_tsx-_17c50.js"
+      "static/chunks/4609.f925da3af07cefbf.js"
     ]
   },
   "../components/ContentManagement.tsx -> ../lib/api": {
-    "id": "../components/ContentManagement.tsx -> ../lib/api",
+    "id": 5592,
     "files": []
   },
   "../components/MaintenanceChecker.tsx -> ../lib/api": {
-    "id": "../components/MaintenanceChecker.tsx -> ../lib/api",
+    "id": 5592,
     "files": []
   },
   "../components/SystemSettings.tsx -> ../lib/api": {
-    "id": "../components/SystemSettings.tsx -> ../lib/api",
+    "id": 5592,
     "files": []
   }
 }
