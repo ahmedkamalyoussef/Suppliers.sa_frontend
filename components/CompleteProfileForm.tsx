@@ -2027,17 +2027,6 @@ export default function CompleteProfileForm({
               value={formData.address || ""}
             />
 
-            <div className="bg-yellow-50 p-3 md:p-4 rounded-lg">
-              <p className="text-xs md:text-sm text-yellow-800 mb-1 md:mb-2">
-                <i className="ri-map-pin-line mr-1 md:mr-2"></i>
-                {t("completeProfile.selectedLocation")}: Lat{" "}
-                {selectedLocation.lat.toFixed(6)}, Lng{" "}
-                {selectedLocation.lng.toFixed(6)}
-              </p>
-              <p className="text-xs text-yellow-700">
-                {t("completeProfile.locationInstructions")}
-              </p>
-            </div>
           </div>
         )}
 

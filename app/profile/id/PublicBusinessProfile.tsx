@@ -592,90 +592,19 @@ export default function PublicBusinessProfile({
                           business.serviceDistance}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-2">
                       <i className="ri-map-pin-line text-blue-600"></i>
                       <span className="text-gray-700">
                         {supplier?.profile?.business_address?.trim() ||
                           t("publicProfile.contact.defaultAddress")}
                       </span>
                     </div>
-                    {/* Display Services Offered */}
-                    {(business.services && business.services.length > 0) || (business.specialties && business.specialties.length > 0) ? (
-                      <div className="mt-4 pt-4 border-t border-blue-100">
-                        <h4 className="font-bold text-gray-800 mb-2">
-                          {t("businessProfile.servicesOffered") || "Services Offered"}
-                        </h4>
-                        <div className="flex flex-wrap gap-2">
-                          {business.services && business.services.map((service, index) => (
-                            <span 
-                              key={index}
-                              className="bg-white text-blue-700 px-3 py-1 rounded-full text-sm border border-blue-200"
-                            >
-                              {service}
-                            </span>
-                          ))}
-                          {business.specialties && business.specialties.map((specialty, index) => (
-                            <span 
-                              key={`spec-${index}`}
-                              className="bg-white text-blue-700 px-3 py-1 rounded-full text-sm border border-blue-200"
-                            >
-                              {specialty}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
                   </div>
                 </div>
               </div>
 
               {/* Contact, Hours, Location Section */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {/* Keywords Section */}
-                <div className="md:col-span-3">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-2">
-                    <h2 className="text-2xl font-bold text-gray-800">
-                      {t("businessProfile.keywords") || "Keywords"}
-                    </h2>
-                    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                      {t("businessProfile.itemsCount")?.replace(
-                        "{{count}}",
-                        String(supplier?.profile?.keywords?.length || 0)
-                      ) || `${supplier?.profile?.keywords?.length || 0} items`}
-                    </span>
-                  </div>
-
-                  <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
-                    <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
-                      <div className="flex items-center space-x-3">
-                        <i className="ri-list-check-2 text-blue-600 text-lg"></i>
-                        <h3 className="font-semibold text-gray-800">
-                          {t("businessProfile.catalogTitle") || "Product & Service Keywords"}
-                        </h3>
-                      </div>
-                    </div>
-
-                    <div className="p-6">
-                      {supplier?.profile?.keywords && supplier.profile.keywords.length > 0 ? (
-                        <div className="flex flex-wrap gap-2">
-                          {supplier.profile.keywords.map((keyword: string, index: number) => (
-                            <span
-                              key={index}
-                              className="bg-gray-50 text-gray-700 px-4 py-2 rounded-lg border border-gray-200 text-sm hover:bg-blue-50 hover:border-blue-200 transition-colors"
-                            >
-                              {keyword}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-gray-500 text-center py-4">
-                          {t("businessProfile.noKeywords") || "No keywords available for this business."}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
                 {/* Contact Information */}
                 <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
                   <h3 className="text-xl font-bold text-gray-800 mb-6">
@@ -968,7 +897,7 @@ export default function PublicBusinessProfile({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-800 mb-6">
-                    {t("businessProfile.servicesOffered") || "Our Services"}
+                    {t("publicProfile.specialties.title")}
                   </h2>
                   <div className="space-y-3">
                     {business.specialties.map(

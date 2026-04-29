@@ -353,11 +353,11 @@ export default function AdminAnalytics() {
                 </div>
 
                 {/* Mini Chart */}
-                <div className="mt-3 sm:mt-4 h-6 sm:h-8 flex items-end space-x-0.5 sm:space-x-1">
+                <div className="mt-3 sm:mt-4 h-6 sm:h-8 flex items-end space-x-0.5 sm:space-x-1 overflow-hidden">
                   {data.data.map((value: number, index: number) => (
                     <div
                       key={index}
-                      className={`flex-1 rounded-t ${
+                      className={`flex-1 rounded-t max-h-full ${
                         key === "revenue"
                           ? "bg-green-200"
                           : key === "users"
@@ -423,9 +423,9 @@ export default function AdminAnalytics() {
                       <p className="font-semibold text-gray-800 text-sm sm:text-base">
                         {formatCurrency(plan.revenue)}
                       </p>
-                      <div className="w-20 sm:w-32 bg-gray-200 rounded-full h-1.5 sm:h-2 mt-1">
+                      <div className="w-20 sm:w-32 bg-gray-200 rounded-full h-1.5 sm:h-2 mt-1 overflow-hidden">
                         <div
-                          className={`h-1.5 sm:h-2 rounded-full ${plan.color}`}
+                          className={`h-1.5 sm:h-2 rounded-full max-w-full ${plan.color}`}
                           style={{
                             width: `${
                               (plan.revenue /
@@ -652,9 +652,9 @@ export default function AdminAnalytics() {
                           </span>
                         </td>
                         <td className="py-3 sm:py-4 px-3 sm:px-6">
-                          <div className="w-16 sm:w-24 bg-gray-200 rounded-full h-1.5 sm:h-2">
+                          <div className="w-16 sm:w-24 bg-gray-200 rounded-full h-1.5 sm:h-2 overflow-hidden">
                             <div
-                              className="bg-blue-500 h-1.5 sm:h-2 rounded-full"
+                              className="bg-blue-500 h-1.5 sm:h-2 rounded-full max-w-full"
                               style={{
                                 width: `${
                                   (activity.activeUsers /
@@ -723,9 +723,9 @@ export default function AdminAnalytics() {
                     <span className="text-gray-600">Usage</span>
                     <span className="font-medium">{perf.usage}%</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
+                  <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2 overflow-hidden">
                     <div
-                      className={`h-1.5 sm:h-2 rounded-full ${perf.color}`}
+                      className={`h-1.5 sm:h-2 rounded-full max-w-full ${perf.color}`}
                       style={{ width: `${perf.usage}%` }}
                     ></div>
                   </div>

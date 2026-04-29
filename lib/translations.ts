@@ -340,6 +340,7 @@ export const translations = {
       businessType: "Business Type",
       aboutThisBusiness: "About This Business",
       productsServices: "Products & Services",
+      servicesOffered: "Services Offered",
       keywords: "Keywords",
       noKeywords: "No keywords available",
       itemsCount: "{{count}} items",
@@ -2396,6 +2397,7 @@ export const translations = {
         keywordsCount: "keywords",
         goodLength: "Good length!",
         quickSuggestions: "Quick suggestions based on your categories",
+        suggestionsLabel: "Quick suggestions based on your categories:",
       },
 
       step2: {
@@ -3536,6 +3538,7 @@ export const translations = {
       businessType: "نوع النشاط",
       aboutThisBusiness: "نبذه عن النشاط",
       productsServices: "المنتجات والخدمات",
+      servicesOffered: "الخدمات المقدمة",
       keywords: "الكلمات المفتاحية",
       noKeywords: "لا توجد كلمات مفتاحية",
       itemsCount: "{{count}} عنصر",
@@ -5522,6 +5525,7 @@ export const translations = {
         keywordsCount: "كلمات مفتاحية",
         goodLength: "طول جيد!",
         quickSuggestions: "اقتراحات سريعة بناءً على فئاتك",
+        suggestionsLabel: "اقتراحات سريعة بناءً على فئاتك:",
       },
 
       step2: {

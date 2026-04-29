@@ -165,6 +165,13 @@ const InteractiveMapGoogle = ({
       zoomControl: true,
     });
 
+    // Close any open info windows when clicking on the map
+    mapRef.current.addListener("click", () => {
+      markersRef.current.forEach(m => {
+        if (m.infoWindow) m.infoWindow.close();
+      });
+    });
+
     // Add reset to Saudi Arabia button
     const resetControlDiv = document.createElement("div");
     resetControlDiv.style.marginRight = "10px";
@@ -227,10 +234,10 @@ const InteractiveMapGoogle = ({
       // Create yellow pin with S marker content
       const pinSvg = document.createElement("div");
       pinSvg.innerHTML = `
-        <svg width="36" height="48" viewBox="0 0 36 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); cursor: pointer; transform: translate(-50%, -100%);">
+        <svg width="28" height="38" viewBox="0 0 36 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); cursor: pointer; transform: translate(-50%, -100%);">
           <path d="M18 0C8.059 0 0 8.059 0 18c0 13.5 18 30 18 30s18-16.5 18-30C36 8.059 27.941 0 18 0z" fill="#FACC15"/>
           <circle cx="18" cy="18" r="10" fill="white"/>
-          <text x="18" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#FACC15">S</text>
+          <text x="18" y="23" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#FACC15">S</text>
         </svg>
       `;
 
@@ -251,14 +258,14 @@ const InteractiveMapGoogle = ({
           title: business.name,
           icon: {
             url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
-              <svg width="36" height="48" viewBox="0 0 36 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="28" height="38" viewBox="0 0 36 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M18 0C8.059 0 0 8.059 0 18c0 13.5 18 30 18 30s18-16.5 18-30C36 8.059 27.941 0 18 0z" fill="#FACC15"/>
                 <circle cx="18" cy="18" r="10" fill="white"/>
-                <text x="18" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#FACC15">S</text>
+                <text x="18" y="23" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#FACC15">S</text>
               </svg>
             `),
-            scaledSize: new g.maps.Size(36, 48),
-            anchor: new g.maps.Point(18, 48),
+            scaledSize: new g.maps.Size(28, 38),
+            anchor: new g.maps.Point(14, 38),
           },
         });
       }
@@ -311,136 +318,152 @@ const InteractiveMapGoogle = ({
       };
 
       const tooltipContent = `
-        <div dir="${
+        <style>
+          .gm-style-iw-button { display: none !important; }
+          .gm-style-iw-c { padding: 0 !important; border-radius: 12px !important; }
+          .gm-style-iw-d { overflow: hidden !important; padding: 0 !important; max-height: none !important; }
+          .gm-style-iw-tc { display: none !important; }
+          .gm-ui-hover-effect { display: none !important; }
+          .gm-style .gm-style-iw-c { padding: 0 !important; }
+          .gm-style .gm-style-iw-d { padding: 0 !important; margin: 0 !important; }
+          .gm-style-iw-c { box-shadow: none !important; background: transparent !important; }
+          
+          /* Fully Responsive for InfoWindow across all devices */
+          .gm-style-iw-c {
+            max-width: 90vw !important;
+            max-height: 90vh !important;
+            padding: 0 !important;
+          }
+          .gm-style-iw-d {
+            width: 320px !important;
+            max-width: 100% !important;
+            overflow: visible !important;
+            max-height: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+
+          @media (max-width: 768px) {
+            .gm-style-iw-d {
+              width: 260px !important;
+            }
+          }
+
+          @media (max-width: 480px) {
+            .gm-style-iw-d {
+              width: 150px !important;
+              max-width: 150px !important;
+            }
+            .map-tooltip-content {
+              width: 150px !important;
+              max-width: 150px !important;
+            }
+            .map-tooltip-content h3 {
+              font-size: 10px !important;
+            }
+            .map-tooltip-content span {
+              font-size: 7px !important;
+            }
+            .map-tooltip-content button {
+              padding: 4px !important;
+              font-size: 9px !important;
+            }
+          }
+          
+          /* Special fix for Google Maps internal wrapper width */
+          .gm-style .gm-style-iw {
+            max-width: 90vw !important;
+          }
+        </style>
+        <div class="map-tooltip-content" dir="${
           isRtl ? "rtl" : "ltr"
-        }" style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:10px 12px;min-width:400px;max-width:500px;box-shadow:0 8px 20px rgba(0,0,0,0.12);${
+        }" style="background:#fff;border-radius:12px;padding:0;width:100%;box-shadow:0 10px 25px rgba(0,0,0,0.15);overflow:hidden;${
           isRtl ? "direction:rtl;text-align:right;" : ""
         }">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;${
+          <div style="background:#FACC15;padding:10px 15px;display:flex;align-items:center;justify-content:space-between;${
             isRtl ? "flex-direction:row-reverse;" : ""
           }">
-            <h3 style="font-weight:700;color:#111827;font-size:14px;margin:0;">${
+            <h3 style="font-weight:700;color:#000;font-size:15px;margin:0;">${
               business.name
             }</h3>
-            <span style="padding:3px 6px;border-radius:12px;background:${
-              businessData.status === "approved" || businessData.status === "active" ? "#10B981" : "#F59E0B"
-            };color:#fff;font-size:9px;font-weight:600;">
-              ${
-                businessData.status === "approved" || businessData.status === "active"
-                  ? t.verified || "Verified"
-                  : t.pending || "Pending"
-              }
+            <span style="padding:4px 8px;border-radius:20px;background:#10B981;color:#fff;font-size:10px;font-weight:700;box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+              ${t.verified || "Verified"}
             </span>
           </div>
-          <div style="display:flex;gap:12px;align-items:flex-start;${
-            isRtl ? "flex-direction:row-reverse;" : ""
-          }">
-            <div style="flex:1;min-width:0;">
-              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;${
+          <div style="padding:15px;">
+            <div style="display:flex;gap:12px;margin-bottom:12px;${
+              isRtl ? "flex-direction:row-reverse;" : ""
+            }">
+               <div style="flex:1;">
+                 <div style="display:flex;align-items:center;gap:4px;margin-bottom:8px;${
+                   isRtl ? "flex-direction:row-reverse;" : ""
+                 }">
+                   <span style="color:#FACC15;font-size:12px;">⭐</span>
+                   <span style="color:#111827;font-size:13px;font-weight:700;">${
+                     businessData.rating
+                   }</span>
+                   <span style="color:#6B7280;font-size:11px;">(${
+                     businessData.reviews
+                   })</span>
+                 </div>
+                 <div style="display:flex;flex-wrap:wrap;gap:4px;${
+                   isRtl ? "flex-direction:row-reverse;" : ""
+                 }">
+                   ${(business.categories || [business.category])
+                     .slice(0, 2)
+                     .map(
+                       (category) => `
+                     <span style="padding:2px 8px;border-radius:6px;background:#f3f4f6;color:#4b5563;font-size:10px;font-weight:600;">
+                       ${category}
+                     </span>
+                   `,
+                     )
+                     .join("")}
+                 </div>
+               </div>
+            </div>
+            
+            <div style="space-y:8px;">
+              <div style="display:flex;align-items:center;gap:8px;${
                 isRtl ? "flex-direction:row-reverse;" : ""
               }">
-                ${(business.categories || [business.category])
-                  .map(
-                    (category) => `
-                  <span style="padding:3px 6px;border-radius:8px;background:#6B7280;color:#fff;font-size:9px;font-weight:600;">
-                    ${category}
-                  </span>
-                `,
-                  )
-                  .join("")}
-              </div>
-              <div style="margin-bottom:6px;">
-                <div style="color:#6B7280;font-size:9px;font-weight:600;margin-bottom:1px;">${
-                  t.address
-                }</div>
-                <div style="color:#374151;font-size:10px;line-height:1.2;">${
-                  business.address
-                }</div>
-              </div>
-              <div style="margin-bottom:6px;">
-                <div style="color:#6B7280;font-size:9px;font-weight:600;margin-bottom:1px;">${
-                  t.phone
-                }</div>
-                <div style="color:#374151;font-size:9px;">${
+                <i class="ri-phone-fill" style="color:#FACC15;font-size:14px;"></i>
+                <div style="color:#374151;font-size:12px;">${
                   businessData.phone
                 }</div>
               </div>
             </div>
-            <div style="flex:1;min-width:0;">
-              <div style="display:flex;align-items:center;gap:4px;margin-bottom:6px;${
-                isRtl ? "flex-direction:row-reverse;" : ""
-              }">
-                <span style="color:#F59E0B;font-size:10px;">⭐</span>
-                <span style="color:#374151;font-size:10px;font-weight:600;">${
-                  businessData.rating
-                }</span>
-                <span style="color:#6B7280;font-size:8px;">(${
-                  businessData.reviews
-                })</span>
-              </div>
-              <div style="margin-bottom:6px;">
-                <div style="color:#6B7280;font-size:9px;font-weight:600;margin-bottom:1px;">${
-                  t.email
-                }</div>
-                <div style="color:#374151;font-size:9px;">${
-                  businessData.email
-                }</div>
-              </div>
-            </div>
-          </div>
-          <div style="margin-top:6px;padding-top:6px;border-top:1px solid #f3f4f6;display:flex;justify-content:space-between;">
-            <div>
-              <div style="color:#6B7280;font-size:9px;font-weight:600;margin-bottom:2px;">
-                ${t.rating || "Rating"}
-              </div>
-              <div style="color:#374151;font-size:10px;display:flex;align-items:center;gap:2px;">
-                <span>${businessData.rating}</span>
-                <i class="ri-star-fill" style="color:#F59E0B;font-size:12px;"></i>
-                <span style="margin-left:4px;color:#6B7280;font-size:9px;">(${
-                  businessData.reviews
-                })</span>
-              </div>
-            </div>
-            <div>
-              <div style="color:#6B7280;font-size:9px;font-weight:600;margin-bottom:2px;">
-                ${t.status || "Status"}
-              </div>
-              <div style="color:#374151;font-size:10px;display:flex;align-items:center;gap:2px;">
-                <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background-color:${
-                  businessData.status === "approved" || businessData.status === "active" ? "#10B981" : "#F59E0B"
-                };"></span>
-                <span>${
-                  businessData.status === "approved" || businessData.status === "active"
-                    ? t.verified || "Verified"
-                    : t.pending || "Pending"
-                }</span>
-              </div>
-            </div>
+
+            <button onclick="window.location.href='/business/${business.id}'" style="width:100%;margin-top:15px;background:#FACC15;color:#000;border:none;padding:8px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;transition:background 0.2s;">
+              ${isRtl ? "عرض الملف الشخصي" : "View Profile"}
+            </button>
           </div>
         </div>
       `;
 
       const infoWindow = new g.maps.InfoWindow({
         content: tooltipContent,
-      });
-
-      marker.addListener("mouseover", () => {
-        infoWindow.open(mapRef.current, marker);
-        onBusinessClick(business);
-      });
-
-      marker.addListener("mouseout", () => {
-        // Keep open on hover over infoWindow
-        setTimeout(() => {
-          if (!infoWindow.getMap()) return;
-          // Check if mouse is still over the infoWindow
-          infoWindow.close();
-        }, 200);
+        disableAutoPan: false,
       });
 
       marker.addListener("click", () => {
-        onBusinessClick(business);
+        const isOpen = infoWindow.getMap();
+
+        // Close all other info windows
+        markersRef.current.forEach(m => {
+          if (m.infoWindow) {
+            m.infoWindow.close();
+          }
+        });
+
+        if (!isOpen) {
+          infoWindow.open(mapRef.current, marker);
+          onBusinessClick(business);
+        }
       });
+
+      // Store infoWindow reference in marker to close it later if needed
+      marker.infoWindow = infoWindow;
 
       markersRef.current.push(marker);
       bounds.extend({ lat: business.lat, lng: business.lng });

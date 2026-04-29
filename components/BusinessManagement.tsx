@@ -203,6 +203,505 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
   const [isLoading, setIsLoading] = useState(true);
   const [productKeywords, setProductKeywords] = useState<string[]>([]);
   const [keywordInput, setKeywordInput] = useState("");
+  const [keywordSuggestions, setKeywordSuggestions] = useState<string[]>([]);
+
+  // Function to get suggestions based on selected categories
+  const getCategorySuggestions = (selectedCategories: string[]): string[] => {
+    const suggestions: Record<string, string[]> = {
+      Agriculture: [
+        "seeds",
+        "fertilizers",
+        "pesticides",
+        "farming equipment",
+        "irrigation systems",
+        "livestock feed",
+        "greenhouse supplies",
+        "tractors",
+        "harvesting tools",
+        "organic products",
+      ],
+      "Apparel & Fashion": [
+        "clothing",
+        "fashion accessories",
+        "footwear",
+        "handbags",
+        "jewelry",
+        "watches",
+        "sunglasses",
+        "belts",
+        "scarves",
+        "fashion design",
+      ],
+      Automobile: [
+        "car parts",
+        "automotive accessories",
+        "tires",
+        "batteries",
+        "engine oil",
+        "brake pads",
+        "car electronics",
+        "vehicle maintenance",
+        "auto repair",
+        "car detailing",
+      ],
+      "Brass Hardware & Components": [
+        "brass fittings",
+        "hardware components",
+        "metal fabrication",
+        "brass valves",
+        "connectors",
+        "fasteners",
+        "brass pipes",
+        "industrial hardware",
+        "custom brass parts",
+        "marine hardware",
+      ],
+      "Business Services": [
+        "consulting",
+        "accounting",
+        "legal services",
+        "marketing services",
+        "HR services",
+        "business development",
+        "financial planning",
+        "project management",
+        "training",
+        "outsourcing",
+      ],
+      Chemicals: [
+        "industrial chemicals",
+        "laboratory chemicals",
+        "cleaning chemicals",
+        "specialty chemicals",
+        "chemical raw materials",
+        "petrochemicals",
+        "pharmaceutical chemicals",
+        "agricultural chemicals",
+        "water treatment",
+        "adhesives",
+      ],
+      "Computer Hardware & Software": [
+        "computers",
+        "laptops",
+        "software",
+        "servers",
+        "networking equipment",
+        "storage devices",
+        "monitors",
+        "keyboards",
+        "IT support",
+        "system integration",
+      ],
+      "Consumer Electronics": [
+        "smartphones",
+        "tablets",
+        "laptops",
+        "televisions",
+        "audio systems",
+        "cameras",
+        "gaming consoles",
+        "wearables",
+        "home appliances",
+        "electronic accessories",
+      ],
+      "Electronics & Electrical Supplies": [
+        "electrical components",
+        "wiring",
+        "switches",
+        "outlets",
+        "circuit breakers",
+        "electrical panels",
+        "transformers",
+        "cables",
+        "lighting",
+        "power supplies",
+      ],
+      "Energy & Power": [
+        "solar panels",
+        "generators",
+        "batteries",
+        "renewable energy",
+        "power systems",
+        "electrical equipment",
+        "energy storage",
+        "inverters",
+        "wind turbines",
+        "power distribution",
+      ],
+      "Environment & Pollution": [
+        "waste management",
+        "recycling",
+        "environmental consulting",
+        "pollution control",
+        "water treatment",
+        "air purification",
+        "environmental monitoring",
+        "sustainable solutions",
+        "green technology",
+        "hazardous waste",
+      ],
+      "Food & Beverage": [
+        "catering",
+        "fresh vegetables",
+        "bakery items",
+        "beverages",
+        "frozen food",
+        "spices",
+        "dairy products",
+        "meat",
+        "seafood",
+        "organic food",
+      ],
+      Furniture: [
+        "office chairs",
+        "desks",
+        "sofas",
+        "beds",
+        "dining tables",
+        "wardrobes",
+        "kitchen cabinets",
+        "outdoor furniture",
+        "custom furniture",
+        "office furniture",
+      ],
+      "Gifts & Crafts": [
+        "handmade crafts",
+        "gift items",
+        "decorative items",
+        "art supplies",
+        "personalized gifts",
+        "party supplies",
+        "seasonal decorations",
+        "hobby materials",
+        "collectibles",
+        "souvenirs",
+      ],
+      "Health & Beauty": [
+        "cosmetics",
+        "skincare products",
+        "hair care",
+        "health supplements",
+        "medical devices",
+        "beauty equipment",
+        "spa services",
+        "wellness products",
+        "fitness equipment",
+        "personal care",
+      ],
+      "Home Supplies": [
+        "household items",
+        "cleaning supplies",
+        "home decor",
+        "kitchen utensils",
+        "storage solutions",
+        "garden supplies",
+        "home improvement",
+        "appliances",
+        "bedding",
+        "bathroom accessories",
+      ],
+      "Home Textiles & Furnishings": [
+        "curtains",
+        "bed sheets",
+        "towels",
+        "carpets",
+        "upholstery",
+        "table linens",
+        "cushions",
+        "blankets",
+        "rugs",
+        "home fabrics",
+      ],
+      "Hospital & Medical Supplies": [
+        "medical equipment",
+        "surgical instruments",
+        "hospital furniture",
+        "medical disposables",
+        "diagnostic equipment",
+        "patient care",
+        "laboratory supplies",
+        "medical devices",
+        "healthcare products",
+        "pharmaceuticals",
+      ],
+      "Hotel Supplies & Equipment": [
+        "hotel furniture",
+        "hospitality supplies",
+        "restaurant equipment",
+        "hotel linens",
+        "catering equipment",
+        "hotel amenities",
+        "commercial kitchen",
+        "housekeeping supplies",
+        "hotel technology",
+        "guest room supplies",
+      ],
+      "Industrial Supplies": [
+        "industrial equipment",
+        "safety equipment",
+        "tools",
+        "machinery parts",
+        "industrial chemicals",
+        "manufacturing supplies",
+        "maintenance supplies",
+        "protective gear",
+        "industrial automation",
+        "quality control",
+      ],
+      "Jewelry & Gemstones": [
+        "gold jewelry",
+        "silver jewelry",
+        "diamonds",
+        "gemstones",
+        "watches",
+        "custom jewelry",
+        "precious metals",
+        "jewelry repair",
+        "wedding rings",
+        "fashion jewelry",
+      ],
+      "Leather & Leather Products": [
+        "leather goods",
+        "handbags",
+        "wallets",
+        "belts",
+        "shoes",
+        "leather jackets",
+        "luggage",
+        "leather furniture",
+        "custom leather",
+        "leather accessories",
+      ],
+      Machinery: [
+        "industrial machinery",
+        "manufacturing equipment",
+        "construction machinery",
+        "agricultural machinery",
+        "packaging machinery",
+        "printing machinery",
+        "textile machinery",
+        "food processing",
+        "automation equipment",
+        "heavy machinery",
+      ],
+      "Mineral & Metals": [
+        "steel",
+        "aluminum",
+        "copper",
+        "iron ore",
+        "precious metals",
+        "metal alloys",
+        "mining equipment",
+        "metal processing",
+        "scrap metal",
+        "industrial metals",
+      ],
+      "Office & School Supplies": [
+        "office supplies",
+        "stationery",
+        "paper",
+        "pens",
+        "notebooks",
+        "office furniture",
+        "school supplies",
+        "educational materials",
+        "printing supplies",
+        "office equipment",
+      ],
+      "Oil and Gas": [
+        "petroleum products",
+        "oil drilling",
+        "gas equipment",
+        "refinery supplies",
+        "pipeline equipment",
+        "petrochemicals",
+        "fuel",
+        "oil field services",
+        "gas processing",
+        "energy services",
+      ],
+      "Packaging & Paper": [
+        "packaging materials",
+        "paper products",
+        "boxes",
+        "labels",
+        "plastic packaging",
+        "printing paper",
+        "corrugated boxes",
+        "packaging design",
+        "industrial packaging",
+        "eco packaging",
+      ],
+      Pharmaceuticals: [
+        "medicines",
+        "pharmaceutical raw materials",
+        "medical supplies",
+        "drug manufacturing",
+        "healthcare products",
+        "pharmaceutical equipment",
+        "clinical supplies",
+        "biotechnology",
+        "research chemicals",
+        "medical devices",
+      ],
+      "Pipes, Tubes & Fittings": [
+        "steel pipes",
+        "PVC pipes",
+        "pipe fittings",
+        "valves",
+        "plumbing supplies",
+        "industrial pipes",
+        "tube fittings",
+        "pipeline systems",
+        "hydraulic fittings",
+        "gas pipes",
+      ],
+      "Plastics & Products": [
+        "plastic products",
+        "plastic raw materials",
+        "injection molding",
+        "plastic packaging",
+        "plastic containers",
+        "PVC products",
+        "plastic sheets",
+        "custom plastics",
+        "recycled plastics",
+        "polymer products",
+      ],
+      "Printing & Publishing": [
+        "printing services",
+        "digital printing",
+        "offset printing",
+        "publishing",
+        "graphic design",
+        "promotional materials",
+        "business cards",
+        "brochures",
+        "books",
+        "magazines",
+      ],
+      "Scientific & Laboratory Instruments": [
+        "laboratory equipment",
+        "scientific instruments",
+        "research equipment",
+        "analytical instruments",
+        "microscopes",
+        "testing equipment",
+        "laboratory supplies",
+        "measuring instruments",
+        "lab furniture",
+        "calibration services",
+      ],
+      "Security & Protection": [
+        "security systems",
+        "surveillance cameras",
+        "access control",
+        "alarm systems",
+        "security services",
+        "protective equipment",
+        "fire safety",
+        "security guards",
+        "cybersecurity",
+        "safety equipment",
+      ],
+      "Sports & Entertainment": [
+        "sports equipment",
+        "fitness equipment",
+        "recreational facilities",
+        "entertainment systems",
+        "sports accessories",
+        "outdoor gear",
+        "exercise machines",
+        "sports apparel",
+        "gaming equipment",
+        "leisure products",
+      ],
+      Telecommunications: [
+        "telecom equipment",
+        "networking solutions",
+        "communication systems",
+        "mobile accessories",
+        "internet services",
+        "telephone systems",
+        "wireless technology",
+        "data communication",
+        "telecom infrastructure",
+        "VoIP systems",
+      ],
+      "Textiles & Fabrics": [
+        "fabrics",
+        "textiles",
+        "yarns",
+        "clothing materials",
+        "industrial textiles",
+        "home textiles",
+        "textile machinery",
+        "fabric printing",
+        "textile chemicals",
+        "fiber products",
+      ],
+      Toys: [
+        "children toys",
+        "educational toys",
+        "outdoor toys",
+        "electronic toys",
+        "board games",
+        "action figures",
+        "dolls",
+        "toy vehicles",
+        "learning toys",
+        "baby toys",
+      ],
+      Transportation: [
+        "logistics",
+        "freight services",
+        "shipping",
+        "cargo handling",
+        "transportation equipment",
+        "fleet management",
+        "warehousing",
+        "delivery services",
+        "supply chain",
+        "vehicle rental",
+      ],
+    };
+
+    let allSuggestions: string[] = [];
+    selectedCategories.forEach((catId) => {
+      if (suggestions[catId]) {
+        allSuggestions = [...allSuggestions, ...suggestions[catId]];
+      }
+    });
+
+    return [...new Set(allSuggestions)].slice(0, 15);
+  };
+
+  useEffect(() => {
+    if (businessData.categories.length > 0) {
+      setKeywordSuggestions(getCategorySuggestions(businessData.categories));
+    } else {
+      setKeywordSuggestions([]);
+    }
+  }, [businessData.categories]);
+
+  const addSuggestedKeyword = (keyword: string) => {
+    if (!isEditing) return;
+    
+    const currentKeywords = businessData.productKeywords
+      .split(",")
+      .map((k) => k.trim())
+      .filter(Boolean);
+      
+    if (!currentKeywords.includes(keyword)) {
+      const newKeywords = [...currentKeywords, keyword];
+      setProductKeywords(newKeywords);
+      setKeywordInput(newKeywords.join(", "));
+      setBusinessData((prev) => ({
+        ...prev,
+        productKeywords: newKeywords.join(", "),
+      }));
+    }
+  };
 
   // Helper functions
   const getTranslatedText = (
@@ -1341,6 +1840,54 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t("businessManagement.details.keywords")}
                   </label>
+                  
+                  {/* Quick suggestions based on categories */}
+                  {isEditing && keywordSuggestions.length > 0 && (
+                    <div className="mb-4">
+                      <p className="text-sm font-medium text-gray-700 mb-2">
+                        {t("completeProfile.step1.suggestionsLabel") || "Quick suggestions based on your categories:"}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {keywordSuggestions.map((keyword, index) => {
+                          const isSelected = productKeywords.includes(keyword);
+                          return (
+                            <button
+                              key={index}
+                              type="button"
+                              onClick={() => {
+                                if (isSelected) {
+                                  // Remove if already selected
+                                  const newKeywords = productKeywords.filter((k) => k !== keyword);
+                                  setProductKeywords(newKeywords);
+                                  setKeywordInput(newKeywords.join(", "));
+                                  setBusinessData((prev) => ({
+                                    ...prev,
+                                    productKeywords: newKeywords.join(", "),
+                                  }));
+                                } else {
+                                  // Add if not selected
+                                  addSuggestedKeyword(keyword);
+                                }
+                              }}
+                              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1 ${
+                                isSelected
+                                  ? "bg-green-100 text-green-700 border border-green-200 hover:bg-red-100 hover:text-red-700 hover:border-red-200 cursor-pointer"
+                                  : "bg-white text-gray-600 border border-gray-200 hover:border-yellow-400 hover:bg-yellow-50 cursor-pointer"
+                              }`}
+                            >
+                              {isSelected ? (
+                                <i className="ri-check-line"></i>
+                              ) : (
+                                <i className="ri-add-line"></i>
+                              )}
+                              {keyword}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex flex-wrap gap-2 mb-3">
                     {[
                       "wholesale supplier",
@@ -1430,12 +1977,29 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                   <div className="flex flex-wrap gap-2">
                     {productKeywords.length > 0 ? (
                       productKeywords.map((keyword, index) => (
-                        <span
+                        <button
                           key={index}
-                          className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium"
+                          onClick={() => {
+                            if (!isEditing) return;
+                            const newKeywords = productKeywords.filter((k) => k !== keyword);
+                            setProductKeywords(newKeywords);
+                            setKeywordInput(newKeywords.join(", "));
+                            setBusinessData((prev) => ({
+                              ...prev,
+                              productKeywords: newKeywords.join(", "),
+                            }));
+                          }}
+                          disabled={!isEditing}
+                          className={`px-3 py-2 rounded-full text-xs font-medium transition-all ${
+                            isEditing
+                              ? "cursor-pointer hover:bg-red-100 hover:text-red-800 hover:border-red-300"
+                              : "cursor-not-allowed"
+                          } bg-blue-100 text-blue-800 border border-blue-200`}
+                          title={isEditing ? "Click to remove" : ""}
                         >
+                          <i className="ri-close-line mr-1"></i>
                           {keyword}
-                        </span>
+                        </button>
                       ))
                     ) : (
                       <span className="text-gray-500 text-sm">

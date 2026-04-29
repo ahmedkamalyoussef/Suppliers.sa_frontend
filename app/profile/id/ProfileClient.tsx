@@ -53,8 +53,8 @@ export default function ProfileClient({ id }: { id: string }) {
           }
         }
 
-        // Fetch the profile data using getBusinessProfile to get keywords
-        const data = await apiService.getBusinessProfile(profileId);
+        // Fetch the profile data
+        const data = await apiService.getSupplierProfile(profileId);
 
         // Also fetch from public businesses API to get preferences
         try {

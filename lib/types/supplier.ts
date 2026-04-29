@@ -18,6 +18,7 @@ export interface SupplierProfileData {
   category: string;
   business_image: string;
   keywords: string[];
+  productKeywords: string[]; // Add this for consistency with frontend
   website: string;
   contact_email: string;
   description: string | null;

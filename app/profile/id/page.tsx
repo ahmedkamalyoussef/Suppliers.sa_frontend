@@ -14,21 +14,15 @@ const ProfileClient = dynamic(
   )}
 );
 
-export async function generateStaticParams() {
-  return Array.from({ length: 1000 }, (_, i) => ({
-    id: (i + 1).toString()
-  }));
+export function generateStaticParams() {
+  return [];
 }
 
 function ProfileWrapper({ params }: { params: { id: string } }) {
   return <ProfileClient id={params.id} />;
 }
 
-export default function PublicProfilePage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function PublicProfilePage({ params }: { params: { id: string } }) {
   return (
     <Suspense
       fallback={

@@ -1,15 +1,9 @@
 import BusinessProfile from "./BusinessProfile";
 
 export async function generateStaticParams() {
-  // Return some sample business IDs for static generation
-  // You can modify this to return actual business IDs from your data
-  return [
-    { id: '1' },
-    { id: '2' },
-    { id: '3' },
-    { id: '4' },
-    { id: '5' },
-  ];
+  return Array.from({ length: 1000 }, (_, i) => ({
+    id: (i + 1).toString()
+  }));
 }
 
 export default function BusinessPage({ params }: { params: { id: string } }) {

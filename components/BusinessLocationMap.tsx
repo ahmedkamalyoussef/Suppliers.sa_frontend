@@ -9,10 +9,10 @@ const GOOGLE_MAPS_SCRIPT_ID = "google-maps-js";
 
 // Custom yellow marker with S - SVG data URI
 const customMarkerSvg = `data:image/svg+xml,${encodeURIComponent(`
-<svg width="36" height="48" viewBox="0 0 36 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="28" height="38" viewBox="0 0 36 48" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path d="M18 0C8.059 0 0 8.059 0 18c0 13.5 18 30 18 30s18-16.5 18-30C36 8.059 27.941 0 18 0z" fill="#FACC15"/>
   <circle cx="18" cy="18" r="10" fill="white"/>
-  <text x="18" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#FACC15">S</text>
+  <text x="18" y="23" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#FACC15">S</text>
 </svg>
 `)}`;
 
@@ -393,8 +393,8 @@ export default function BusinessLocationMap({
       title: t("map.yourBusiness") || "Your Business",
       icon: {
         url: customMarkerSvg,
-        scaledSize: new g.maps.Size(36, 48),
-        anchor: new g.maps.Point(18, 48),
+        scaledSize: new g.maps.Size(28, 38),
+        anchor: new g.maps.Point(14, 38),
       },
     });
 
