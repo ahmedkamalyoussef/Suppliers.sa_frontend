@@ -1240,11 +1240,15 @@ class ApiService {
       },
     });
 
+    const responseData = await response.json().catch(() => ({}));
+
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-        errorData.message || `HTTP ${response.status}: ${response.statusText}`,
-      );
+      throw {
+        response: {
+          status: response.status,
+          data: responseData
+        }
+      };
     }
 
     // Return success for DELETE operations

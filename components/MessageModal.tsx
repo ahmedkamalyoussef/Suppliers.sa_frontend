@@ -227,7 +227,7 @@ export default function MessageModal({ isOpen, onClose, businessId, businessName
                 <div>
                   <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">
                     <i className="ri-message-2-line mr-1"></i>
-                    Message *
+                    {t("businessProfile.message")}
                   </label>
                   <textarea
                     name="message"
@@ -242,14 +242,14 @@ export default function MessageModal({ isOpen, onClose, businessId, businessName
                     }
                     maxLength={500}
                     className="w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-xs md:text-sm resize-none"
-                    placeholder="Dear Team, I'm interested in your services and would like to learn more about..."
+                    placeholder={t("businessProfile.messagePlaceholder")}
                   />
                   <div className="flex justify-between items-center mt-1 md:mt-2">
                     <p className="text-xs text-gray-500">
-                      This message will be sent directly to {businessName}
+                      {t("businessProfile.sentDirectly").replace("{{name}}", businessName)}
                     </p>
                     <p className="text-xs text-gray-500">
-                      {inquiryForm.message.length}/500 characters
+                      {t("businessProfile.charactersCount").replace("{{count}}", String(inquiryForm.message.length))}
                     </p>
                   </div>
                 </div>

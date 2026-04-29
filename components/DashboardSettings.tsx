@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/lib/LanguageContext";
+import { useAuth } from "@/lib/UserContext";
 import { apiService } from "@/lib/api";
 import { toast } from "react-toastify";
 
@@ -19,6 +20,7 @@ interface DashboardSettingsProps {
 
 export default function DashboardSettings({ user }: DashboardSettingsProps) {
   const { t, language } = useLanguage();
+  const { logout } = useAuth();
   const [activeSection, setActiveSection] = useState("profile");
   const [settings, setSettings] = useState({
     profile: {
@@ -60,6 +62,9 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
     confirm: "",
   });
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
 
   // Fetch and set preferences data
   useEffect(() => {
@@ -336,9 +341,24 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
     }
   };
 
-  const handleDeleteAccount = () => {
-    if (confirm(t("settings.messages.deleteConfirm"))) {
-      // Delete account implementation
+  const handleDeleteAccount = async () => {
+    const isArabic = document.documentElement.dir === "rtl";
+    
+    if (deleteConfirmText !== "حذف" && deleteConfirmText !== "delete") {
+      toast.error(isArabic ? 'اكتب "حذف" للتأكيد' : 'Type "delete" to confirm');
+      return;
+    }
+    
+    setIsDeleting(true);
+    try {
+      await apiService.deleteAccount();
+      await logout();
+      localStorage.clear();
+      window.location.href = '/login';
+    } catch (error: any) {
+      setIsDeleting(false);
+      const errorMessage = error.response?.data?.message || (isArabic ? "حدث خطأ أثناء الحذف، يرجى المحاولة مرة أخرى" : "Error deleting account, please try again");
+      toast.error(errorMessage);
     }
   };
 
@@ -863,7 +883,7 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                   {t("settings.privacy.dangerZoneDesc")}
                 </p>
                 <button
-                  onClick={handleDeleteAccount}
+                  onClick={() => setShowDeleteModal(true)}
                   className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 font-medium text-sm whitespace-nowrap cursor-pointer"
                 >
                   <i className="ri-delete-bin-line mr-2"></i>
@@ -987,6 +1007,73 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
           )}
         </div>
       </div>
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i className="ri-warning-line text-3xl text-red-500"></i>
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">
+                {language === "ar" ? "حذف الحساب" : "Delete Account"}
+              </h3>
+              <p className="text-gray-600 mb-4">
+                {language === "ar" 
+                  ? "هل أنت متأكد من حذف حسابك؟ هذا الإجراء لا يمكن التراجع عنه."
+                  : "Are you sure you want to delete your account? This action cannot be undone."}
+              </p>
+              
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {language === "ar" ? 'اكتب "حذف" للتأكيد' : 'Type "delete" to confirm'}
+                </label>
+                <input
+                  type="text"
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  placeholder={language === "ar" ? "حذف" : "delete"}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-center text-lg"
+                  disabled={isDeleting}
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setDeleteConfirmText("");
+                  }}
+                  disabled={isDeleting}
+                  className="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 cursor-pointer disabled:opacity-50"
+                >
+                  {language === "ar" ? "إلغاء" : "Cancel"}
+                </button>
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={isDeleting || (deleteConfirmText !== "حذف" && deleteConfirmText !== "delete")}
+                  className="flex-1 px-6 py-3 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {isDeleting ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      {language === "ar" ? "جاري الحذف..." : "Deleting..."}
+                    </>
+                  ) : (
+                    <>
+                      <i className="ri-delete-bin-line"></i>
+                      {language === "ar" ? "حذف الحساب" : "Delete Account"}
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

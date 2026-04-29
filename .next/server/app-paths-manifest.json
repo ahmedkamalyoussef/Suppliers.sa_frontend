@@ -25,8 +25,8 @@
   "/verification-status/page": "app/verification-status/page.js",
   "/business/id/page": "app/business/id/page.js",
   "/business/[id]/page": "app/business/[id]/page.js",
-  "/complete-profile/page": "app/complete-profile/page.js",
   "/profile/[id]/page": "app/profile/[id]/page.js",
   "/profile/id/page": "app/profile/id/page.js",
+  "/complete-profile/page": "app/complete-profile/page.js",
   "/dashboard/page": "app/dashboard/page.js"
 }
