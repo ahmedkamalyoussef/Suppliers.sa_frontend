@@ -253,66 +253,81 @@ export default function RegisterPage() {
         <div>
           <label
             htmlFor="businessName"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-medium text-gray-700 mb-2 ltr:text-left rtl:text-right"
           >
             {t("register.step1.businessNameLabel")}
           </label>
-          <input
-            type="text"
-            id="businessName"
-            value={formData.businessName}
-            onChange={(e) => handleInputChange("businessName", e.target.value)}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent ${
-              errors.businessName ? "border-red-300" : "border-gray-300"
-            }`}
-            placeholder={t("register.step1.businessNamePlaceholder")}
-          />
+          <div className="relative">
+            <i className="ri-user-3-line absolute top-1/2 -translate-y-1/2 ltr:left-3 rtl:right-3 text-gray-400 text-base pointer-events-none"></i>
+            <input
+              type="text"
+              id="businessName"
+              value={formData.businessName}
+              onChange={(e) => handleInputChange("businessName", e.target.value)}
+              className={`w-full ltr:pl-10 ltr:pr-4 rtl:pr-10 rtl:pl-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ltr:text-left rtl:text-right ${
+                errors.businessName ? "border-red-300" : "border-gray-300"
+              }`}
+              placeholder={t("register.step1.businessNamePlaceholder")}
+            />
+          </div>
           {errors.businessName && (
-            <p className="text-red-500 text-xs mt-1">{errors.businessName}</p>
+            <p className="text-red-500 text-xs mt-1 ltr:text-left rtl:text-right">{errors.businessName}</p>
           )}
         </div>
 
         <div>
           <label
             htmlFor="phone"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-medium text-gray-700 mb-2 ltr:text-left rtl:text-right"
           >
             {t("register.step1.phoneLabel")}
           </label>
-          <input
-            type="tel"
-            id="phone"
-            value={formData.phone}
-            onChange={(e) => handleInputChange("phone", e.target.value)}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent ${
-              errors.phone ? "border-red-300" : "border-gray-300"
-            }`}
-            placeholder={t("register.step1.phonePlaceholder")}
-          />
+          <div className="flex items-center border rounded-lg focus-within:ring-2 focus-within:ring-yellow-400 focus-within:border-transparent overflow-hidden border-gray-300" dir="ltr">
+            <span className="px-3 md:px-4 py-3 bg-gray-100 text-gray-700 font-medium text-sm border-r border-gray-300 whitespace-nowrap flex items-center gap-1 select-none" dir="ltr">
+              +966 ▾
+            </span>
+            <input
+              type="tel"
+              id="phone"
+              inputMode="numeric"
+              value={formData.phone}
+              onChange={(e) => {
+                const val = e.target.value.replace(/[^0-9]/g, "");
+                handleInputChange("phone", val);
+              }}
+              className={`w-full px-4 py-3 border-0 focus:ring-0 text-sm outline-none ltr:text-left rtl:text-right ${
+                errors.phone ? "bg-red-50" : ""
+              }`}
+              placeholder={t("register.step1.phonePlaceholder")}
+            />
+          </div>
           {errors.phone && (
-            <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
+            <p className="text-red-500 text-xs mt-1 ltr:text-left rtl:text-right">{errors.phone}</p>
           )}
         </div>
 
         <div>
           <label
             htmlFor="email"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-medium text-gray-700 mb-2 ltr:text-left rtl:text-right"
           >
             {t("register.step1.emailLabel")}
           </label>
-          <input
-            type="email"
-            id="email"
-            value={formData.email}
-            onChange={(e) => handleInputChange("email", e.target.value)}
-            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent ${
-              errors.email ? "border-red-300" : "border-gray-300"
-            }`}
-            placeholder={t("register.step1.emailPlaceholder")}
-          />
+          <div className="relative">
+            <i className="ri-mail-line absolute top-1/2 -translate-y-1/2 ltr:left-3 rtl:right-3 text-gray-400 text-base pointer-events-none"></i>
+            <input
+              type="email"
+              id="email"
+              value={formData.email}
+              onChange={(e) => handleInputChange("email", e.target.value)}
+              className={`w-full ltr:pl-10 ltr:pr-4 rtl:pr-10 rtl:pl-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ltr:text-left rtl:text-right ${
+                errors.email ? "border-red-300" : "border-gray-300"
+              }`}
+              placeholder={t("register.step1.emailPlaceholder")}
+            />
+          </div>
           {errors.email && (
-            <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+            <p className="text-red-500 text-xs mt-1 ltr:text-left rtl:text-right">{errors.email}</p>
           )}
         </div>
 
@@ -320,17 +335,18 @@ export default function RegisterPage() {
         <div>
           <label
             htmlFor="password"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-medium text-gray-700 mb-2 ltr:text-left rtl:text-right"
           >
             {t("auth.signup.step1.passwordLabel") || "Password *"}
           </label>
           <div className="relative">
+            <i className="ri-lock-line absolute top-1/2 -translate-y-1/2 ltr:left-3 rtl:right-3 text-gray-400 text-base pointer-events-none"></i>
             <input
               type={showPassword ? "text" : "password"}
               id="password"
               value={formData.password}
               onChange={(e) => handleInputChange("password", e.target.value)}
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent pr-10 ${
+              className={`w-full ltr:pl-10 ltr:pr-10 rtl:pr-10 rtl:pl-10 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ltr:text-left rtl:text-right ${
                 errors.password ? "border-red-300" : "border-gray-300"
               }`}
               placeholder={
@@ -340,28 +356,28 @@ export default function RegisterPage() {
             />
             <button
               type="button"
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              className="absolute top-1/2 -translate-y-1/2 ltr:right-3 rtl:left-3 text-gray-400 hover:text-gray-600 p-1"
               onClick={() => setShowPassword(!showPassword)}
             >
-              <i className={`ri-${showPassword ? "eye-off" : "eye"}-line`}></i>
+              <i className={`ri-${showPassword ? "eye-off" : "eye"}-line text-base`}></i>
             </button>
           </div>
           {errors.password && (
-            <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+            <p className="text-red-500 text-xs mt-1 ltr:text-left rtl:text-right">{errors.password}</p>
           )}
         </div>
 
         {/* Confirm Password Field */}
-
         <div>
           <label
             htmlFor="confirmPassword"
-            className="block text-sm font-medium text-gray-700 mb-2"
+            className="block text-sm font-medium text-gray-700 mb-2 ltr:text-left rtl:text-right"
           >
             {t("auth.signup.step1.confirmPasswordLabel") ||
               "Confirm Password *"}
           </label>
           <div className="relative">
+            <i className="ri-lock-line absolute top-1/2 -translate-y-1/2 ltr:left-3 rtl:right-3 text-gray-400 text-base pointer-events-none"></i>
             <input
               type={showConfirmPassword ? "text" : "password"}
               id="confirmPassword"
@@ -369,7 +385,7 @@ export default function RegisterPage() {
               onChange={(e) =>
                 handleInputChange("confirmPassword", e.target.value)
               }
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent pr-10 ${
+              className={`w-full ltr:pl-10 ltr:pr-10 rtl:pr-10 rtl:pl-10 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ltr:text-left rtl:text-right ${
                 errors.confirmPassword ? "border-red-300" : "border-gray-300"
               }`}
               placeholder={
@@ -379,16 +395,16 @@ export default function RegisterPage() {
             />
             <button
               type="button"
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              className="absolute top-1/2 -translate-y-1/2 ltr:right-3 rtl:left-3 text-gray-400 hover:text-gray-600 p-1"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             >
               <i
-                className={`ri-${showConfirmPassword ? "eye-off" : "eye"}-line`}
+                className={`ri-${showConfirmPassword ? "eye-off" : "eye"}-line text-base`}
               ></i>
             </button>
           </div>
           {errors.confirmPassword && (
-            <p className="text-red-500 text-xs mt-1">
+            <p className="text-red-500 text-xs mt-1 ltr:text-left rtl:text-right">
               {errors.confirmPassword}
             </p>
           )}
@@ -397,7 +413,7 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-yellow-400 text-white py-3 px-6 rounded-lg hover:bg-yellow-500 font-semibold whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-yellow-400 text-white py-3 px-6 rounded-lg hover:bg-yellow-500 font-semibold whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-base"
         >
           {isSubmitting ? "Creating Account..." : t("register.step1.button")}
         </button>

@@ -312,12 +312,12 @@ export default function BusinessRegistrationForm() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2 ltr:text-left rtl:text-right">
                 {t("auth.signup.step1.phoneLabel")}
               </label>
-              <div className="flex items-center border rounded-lg focus-within:ring-2 focus-within:ring-yellow-400 focus-within:border-transparent overflow-hidden">
-                <span className="px-3 md:px-4 py-2 md:py-3 bg-gray-100 text-gray-700 font-medium border-r border-gray-300 whitespace-nowrap">
-                  +966
+              <div className="flex items-center border rounded-lg focus-within:ring-2 focus-within:ring-yellow-400 focus-within:border-transparent overflow-hidden border-gray-300" dir="ltr">
+                <span className="px-3 md:px-4 py-2 md:py-3 bg-gray-100 text-gray-700 font-medium text-sm border-r border-gray-300 whitespace-nowrap flex items-center gap-1 select-none" dir="ltr">
+                  +966 ▾
                 </span>
                 <input
                   type="text"
@@ -328,14 +328,14 @@ export default function BusinessRegistrationForm() {
                     handleInputChange("phone", value);
                   }}
                   placeholder={t("business.form.phonePlaceholder")}
-                  className={`flex-1 px-3 md:px-4 py-2 md:py-3 border-0 focus:ring-0 text-sm outline-none ${
+                  className={`flex-1 px-3 md:px-4 py-2 md:py-3 border-0 focus:ring-0 text-sm outline-none ltr:text-left rtl:text-right ${
                     errors.phone ? "bg-red-50" : ""
                   }`}
                   required
                 />
               </div>
               {errors.phone && (
-                <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
+                <p className="text-red-500 text-xs mt-1 ltr:text-left rtl:text-right">{errors.phone}</p>
               )}
             </div>
 
@@ -362,20 +362,21 @@ export default function BusinessRegistrationForm() {
                 {t("auth.signup.step1.passwordLabel")}
               </label>
               <div className="relative">
+                <i className="ri-lock-line absolute top-1/2 -translate-y-1/2 ltr:left-3 rtl:right-3 text-gray-400 text-base pointer-events-none"></i>
                 <input
                   type={showPassword ? "text" : "password"}
                   value={registrationData.password}
                   onChange={(e) =>
                     handleInputChange("password", e.target.value)
                   }
-                  className={`w-full px-3 md:px-4 py-2 md:py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm pr-10 ${
+                  className={`w-full ltr:pl-10 ltr:pr-10 rtl:pr-10 rtl:pl-10 py-2 md:py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ltr:text-left rtl:text-right ${
                     errors.password ? "border-red-300" : "border-gray-300"
                   }`}
                   required
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute top-1/2 -translate-y-1/2 ltr:right-3 rtl:left-3 text-gray-400 hover:text-gray-600 p-1"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   <i
@@ -386,7 +387,7 @@ export default function BusinessRegistrationForm() {
               {errors.password && (
                 <div className="mt-1.5 space-y-0.5">
                   {errors.password.split(" - ").map((err, i) => (
-                    <p key={i} className="text-red-500 text-[10px] leading-tight flex items-start gap-1">
+                    <p key={i} className="text-red-500 text-[10px] leading-tight flex items-start gap-1 ltr:text-left rtl:text-right">
                       <span className="mt-0.5">•</span>
                       <span>{err}</span>
                     </p>
@@ -396,17 +397,18 @@ export default function BusinessRegistrationForm() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2 ltr:text-left rtl:text-right">
                 {t("auth.signup.step1.confirmPasswordLabel")}
               </label>
               <div className="relative">
+                <i className="ri-lock-line absolute top-1/2 -translate-y-1/2 ltr:left-3 rtl:right-3 text-gray-400 text-base pointer-events-none"></i>
                 <input
                   type={showConfirmPassword ? "text" : "password"}
                   value={registrationData.confirmPassword}
                   onChange={(e) =>
                     handleInputChange("confirmPassword", e.target.value)
                   }
-                  className={`w-full px-3 md:px-4 py-2 md:py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm pr-10 ${
+                  className={`w-full ltr:pl-10 ltr:pr-10 rtl:pr-10 rtl:pl-10 py-2 md:py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ltr:text-left rtl:text-right ${
                     errors.confirmPassword
                       ? "border-red-300"
                       : "border-gray-300"
@@ -415,7 +417,7 @@ export default function BusinessRegistrationForm() {
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute top-1/2 -translate-y-1/2 ltr:right-3 rtl:left-3 text-gray-400 hover:text-gray-600 p-1"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
                   <i

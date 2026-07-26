@@ -767,7 +767,7 @@ export default function UserManagement() {
               {language === "ar" ? "بحث المستخدمين" : "Search Users"}
             </label>
             <div className="relative">
-              <i className="ri-search-line absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+              <i className="ri-search-line absolute top-1/2 -translate-y-1/2 ltr:left-3 rtl:right-3 text-gray-400"></i>
               <input
                 type="text"
                 value={searchTerm}
@@ -775,7 +775,7 @@ export default function UserManagement() {
                 placeholder={
                   language === "ar" ? "بحث المستخدمين..." : "Search users..."
                 }
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
+                className="w-full ltr:pl-10 ltr:pr-4 rtl:pr-10 rtl:pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm ltr:text-left rtl:text-right"
               />
             </div>
           </div>

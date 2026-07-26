@@ -197,59 +197,69 @@ export default function ResetPasswordPage() {
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2 ltr:text-left rtl:text-right">
                     {t("otpLabel")}
                   </label>
-                  <input
-                    type="text"
-                    value={formData.otp}
-                    onChange={(e) => handleInputChange("otp", e.target.value)}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-sm ${
-                      error ? "border-red-300" : "border-gray-300"
-                    }`}
-                    placeholder={t("otpPlaceholder")}
-                    maxLength={6}
-                    required
-                  />
+                  <div className="relative">
+                    <i className="ri-key-line absolute top-1/2 -translate-y-1/2 ltr:left-3 rtl:right-3 text-gray-400 text-base pointer-events-none"></i>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={formData.otp}
+                      onChange={(e) => handleInputChange("otp", e.target.value)}
+                      className={`w-full ltr:pl-10 ltr:pr-4 rtl:pr-10 rtl:pl-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-sm ltr:text-left rtl:text-right ${
+                        error ? "border-red-300" : "border-gray-300"
+                      }`}
+                      placeholder={t("otpPlaceholder")}
+                      maxLength={6}
+                      required
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2 ltr:text-left rtl:text-right">
                     {t("newPasswordLabel")}
                   </label>
-                  <input
-                    type="password"
-                    value={formData.password}
-                    onChange={(e) =>
-                      handleInputChange("password", e.target.value)
-                    }
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-sm ${
-                      error ? "border-red-300" : "border-gray-300"
-                    }`}
-                    placeholder={t("newPasswordPlaceholder")}
-                    required
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <div className="relative">
+                    <i className="ri-lock-line absolute top-1/2 -translate-y-1/2 ltr:left-3 rtl:right-3 text-gray-400 text-base pointer-events-none"></i>
+                    <input
+                      type="password"
+                      value={formData.password}
+                      onChange={(e) =>
+                        handleInputChange("password", e.target.value)
+                      }
+                      className={`w-full ltr:pl-10 ltr:pr-10 rtl:pr-10 rtl:pl-10 py-3 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-sm ltr:text-left rtl:text-right ${
+                        error ? "border-red-300" : "border-gray-300"
+                      }`}
+                      placeholder={t("newPasswordPlaceholder")}
+                      required
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1 ltr:text-left rtl:text-right">
                     {t("passwordHint")}
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2 ltr:text-left rtl:text-right">
                     {t("confirmPasswordLabel")}
                   </label>
-                  <input
-                    type="password"
-                    value={formData.password_confirmation}
-                    onChange={(e) =>
-                      handleInputChange("password_confirmation", e.target.value)
-                    }
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-sm ${
-                      error ? "border-red-300" : "border-gray-300"
-                    }`}
-                    placeholder={t("confirmPasswordPlaceholder")}
-                    required
-                  />
+                  <div className="relative">
+                    <i className="ri-lock-line absolute top-1/2 -translate-y-1/2 ltr:left-3 rtl:right-3 text-gray-400 text-base pointer-events-none"></i>
+                    <input
+                      type="password"
+                      value={formData.password_confirmation}
+                      onChange={(e) =>
+                        handleInputChange("password_confirmation", e.target.value)
+                      }
+                      className={`w-full ltr:pl-10 ltr:pr-10 rtl:pr-10 rtl:pl-10 py-3 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-sm ltr:text-left rtl:text-right ${
+                        error ? "border-red-300" : "border-gray-300"
+                      }`}
+                      placeholder={t("confirmPasswordPlaceholder")}
+                      required
+                    />
+                  </div>
                 </div>
 
                 <button

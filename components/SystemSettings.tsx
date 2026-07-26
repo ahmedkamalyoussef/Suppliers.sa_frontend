@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "react-toastify";
 
 export default function SystemSettings() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user } = useAuth();
 
   const [accessDenied, setAccessDenied] = useState<boolean>(false);
@@ -786,12 +786,12 @@ export default function SystemSettings() {
             <div className="space-y-4 sm:space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2 ltr:text-left rtl:text-right">
                     {t("systemSettings.payments.premiumMonthly")}
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">
-                      SAR
+                    <span className="absolute top-1/2 -translate-y-1/2 ltr:left-3 rtl:right-3 text-gray-500 text-sm">
+                      {language === "ar" ? "ر.س" : "SAR"}
                     </span>
                     <input
                       type="number"
@@ -803,18 +803,18 @@ export default function SystemSettings() {
                           parseFloat(e.target.value)
                         )
                       }
-                      className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
+                      className="w-full ltr:pl-12 ltr:pr-4 rtl:pr-12 rtl:pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm ltr:text-left rtl:text-right"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2 ltr:text-left rtl:text-right">
                     {t("systemSettings.payments.premiumAnnual")}
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">
-                      SAR
+                    <span className="absolute top-1/2 -translate-y-1/2 ltr:left-3 rtl:right-3 text-gray-500 text-sm">
+                      {language === "ar" ? "ر.س" : "SAR"}
                     </span>
                     <input
                       type="number"
@@ -826,24 +826,24 @@ export default function SystemSettings() {
                           parseFloat(e.target.value)
                         )
                       }
-                      className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
+                      className="w-full ltr:pl-12 ltr:pr-4 rtl:pr-12 rtl:pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm ltr:text-left rtl:text-right"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2 ltr:text-left rtl:text-right">
                     {t("systemSettings.payments.totalRevenue")}
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">
-                      SAR
+                    <span className="absolute top-1/2 -translate-y-1/2 ltr:left-3 rtl:right-3 text-gray-500 text-sm">
+                      {language === "ar" ? "ر.س" : "SAR"}
                     </span>
                     <input
                       type="number"
                       value={settings.payments.totalRevenue}
                       readOnly
-                      className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 text-sm cursor-not-allowed"
+                      className="w-full ltr:pl-12 ltr:pr-4 rtl:pr-12 rtl:pl-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 text-sm cursor-not-allowed ltr:text-left rtl:text-right"
                     />
                   </div>
                   <p className="text-xs text-gray-500 mt-1">

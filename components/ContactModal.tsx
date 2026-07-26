@@ -229,7 +229,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                       {t("contactModal.form.subjects.other")}
                     </option>
                   </select>
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <div className="absolute inset-y-0 ltr:right-0 ltr:pr-3 rtl:left-0 rtl:pl-3 flex items-center pointer-events-none">
                     <i className="ri-arrow-down-s-line text-gray-400"></i>
                   </div>
                 </div>

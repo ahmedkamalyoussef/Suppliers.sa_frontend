@@ -499,14 +499,23 @@ export default function AuthPage() {
           >
             {t("auth.signup.step1.phoneLabel")}
           </label>
-          <input
-            type="tel"
-            id="phone"
-            value={formData.phone}
-            onChange={(e) => handleInputChange("phone", e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400"
-            placeholder={t("auth.signup.step1.phonePlaceholder")}
-          />
+          <div className="flex items-center border rounded-lg focus-within:ring-2 focus-within:ring-yellow-400 focus-within:border-transparent overflow-hidden border-gray-300" dir="ltr">
+            <span className="px-3 md:px-4 py-3 bg-gray-100 text-gray-700 font-medium text-sm border-r border-gray-300 whitespace-nowrap flex items-center gap-1 select-none" dir="ltr">
+              +966 ▾
+            </span>
+            <input
+              type="tel"
+              id="phone"
+              inputMode="numeric"
+              value={formData.phone}
+              onChange={(e) => {
+                const val = e.target.value.replace(/[^0-9]/g, "");
+                handleInputChange("phone", val);
+              }}
+              className="w-full px-4 py-3 border-0 focus:ring-0 text-sm outline-none ltr:text-left rtl:text-right"
+              placeholder={t("auth.signup.step1.phonePlaceholder")}
+            />
+          </div>
         </div>
 
         <div>

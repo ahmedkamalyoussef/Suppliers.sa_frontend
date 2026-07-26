@@ -224,24 +224,27 @@ export default function LoginPage() {
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2 ltr:text-left rtl:text-right">
                     {t("login.emailLabel")}
                   </label>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm transition-all ${
-                      errors.email
-                        ? "border-red-300 bg-red-50"
-                        : "border-gray-300"
-                    }`}
-                    placeholder={t("login.emailPlaceholder")}
-                    required
-                    disabled={isSubmitting}
-                  />
+                  <div className="relative">
+                    <i className="ri-mail-line absolute top-1/2 -translate-y-1/2 ltr:left-3 rtl:right-3 text-gray-400 text-base pointer-events-none"></i>
+                    <input
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => handleInputChange("email", e.target.value)}
+                      className={`w-full ltr:pl-10 ltr:pr-4 rtl:pr-10 rtl:pl-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm transition-all ltr:text-left rtl:text-right ${
+                        errors.email
+                          ? "border-red-300 bg-red-50"
+                          : "border-gray-300"
+                      }`}
+                      placeholder={t("login.emailPlaceholder")}
+                      required
+                      disabled={isSubmitting}
+                    />
+                  </div>
                   {errors.email && (
-                    <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                    <p className="text-red-500 text-xs mt-1 flex items-center gap-1 ltr:text-left rtl:text-right">
                       <i className="ri-error-warning-line"></i>
                       <span>{errors.email}</span>
                     </p>
@@ -249,17 +252,18 @@ export default function LoginPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2 ltr:text-left rtl:text-right">
                     {t("login.passwordLabel")}
                   </label>
                   <div className="relative">
+                    <i className="ri-lock-line absolute top-1/2 -translate-y-1/2 ltr:left-3 rtl:right-3 text-gray-400 text-base pointer-events-none"></i>
                     <input
                       type={showPassword ? "text" : "password"}
                       value={formData.password}
                       onChange={(e) =>
                         handleInputChange("password", e.target.value)
                       }
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm pr-12 transition-all ${
+                      className={`w-full ltr:pl-10 ltr:pr-10 rtl:pr-10 rtl:pl-10 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm transition-all ltr:text-left rtl:text-right ${
                         errors.password
                           ? "border-red-300 bg-red-50"
                           : "border-gray-300"
@@ -271,7 +275,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      className="absolute top-1/2 -translate-y-1/2 ltr:right-3 rtl:left-3 text-gray-400 hover:text-gray-600 transition-colors p-1"
                       disabled={isSubmitting}
                       tabIndex={-1}
                     >
