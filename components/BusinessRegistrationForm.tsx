@@ -279,7 +279,7 @@ export default function BusinessRegistrationForm() {
           {errors.general && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-3 md:p-4 mb-4 md:mb-6">
               <p className="text-red-700 text-xs md:text-sm">
-                <i className="ri-error-warning-line mr-1 md:mr-2"></i>
+                <i className="ri-error-warning-line me-1 md:mr-2"></i>
                 {errors.general}
               </p>
             </div>
@@ -459,7 +459,7 @@ export default function BusinessRegistrationForm() {
 
             {/* Policies Acceptance */}
             <div className="space-y-2">
-              <label className="flex items-start space-x-3 cursor-pointer">
+              <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={registrationData.acceptPolicies}
@@ -559,7 +559,7 @@ export default function BusinessRegistrationForm() {
 
           <div className="bg-yellow-50 p-4 md:p-6 rounded-lg md:rounded-xl mb-6 md:mb-8">
             <h3 className="text-base md:text-lg font-semibold text-gray-800 mb-3 md:mb-4">
-              <i className="ri-clipboard-line mr-2 text-yellow-600"></i>
+              <i className="ri-clipboard-line me-2 text-yellow-600"></i>
               {t("business.form.completeProfileTitle")}
             </h3>
             <p className="text-gray-700 text-sm md:text-base mb-3 md:mb-4">
@@ -568,7 +568,7 @@ export default function BusinessRegistrationForm() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-4 text-xs md:text-sm">
               {checklistArray.map((item, index) => (
-                <div key={index} className="flex items-center space-x-2">
+                <div key={index} className="flex items-center gap-2">
                   <i className="ri-check-line text-green-500 text-xs md:text-sm"></i>
                   <span className="text-gray-700">{String(item)}</span>
                 </div>
@@ -581,7 +581,7 @@ export default function BusinessRegistrationForm() {
               href="/complete-profile"
               className="w-full bg-yellow-400 text-white py-3 md:py-4 px-4 md:px-6 rounded-lg hover:bg-yellow-500 font-medium text-base md:text-lg text-center whitespace-nowrap cursor-pointer block"
             >
-              <i className="ri-edit-line mr-1 md:mr-2"></i>
+              <i className="ri-edit-line me-1 md:mr-2"></i>
               {t("business.form.completeProfileButton")}
             </Link>
 
@@ -589,7 +589,7 @@ export default function BusinessRegistrationForm() {
               href="/"
               className="w-full border border-gray-300 text-gray-700 py-3 md:py-4 px-4 md:px-6 rounded-lg hover:bg-gray-50 font-medium text-base md:text-lg text-center whitespace-nowrap cursor-pointer block"
             >
-              <i className="ri-home-line mr-1 md:mr-2"></i>
+              <i className="ri-home-line me-1 md:mr-2"></i>
               {t("business.form.skipButton")}
             </Link>
           </div>

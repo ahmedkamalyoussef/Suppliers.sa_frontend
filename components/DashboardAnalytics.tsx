@@ -264,7 +264,7 @@ export default function DashboardAnalytics() {
             }}
             className="px-4 py-2 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 font-medium text-sm whitespace-nowrap cursor-pointer flex items-center"
           >
-            <i className="ri-download-line mr-2"></i>
+            <i className="ri-download-line me-2"></i>
             {t("dashboardAnalytics.exportButton")}
           </button>
         </div>
@@ -306,7 +306,7 @@ export default function DashboardAnalytics() {
             <h3 className="text-lg font-semibold text-gray-800">
               {t("dashboardAnalytics.charts.title")}
             </h3>
-            <div className="flex space-x-2">
+            <div className="flex gap-2">
               {(["views", "contacts", "inquiries"] as ChartKey[]).map(
                 (type) => (
                   <button
@@ -327,7 +327,7 @@ export default function DashboardAnalytics() {
         </div>
 
         <div className="p-6">
-          <div className="h-64 flex items-end space-x-1">
+          <div className="h-64 flex items-end gap-1">
             {isLoading ? (
               // Skeleton loader
               Array(30)
@@ -597,7 +597,7 @@ export default function DashboardAnalytics() {
 
       {/* Recommendations */}
       <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 border border-blue-100">
-        <div className="flex items-start space-x-4">
+        <div className="flex items-start gap-4">
           <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
             <i className="ri-lightbulb-line text-blue-600 text-xl"></i>
           </div>
@@ -633,7 +633,7 @@ export default function DashboardAnalytics() {
             ) : recommendations.recommendations?.length > 0 ? (
               <ul className="space-y-3">
                 {recommendations.recommendations.map((item, index) => (
-                  <li key={index} className="flex items-start space-x-3">
+                  <li key={index} className="flex items-start gap-3">
                     <div className="flex-shrink-0 mt-1">
                       <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
                     </div>

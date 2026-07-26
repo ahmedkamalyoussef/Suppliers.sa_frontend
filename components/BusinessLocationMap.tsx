@@ -563,7 +563,7 @@ export default function BusinessLocationMap({
           <p className="text-sm text-gray-600">{t("map.setLocationDesc")}</p>
           {!canEdit && (
             <div className="mt-3 p-3 bg-yellow-100 border border-yellow-200 rounded-lg">
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
                 <i className="ri-lock-line text-yellow-600"></i>
                 <span className="text-sm text-yellow-800 font-medium">
                   {t("map.editModeRequired") ||
@@ -576,7 +576,7 @@ export default function BusinessLocationMap({
 
         {/* Location Method Selection */}
         <div className="p-4 bg-gray-50 border-b border-gray-100">
-          <div className="flex space-x-2 mb-4">
+          <div className="flex gap-2 mb-4">
             <button
               type="button"
               onClick={() => setLocationMethod("map")}
@@ -587,7 +587,7 @@ export default function BusinessLocationMap({
                   : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
               } ${!canEdit ? "opacity-50 cursor-not-allowed" : ""}`}
             >
-              <i className="ri-map-pin-line mr-2"></i>
+              <i className="ri-map-pin-line me-2"></i>
               {t("map.methodPin")}
             </button>
             <button
@@ -600,7 +600,7 @@ export default function BusinessLocationMap({
                   : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
               } ${!canEdit ? "opacity-50 cursor-not-allowed" : ""}`}
             >
-              <i className="ri-building-line mr-2"></i>
+              <i className="ri-building-line me-2"></i>
               {t("map.methodCity")}
             </button>
             <button
@@ -613,7 +613,7 @@ export default function BusinessLocationMap({
                   : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
               } ${!canEdit ? "opacity-50 cursor-not-allowed" : ""}`}
             >
-              <i className="ri-road-map-line mr-2"></i>
+              <i className="ri-road-map-line me-2"></i>
               {t("map.methodAddress")}
             </button>
           </div>
@@ -662,7 +662,7 @@ export default function BusinessLocationMap({
                 disabled={!customAddress.trim() || !canEdit}
                 className="w-full bg-yellow-400 text-white py-2 px-4 rounded-lg hover:bg-yellow-500 font-medium text-sm whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <i className="ri-search-line mr-2"></i>
+                <i className="ri-search-line me-2"></i>
                 {t("map.findLocation")}
               </button>
             </div>
@@ -676,7 +676,7 @@ export default function BusinessLocationMap({
                 disabled={!canEdit}
                 className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 font-medium text-sm whitespace-nowrap cursor-pointer mr-3 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <i className="ri-crosshair-line mr-2"></i>
+                <i className="ri-crosshair-line me-2"></i>
                 {t("map.useMyLocation")}
               </button>
               <span className="text-xs text-gray-500">
@@ -691,7 +691,7 @@ export default function BusinessLocationMap({
           {/* هنا نقوم بفحص isMounted لمنع ظهور الخريطة على السيرفر */}
           {!isMounted ? (
             <div className="w-full h-full flex items-center justify-center text-gray-500">
-              <i className="ri-loader-4-line animate-spin text-2xl mr-2"></i>
+              <i className="ri-loader-4-line animate-spin text-2xl me-2"></i>
               {t("map.loading") || "Loading Map..."}
             </div>
           ) : mapsError ? (
@@ -700,7 +700,7 @@ export default function BusinessLocationMap({
             </div>
           ) : !isMapsReady ? (
             <div className="w-full h-full flex items-center justify-center text-gray-500">
-              <i className="ri-loader-4-line animate-spin text-2xl mr-2"></i>
+              <i className="ri-loader-4-line animate-spin text-2xl me-2"></i>
               {t("map.loading") || "Loading Map..."}
             </div>
           ) : (
@@ -729,14 +729,14 @@ export default function BusinessLocationMap({
               disabled={!canEdit}
               className="w-full bg-yellow-400 text-white py-2 px-4 rounded-lg hover:bg-yellow-500 font-medium text-sm whitespace-nowrap cursor-pointer transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <i className="ri-crosshair-line mr-2"></i>
+              <i className="ri-crosshair-line me-2"></i>
               {t("map.adjustPin")}
             </button>
           )}
         </div>
 
         <div className="p-4 bg-blue-50 border-t border-blue-100">
-          <div className="flex items-start space-x-3">
+          <div className="flex items-start gap-3">
             <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
               <i className="ri-information-line text-blue-600 text-sm"></i>
             </div>

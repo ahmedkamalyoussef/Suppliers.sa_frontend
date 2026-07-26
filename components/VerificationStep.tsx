@@ -211,11 +211,11 @@ export default function VerificationStep({
               disabled={true}
               className="w-full p-6 border-2 border-gray-200 rounded-lg hover:border-yellow-400 hover:bg-yellow-50 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center shrink-0">
                   <i className="ri-phone-line text-green-600 text-xl"></i>
                 </div>
-                <div className="text-left">
+                <div className="text-left rtl:text-right">
                   <h3 className="font-semibold text-gray-800">
                     {t("register.step2.phoneTitle")}
                   </h3>
@@ -229,11 +229,11 @@ export default function VerificationStep({
               disabled={isSubmitting}
               className="w-full p-6 border-2 border-gray-200 rounded-lg hover:border-yellow-400 hover:bg-yellow-50 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
                   <i className="ri-mail-line text-blue-600 text-xl"></i>
                 </div>
-                <div className="text-left">
+                <div className="text-left rtl:text-right">
                   <h3 className="font-semibold text-gray-800">
                     {t("register.step2.emailTitle")}
                   </h3>
@@ -245,7 +245,7 @@ export default function VerificationStep({
 
           {errors.general && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-4">
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
                 <i className="ri-error-warning-line text-red-600"></i>
                 <span className="text-red-700 text-sm">{errors.general}</span>
               </div>
@@ -281,23 +281,26 @@ export default function VerificationStep({
           </div>
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2">
               <i className="ri-information-line text-blue-600"></i>
               <span className="text-blue-800 font-medium text-sm">
-                Verification Code Sent
+                {t("register.step3.codeSentTitle")}
               </span>
             </div>
             <p className="text-blue-700 text-sm mt-1">
-              We've sent a verification code to your{" "}
-              {verificationMethod === "phone"
-                ? "phone number"
-                : "email address"}
-              : {verificationMethod === "phone" ? phone : email}
+              {t("register.step3.codeSentMessage")
+                .replace(
+                  "{method}",
+                  verificationMethod === "phone"
+                    ? t("register.step3.methodPhone")
+                    : t("register.step3.methodEmail")
+                )
+                .replace("{contact}", verificationMethod === "phone" ? phone : email)}
             </p>
           </div>
 
           <div className="space-y-6">
-            <div className="flex justify-center space-x-2">
+            <div className="flex justify-center gap-2" dir="ltr">
               {verificationCode.map((digit, index) => (
                 <input
                   key={index}

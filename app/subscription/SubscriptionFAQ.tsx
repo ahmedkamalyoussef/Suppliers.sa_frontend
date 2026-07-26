@@ -71,13 +71,13 @@ export default function SubscriptionFAQ() {
             <p className="text-gray-600 mb-6">
               {t("subscriptionFAQ.contact.subtitle")}
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+            <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:gap-6">
               <button className="bg-yellow-400 text-white px-8 py-3 rounded-full font-semibold hover:bg-yellow-500 transition-all whitespace-nowrap cursor-pointer">
-                <i className="ri-chat-3-line mr-2"></i>
+                <i className="ri-chat-3-line me-2"></i>
                 {t("subscriptionFAQ.contact.chatButton")}
               </button>
               <button className="border-2 border-gray-300 text-gray-700 px-8 py-3 rounded-full font-semibold hover:bg-gray-50 transition-all whitespace-nowrap cursor-pointer">
-                <i className="ri-phone-line mr-2"></i>
+                <i className="ri-phone-line me-2"></i>
                 {t("subscriptionFAQ.contact.callButton")}
               </button>
             </div>

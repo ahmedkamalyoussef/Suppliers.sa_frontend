@@ -15,11 +15,7 @@ export default function Footer() {
       <div className="bg-yellow-400 text-white py-3">
         <div className="w-full px-6">
           <div className="max-w-7xl mx-auto">
-            <div
-              className={`flex items-center justify-center ${
-                isRTL ? "space-x-reverse space-x-4" : "space-x-4"
-              } text-sm`}
-            >
+            <div className="flex items-center justify-center gap-4 text-sm">
               <div className="flex justify-center items-center gap-2">
                 <img src="/images.png" alt="Vision 2030" className="w-6 h-6" />
                 <span className="text-yellow-100">
@@ -44,9 +40,7 @@ export default function Footer() {
               {/* Logo Section */}
               <Link
               href="/"
-              className={`flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity ${
-                isRTL ? "flex-row-reverse" : "flex-row"
-              }`}
+              className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity"
             >
               <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center">
                 <svg
@@ -82,7 +76,7 @@ export default function Footer() {
               </div>
 
               {/* Social Media Icons - Centered */}
-              <div className="flex justify-center text-center gap-2 lg:justify-start space-x-3 sm:space-x-4">
+              <div className="flex justify-center text-center gap-3 sm:gap-4 lg:justify-start">
                 
                 <a
                   href="https://www.linkedin.com/company/supplierksa/?originalSubdomain=sa"
@@ -100,7 +94,7 @@ export default function Footer() {
               {/* For Businesses */}
               <div>
                 <h4 className="text-base sm:text-lg font-bold text-gray-800 mb-4 sm:mb-6 flex items-center">
-                  <i className="ri-building-line text-yellow-600 mr-2"></i>
+                  <i className="ri-building-line text-yellow-600 me-2"></i>
                   {t("footer.forBusinesses")}
                 </h4>
                 <ul className="space-y-3 sm:space-y-4">
@@ -110,7 +104,7 @@ export default function Footer() {
                         href="/add-business"
                         className="text-gray-600 hover:text-yellow-600 transition-colors flex items-center"
                       >
-                        <i className="ri-add-circle-line text-yellow-500 mr-2 w-4 h-4 flex items-center justify-center"></i>
+                        <i className="ri-add-circle-line text-yellow-500 me-2 w-4 h-4 flex items-center justify-center"></i>
                         <span>{t("footer.registerBusiness")}</span>
                       </Link>
                     </li>
@@ -120,7 +114,7 @@ export default function Footer() {
                       href="/businesses"
                       className="text-gray-600 hover:text-yellow-600 transition-colors flex items-center"
                     >
-                      <i className="ri-search-line text-yellow-500 mr-2 w-4 h-4 flex items-center justify-center"></i>
+                      <i className="ri-search-line text-yellow-500 me-2 w-4 h-4 flex items-center justify-center"></i>
                       <span>{t("footer.findSuppliers")}</span>
                     </Link>
                   </li>
@@ -129,7 +123,7 @@ export default function Footer() {
                       href="/subscription"
                       className="text-gray-600 hover:text-yellow-600 transition-colors flex items-center"
                     >
-                      <i className="ri-vip-crown-line text-yellow-500 mr-2 w-4 h-4 flex items-center justify-center"></i>
+                      <i className="ri-vip-crown-line text-yellow-500 me-2 w-4 h-4 flex items-center justify-center"></i>
                       <span>{t("footer.pricingPlans")}</span>
                     </Link>
                   </li>
@@ -139,7 +133,7 @@ export default function Footer() {
               {/* Resources & Support */}
               <div>
                 <h4 className="text-base sm:text-lg font-bold text-gray-800 mb-4 sm:mb-6 flex items-center">
-                  <i className="ri-book-line text-yellow-600 mr-2"></i>
+                  <i className="ri-book-line text-yellow-600 me-2"></i>
                   {t("footer.resources")}
                 </h4>
                 <ul className="space-y-3 sm:space-y-4">
@@ -148,7 +142,7 @@ export default function Footer() {
                       href="/policies"
                       className="text-gray-600 hover:text-yellow-600 transition-colors flex items-center"
                     >
-                      <i className="ri-file-list-3-line text-yellow-500 mr-2 w-4 h-4 flex items-center justify-center"></i>
+                      <i className="ri-file-list-3-line text-yellow-500 me-2 w-4 h-4 flex items-center justify-center"></i>
                       <span>{t("footer.policies")}</span>
                     </Link>
                   </li>
@@ -163,7 +157,7 @@ export default function Footer() {
                       }}
                       className="w-full text-left text-gray-600 hover:text-yellow-600 transition-colors flex items-center"
                     >
-                      <i className="ri-question-line text-yellow-500 mr-2 w-4 h-4 flex items-center justify-center"></i>
+                      <i className="ri-question-line text-yellow-500 me-2 w-4 h-4 flex items-center justify-center"></i>
                       <span>{t("footer.helpCenter")}</span>
                     </button>
                   </li>
@@ -172,7 +166,7 @@ export default function Footer() {
                       href="/business-guides"
                       className="text-gray-600 hover:text-yellow-600 transition-colors flex items-center"
                     >
-                      <i className="ri-guide-line text-yellow-500 mr-2 w-4 h-4 flex items-center justify-center"></i>
+                      <i className="ri-guide-line text-yellow-500 me-2 w-4 h-4 flex items-center justify-center"></i>
                       <span>{t("footer.businessGuides")}</span>
                     </Link>
                   </li> */}
@@ -183,7 +177,7 @@ export default function Footer() {
               {/* Company */}
               <div>
                 <h4 className="text-base sm:text-lg font-bold text-gray-800 mb-4 sm:mb-6 flex items-center">
-                  <i className="ri-team-line text-yellow-600 mr-2"></i>
+                  <i className="ri-team-line text-yellow-600 me-2"></i>
                   {t("footer.company")}
                 </h4>
                 <ul className="space-y-3 sm:space-y-4">
@@ -192,7 +186,7 @@ export default function Footer() {
                       href="/about"
                       className="text-gray-600 hover:text-yellow-600 transition-colors flex items-center"
                     >
-                      <i className="ri-information-line text-yellow-500 mr-2 w-4 h-4 flex items-center justify-center"></i>
+                      <i className="ri-information-line text-yellow-500 me-2 w-4 h-4 flex items-center justify-center"></i>
                       <span>{t("footer.aboutUs")}</span>
                     </Link>
                   </li>

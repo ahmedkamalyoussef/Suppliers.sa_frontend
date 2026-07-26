@@ -1435,7 +1435,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
         <h2 className="text-2xl font-bold text-gray-800">
           {t("businessManagement.title")}
         </h2>
-        <div className="flex space-x-3">
+        <div className="flex gap-3">
           <button
             onClick={() => {
               if (typeof window !== "undefined") {
@@ -1444,7 +1444,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
             }}
             className="px-4 py-3 rounded-lg font-medium whitespace-nowrap cursor-pointer transition-all bg-blue-500 text-white hover:bg-blue-600"
           >
-            <i className="ri-branch-line mr-2"></i>
+            <i className="ri-branch-line me-2"></i>
             {t("businessManagement.manageBranches")}
           </button>
           <button
@@ -1467,7 +1467,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
       {/* Section Navigation */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
         <div className="border-b border-gray-200">
-          <nav className="flex space-x-6 px-6">
+          <nav className="flex gap-6 px-6">
             {sections.map((section) => (
               <button
                 key={section.id}
@@ -1617,7 +1617,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                     return (
                       <label
                         key={customer.en}
-                        className={`flex items-center space-x-3 p-3 border rounded-lg cursor-pointer transition-all ${
+                        className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${
                           isSelected
                             ? "border-yellow-400 bg-yellow-50"
                             : "border-gray-200 hover:border-gray-300"
@@ -1683,7 +1683,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                       onClick={handleAddPhone}
                       className="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600"
                     >
-                      <i className="ri-add-line mr-1"></i>
+                      <i className="ri-add-line me-1"></i>
                       {t("businessManagement.form.addPhone")}
                     </button>
                   )}
@@ -1733,7 +1733,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                         />
                       </div>
 
-                      <div className="flex items-center space-x-1 md:space-x-2">
+                      <div className="flex items-center gap-1 md:gap-2">
                         <input
                           type="text"
                           value={phone.name}
@@ -1771,7 +1771,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                         onClick={handleAddPhone}
                         className="bg-yellow-400 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg hover:bg-yellow-500 text-xs md:text-sm font-medium whitespace-nowrap cursor-pointer"
                       >
-                        <i className="ri-add-line mr-1 md:mr-2"></i>
+                        <i className="ri-add-line me-1 md:mr-2"></i>
                         {t("businessManagement.form.addFirstPhone")}
                       </button>
                     )}
@@ -1785,7 +1785,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
           {activeSection === "details" && (
             <div className="space-y-6">
               <div className="bg-yellow-50 p-6 rounded-xl border border-yellow-200">
-                <div className="flex items-center space-x-3 mb-4">
+                <div className="flex items-center gap-3 mb-4">
                   <i className="ri-briefcase-line text-yellow-600 text-xl"></i>
                   <h3 className="text-lg font-semibold text-yellow-800">
                     {t("businessManagement.details.businessType")}
@@ -1795,7 +1795,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                   {businessTypes.map((type) => (
                     <label
                       key={type.value}
-                      className={`flex items-center space-x-2 md:space-x-3 p-3 md:p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                      className={`flex items-center gap-2 md:gap-3 p-3 md:p-4 border-2 rounded-lg cursor-pointer transition-all ${
                         businessData.businessType === type.value
                           ? "border-yellow-400 bg-yellow-50"
                           : "border-gray-200 hover:border-gray-300"
@@ -1829,7 +1829,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
               </div>
 
               <div className="bg-green-50 p-6 rounded-xl border border-green-200">
-                <div className="flex items-center space-x-3 mb-4">
+                <div className="flex items-center gap-3 mb-4">
                   <i className="ri-search-line text-green-600 text-xl"></i>
                   <h3 className="text-lg font-semibold text-green-800">
                     {t("businessManagement.details.searchKeywords")}
@@ -1928,12 +1928,12 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                       >
                         {productKeywords.includes(keyword) ? (
                           <>
-                            <i className="ri-check-line mr-1"></i>
+                            <i className="ri-check-line me-1"></i>
                             {keyword}
                           </>
                         ) : (
                           <>
-                            <i className="ri-add-line mr-1"></i>
+                            <i className="ri-add-line me-1"></i>
                             {keyword}
                           </>
                         )}
@@ -1965,7 +1965,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                     placeholder="Enter keywords separated by commas..."
                   />
                   <p className="text-xs text-blue-600 mt-2">
-                    <i className="ri-information-line mr-1"></i>
+                    <i className="ri-information-line me-1"></i>
                     {t("businessManagement.details.keywordsHelp")}
                   </p>
                 </div>
@@ -1997,7 +1997,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                           } bg-blue-100 text-blue-800 border border-blue-200`}
                           title={isEditing ? "Click to remove" : ""}
                         >
-                          <i className="ri-close-line mr-1"></i>
+                          <i className="ri-close-line me-1"></i>
                           {keyword}
                         </button>
                       ))
@@ -2011,7 +2011,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
               </div>
 
               <div className="bg-blue-50 p-6 rounded-xl border border-blue-200">
-                <div className="flex items-center space-x-3 mb-4">
+                <div className="flex items-center gap-3 mb-4">
                   <i className="ri-price-tag-3-line text-blue-600 text-xl"></i>
                   <h3 className="text-lg font-semibold text-blue-800">
                     {t("businessManagement.details.businessCategories")}
@@ -2023,7 +2023,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                     {categories.filter(cat => cat.id !== 'all').map((category) => (
                       <label
                         key={category.id}
-                        className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
+                        className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
                       >
                         <input
                           type="checkbox"
@@ -2090,7 +2090,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                   {availableServices.map((service) => (
                     <label
                       key={service}
-                      className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
+                      className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
                     >
                       <input
                         type="checkbox"
@@ -2193,7 +2193,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
           {activeSection === "products" && (
             <div className="space-y-6">
               <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-xl border border-purple-200">
-                <div className="flex items-center space-x-3 mb-4">
+                <div className="flex items-center gap-3 mb-4">
                   <i className="ri-shopping-bag-line text-purple-600 text-xl"></i>
                   <h3 className="text-lg font-semibold text-purple-800">
                     Product Information
@@ -2216,7 +2216,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                 </h3>
                 {isEditing && (
                   <label className="bg-yellow-400 text-white px-4 py-2 rounded-lg hover:bg-yellow-500 cursor-pointer font-medium text-sm whitespace-nowrap">
-                    <i className="ri-add-line mr-2"></i>
+                    <i className="ri-add-line me-2"></i>
                     {t("businessManagement.photos.addPhotos")}
                     <input
                       type="file"
@@ -2290,7 +2290,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                 </div>
                 {!isEditing && (
                   <div className="p-3 bg-yellow-100 border border-yellow-200 rounded-lg">
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center gap-2">
                       <i className="ri-lock-line text-yellow-600"></i>
                       <span className="text-sm text-yellow-800 font-medium">
                         {t("businessManagement.messages.clickEditProfile")}
@@ -2364,7 +2364,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                     {!businessData.workingHours[
                       day as keyof typeof businessData.workingHours
                     ].closed && (
-                      <div className="flex items-center space-x-1 md:space-x-2">
+                      <div className="flex items-center gap-1 md:gap-2">
                         <input
                           type="time"
                           ref={(el) => {
@@ -2623,7 +2623,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
 
               {isEditing && (
                 <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <div className="flex items-start space-x-3">
+                  <div className="flex items-start gap-3">
                     <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                       <i className="ri-information-line text-blue-600 text-xs"></i>
                     </div>
@@ -2654,7 +2654,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
           {activeSection === "verification" && (
             <div className="space-y-6">
               <div className="bg-yellow-50 p-6 rounded-xl border border-yellow-200">
-                <div className="flex items-center space-x-3 mb-4">
+                <div className="flex items-center gap-3 mb-4">
                   <i className="ri-shield-check-line text-yellow-600 text-2xl"></i>
                   <div>
                     <h3 className="text-xl font-bold text-gray-800 mb-2">
@@ -2664,7 +2664,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                       {t("businessManagement.verification.description")}
                     </p>
                     <div className="space-y-2">
-                      <div className="flex items-start space-x-2">
+                      <div className="flex items-start gap-2">
                         <i className="ri-check-line text-green-600 mt-1"></i>
                         <div>
                           <h4 className="font-semibold text-gray-800">
@@ -2675,7 +2675,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-start space-x-2">
+                      <div className="flex items-start gap-2">
                         <i className="ri-check-line text-green-600 mt-1"></i>
                         <div>
                           <h4 className="font-semibold text-gray-800">
@@ -2774,13 +2774,13 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
       {isEditing && (
         <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center gap-3">
               <i className="ri-information-line text-yellow-600"></i>
               <span className="text-yellow-800 font-medium">
                 You have unsaved changes
               </span>
             </div>
-            <div className="flex space-x-3">
+            <div className="flex gap-3">
               <button
                 onClick={() => setIsEditing(false)}
                 className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-sm whitespace-nowrap cursor-pointer"
@@ -2791,7 +2791,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                 onClick={handleSave}
                 className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 font-medium text-sm whitespace-nowrap cursor-pointer"
               >
-                <i className="ri-save-line mr-2"></i>
+                <i className="ri-save-line me-2"></i>
                 {t("businessManagement.saveChanges")}
               </button>
             </div>

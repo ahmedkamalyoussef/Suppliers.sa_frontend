@@ -335,14 +335,14 @@ export default function BranchManagement({
           onClick={() => setShowAddBranch(true)}
           className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 font-medium whitespace-nowrap cursor-pointer transition-all"
         >
-          <i className="ri-add-line mr-2"></i>
+          <i className="ri-add-line me-2"></i>
           {t("branchManagement.addNewBranch")}
         </button>
       </div>
 
       {/* Business Overview */}
       <div className="bg-blue-50 p-6 rounded-xl mb-8 border border-blue-200">
-        <div className="flex items-center space-x-3 mb-4">
+        <div className="flex items-center gap-3 mb-4">
           <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
             <i className="ri-building-line text-blue-600 text-xl"></i>
           </div>
@@ -361,7 +361,7 @@ export default function BranchManagement({
 
         <div className="grid grid-cols-1 md:grid-cols-1 gap-4 text-sm">
           <div className="bg-white p-3 rounded-lg">
-            <div className="flex items-center space-x-2 mb-1">
+            <div className="flex items-center gap-2 mb-1">
               <i className="ri-map-pin-line text-green-500"></i>
               <span className="font-medium text-gray-700">
                 {t("branchManagement.totalBranches")}
@@ -383,7 +383,7 @@ export default function BranchManagement({
               className="border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow"
             >
               <div className="flex items-start justify-between mb-4">
-                <div className="flex items-start space-x-4">
+                <div className="flex items-start gap-4">
                   <div
                     className={`w-12 h-12 rounded-full flex items-center justify-center ${
                       branch.status === "active"
@@ -400,21 +400,21 @@ export default function BranchManagement({
                     ></i>
                   </div>
                   <div>
-                    <div className="flex items-center space-x-3 mb-2">
+                    <div className="flex items-center gap-3 mb-2">
                       <h3 className="text-xl font-semibold text-gray-800">
                         {branch.name}
                       </h3>
                     </div>
                     <div className="space-y-1 text-sm text-gray-600">
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center gap-2">
                         <i className="ri-map-pin-line text-gray-400"></i>
                         <span>{branch.address}</span>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center gap-2">
                         <i className="ri-phone-line text-gray-400"></i>
                         <span>{branch.phone}</span>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center gap-2">
                         <i className="ri-user-line text-gray-400"></i>
                         <span>
                           {t("branchManagement.manager")}: {branch.manager}
@@ -424,19 +424,19 @@ export default function BranchManagement({
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleEditBranch(branch)}
-                    className="bg-blue-100 text-blue-700 px-3 py-2 rounded-lg hover:bg-blue-200 text-sm font-medium whitespace-nowrap cursor-pointer transition-all"
+                    className="bg-blue-100 text-blue-700 px-3 py-2 rounded-lg hover:bg-blue-200 text-sm font-medium whitespace-nowrap cursor-pointer transition-all flex items-center gap-1"
                   >
-                    <i className="ri-edit-line mr-1"></i>
+                    <i className="ri-edit-line"></i>
                     {t("branchManagement.edit")}
                   </button>
                   <button
                     onClick={() => handleDeleteBranch(branch.id)}
-                    className="bg-red-100 text-red-700 px-3 py-2 rounded-lg hover:bg-red-200 text-sm font-medium whitespace-nowrap cursor-pointer transition-all"
+                    className="bg-red-100 text-red-700 px-3 py-2 rounded-lg hover:bg-red-200 text-sm font-medium whitespace-nowrap cursor-pointer transition-all flex items-center gap-1"
                   >
-                    <i className="ri-delete-bin-line mr-1"></i>
+                    <i className="ri-delete-bin-line"></i>
                     {t("branchManagement.delete")}
                   </button>
                 </div>
@@ -498,9 +498,9 @@ export default function BranchManagement({
           </p>
           <button
             onClick={() => setShowAddBranch(true)}
-            className="bg-yellow-400 text-white px-6 py-3 rounded-lg hover:bg-yellow-500 font-medium whitespace-nowrap cursor-pointer transition-all"
+            className="bg-yellow-400 text-white px-6 py-3 rounded-lg hover:bg-yellow-500 font-medium whitespace-nowrap cursor-pointer transition-all flex items-center justify-center gap-2 mx-auto"
           >
-            <i className="ri-add-line mr-2"></i>
+            <i className="ri-add-line"></i>
             {t("branchManagement.addFirstBranch")}
           </button>
         </div>
@@ -625,7 +625,7 @@ export default function BranchManagement({
                     )?.name || ""
                   }
                   onChange={(e) => handleLocationSelect(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm pr-8"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
                 >
                   <option value="">
                     {t("branchManagement.form.selectCity")}
@@ -646,7 +646,7 @@ export default function BranchManagement({
                   {specialServices.map((service) => (
                     <label
                       key={service}
-                      className={`flex items-center space-x-3 p-3 border rounded-lg cursor-pointer transition-all ${
+                      className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${
                         newBranch.specialServices.includes(service)
                           ? "border-yellow-400 bg-yellow-50"
                           : "border-gray-200 hover:border-gray-300"
@@ -702,7 +702,7 @@ export default function BranchManagement({
                     return (
                       <div
                         key={typedDay}
-                        className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg"
+                        className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg"
                       >
                         <div className="w-20">
                           <span className="text-sm font-medium text-gray-700 capitalize">
@@ -748,7 +748,7 @@ export default function BranchManagement({
                         </label>
 
                         {!newBranch.workingHours[typedDay].closed && (
-                          <div className="flex items-center space-x-2 flex-1">
+                          <div className="flex items-center gap-2 flex-1">
                             <input
                               type="time"
                               value={newBranch.workingHours[typedDay].open}
@@ -857,7 +857,7 @@ export default function BranchManagement({
               </div>
             </div>
 
-            <div className="flex justify-end space-x-4 mt-8 pt-6 border-t border-gray-200">
+            <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-200">
               <button
                 onClick={handleCancelAdd}
                 className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium whitespace-nowrap cursor-pointer transition-all"
@@ -866,9 +866,9 @@ export default function BranchManagement({
               </button>
               <button
                 onClick={handleSaveBranch}
-                className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 font-medium whitespace-nowrap cursor-pointer transition-all"
+                className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 font-medium whitespace-nowrap cursor-pointer transition-all flex items-center gap-2"
               >
-                <i className="ri-save-line mr-2"></i>
+                <i className="ri-save-line"></i>
                 {editingBranch
                   ? t("branchManagement.updateBranch")
                   : t("branchManagement.addBranch")}

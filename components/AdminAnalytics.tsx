@@ -353,7 +353,7 @@ export default function AdminAnalytics() {
                 </div>
 
                 {/* Mini Chart */}
-                <div className="mt-3 sm:mt-4 h-6 sm:h-8 flex items-end space-x-0.5 sm:space-x-1 overflow-hidden">
+                <div className="mt-3 sm:mt-4 h-6 sm:h-8 flex items-end gap-0.5 sm:gap-1 overflow-hidden">
                   {data.data.map((value: number, index: number) => (
                     <div
                       key={index}
@@ -406,7 +406,7 @@ export default function AdminAnalytics() {
                     key={index}
                     className="flex items-center justify-between"
                   >
-                    <div className="flex items-center space-x-2 sm:space-x-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
                       <div
                         className={`w-3 h-3 sm:w-4 sm:h-4 rounded ${plan.color}`}
                       ></div>
@@ -446,7 +446,7 @@ export default function AdminAnalytics() {
                     key={index}
                     className="flex items-center justify-between"
                   >
-                    <div className="flex items-center space-x-2 sm:space-x-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
                       <div className="w-3 h-3 sm:w-4 sm:h-4 bg-gray-200 rounded animate-pulse"></div>
                       <div className="min-w-0 flex-1">
                         <div className="h-4 w-16 bg-gray-200 rounded mb-1 animate-pulse"></div>
@@ -474,7 +474,7 @@ export default function AdminAnalytics() {
                     key={index}
                     className="flex items-center justify-between"
                   >
-                    <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                       <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
                         <span className="text-blue-600 font-semibold text-xs sm:text-sm">
                           {index + 1}
@@ -510,7 +510,7 @@ export default function AdminAnalytics() {
                     key={index}
                     className="flex items-center justify-between"
                   >
-                    <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                       <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0 animate-pulse">
                         <div className="w-3 h-3 bg-gray-300 rounded animate-pulse"></div>
                       </div>
@@ -703,7 +703,7 @@ export default function AdminAnalytics() {
                 key={index}
                 className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6"
               >
-                <div className="flex items-center space-x-2 sm:space-x-3 mb-4">
+                <div className="flex items-center gap-2 sm:gap-3 mb-4">
                   <div
                     className={`w-10 h-10 sm:w-12 sm:h-12 ${perf.color} rounded-lg flex items-center justify-center flex-shrink-0`}
                   >
@@ -739,7 +739,7 @@ export default function AdminAnalytics() {
                 className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6"
               >
                 <div className="animate-pulse">
-                  <div className="flex items-center space-x-2 sm:space-x-3 mb-4">
+                  <div className="flex items-center gap-2 sm:gap-3 mb-4">
                     <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 rounded-lg"></div>
                     <div className="min-w-0">
                       <div className="h-4 w-24 bg-gray-200 rounded mb-1"></div>

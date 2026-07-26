@@ -387,7 +387,7 @@ export default function AIChatWidget() {
           <div className="w-80 h-96 bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden">
             {/* Header */}
             <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 p-4 flex items-center justify-between">
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
                   <i className="ri-robot-line text-yellow-500"></i>
                 </div>
@@ -400,7 +400,7 @@ export default function AIChatWidget() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsMinimized(true)}
                   className="text-white hover:text-yellow-100 cursor-pointer p-1 rounded"
@@ -454,7 +454,7 @@ export default function AIChatWidget() {
               {isTyping && (
                 <div className="flex justify-start">
                   <div className="bg-white text-gray-800 rounded-2xl rounded-bl-sm shadow-sm border border-gray-100 px-4 py-2">
-                    <div className="flex space-x-1">
+                    <div className="flex gap-1">
                       <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                       <div
                         className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
@@ -494,7 +494,7 @@ export default function AIChatWidget() {
 
             {/* Input */}
             <div className="p-4 bg-white border-t border-gray-100">
-              <div className="flex space-x-2">
+              <div className="flex gap-2">
                 <input
                   type="text"
                   value={inputMessage}

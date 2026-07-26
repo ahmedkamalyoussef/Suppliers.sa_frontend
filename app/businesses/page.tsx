@@ -660,7 +660,7 @@ function BusinessesContent() {
                   </p>
                   {searchParams?.get("search") && (
                     <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center gap-2">
                         <i className="ri-brain-line text-yellow-600"></i>
                         <span className="text-sm text-yellow-800">
                           <strong>{t("businessesPage.aiSearch")}</strong> "
@@ -671,8 +671,8 @@ function BusinessesContent() {
                   )}
                 </div>
 
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2 bg-gray-100 rounded-lg p-1">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
                     <button
                       onClick={() => setViewMode("grid")}
                       className={`p-2 rounded-md cursor-pointer ${

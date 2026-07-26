@@ -93,7 +93,7 @@ export default function ForgotPasswordPage() {
 
                 <div className="bg-yellow-50 p-4 rounded-lg mb-6">
                   <p className="text-sm text-yellow-800">
-                    <i className="ri-information-line mr-2"></i>
+                    <i className="ri-information-line me-2"></i>
                     {t("forgotPassword.success.spamNotice")}
                   </p>
                 </div>
@@ -184,12 +184,12 @@ export default function ForgotPasswordPage() {
                 >
                   {isSubmitting ? (
                     <>
-                      <i className="ri-loader-4-line animate-spin mr-2"></i>
+                      <i className="ri-loader-4-line animate-spin me-2"></i>
                       {t("forgotPassword.sendingButton")}
                     </>
                   ) : (
                     <>
-                      <i className="ri-mail-send-line mr-2"></i>
+                      <i className="ri-mail-send-line me-2"></i>
                       {t("forgotPassword.sendButton")}
                     </>
                   )}

@@ -56,7 +56,7 @@ export default function SubscriptionFeatures() {
                         ) => (
                           <div
                             key={idx}
-                            className="flex items-center space-x-2"
+                            className="flex items-center gap-2"
                           >
                             <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full flex-shrink-0"></div>
                             <span className="text-gray-700 text-xs">
@@ -106,13 +106,13 @@ export default function SubscriptionFeatures() {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+              <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:gap-6">
                 <button className="bg-white text-gray-800 px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-100 transition-all whitespace-nowrap cursor-pointer">
-                  <i className="ri-rocket-line mr-2"></i>
+                  <i className="ri-rocket-line me-2"></i>
                   {t("subscriptionFeatures.cta.trialButton")}
                 </button>
                 <button className="border-2 border-white text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white hover:text-gray-800 transition-all whitespace-nowrap cursor-pointer">
-                  <i className="ri-phone-line mr-2"></i>
+                  <i className="ri-phone-line me-2"></i>
                   {t("subscriptionFeatures.cta.demoButton")}
                 </button>
               </div>

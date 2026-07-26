@@ -1,34 +1,6 @@
 {
-  "../components/AdminAnalytics.tsx -> ../lib/api": {
-    "id": 5592,
-    "files": []
-  },
-  "../components/BusinessManagement.tsx -> ../lib/api": {
-    "id": 5592,
-    "files": []
-  },
-  "../components/BusinessManagement.tsx -> ./BusinessLocationMap": {
-    "id": 4099,
-    "files": [
-      "static/chunks/4099.baa8ca43f68911c5.js"
-    ]
-  },
-  "../components/CompleteProfileForm.tsx -> ./BusinessLocationMap": {
-    "id": 4099,
-    "files": [
-      "static/chunks/4609.64ce6f2cc4e71389.js"
-    ]
-  },
-  "../components/ContentManagement.tsx -> ../lib/api": {
-    "id": 5592,
-    "files": []
-  },
   "../components/MaintenanceChecker.tsx -> ../lib/api": {
-    "id": 5592,
-    "files": []
-  },
-  "../components/SystemSettings.tsx -> ../lib/api": {
-    "id": 5592,
+    "id": "../components/MaintenanceChecker.tsx -> ../lib/api",
     "files": []
   }
 }

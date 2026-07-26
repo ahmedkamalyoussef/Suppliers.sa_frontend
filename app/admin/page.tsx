@@ -106,7 +106,7 @@ export default function AdminDashboard() {
                         </p>
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-red-100">
                           <span className="flex items-center">
-                            <i className="ri-shield-check-line mr-1"></i>
+                            <i className="ri-shield-check-line me-1"></i>
                             {user?.role === "super_admin"
                               ? t("admin.roles.superAdmin")
                               : user?.role === "admin"
@@ -115,13 +115,13 @@ export default function AdminDashboard() {
                           </span>
                           {user?.department && (
                             <span className="flex items-center">
-                              <i className="ri-building-line mr-1"></i>
+                              <i className="ri-building-line me-1"></i>
                               {user.department}
                             </span>
                           )}
                           {user?.jobRole && (
                             <span className="flex items-center">
-                              <i className="ri-briefcase-line mr-1"></i>
+                              <i className="ri-briefcase-line me-1"></i>
                               {user.jobRole}
                             </span>
                           )}
@@ -134,7 +134,7 @@ export default function AdminDashboard() {
                         onClick={handleLogout}
                         className="bg-red-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-red-800 font-medium whitespace-nowrap cursor-pointer transition-all flex items-center justify-center"
                       >
-                        <i className="ri-logout-box-line mr-2"></i>
+                        <i className="ri-logout-box-line me-2"></i>
                         {t("admin.logout")}
                       </button>
                     </div>
@@ -144,7 +144,7 @@ export default function AdminDashboard() {
                 {/* Navigation Tabs */}
                 <div className="bg-white rounded-2xl shadow-sm mb-6 sm:mb-8 border border-gray-100">
                   <div className="border-b border-gray-200">
-                    <nav className="flex space-x-4 sm:space-x-6 px-4 sm:px-6 overflow-x-auto no-scrollbar">
+                    <nav className="flex gap-4 sm:gap-6 px-4 sm:px-6 overflow-x-auto no-scrollbar">
                       {tabs.map((tab) => (
                         <button
                           key={tab.id}

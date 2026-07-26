@@ -128,7 +128,7 @@ export default function SubscriptionTestimonials() {
                 </blockquote>
 
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center gap-2">
                     <i className="ri-trophy-line text-green-600"></i>
                     <span className="font-semibold text-green-800">
                       {t("subscriptionTestimonials.resultLabel")}

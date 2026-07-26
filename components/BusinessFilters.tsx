@@ -250,7 +250,7 @@ export default function BusinessFilters({
           <button
             key="all"
             onClick={() => setSelectedCategory("all")}
-            className={`w-full flex items-start space-x-3 p-3 rounded-xl transition-all cursor-pointer ${
+            className={`w-full flex items-start gap-3 p-3 rounded-xl transition-all cursor-pointer ${
               selectedCategory === "all"
                 ? "bg-yellow-400 text-white shadow-md"
                 : "hover:bg-gray-50 text-gray-700"
@@ -263,7 +263,7 @@ export default function BusinessFilters({
             <button
               key={category.id}
               onClick={() => setSelectedCategory(category.id)}
-              className={`w-full flex items-start space-x-3 p-3 rounded-xl transition-all cursor-pointer ${
+              className={`w-full flex items-start gap-3 p-3 rounded-xl transition-all cursor-pointer ${
                 selectedCategory === category.id
                   ? "bg-yellow-400 text-white shadow-md"
                   : "hover:bg-gray-50 text-gray-700"
@@ -286,7 +286,7 @@ export default function BusinessFilters({
             <button
               key={type.id}
               onClick={() => setSelectedBusinessType(type.id)}
-              className={`w-full flex items-start space-x-3 p-3 rounded-xl transition-all cursor-pointer ${
+              className={`w-full flex items-start gap-3 p-3 rounded-xl transition-all cursor-pointer ${
                 selectedBusinessType === type.id
                   ? "bg-yellow-400 text-white shadow-md"
                   : "hover:bg-gray-50 text-gray-700"
@@ -324,14 +324,14 @@ export default function BusinessFilters({
           </div>
 
           {/* Verified Filter */}
-          <label className="flex items-center space-x-3 cursor-pointer">
+          <label className="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
               checked={verifiedOnly}
               onChange={(e) => setVerifiedOnly(e.target.checked)}
               className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
             />
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2">
               <i className="ri-verified-badge-line text-green-500 text-sm"></i>
               <span className="text-sm text-gray-700">
                 {t("filters.verifiedOnly")}
@@ -340,14 +340,14 @@ export default function BusinessFilters({
           </label>
 
           {/* Open Now Filter */}
-          <label className="flex items-center space-x-3 cursor-pointer">
+          <label className="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
               checked={openNow}
               onChange={(e) => setOpenNow(e.target.checked)}
               className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
             />
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2">
               <i className="ri-time-line text-green-500 text-sm"></i>
               <span className="text-sm text-gray-700">
                 {t("filters.openNow")}
@@ -363,7 +363,7 @@ export default function BusinessFilters({
           onClick={clearAllFilters}
           className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-xl hover:bg-gray-200 font-medium text-sm cursor-pointer"
         >
-          <i className="ri-refresh-line mr-2"></i>
+          <i className="ri-refresh-line me-2"></i>
           {t("filters.clearAll")}
         </button>
       </div>

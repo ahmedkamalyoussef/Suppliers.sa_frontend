@@ -141,7 +141,7 @@ export default function TrustedPartners() {
               <div className="text-2xl md:text-3xl font-bold text-yellow-600 mb-2">
                 {statistics ? `${statistics.average_rating}/5` : "4.9/5"}
               </div>
-              <div className="text-gray-600 flex items-center justify-center space-x-1 text-sm md:text-base">
+              <div className="text-gray-600 flex items-center justify-center gap-1 text-sm md:text-base">
                 <span>{t("trustedPartners.statsAverageRating")}</span>
                 <i className="ri-star-fill text-yellow-400"></i>
               </div>

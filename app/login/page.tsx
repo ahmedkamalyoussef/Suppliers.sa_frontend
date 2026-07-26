@@ -209,15 +209,15 @@ export default function LoginPage() {
               </div>
 
               {sessionTimeoutAlert && (
-                <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start">
-                  <i className="ri-error-warning-line text-yellow-600 text-xl mr-3 mt-0.5"></i>
+                <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start gap-3">
+                  <i className="ri-error-warning-line text-yellow-600 text-xl shrink-0 mt-0.5"></i>
                   <p className="text-yellow-700 text-sm flex-1">{t("auth.session_timeout")}</p>
                 </div>
               )}
 
               {loginError && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
-                  <i className="ri-error-warning-line text-red-500 text-xl mr-3 mt-0.5"></i>
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+                  <i className="ri-error-warning-line text-red-500 text-xl shrink-0 mt-0.5"></i>
                   <p className="text-red-700 text-sm flex-1">{loginError}</p>
                 </div>
               )}
@@ -241,9 +241,9 @@ export default function LoginPage() {
                     disabled={isSubmitting}
                   />
                   {errors.email && (
-                    <p className="text-red-500 text-xs mt-1 flex items-center">
-                      <i className="ri-error-warning-line mr-1"></i>
-                      {errors.email}
+                    <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                      <i className="ri-error-warning-line"></i>
+                      <span>{errors.email}</span>
                     </p>
                   )}
                 </div>
@@ -284,7 +284,7 @@ export default function LoginPage() {
                   </div>
                   {errors.password && (
                     <p className="text-red-500 text-xs mt-1 flex items-center">
-                      <i className="ri-error-warning-line mr-1"></i>
+                      <i className="ri-error-warning-line me-1"></i>
                       {errors.password}
                     </p>
                   )}
@@ -336,12 +336,12 @@ export default function LoginPage() {
                 >
                   {isSubmitting ? (
                     <span className="flex items-center justify-center">
-                      <i className="ri-loader-4-line animate-spin mr-2 text-xl"></i>
+                      <i className="ri-loader-4-line animate-spin me-2 text-xl"></i>
                       {t("login.signingIn")}
                     </span>
                   ) : (
                     <span className="flex items-center justify-center">
-                      <i className="ri-login-circle-line mr-2 text-xl"></i>
+                      <i className="ri-login-circle-line me-2 text-xl"></i>
                       {t("login.button")}
                     </span>
                   )}

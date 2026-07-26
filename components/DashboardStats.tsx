@@ -304,7 +304,7 @@ export default function DashboardStats({ onTabChange }: DashboardStatsProps) {
                       : ""
                   }`}
                 >
-                  <div className="flex items-start space-x-3 sm:space-x-4">
+                  <div className="flex items-start gap-3 sm:gap-4">
                     <div
                       className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${activity.color}`}
                     >
@@ -337,7 +337,7 @@ export default function DashboardStats({ onTabChange }: DashboardStatsProps) {
                 className="w-full text-center py-2 text-gray-600 hover:text-gray-800 font-medium text-xs sm:text-sm cursor-pointer"
               >
                 {t("dashboard.viewAllActivity")}
-                <i className="ri-arrow-right-line ml-1 sm:ml-2"></i>
+                <i className="ri-arrow-right-line ms-1 sm:ml-2"></i>
               </button>
             </div>
           )}
@@ -366,7 +366,7 @@ export default function DashboardStats({ onTabChange }: DashboardStatsProps) {
                 {recentActivities.map((activity) => (
                   <div
                     key={`all-${activity.id}`}
-                    className="p-3 sm:p-4 border border-gray-100 rounded-xl flex items-start space-x-3 sm:space-x-4"
+                    className="p-3 sm:p-4 border border-gray-100 rounded-xl flex items-start gap-3 sm:gap-4"
                   >
                     <div
                       className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${activity.color}`}

@@ -372,14 +372,14 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
           onClick={handleSaveSettings}
           className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 font-medium whitespace-nowrap cursor-pointer"
         >
-          <i className="ri-save-line mr-2"></i>
+          <i className="ri-save-line me-2"></i>
           {t("settings.saveChanges")}
         </button>
       </div>
 
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
         <div className="border-b border-gray-200">
-          <nav className="flex space-x-6 px-6 overflow-x-auto">
+          <nav className="flex gap-6 px-6 overflow-x-auto">
             {sections.map((section) => (
               <button
                 key={section.id}
@@ -588,7 +588,7 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                     {t("settings.notifications.deliveryMethods")}
                   </h3>
                   <div className="space-y-4">
-                    <label className="flex items-center space-x-3">
+                    <label className="flex items-center gap-3">
                       <input
                         type="checkbox"
                         checked={settings.notifications.emailNotifications}
@@ -611,7 +611,7 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                       </div>
                     </label>
 
-                    <label className="flex items-center space-x-3">
+                    <label className="flex items-center gap-3">
                       <input
                         type="checkbox"
                         checked={settings.notifications.smsNotifications}
@@ -640,7 +640,7 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                     {t("settings.notifications.notificationTypes")}
                   </h3>
                   <div className="space-y-4">
-                    <label className="flex items-center space-x-3">
+                    <label className="flex items-center gap-3">
                       <input
                         type="checkbox"
                         checked={settings.notifications.newInquiries}
@@ -663,7 +663,7 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                       </div>
                     </label>
 
-                    <label className="flex items-center space-x-3">
+                    <label className="flex items-center gap-3">
                       <input
                         type="checkbox"
                         checked={settings.notifications.profileViews}
@@ -686,7 +686,7 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                       </div>
                     </label>
 
-                    <label className="flex items-center space-x-3">
+                    <label className="flex items-center gap-3">
                       <input
                         type="checkbox"
                         checked={settings.notifications.weeklyReports}
@@ -709,7 +709,7 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                       </div>
                     </label>
 
-                    <label className="flex items-center space-x-3">
+                    <label className="flex items-center gap-3">
                       <input
                         type="checkbox"
                         checked={settings.notifications.marketingEmails}
@@ -744,7 +744,7 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                   {t("settings.privacy.profileVisibility")}
                 </h3>
                 <div className="space-y-3">
-                  <label className="flex items-center space-x-3">
+                  <label className="flex items-center gap-3">
                     <input
                       type="radio"
                       name="profileVisibility"
@@ -769,7 +769,7 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                     </div>
                   </label>
 
-                  <label className="flex items-center space-x-3">
+                  <label className="flex items-center gap-3">
                     <input
                       type="radio"
                       name="profileVisibility"
@@ -801,7 +801,7 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                   {t("settings.privacy.contactInformation")}
                 </h3>
                 <div className="space-y-4">
-                  <label className="flex items-center space-x-3">
+                  <label className="flex items-center gap-3">
                     <input
                       type="checkbox"
                       checked={settings.privacy.showEmail}
@@ -819,7 +819,7 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                     </span>
                   </label>
 
-                  <label className="flex items-center space-x-3">
+                  <label className="flex items-center gap-3">
                     <input
                       type="checkbox"
                       checked={settings.privacy.showPhone}
@@ -837,7 +837,7 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                     </span>
                   </label>
 
-                  <label className="flex items-center space-x-3">
+                  <label className="flex items-center gap-3">
                     <input
                       type="checkbox"
                       checked={settings.privacy.allowDirectContact}
@@ -855,7 +855,7 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                     </span>
                   </label>
 
-                  <label className="flex items-center space-x-3">
+                  <label className="flex items-center gap-3">
                     <input
                       type="checkbox"
                       checked={settings.privacy.searchEngineIndexing}
@@ -886,7 +886,7 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                   onClick={() => setShowDeleteModal(true)}
                   className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 font-medium text-sm whitespace-nowrap cursor-pointer"
                 >
-                  <i className="ri-delete-bin-line mr-2"></i>
+                  <i className="ri-delete-bin-line me-2"></i>
                   {t("settings.privacy.deleteAccount")}
                 </button>
               </div>
@@ -964,7 +964,7 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                           plan.features.map((feature, idx) => (
                             <li
                               key={idx}
-                              className="flex items-center space-x-2 text-sm text-gray-600"
+                              className="flex items-center gap-2 text-sm text-gray-600"
                             >
                               <i className="ri-check-line text-green-500"></i>
                               <span>{feature}</span>

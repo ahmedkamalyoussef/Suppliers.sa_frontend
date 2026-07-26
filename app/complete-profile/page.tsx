@@ -208,7 +208,7 @@ export default function CompleteProfilePage() {
           {/* Progress Bar */}
           <div className="mb-8 lg:mb-12">
             <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-gray-900">
                   Step {currentStep} of {TOTAL_STEPS}
                 </span>
@@ -231,7 +231,7 @@ export default function CompleteProfilePage() {
 
           {/* Step Indicators */}
           <div className="flex justify-center mb-8 lg:mb-12">
-            <div className="flex space-x-2 lg:space-x-4">
+            <div className="flex gap-2 lg:gap-4">
               {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map(
                 (step) => {
                   const isAccessible = step <= currentStep + 1;

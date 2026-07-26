@@ -50,11 +50,11 @@ export default function Toast({
 
   return (
     <div
-      className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 ${
+      className={`fixed top-4 rtl:left-4 ltr:right-4 z-50 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 ${
         isVisible ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
       } ${getToastStyles()}`}
     >
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center gap-2">
         {type === "success" && <i className="ri-check-line text-xl"></i>}
         {type === "error" && <i className="ri-error-warning-line text-xl"></i>}
         {type === "info" && <i className="ri-information-line text-xl"></i>}

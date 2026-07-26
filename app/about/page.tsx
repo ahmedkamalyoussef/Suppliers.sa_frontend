@@ -148,7 +148,7 @@ export default function AboutPage() {
               {/* Community Support */}
               <div className="bg-green-50 p-6 rounded-xl border border-green-100">
                 <div className="flex items-center mb-4">
-                  <i className="ri-community-line text-2xl text-green-600 mr-3"></i>
+                  <i className="ri-community-line text-2xl text-green-600 me-3"></i>
                   <h3 className="text-xl font-bold text-gray-900">
                     {t("aboutPage.communitySupport")}
                   </h3>

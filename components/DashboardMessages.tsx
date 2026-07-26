@@ -229,7 +229,7 @@ export default function DashboardMessages({
           onClick={() => setShowCompose(true)}
           className="bg-yellow-400 text-white px-6 py-3 rounded-lg hover:bg-yellow-500 font-medium whitespace-nowrap cursor-pointer"
         >
-          <i className="ri-add-line mr-2"></i>
+          <i className="ri-add-line me-2"></i>
           {t("messagesPage.compose")}
         </button>
       </div>
@@ -237,7 +237,7 @@ export default function DashboardMessages({
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
         {/* Message Tabs */}
         <div className="border-b border-gray-200">
-          <nav className="flex space-x-6 px-6">
+          <nav className="flex gap-6 px-6">
             <button
               onClick={() => setActiveTab("inbox")}
               className={`py-4 px-2 border-b-2 font-medium text-sm whitespace-nowrap cursor-pointer transition-all ${
@@ -246,7 +246,7 @@ export default function DashboardMessages({
                   : "border-transparent text-gray-500 hover:text-gray-700"
               }`}
             >
-              <i className="ri-inbox-line mr-2"></i>
+              <i className="ri-inbox-line me-2"></i>
               {t("messagesPage.inbox")} (
               {messages.inbox.filter((m) => m.unread).length})
             </button>
@@ -258,7 +258,7 @@ export default function DashboardMessages({
                   : "border-transparent text-gray-500 hover:text-gray-700"
               }`}
             >
-              <i className="ri-send-plane-line mr-2"></i>
+              <i className="ri-send-plane-line me-2"></i>
               {t("messagesPage.sent")} ({messages.sent.length})
             </button>
           </nav>
@@ -277,7 +277,7 @@ export default function DashboardMessages({
                 if (message.unread) markAsRead(message.id);
               }}
             >
-              <div className="flex items-start space-x-4">
+              <div className="flex items-start gap-4">
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center ${getMessageColor(
                     message.type
@@ -288,7 +288,7 @@ export default function DashboardMessages({
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center gap-3">
                       <h3
                         className={`font-medium ${
                           message.unread ? "text-gray-900" : "text-gray-700"
@@ -325,7 +325,7 @@ export default function DashboardMessages({
                   </p>
                 </div>
 
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center gap-2">
                   <button className="text-gray-400 hover:text-gray-600 cursor-pointer">
                     <i className="ri-star-line"></i>
                   </button>
@@ -345,7 +345,7 @@ export default function DashboardMessages({
           <div className="bg-white rounded-2xl max-w-2xl w-full max-h-screen overflow-y-auto">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center gap-3">
                   <div
                     className={`w-10 h-10 rounded-full flex items-center justify-center ${getMessageColor(
                       selectedMessage.type
@@ -385,17 +385,17 @@ export default function DashboardMessages({
                 <h2 className="text-lg font-semibold text-gray-800 mb-2">
                   {selectedMessage.subject}
                 </h2>
-                <div className="flex items-center space-x-4 text-sm text-gray-500 mb-4">
+                <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
                   <span>{selectedMessage.time}</span>
                   {"contact" in selectedMessage && selectedMessage.contact && (
                     <span className="flex items-center">
-                      <i className="ri-mail-line mr-1"></i>
+                      <i className="ri-mail-line me-1"></i>
                       {selectedMessage.contact}
                     </span>
                   )}
                   {"phone" in selectedMessage && selectedMessage.phone && (
                     <span className="flex items-center">
-                      <i className="ri-phone-line mr-1"></i>
+                      <i className="ri-phone-line me-1"></i>
                       {selectedMessage.phone}
                     </span>
                   )}
@@ -427,7 +427,7 @@ export default function DashboardMessages({
                         String(replyText.length)
                       )}
                     </span>
-                    <div className="flex space-x-3">
+                    <div className="flex gap-3">
                       <button
                         onClick={() => setSelectedMessage(null)}
                         className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-sm whitespace-nowrap cursor-pointer"
@@ -443,7 +443,7 @@ export default function DashboardMessages({
                             : "bg-gray-300 text-gray-500 cursor-not-allowed"
                         }`}
                       >
-                        <i className="ri-send-plane-line mr-2"></i>
+                        <i className="ri-send-plane-line me-2"></i>
                         {t("messagesPage.sendReply")}
                       </button>
                     </div>
@@ -508,7 +508,7 @@ export default function DashboardMessages({
                 />
               </div>
             </div>
-            <div className="p-6 border-t border-gray-200 flex justify-end space-x-3">
+            <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
               <button
                 onClick={() => setShowCompose(false)}
                 className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-sm whitespace-nowrap cursor-pointer"
@@ -564,12 +564,12 @@ export default function DashboardMessages({
               >
                 {isSending ? (
                   <>
-                    <i className="ri-loader-4-line animate-spin mr-2"></i>
+                    <i className="ri-loader-4-line animate-spin me-2"></i>
                     {t("messagesPage.sending")}
                   </>
                 ) : (
                   <>
-                    <i className="ri-send-plane-line mr-2"></i>
+                    <i className="ri-send-plane-line me-2"></i>
                     {t("messagesPage.send")}
                   </>
                 )}
@@ -579,7 +579,7 @@ export default function DashboardMessages({
             {/* Error Message */}
             {sendError && (
               <div className="p-4 bg-red-50 border border-red-200 rounded-lg mb-4">
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center gap-2">
                   <i className="ri-error-warning-line text-red-600"></i>
                   <span className="text-red-700 text-sm">{sendError}</span>
                 </div>
@@ -592,7 +592,7 @@ export default function DashboardMessages({
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
               <i className="ri-mail-unread-line text-blue-600 text-xl"></i>
             </div>
@@ -608,7 +608,7 @@ export default function DashboardMessages({
         </div>
 
         <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
               <i className="ri-time-line text-green-600 text-xl"></i>
             </div>
@@ -624,7 +624,7 @@ export default function DashboardMessages({
         </div>
 
         <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
               <i className="ri-percent-line text-yellow-600 text-xl"></i>
             </div>

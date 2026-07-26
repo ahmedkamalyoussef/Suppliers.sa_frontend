@@ -182,7 +182,7 @@ export default function VerificationPendingStatus() {
               key={index}
               className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg"
             >
-              <div className="flex items-center space-x-3 mb-2 sm:mb-0">
+              <div className="flex items-center gap-3 mb-2 sm:mb-0">
                 <i className="ri-file-check-line text-green-600 text-xl"></i>
                 <div>
                   <h4 className="font-medium text-gray-800">{doc.name}</h4>
@@ -241,7 +241,7 @@ export default function VerificationPendingStatus() {
           ].map((step, idx) => (
             <div
               key={idx}
-              className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4"
+              className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:gap-4"
             >
               <div
                 className={`w-8 h-8 ${step.bg} rounded-full flex items-center justify-center`}
@@ -308,11 +308,11 @@ export default function VerificationPendingStatus() {
           </div>
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
             <button className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 font-medium text-sm sm:text-base flex items-center justify-center w-full sm:w-auto">
-              <i className="ri-chat-3-line mr-2"></i>
+              <i className="ri-chat-3-line me-2"></i>
               {t("verification.liveChat")}
             </button>
             <button className="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50 font-medium text-sm sm:text-base flex items-center justify-center w-full sm:w-auto">
-              <i className="ri-mail-line mr-2"></i>
+              <i className="ri-mail-line me-2"></i>
               {t("verification.emailSupport")}
             </button>
           </div>
@@ -325,11 +325,11 @@ export default function VerificationPendingStatus() {
           href="/"
           className="bg-yellow-400 text-white px-6 py-3 rounded-lg hover:bg-yellow-500 font-medium text-sm sm:text-base flex items-center justify-center"
         >
-          <i className="ri-home-line mr-2"></i>
+          <i className="ri-home-line me-2"></i>
           {t("verification.backHome")}
         </Link>
         <button className="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50 font-medium text-sm sm:text-base flex items-center justify-center">
-          <i className="ri-refresh-line mr-2"></i>
+          <i className="ri-refresh-line me-2"></i>
           {t("verification.checkStatus")}
         </button>
       </div>

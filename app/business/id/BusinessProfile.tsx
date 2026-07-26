@@ -659,7 +659,7 @@ export default function BusinessProfile() {
                     <h1 className="text-lg sm:text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-1 md:mb-2 break-words">
                       {business.name}
                     </h1>
-                    <div className="flex flex-col sm:flex-row sm:items-center text-white gap-1 sm:gap-0 sm:space-x-4 text-xs sm:text-sm md:text-base">
+                    <div className="flex flex-col sm:flex-row sm:items-center text-white gap-1 sm:gap-0 sm:gap-4 text-xs sm:text-sm md:text-base">
                       <span
                         className="font-semibold"
                         style={{
@@ -672,7 +672,7 @@ export default function BusinessProfile() {
                       </span>
                       <span className="hidden sm:block">•</span>
                       <span className="flex items-center min-w-0">
-                        <i className="ri-map-pin-line mr-1 flex-shrink-0"></i>
+                        <i className="ri-map-pin-line me-1 flex-shrink-0"></i>
                         <span className="truncate">{business.address}</span>
                       </span>
                     </div>
@@ -685,7 +685,7 @@ export default function BusinessProfile() {
                             onClick={() => setShowInquiryModal(true)}
                             className="px-4 sm:px-6 md:px-8 py-2 md:py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors bg-yellow-400 hover:bg-yellow-500 text-white shadow-md text-xs sm:text-sm md:text-base"
                           >
-                            <i className="ri-message-line mr-1 md:mr-2"></i>
+                            <i className="ri-message-line me-1 md:mr-2"></i>
                             {t("publicProfile.buttons.message")}
                           </button>
                         )}
@@ -701,7 +701,7 @@ export default function BusinessProfile() {
         <section className="py-4 md:py-6 bg-gray-50 border-b border-gray-200">
           <div className="w-full px-4 md:px-6">
             <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 lg:gap-8">
-              <div className="flex items-center space-x-2 md:space-x-3">
+              <div className="flex items-center gap-2 md:gap-3">
                 <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-100 rounded-full flex items-center justify-center">
                   <i className="ri-group-line text-blue-600 text-sm md:text-base"></i>
                 </div>
@@ -714,7 +714,7 @@ export default function BusinessProfile() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center space-x-2 md:space-x-3">
+              <div className="flex items-center gap-2 md:gap-3">
                 <div className="w-8 h-8 md:w-10 md:h-10 bg-green-100 rounded-full flex items-center justify-center">
                   <i className="ri-map-pin-range-line text-green-600 text-sm md:text-base"></i>
                 </div>
@@ -731,7 +731,7 @@ export default function BusinessProfile() {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-2 md:space-x-3">
+              <div className="flex items-center gap-2 md:gap-3">
                 <div className="w-8 h-8 md:w-10 md:h-10 bg-purple-100 rounded-full flex items-center justify-center">
                   <i
                     className={`${getBusinessTypeIcon(
@@ -791,7 +791,7 @@ export default function BusinessProfile() {
 
                   <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
                     <div className="bg-gray-50 px-3 py-2 md:px-4 md:py-3 border-b border-gray-200">
-                      <div className="flex items-center space-x-2 md:space-x-3">
+                      <div className="flex items-center gap-2 md:gap-3">
                         <i className="ri-list-check-2 text-blue-600 text-base md:text-lg"></i>
                         <h3 className="font-semibold text-gray-800 text-sm md:text-base">
                           {t("businessProfile.catalogTitle")}
@@ -813,7 +813,7 @@ export default function BusinessProfile() {
                                 key={index}
                                 className="bg-white p-2 md:p-3 hover:bg-blue-50 transition-colors border-r border-b border-gray-100 last:border-r-0"
                               >
-                                <div className="flex items-center space-x-1 md:space-x-2">
+                                <div className="flex items-center gap-1 md:gap-2">
                                   <span className="text-xs text-gray-400 font-mono w-4 md:w-6 text-right">
                                     {(index + 1).toString().padStart(2, "0")}
                                   </span>
@@ -837,7 +837,7 @@ export default function BusinessProfile() {
 
                     <div className="bg-blue-50 px-3 py-2 md:px-4 md:py-3 border-t border-blue-200">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                        <div className="flex items-center space-x-1 md:space-x-2 text-xs md:text-sm text-blue-700">
+                        <div className="flex items-center gap-1 md:gap-2 text-xs md:text-sm text-blue-700">
                           <i className="ri-search-line"></i>
                           <span>{t("businessProfile.customersCanSearch")}</span>
                         </div>
@@ -890,7 +890,7 @@ export default function BusinessProfile() {
                   </div>
                   <div className="mt-4 md:mt-6 text-center">
                     <p className="text-gray-600 text-xs md:text-sm">
-                      <i className="ri-camera-line mr-1 md:mr-2"></i>
+                      <i className="ri-camera-line me-1 md:mr-2"></i>
                       {t("businessProfile.showcasingPhotos").replace(
                         "{{count}}",
                         String(business.galleryImages.length)
@@ -928,7 +928,7 @@ export default function BusinessProfile() {
                           }
                           setShowReviewModal(true);
                         }}
-                        className="bg-yellow-400 text-white px-4 py-2 md:px-6 md:py-3 rounded-full hover:bg-yellow-500 font-medium whitespace-nowrap cursor-pointer flex items-center space-x-1 md:space-x-2 text-sm md:text-base"
+                        className="bg-yellow-400 text-white px-4 py-2 md:px-6 md:py-3 rounded-full hover:bg-yellow-500 font-medium whitespace-nowrap cursor-pointer flex items-center gap-1 md:gap-2 text-sm md:text-base"
                       >
                         <i className="ri-edit-line"></i>
                         <span>{t("businessProfile.writeAReview")}</span>
@@ -939,12 +939,12 @@ export default function BusinessProfile() {
                   {/* Review Summary */}
                   <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl md:rounded-2xl p-4 md:p-6 mb-6 md:mb-8 border border-yellow-200">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
-                      <div className="flex items-center space-x-4 md:space-x-6">
+                      <div className="flex items-center gap-4 md:gap-6">
                         <div className="text-center">
                           <div className="text-2xl md:text-4xl font-bold text-gray-800">
                             {business.rating}
                           </div>
-                          <div className="flex items-center justify-center space-x-1 mt-1">
+                          <div className="flex items-center justify-center gap-1 mt-1">
                             {[...Array(5)].map((_, i) => (
                               <i
                                 key={i}
@@ -986,7 +986,7 @@ export default function BusinessProfile() {
                             return (
                               <div
                                 key={star}
-                                className="flex items-center space-x-2 text-xs"
+                                className="flex items-center gap-2 text-xs"
                               >
                                 <span className="w-3 text-gray-600">
                                   {star}
@@ -1020,8 +1020,8 @@ export default function BusinessProfile() {
                             <h4 className="font-semibold text-gray-800 text-sm md:text-base">
                               {review.customerName}
                             </h4>
-                            <div className="flex items-center space-x-2 mt-1">
-                              <div className="flex items-center space-x-1">
+                            <div className="flex items-center gap-2 mt-1">
+                              <div className="flex items-center gap-1">
                                 {[...Array(5)].map((_, i) => (
                                   <i
                                     key={i}
@@ -1046,10 +1046,10 @@ export default function BusinessProfile() {
                         {/* Reply Section */}
                         {review.reply && (
                           <div className="bg-blue-50 rounded-lg p-3 md:p-4 border border-blue-100">
-                            <div className="flex items-start space-x-2">
+                            <div className="flex items-start gap-2">
                               <i className="ri-reply-fill text-blue-500 mt-1"></i>
                               <div className="flex-1">
-                                <div className="flex items-center space-x-2 mb-1">
+                                <div className="flex items-center gap-2 mb-1">
                                   <span className="font-medium text-blue-700 text-sm">
                                     رد العمل
                                   </span>
@@ -1083,7 +1083,7 @@ export default function BusinessProfile() {
 
                     <div className="space-y-3 md:space-y-4 mb-4 md:mb-6">
                       {businessPreferences?.show_phone_publicly !== false && (
-                        <div className="flex items-center space-x-2 md:space-x-3">
+                        <div className="flex items-center gap-2 md:gap-3">
                           <div className="w-8 h-8 md:w-10 md:h-10 bg-yellow-100 rounded-full flex items-center justify-center">
                             <i className="ri-phone-line text-yellow-600 text-sm md:text-base"></i>
                           </div>
@@ -1099,7 +1099,7 @@ export default function BusinessProfile() {
                       )}
 
                       {businessPreferences?.show_email_publicly !== false && (
-                        <div className="flex items-center space-x-2 md:space-x-3">
+                        <div className="flex items-center gap-2 md:gap-3">
                           <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-100 rounded-full flex items-center justify-center">
                             <i className="ri-mail-line text-blue-600 text-sm md:text-base"></i>
                           </div>
@@ -1114,7 +1114,7 @@ export default function BusinessProfile() {
                         </div>
                       )}
 
-                      <div className="flex items-center space-x-2 md:space-x-3">
+                      <div className="flex items-center gap-2 md:gap-3">
                         <div className="w-8 h-8 md:w-10 md:h-10 bg-green-100 rounded-full flex items-center justify-center">
                           <i className="ri-global-line text-green-600 text-sm md:text-base"></i>
                         </div>
@@ -1128,7 +1128,7 @@ export default function BusinessProfile() {
                         </div>
                       </div>
 
-                      <div className="flex items-center space-x-2 md:space-x-3">
+                      <div className="flex items-center gap-2 md:gap-3">
                         <div className="w-8 h-8 md:w-10 md:h-10 bg-purple-100 rounded-full flex items-center justify-center">
                           <i className="ri-map-pin-line text-purple-600 text-sm md:text-base"></i>
                         </div>
@@ -1147,7 +1147,7 @@ export default function BusinessProfile() {
                       {businessPreferences?.allow_direct_contact !== false && (
                         <button
                           onClick={() => setShowInquiryModal(true)}
-                          className="bg-yellow-400 text-white py-2 md:py-3 px-3 md:px-4 rounded-lg hover:bg-yellow-500 font-medium text-xs md:text-sm whitespace-nowrap cursor-pointer flex items-center justify-center space-x-1 md:space-x-2"
+                          className="bg-yellow-400 text-white py-2 md:py-3 px-3 md:px-4 rounded-lg hover:bg-yellow-500 font-medium text-xs md:text-sm whitespace-nowrap cursor-pointer flex items-center justify-center gap-1 md:gap-2"
                         >
                           <i className="ri-message-line"></i>
                           <span>{t("businessProfile.messageRequest")}</span>
@@ -1214,7 +1214,7 @@ export default function BusinessProfile() {
                           "_blank"
                         )
                       }
-                      className="w-full bg-yellow-400 text-white py-2 px-3 md:px-4 rounded-lg hover:bg-yellow-500 font-medium text-xs md:text-sm whitespace-nowrap cursor-pointer flex items-center justify-center space-x-1 md:space-x-2"
+                      className="w-full bg-yellow-400 text-white py-2 px-3 md:px-4 rounded-lg hover:bg-yellow-500 font-medium text-xs md:text-sm whitespace-nowrap cursor-pointer flex items-center justify-center gap-1 md:gap-2"
                     >
                       <i className="ri-directions-line"></i>
                       <span>{t("businessProfile.getDirections")}</span>
@@ -1240,7 +1240,7 @@ export default function BusinessProfile() {
                 href="/"
                 className="bg-yellow-400 text-white px-6 py-3 md:px-8 md:py-4 rounded-full hover:bg-yellow-500 font-semibold whitespace-nowrap cursor-pointer text-sm md:text-base"
               >
-                <i className="ri-map-line mr-1 md:mr-2"></i>
+                <i className="ri-map-line me-1 md:mr-2"></i>
                 {t("businessProfile.backToMap")}
               </Link>
             </div>
@@ -1256,7 +1256,7 @@ export default function BusinessProfile() {
               <>
                 {/* Email Header */}
                 <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-200 bg-gray-50">
-                  <div className="flex items-center space-x-2 md:space-x-4">
+                  <div className="flex items-center gap-2 md:gap-4">
                     <div className="w-8 h-8 md:w-12 md:h-12 bg-yellow-100 rounded-full flex items-center justify-center">
                       <i className="ri-mail-line text-yellow-600 text-lg md:text-xl"></i>
                     </div>
@@ -1291,7 +1291,7 @@ export default function BusinessProfile() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                     <div>
                       <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">
-                        <i className="ri-user-line mr-1"></i>
+                        <i className="ri-user-line me-1"></i>
                         Your Name *
                       </label>
                       <input
@@ -1311,7 +1311,7 @@ export default function BusinessProfile() {
                     </div>
                     <div>
                       <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">
-                        <i className="ri-building-line mr-1"></i>
+                        <i className="ri-building-line me-1"></i>
                         Company
                       </label>
                       <input
@@ -1333,7 +1333,7 @@ export default function BusinessProfile() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                     <div>
                       <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">
-                        <i className="ri-mail-line mr-1"></i>
+                        <i className="ri-mail-line me-1"></i>
                         Email Address *
                       </label>
                       <input
@@ -1353,7 +1353,7 @@ export default function BusinessProfile() {
                     </div>
                     <div>
                       <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">
-                        <i className="ri-phone-line mr-1"></i>
+                        <i className="ri-phone-line me-1"></i>
                         Phone Number
                       </label>
                       <input
@@ -1375,7 +1375,7 @@ export default function BusinessProfile() {
                   {/* Subject Line */}
                   <div>
                     <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">
-                      <i className="ri-price-tag-3-line mr-1"></i>
+                      <i className="ri-price-tag-3-line me-1"></i>
                       Subject *
                     </label>
                     <input
@@ -1397,7 +1397,7 @@ export default function BusinessProfile() {
                   {/* Message Body */}
                   <div>
                     <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">
-                      <i className="ri-message-2-line mr-1"></i>
+                      <i className="ri-message-2-line me-1"></i>
                       Message *
                     </label>
                     <textarea
@@ -1438,14 +1438,14 @@ Best regards,"
 
                   {/* Email Actions */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-3 md:pt-4 border-t border-gray-200 gap-3">
-                    <div className="flex items-center space-x-2 md:space-x-4">
-                      <div className="flex items-center space-x-1 md:space-x-2 text-xs text-gray-600">
+                    <div className="flex items-center gap-2 md:gap-4">
+                      <div className="flex items-center gap-1 md:gap-2 text-xs text-gray-600">
                         <i className="ri-time-line"></i>
                         <span>{t("businessProfile.businessHoursInline")}</span>
                       </div>
                     </div>
 
-                    <div className="flex space-x-2 md:space-x-3">
+                    <div className="flex gap-2 md:gap-3">
                       <button
                         type="button"
                         onClick={resetInquiryForm}
@@ -1458,7 +1458,7 @@ Best regards,"
                         disabled={
                           isSubmitting || inquiryForm.message.length > 500
                         }
-                        className={`px-4 py-2 md:px-8 md:py-2 font-medium rounded-lg cursor-pointer flex items-center space-x-1 md:space-x-2 text-xs md:text-sm ${
+                        className={`px-4 py-2 md:px-8 md:py-2 font-medium rounded-lg cursor-pointer flex items-center gap-1 md:gap-2 text-xs md:text-sm ${
                           isSubmitting || inquiryForm.message.length > 500
                             ? "bg-gray-400 text-white cursor-not-allowed"
                             : "bg-yellow-400 text-white hover:bg-yellow-500"
@@ -1496,7 +1496,7 @@ Best regards,"
                   They typically respond within 24 hours during business hours
                 </p>
                 <div className="bg-yellow-50 rounded-lg p-3 md:p-4 mb-4 md:mb-6">
-                  <div className="flex items-start space-x-2 md:space-x-3">
+                  <div className="flex items-start gap-2 md:gap-3">
                     <div className="w-6 h-6 md:w-8 md:h-8 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
                       <i className="ri-lightbulb-line text-yellow-600 text-sm md:text-base"></i>
                     </div>
@@ -1564,7 +1564,7 @@ Best regards,"
                 </p>
 
                 <div className="bg-blue-50 rounded-lg p-3 md:p-4 mb-4 md:mb-6 text-left">
-                  <div className="flex items-start space-x-2 md:space-x-3">
+                  <div className="flex items-start gap-2 md:gap-3">
                     <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                       <i className="ri-information-line text-blue-600 text-sm md:text-base"></i>
                     </div>
@@ -1624,9 +1624,9 @@ Best regards,"
               >
                 <div>
                   <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2 md:mb-3">
-                    <i className="ri-star-line mr-1"></i>Rating *
+                    <i className="ri-star-line me-1"></i>Rating *
                   </label>
-                  <div className="flex items-center space-x-1 md:space-x-2 mb-1 md:mb-2">
+                  <div className="flex items-center gap-1 md:gap-2 mb-1 md:mb-2">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
@@ -1660,7 +1660,7 @@ Best regards,"
 
                 <div>
                   <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">
-                    <i className="ri-message-2-line mr-1"></i>Your Review *
+                    <i className="ri-message-2-line me-1"></i>Your Review *
                   </label>
                   <textarea
                     name="review"
@@ -1683,7 +1683,7 @@ Best regards,"
                 </div>
 
                 <div className="bg-blue-50 rounded-lg p-3 md:p-4">
-                  <div className="flex items-start space-x-2 md:space-x-3">
+                  <div className="flex items-start gap-2 md:gap-3">
                     <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                       <i className="ri-information-line text-blue-600 text-sm md:text-base"></i>
                     </div>
@@ -1705,7 +1705,7 @@ Best regards,"
                   <div className="text-xs text-gray-500">
                     {t("businessProfile.moderationNotice")}
                   </div>
-                  <div className="flex space-x-2 md:space-x-3">
+                  <div className="flex gap-2 md:gap-3">
                     <button
                       type="button"
                       onClick={() => setShowReviewModal(false)}
@@ -1716,7 +1716,7 @@ Best regards,"
                     <button
                       type="submit"
                       disabled={!selectedRating || !reviewText.trim()}
-                      className={`px-4 py-2 md:px-8 md:py-2 font-medium rounded-lg cursor-pointer flex items-center space-x-1 md:space-x-2 text-xs md:text-sm ${
+                      className={`px-4 py-2 md:px-8 md:py-2 font-medium rounded-lg cursor-pointer flex items-center gap-1 md:gap-2 text-xs md:text-sm ${
                         selectedRating && reviewText.trim()
                           ? "bg-yellow-500 hover:bg-yellow-600 text-white"
                           : "bg-gray-400 text-white cursor-not-allowed"
@@ -1738,7 +1738,7 @@ Best regards,"
       {/* Verification Toast */}
       {showVerificationToast && (
         <div className="fixed top-4 right-4 z-50 animate-pulse">
-          <div className="bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3">
+          <div className="bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3">
             <i className="ri-shield-warning-line text-xl"></i>
             <div>
               <p className="font-semibold">

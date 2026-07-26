@@ -205,7 +205,7 @@ export default function BusinessCard({
                 <div
                   className={`${getStatusColor(
                     business.status || "unknown",
-                  )} px-2 py-1 rounded-full flex items-center space-x-1`}
+                  )} px-2 py-1 rounded-full flex items-center gap-1`}
                 >
                   <i
                     className={`${getStatusIcon(
@@ -236,7 +236,7 @@ export default function BusinessCard({
                     <div
                       className={`${getBusinessTypeColor(
                         business.businessType,
-                      )} px-2 py-1 rounded-full flex items-center space-x-1`}
+                      )} px-2 py-1 rounded-full flex items-center gap-1`}
                     >
                       <i
                         className={`${getBusinessTypeIcon(
@@ -268,7 +268,7 @@ export default function BusinessCard({
                   </div>
 
                   <div className="flex items-center mb-3">
-                    <div className="flex items-center space-x-1">
+                    <div className="flex items-center gap-1">
                       {[...Array(5)].map((_, i) => (
                         <i
                           key={i}
@@ -288,18 +288,18 @@ export default function BusinessCard({
 
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center text-xs text-gray-600">
-                      <i className="ri-map-pin-line w-4 h-4 flex items-center justify-center mr-2"></i>
+                      <i className="ri-map-pin-line w-4 h-4 flex items-center justify-center me-2"></i>
                       <span>{business.location}</span>
                     </div>
                     <div className="flex items-center text-xs text-gray-600">
-                      <i className="ri-group-line w-4 h-4 flex items-center justify-center mr-2"></i>
+                      <i className="ri-group-line w-4 h-4 flex items-center justify-center me-2"></i>
                       <span>
                         {t("businessCard.serves")}:{" "}
                         {business.services.join(", ")}
                       </span>
                     </div>
                     <div className="flex items-center text-xs text-gray-600">
-                      <i className="ri-map-pin-range-line w-4 h-4 flex items-center justify-center mr-2"></i>
+                      <i className="ri-map-pin-range-line w-4 h-4 flex items-center justify-center me-2"></i>
                       <span>
                         {t("businessCard.serviceArea")}:{" "}
                         {business.serviceDistance}
@@ -332,7 +332,7 @@ export default function BusinessCard({
                         onClick={() => setShowMessageModal(true)}
                         className={`flex-1 md:w-full py-2 px-3 rounded-lg font-medium text-xs whitespace-nowrap cursor-pointer bg-yellow-400 text-white hover:bg-yellow-500`}
                       >
-                        <i className="ri-message-line mr-2"></i>
+                        <i className="ri-message-line me-2"></i>
                         {t("businessCard.message")}
                       </button>
                     )}
@@ -367,7 +367,7 @@ export default function BusinessCard({
           <div
             className={`${getStatusColor(
               business.status || "unknown",
-            )} px-2 py-1 rounded-full flex items-center space-x-1`}
+            )} px-2 py-1 rounded-full flex items-center gap-1`}
           >
             <i
               className={`${getStatusIcon(
@@ -380,11 +380,11 @@ export default function BusinessCard({
             </span>
           </div>
         </div>
-        <div className="absolute top-3 left-3 flex items-center space-x-2">
+        <div className="absolute top-3 left-3 flex items-center gap-2">
           <div
             className={`${getBusinessTypeColor(
               business.businessType,
-            )} px-2 py-1 rounded-full flex items-center space-x-1 shadow-md`}
+            )} px-2 py-1 rounded-full flex items-center gap-1 shadow-md`}
           >
             <i
               className={`${getBusinessTypeIcon(
@@ -429,7 +429,7 @@ export default function BusinessCard({
         </div>
 
         <div className="flex items-center mb-3">
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center gap-1">
             {[...Array(5)].map((_, i) => (
               <i
                 key={i}
@@ -448,13 +448,13 @@ export default function BusinessCard({
 
         <div className="mb-3 space-y-1">
           <div className="flex items-center text-xs text-gray-600">
-            <i className="ri-group-line w-3 h-3 flex items-center justify-center mr-2"></i>
+            <i className="ri-group-line w-3 h-3 flex items-center justify-center me-2"></i>
             <span>
               {t("businessCard.serves")}: {business.services.slice(0, 2).join(", ")}
             </span>
           </div>
           <div className="flex items-center text-xs text-gray-600">
-            <i className="ri-map-pin-range-line w-3 h-3 flex items-center justify-center mr-2"></i>
+            <i className="ri-map-pin-range-line w-3 h-3 flex items-center justify-center me-2"></i>
             <span>
               {t("businessCard.serviceArea")}: {business.serviceDistance}
             </span>
@@ -480,14 +480,14 @@ export default function BusinessCard({
         </div>
 
         {/* Buttons - Always at bottom */}
-        <div className="flex space-x-2 mt-auto">
+        <div className="flex gap-2 mt-auto">
           {business.preferences?.allow_direct_contact !== false &&
             isLoggedIn() && (
               <button
                 onClick={() => setShowMessageModal(true)}
                 className={`flex-1 py-1.5 px-2 rounded-lg font-medium text-xs whitespace-nowrap cursor-pointer bg-yellow-400 text-white hover:bg-yellow-500`}
               >
-                <i className="ri-message-line mr-1"></i>
+                <i className="ri-message-line me-1"></i>
                 {t("businessCard.message")}
               </button>
             )}

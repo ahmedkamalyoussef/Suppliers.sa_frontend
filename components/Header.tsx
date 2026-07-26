@@ -176,32 +176,32 @@ export default function Header() {
 
   const bannerContent = (
     <div className="inline-flex items-center gap-8 text-xs md:text-sm font-medium px-8">
-      <span className="flex items-center">
-        <i className="ri-trophy-fill mr-2"></i>
+      <span className="flex items-center gap-2">
+        <i className="ri-trophy-fill"></i>
         <span className="hidden sm:inline">{t("banner.slogan1Long")}</span>
         <span className="sm:hidden">{t("banner.slogan1Short")}</span>
       </span>
 
       <span className="text-yellow-100">•</span>
 
-      <span className="flex items-center">
-        <i className="ri-global-line mr-2"></i>
+      <span className="flex items-center gap-2">
+        <i className="ri-global-line"></i>
         <span className="hidden sm:inline">{t("banner.slogan2Long")}</span>
         <span className="sm:hidden">{t("banner.slogan2Short")}</span>
       </span>
 
       <span className="text-yellow-100">•</span>
 
-      <span className="flex items-center">
-        <i className="ri-truck-line mr-2"></i>
+      <span className="flex items-center gap-2">
+        <i className="ri-truck-line"></i>
         <span className="hidden sm:inline">{t("banner.slogan3Long")}</span>
         <span className="sm:hidden">{t("banner.slogan3Short")}</span>
       </span>
 
       <span className="text-yellow-100">•</span>
 
-      <span className="flex items-center">
-        <i className="ri-handshake-line mr-2"></i>
+      <span className="flex items-center gap-2">
+        <i className="ri-handshake-line"></i>
         <span className="hidden sm:inline">{t("banner.slogan4Long")}</span>
         <span className="sm:hidden">{t("banner.slogan4Short")}</span>
       </span>
@@ -240,12 +240,10 @@ export default function Header() {
       <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
         <div className="w-full px-3 sm:px-4 md:px-6">
           <div className="flex items-center justify-between h-16 md:h-20">
-            {/* Logo Section - Fixed direction regardless of language */}
+            {/* Logo Section */}
             <Link
               href="/"
-              className={`flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity ${
-                isRTL ? "flex-row-reverse" : "flex-row"
-              }`}
+              className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity"
             >
               <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center">
                 <svg
@@ -272,7 +270,7 @@ export default function Header() {
             </Link>
 
             {/* Navigation - Desktop Only */}
-            <nav className="hidden lg:flex space-x-6 xl:space-x-8 gap-4">
+            <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
               {userType !== "admin" && userType !== "super_admin" && (
                 <>
                   <Link
@@ -310,9 +308,9 @@ export default function Header() {
             </nav>
 
             {/* Right Side */}
-            <div className="flex items-center space-x-2 md:space-x-3">
+            <div className="flex items-center gap-2 md:gap-3">
               {/* Language Switcher - Always Visible */}
-              <div className="flex-shrink-0 ml-4">
+              <div className="flex-shrink-0">
                 <LanguageSwitcher />
               </div>
 
@@ -370,13 +368,7 @@ export default function Header() {
                                 onClick={() => handleMessageClick(message.id)}
                                 className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-b-0"
                               >
-                                <div
-                                  className={`flex items-start ${
-                                    isRTL
-                                      ? "space-x-reverse space-x-3"
-                                      : "space-x-3"
-                                  }`}
-                                >
+                                <div className="flex items-start gap-3">
                                   <div className="w-10 h-10 bg-yellow-400 text-white rounded-full flex items-center justify-center font-medium text-sm flex-shrink-0">
                                     {message.avatar}
                                   </div>
@@ -428,12 +420,12 @@ export default function Header() {
                   <div className="relative">
                     <button
                       onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                      className="flex items-center space-x-2 md:space-x-3 text-gray-700 hover:text-yellow-600 transition-colors cursor-pointer p-1"
+                      className="flex items-center gap-2 md:gap-3 text-gray-700 hover:text-yellow-600 transition-colors cursor-pointer p-1"
                     >
-                      <div className="w-8 h-8 md:w-9 md:h-9 bg-yellow-400 text-white rounded-full flex items-center justify-center font-medium text-sm ml-4">
+                      <div className="w-8 h-8 md:w-9 md:h-9 bg-yellow-400 text-white rounded-full flex items-center justify-center font-medium text-sm">
                         {userInitials}
                       </div>
-                      <span className="hidden lg:block font-medium text-sm ml-1 ">
+                      <span className="hidden lg:block font-medium text-sm">
                         {userName || "User"}
                       </span>
                       <i className="ri-arrow-down-s-line hidden lg:block text-lg"></i>
@@ -450,7 +442,7 @@ export default function Header() {
 
                         <div className="fixed lg:absolute right-4 lg:right-0 top-16 lg:top-auto lg:mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 z-50">
                           <div className="px-4 py-3 border-b border-gray-100 lg:hidden">
-                            <div className="flex items-center space-x-3">
+                            <div className="flex items-center gap-3">
                               <div className="w-12 h-12 bg-yellow-400 text-white rounded-full flex items-center justify-center font-medium">
                                 {userInitials}
                               </div>
@@ -467,7 +459,7 @@ export default function Header() {
 
                           <Link
                             href={`/profile/${user?.id || "me"}`}
-                            className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
+                            className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
                             onClick={() => setIsUserMenuOpen(false)}
                           >
                             <i className="ri-user-line text-lg"></i>
@@ -478,7 +470,7 @@ export default function Header() {
 
                           <Link
                             href="/dashboard"
-                            className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
+                            className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
                             onClick={() => setIsUserMenuOpen(false)}
                           >
                             <i className="ri-dashboard-line text-lg"></i>
@@ -491,7 +483,7 @@ export default function Header() {
 
                           <button
                             onClick={handleSignOut}
-                            className="w-full flex items-center space-x-3 px-4 py-3 text-left text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                            className="w-full flex items-center gap-3 px-4 py-3 text-left text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                           >
                             <i className="ri-logout-box-r-line text-lg"></i>
                             <span className="text-sm font-medium">
@@ -522,7 +514,7 @@ export default function Header() {
                     !isAuthenticated &&
                     typeof window !== "undefined" &&
                     !window.location.pathname.startsWith("/admin") && (
-                      <div className="hidden sm:flex items-center space-x-2 md:space-x-3">
+                      <div className="hidden sm:flex items-center gap-2 md:gap-3">
                         <Link
                           href="/add-business"
                           className="text-gray-700 hover:text-yellow-600 font-medium transition-colors text-sm"

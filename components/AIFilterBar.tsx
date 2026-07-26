@@ -289,7 +289,7 @@ export default function AIFilterBar({ onFilterChange }: AIFilterBarProps) {
     <div className="w-full bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
               <i className="ri-brain-line text-white text-sm"></i>
             </div>
@@ -316,7 +316,7 @@ export default function AIFilterBar({ onFilterChange }: AIFilterBarProps) {
           <div className="space-y-4">
             {/* AI Search Input */}
             <div className="relative">
-              <div className="flex space-x-3">
+              <div className="flex gap-3">
                 <div className="flex-1 relative">
                   <input
                     type="text"
@@ -333,7 +333,7 @@ export default function AIFilterBar({ onFilterChange }: AIFilterBarProps) {
                 <button
                   onClick={handleAISearch}
                   disabled={!searchQuery.trim() || isProcessing}
-                  className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 font-medium whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                  className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 font-medium whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   {isProcessing ? (
                     <>

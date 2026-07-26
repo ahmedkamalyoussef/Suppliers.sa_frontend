@@ -225,7 +225,7 @@ export default function AdminStats({ onTabChange }: AdminStatsProps) {
                   <h4 className="font-medium text-gray-800 text-sm sm:text-base">
                     {item.title}
                   </h4>
-                  <div className="flex items-center space-x-2 mt-1 sm:mt-2">
+                  <div className="flex items-center gap-2 mt-1 sm:mt-2">
                     <span className="text-xl sm:text-2xl font-bold text-gray-700">
                       {item.count}
                     </span>
@@ -269,7 +269,7 @@ export default function AdminStats({ onTabChange }: AdminStatsProps) {
               {recentActivities.map((activity, index) => (
                 <div
                   key={index}
-                  className="flex items-start space-x-2 sm:space-x-3"
+                  className="flex items-start gap-2 sm:gap-3"
                 >
                   <div
                     className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center ${activity.color} flex-shrink-0 mt-0.5`}

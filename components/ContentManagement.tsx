@@ -748,7 +748,7 @@ export default function ContentManagement() {
       {/* Error Display */}
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2">
             <i className="ri-alert-line text-red-600"></i>
             <span className="text-red-800 font-medium">{error}</span>
             <button
@@ -781,7 +781,7 @@ export default function ContentManagement() {
                 onClick={() => handleBulkAction("approve")}
                 className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2.5 rounded-lg hover:from-green-600 hover:to-emerald-700 font-medium text-sm whitespace-nowrap cursor-pointer transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
               >
-                <i className="ri-check-line mr-2"></i>
+                <i className="ri-check-line me-2"></i>
                 {t("contentManagement.buttons.approve")} ({selectedItems.length}
                 )
               </button>
@@ -789,7 +789,7 @@ export default function ContentManagement() {
                 onClick={() => handleBulkAction("reject")}
                 className="bg-gradient-to-r from-red-500 to-rose-600 text-white px-4 py-2.5 rounded-lg hover:from-red-600 hover:to-rose-700 font-medium text-sm whitespace-nowrap cursor-pointer transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
               >
-                <i className="ri-close-line mr-2"></i>
+                <i className="ri-close-line me-2"></i>
                 {t("contentManagement.buttons.reject")} ({selectedItems.length})
               </button>
             </div>
@@ -801,7 +801,7 @@ export default function ContentManagement() {
               }}
               className="px-4 sm:px-6 py-2 rounded-lg font-medium text-sm whitespace-nowrap bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
             >
-              <i className="ri-download-line mr-2"></i>
+              <i className="ri-download-line me-2"></i>
               {t("contentManagement.buttons.exportReport")}
             </button>
           )}
@@ -811,7 +811,7 @@ export default function ContentManagement() {
       {/* Content Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
         <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
-          <div className="flex items-center space-x-2 sm:space-x-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
               <i className="ri-star-line text-orange-600 text-lg sm:text-xl"></i>
             </div>
@@ -827,7 +827,7 @@ export default function ContentManagement() {
         </div>
 
         <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
-          <div className="flex items-center space-x-2 sm:space-x-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
               <i className="ri-shield-check-line text-yellow-600 text-lg sm:text-xl"></i>
             </div>
@@ -843,7 +843,7 @@ export default function ContentManagement() {
         </div>
 
         <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100">
-          <div className="flex items-center space-x-2 sm:space-x-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
               <i className="ri-flag-line text-red-600 text-lg sm:text-xl"></i>
             </div>
@@ -859,7 +859,7 @@ export default function ContentManagement() {
         </div>
 
         <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-100 col-span-2 lg:col-span-1">
-          <div className="flex items-center space-x-2 sm:space-x-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
               <i className="ri-check-line text-green-600 text-lg sm:text-xl"></i>
             </div>
@@ -878,7 +878,7 @@ export default function ContentManagement() {
       {/* Content Tabs */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
         <div className="border-b border-gray-200 overflow-x-auto">
-          <nav className="flex space-x-4 sm:space-x-6 px-4 sm:px-6 min-w-max">
+          <nav className="flex gap-4 sm:gap-6 px-4 sm:px-6 min-w-max">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -1004,7 +1004,7 @@ export default function ContentManagement() {
                           {business.hasInquiries && (
                             <div className="mt-1">
                               <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                <i className="ri-message-3-line mr-1"></i>
+                                <i className="ri-message-3-line me-1"></i>
                                 {business.unreadInquiries > 0
                                   ? `${business.unreadInquiries} unread`
                                   : `${business.inquiries.length} inquiries`}
@@ -1044,7 +1044,7 @@ export default function ContentManagement() {
                           </p>
                         </td>
                         <td className="py-4 px-4 sm:px-6">
-                          <div className="flex items-center space-x-1 sm:space-x-2">
+                          <div className="flex items-center gap-1 sm:gap-2">
                             <button
                               className="text-blue-600 hover:text-blue-700 cursor-pointer"
                               title={t("contentManagement.actions.viewDetails")}
@@ -1153,7 +1153,7 @@ export default function ContentManagement() {
                                 {business.inquiries.map((inquiry) => (
                                   <div
                                     key={inquiry.id}
-                                    className="flex items-center space-x-1"
+                                    className="flex items-center gap-1"
                                   >
                                     {!inquiry.is_read ? (
                                       <span
@@ -1198,7 +1198,7 @@ export default function ContentManagement() {
                     {t("contentManagement.reviews.description")}
                   </p>
                 </div>
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center gap-4">
                   <span className="text-xs sm:text-sm text-gray-600">
                     {filteredReviews.filter((r) => r.flagged).length}{" "}
                     {t("contentManagement.reviews.flagged")}
@@ -1217,7 +1217,7 @@ export default function ContentManagement() {
                 >
                   <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start space-x-3 mb-4">
+                      <div className="flex items-start gap-3 mb-4">
                         <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
                           {review.businessProfileImage ? (
                             <img
@@ -1242,7 +1242,7 @@ export default function ContentManagement() {
                         </div>
                         {review.flagged && (
                           <span className="bg-red-100 text-red-600 px-2 sm:px-3 py-1 rounded-full text-xs font-medium flex-shrink-0">
-                            <i className="ri-flag-line mr-1"></i>
+                            <i className="ri-flag-line me-1"></i>
                             {t("contentManagement.reviews.flagged")}
                           </span>
                         )}
@@ -1253,7 +1253,7 @@ export default function ContentManagement() {
                           <span className="font-medium text-gray-700 text-sm">
                             {t("contentManagement.reviews.rating")}:
                           </span>
-                          <div className="flex items-center space-x-2 mt-1">
+                          <div className="flex items-center gap-2 mt-1">
                             <div className="flex text-yellow-400">
                               {[1, 2, 3, 4, 5].map((star) => (
                                 <i
@@ -1308,7 +1308,7 @@ export default function ContentManagement() {
                         onClick={() => setSelectedReview(review)}
                         className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2.5 rounded-lg hover:from-blue-600 hover:to-blue-700 text-xs sm:text-sm font-medium cursor-pointer whitespace-nowrap transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                       >
-                        <i className="ri-eye-line mr-2"></i>
+                        <i className="ri-eye-line me-2"></i>
                         {t("contentManagement.actions.viewDetails")}
                       </button>
                       {canSuperviseContent && (
@@ -1321,9 +1321,9 @@ export default function ContentManagement() {
                             className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2.5 rounded-lg hover:from-green-600 hover:to-emerald-700 text-xs sm:text-sm font-medium cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:transform-none disabled:shadow-sm"
                           >
                             {actionLoading[`approve-${review.id}`] ? (
-                              <i className="ri-loader-4-line animate-spin mr-2"></i>
+                              <i className="ri-loader-4-line animate-spin me-2"></i>
                             ) : (
-                              <i className="ri-check-line mr-2"></i>
+                              <i className="ri-check-line me-2"></i>
                             )}
                             {t("contentManagement.actions.approve")}
                           </button>
@@ -1335,9 +1335,9 @@ export default function ContentManagement() {
                             className="bg-gradient-to-r from-red-500 to-rose-600 text-white px-4 py-2.5 rounded-lg hover:from-red-600 hover:to-rose-700 text-xs sm:text-sm font-medium cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:transform-none disabled:shadow-sm"
                           >
                             {actionLoading[`reject-${review.id}`] ? (
-                              <i className="ri-loader-4-line animate-spin mr-2"></i>
+                              <i className="ri-loader-4-line animate-spin me-2"></i>
                             ) : (
-                              <i className="ri-close-line mr-2"></i>
+                              <i className="ri-close-line me-2"></i>
                             )}
                             {t("contentManagement.actions.reject")}
                           </button>
@@ -1350,9 +1350,9 @@ export default function ContentManagement() {
                               className="bg-gradient-to-r from-amber-500 to-orange-600 text-white px-4 py-2.5 rounded-lg hover:from-amber-600 hover:to-orange-700 text-xs sm:text-sm font-medium cursor-pointer whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:transform-none disabled:shadow-sm"
                             >
                               {actionLoading[`flag-${review.id}`] ? (
-                                <i className="ri-loader-4-line animate-spin mr-2"></i>
+                                <i className="ri-loader-4-line animate-spin me-2"></i>
                               ) : (
-                                <i className="ri-flag-line mr-2"></i>
+                                <i className="ri-flag-line me-2"></i>
                               )}
                               {t("contentManagement.actions.flag")}
                             </button>
@@ -1385,7 +1385,7 @@ export default function ContentManagement() {
                 >
                   <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start space-x-3 mb-4">
+                      <div className="flex items-start gap-3 mb-4">
                         <div className="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
                           <i className="ri-file-shield-line text-yellow-600 text-lg sm:text-xl"></i>
                         </div>
@@ -1599,7 +1599,7 @@ export default function ContentManagement() {
                           </p>
                         </td>
                         <td className="py-4 px-4 sm:px-6">
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center gap-2">
                             <button
                               onClick={() => handleViewInquiry(inquiry)}
                               className="text-blue-600 hover:text-blue-700 cursor-pointer"
@@ -1652,7 +1652,7 @@ export default function ContentManagement() {
                 >
                   <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center space-x-3 mb-2">
+                      <div className="flex items-center gap-3 mb-2">
                         <h4 className="font-semibold text-gray-800 text-sm sm:text-base truncate">
                           {report.business}
                         </h4>
@@ -1699,7 +1699,7 @@ export default function ContentManagement() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2 lg:ml-4 lg:flex-col lg:space-x-0 lg:space-y-2 w-full lg:w-auto">
+                    <div className="flex items-center gap-2 lg:ml-4 lg:flex-col lg:gap-0 lg:space-y-2 w-full lg:w-auto">
                       {canSuperviseContent && (
                         <>
                           <button
@@ -1743,7 +1743,7 @@ export default function ContentManagement() {
           <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-4 sm:p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center gap-3">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 rounded-lg flex items-center justify-center">
                     <i className="ri-star-line text-orange-600 text-lg sm:text-xl"></i>
                   </div>
@@ -1771,7 +1771,7 @@ export default function ContentManagement() {
                   <label className="text-sm font-medium text-gray-700">
                     {t("contentManagement.reviewModal.business")}
                   </label>
-                  <div className="flex items-center space-x-3 mt-1">
+                  <div className="flex items-center gap-3 mt-1">
                     <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
                       {selectedReview.businessProfileImage ? (
                         <img
@@ -1794,7 +1794,7 @@ export default function ContentManagement() {
                   <label className="text-sm font-medium text-gray-700">
                     {t("contentManagement.reviewModal.submittedBy")}
                   </label>
-                  <div className="flex items-center space-x-3 mt-1">
+                  <div className="flex items-center gap-3 mt-1">
                     <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
                       {selectedReview.customerProfileImage ? (
                         <img
@@ -1817,7 +1817,7 @@ export default function ContentManagement() {
                   <label className="text-sm font-medium text-gray-700">
                     {t("contentManagement.reviewModal.rating")}
                   </label>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center gap-2">
                     <div className="flex text-yellow-400">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <i
@@ -1862,7 +1862,7 @@ export default function ContentManagement() {
 
               {selectedReview.flagged && (
                 <div className="bg-red-100 border border-red-200 rounded-lg p-3 sm:p-4">
-                  <div className="flex items-center space-x-2 mb-2">
+                  <div className="flex items-center gap-2 mb-2">
                     <i className="ri-alert-line text-red-600"></i>
                     <span className="font-medium text-red-800 text-sm sm:text-base">
                       {t("contentManagement.reviewModal.flaggedTitle")}
@@ -1901,7 +1901,7 @@ export default function ContentManagement() {
                 </ul>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center justify-end space-y-3 sm:space-y-0 sm:space-x-3 pt-4 border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row items-center justify-end space-y-3 sm:space-y-0 sm:gap-3 pt-4 border-t border-gray-200">
                 <button
                   onClick={() => setSelectedReview(null)}
                   className="px-4 sm:px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium text-sm cursor-pointer w-full sm:w-auto order-2 sm:order-1"
@@ -1915,7 +1915,7 @@ export default function ContentManagement() {
                   }}
                   className="px-4 sm:px-6 py-2.5 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-lg hover:from-red-600 hover:to-rose-700 font-medium text-sm cursor-pointer w-full sm:w-auto order-3 sm:order-2 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                 >
-                  <i className="ri-close-line mr-2"></i>
+                  <i className="ri-close-line me-2"></i>
                   {t("contentManagement.actions.rejectReview")}
                 </button>
                 <button
@@ -1925,7 +1925,7 @@ export default function ContentManagement() {
                   }}
                   className="px-4 sm:px-6 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 font-medium text-sm cursor-pointer w-full sm:w-auto order-1 sm:order-3 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                 >
-                  <i className="ri-check-line mr-2"></i>
+                  <i className="ri-check-line me-2"></i>
                   {t("contentManagement.actions.approveReview")}
                 </button>
               </div>
@@ -2263,7 +2263,7 @@ export default function ContentManagement() {
                           "contentManagement.inquiries.replyPlaceholder",
                         )}
                       />
-                      <div className="flex justify-end space-x-3">
+                      <div className="flex justify-end gap-3">
                         <button
                           onClick={handleReplyToInquiry}
                           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
@@ -2302,7 +2302,7 @@ export default function ContentManagement() {
                   )}
 
                 {/* Actions */}
-                <div className="flex justify-end space-x-3 pt-4 border-t">
+                <div className="flex justify-end gap-3 pt-4 border-t">
                   <button
                     onClick={handleCloseInquiryModal}
                     className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"

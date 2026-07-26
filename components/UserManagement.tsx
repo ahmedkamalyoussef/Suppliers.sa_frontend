@@ -682,7 +682,7 @@ export default function UserManagement() {
                       : "Please select users first"
                 }
               >
-                <i className="ri-mail-send-line mr-2"></i>
+                <i className="ri-mail-send-line me-2"></i>
                 {language === "ar"
                   ? `إرسال بريد (${selectedUsers.length})`
                   : `Send Email (${selectedUsers.length})`}
@@ -705,7 +705,7 @@ export default function UserManagement() {
                       : "You need Edit Users or Full User Management permission to suspend users"
                 }
               >
-                <i className="ri-pause-circle-line mr-2"></i>
+                <i className="ri-pause-circle-line me-2"></i>
                 {language === "ar"
                   ? `تعليق (${selectedUsers.length})`
                   : `Suspend (${selectedUsers.length})`}
@@ -728,7 +728,7 @@ export default function UserManagement() {
                       : "You need Delete Users or Full User Management permission to delete users"
                 }
               >
-                <i className="ri-delete-bin-line mr-2"></i>
+                <i className="ri-delete-bin-line me-2"></i>
                 {language === "ar"
                   ? `حذف (${selectedUsers.length})`
                   : `Delete (${selectedUsers.length})`}
@@ -753,7 +753,7 @@ export default function UserManagement() {
                   : "You need Full User Management permission to add users"
             }
           >
-            <i className="ri-add-line mr-2"></i>
+            <i className="ri-add-line me-2"></i>
             {language === "ar" ? "إضافة مستخدم" : "Add User"}
           </button>
         </div>
@@ -862,7 +862,7 @@ export default function UserManagement() {
                     : "You need Full User Management permission to export data"
               }
             >
-              <i className="ri-download-line mr-2"></i>
+              <i className="ri-download-line me-2"></i>
               {language === "ar" ? "تصدير البيانات" : "Export Data"}
             </button>
           </div>
@@ -931,7 +931,7 @@ export default function UserManagement() {
                     />
                   </td>
                   <td className="py-4 px-4 sm:px-6">
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center gap-3">
                       <div className="relative flex-shrink-0">
                         <img
                           src={getAvatarUrl(user.avatar, user.name)}
@@ -999,7 +999,7 @@ export default function UserManagement() {
                     </span>
                   </td>
                   <td className="py-4 px-4 sm:px-6">
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center gap-2">
                       <button
                         onClick={() => setShowUserDetails(user)}
                         className="text-blue-600 hover:text-blue-700 cursor-pointer"
@@ -1039,7 +1039,7 @@ export default function UserManagement() {
                 ? `عرض ${filteredUsers.length} من ${pagination.total} مستخدم`
                 : `Showing ${filteredUsers.length} of ${pagination.total} users`}
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2">
               <button className="px-3 py-1 border border-gray-300 rounded text-xs sm:text-sm hover:bg-gray-100 cursor-pointer">
                 {language === "ar" ? "السابق" : "Previous"}
               </button>
@@ -1076,7 +1076,7 @@ export default function UserManagement() {
             </div>
 
             <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
-              <div className="flex items-center space-x-3 sm:space-x-4">
+              <div className="flex items-center gap-3 sm:gap-4">
                 <div className="relative flex-shrink-0">
                   <img
                     src={getAvatarUrl(
@@ -1156,7 +1156,7 @@ export default function UserManagement() {
                   }}
                   className="bg-blue-500 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-blue-600 font-medium text-sm whitespace-nowrap cursor-pointer"
                 >
-                  <i className="ri-edit-line mr-2"></i>
+                  <i className="ri-edit-line me-2"></i>
                   {language === "ar" ? "تعديل المستخدم" : "Edit User"}
                 </button>
                 <button
@@ -1166,7 +1166,7 @@ export default function UserManagement() {
                   }}
                   className="bg-yellow-500 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-yellow-600 font-medium text-sm whitespace-nowrap cursor-pointer"
                 >
-                  <i className="ri-pause-circle-line mr-2"></i>
+                  <i className="ri-pause-circle-line me-2"></i>
                   {language === "ar" ? "تعليق المستخدم" : "Suspend User"}
                 </button>
                 <button
@@ -1176,7 +1176,7 @@ export default function UserManagement() {
                   }}
                   className="bg-red-500 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-red-600 font-medium text-sm whitespace-nowrap cursor-pointer"
                 >
-                  <i className="ri-delete-bin-line mr-2"></i>
+                  <i className="ri-delete-bin-line me-2"></i>
                   {language === "ar" ? "حذف المستخدم" : "Delete User"}
                 </button>
               </div>

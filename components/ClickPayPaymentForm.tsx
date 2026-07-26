@@ -274,7 +274,7 @@ const ClickPayPaymentForm: React.FC<ClickPayPaymentFormProps> = ({
           </div>
         </div>
 
-        <div className="flex space-x-4 pt-4">
+        <div className="flex gap-4 pt-4">
           <button
             type="button"
             onClick={onCancel}

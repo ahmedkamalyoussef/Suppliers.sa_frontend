@@ -142,7 +142,7 @@ export default function EnhancedSearch({ onSearch }: EnhancedSearchProps) {
             onClick={() => handleSearch()}
             className="bg-yellow-400 hover:bg-yellow-500 text-white px-8 py-4 rounded-r-2xl font-medium whitespace-nowrap cursor-pointer transition-colors"
           >
-            <i className="ri-search-line mr-2"></i>
+            <i className="ri-search-line me-2"></i>
             Search
           </button>
         </div>
@@ -150,7 +150,7 @@ export default function EnhancedSearch({ onSearch }: EnhancedSearchProps) {
         {/* Voice Search Indicator */}
         {isVoiceSearch && (
           <div className="absolute top-full left-0 right-0 mt-2 bg-red-50 border border-red-200 rounded-xl p-4 flex items-center justify-center">
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center gap-3">
               <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
               <span className="text-red-700 font-medium">
                 Listening... Speak now in Arabic or English
@@ -173,7 +173,7 @@ export default function EnhancedSearch({ onSearch }: EnhancedSearchProps) {
                   onClick={() => handleSuggestionClick(suggestion)}
                   className="w-full text-left px-3 py-2 hover:bg-yellow-50 rounded-lg transition-colors text-sm text-gray-700 cursor-pointer"
                 >
-                  <i className="ri-search-line text-gray-400 mr-2"></i>
+                  <i className="ri-search-line text-gray-400 me-2"></i>
                   {suggestion}
                 </button>
               ))}
@@ -198,15 +198,15 @@ export default function EnhancedSearch({ onSearch }: EnhancedSearchProps) {
 
       {/* Search Features */}
       <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-        <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
+        <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
           <i className="ri-mic-line text-yellow-500"></i>
           <span>Voice Search (AR/EN)</span>
         </div>
-        <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
+        <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
           <i className="ri-translate-2 text-yellow-500"></i>
           <span>Bilingual Support</span>
         </div>
-        <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
+        <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
           <i className="ri-magic-line text-yellow-500"></i>
           <span>Smart Suggestions</span>
         </div>

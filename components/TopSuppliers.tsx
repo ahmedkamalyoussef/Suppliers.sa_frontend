@@ -321,7 +321,7 @@ export default function TopSuppliers() {
                           </div>
                         </div>
                         <div className="absolute top-2 right-2 bg-white rounded-full px-2 py-1 shadow-md">
-                          <div className="flex items-center space-x-1">
+                          <div className="flex items-center gap-1">
                             <i className="ri-star-fill text-yellow-400 text-xs"></i>
                             <span className="text-xs font-bold text-gray-800">
                               {supplier.rating}
@@ -384,7 +384,7 @@ export default function TopSuppliers() {
                               onClick={() => handleMessageClick(supplier)}
                               className="flex-1 bg-yellow-400 text-white py-1.5 px-2 rounded-lg hover:bg-yellow-500 text-xs font-medium transition-colors"
                             >
-                              <i className="ri-message-line mr-1"></i>{" "}
+                              <i className="ri-message-line me-1"></i>{" "}
                               {t("topSuppliers.message")}
                             </button>
                           )}

@@ -265,21 +265,17 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`w-full py-4 rounded-lg font-medium text-lg whitespace-nowrap cursor-pointer transition-all ${
-                  isSubmitting
-                    ? "bg-gray-400 text-white cursor-not-allowed"
-                    : "bg-yellow-400 text-white hover:bg-yellow-500"
-                }`}
+                className="w-full bg-yellow-400 text-white py-3.5 rounded-lg hover:bg-yellow-500 font-semibold text-base whitespace-nowrap cursor-pointer transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
               >
                 {isSubmitting ? (
                   <>
-                    <i className="ri-loader-4-line animate-spin mr-2"></i>
-                    {t("contactModal.form.sendingButton")}
+                    <i className="ri-loader-4-line animate-spin"></i>
+                    <span>{t("contactModal.form.sendingButton")}</span>
                   </>
                 ) : (
                   <>
-                    <i className="ri-send-plane-line mr-2"></i>
-                    {t("contactModal.form.sendButton")}
+                    <i className="ri-send-plane-line"></i>
+                    <span>{t("contactModal.form.sendButton")}</span>
                   </>
                 )}
               </button>
@@ -291,7 +287,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                   {t("contactModal.directContact.title")}
                 </p>
                 <div className="flex justify-center">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center gap-2">
                     <i className="ri-mail-line text-yellow-600"></i>
                     <span className="text-sm text-gray-700">
                       Supplier.com.sa@gmail.com

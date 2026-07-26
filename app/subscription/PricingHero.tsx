@@ -20,7 +20,7 @@ export default function PricingHero() {
 
       <div className="relative w-full px-6">
         <div className="max-w-4xl mx-auto text-center text-white">
-          <div className="inline-flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-full px-6 py-2 mb-8">
+          <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-6 py-2 mb-8">
             <i className="ri-vip-crown-line text-yellow-300"></i>
             <span className="text-sm font-medium">
               {t("subscription.heroBadge")}
@@ -38,19 +38,19 @@ export default function PricingHero() {
             {t("subscription.heroDesc")}
           </p>
  
-          {/* <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-12">
+          {/* <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:gap-6 mb-12">
             <button
               onClick={() => router.push("/add-business")}
               className="bg-white text-gray-800 px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-100 transition-all transform hover:scale-105 shadow-lg whitespace-nowrap cursor-pointer"
             >
-              <i className="ri-rocket-line mr-2"></i>
+              <i className="ri-rocket-line me-2"></i>
               {t("subscription.heroPrimary")}
             </button>
             <button
               onClick={() => router.push("/subscription#how-it-works")}
               className="border-2 border-white text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white hover:text-gray-800 transition-all whitespace-nowrap cursor-pointer"
             >
-              <i className="ri-play-circle-line mr-2"></i>
+              <i className="ri-play-circle-line me-2"></i>
               {t("subscription.heroSecondary")}
             </button>
           </div>
@@ -106,18 +106,18 @@ export default function PricingHero() {
           </div>
 
           <div className="mt-12 bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 max-w-2xl mx-auto">
-            <div className="flex items-center justify-center space-x-4 text-lg font-semibold">
-              <div className="flex items-center space-x-2">
+            <div className="flex items-center justify-center gap-4 text-lg font-semibold">
+              <div className="flex items-center gap-2">
                 <i className="ri-check-line text-green-300"></i>
                 <span>{t("subscription.heroTrial")}</span>
               </div>
               <div className="w-px h-6 bg-white/30"></div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
                 <i className="ri-shield-check-line text-green-300"></i>
                 <span>{t("subscription.heroCancelAnytime")}</span>
               </div>
               <div className="w-px h-6 bg-white/30"></div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
                 <i className="ri-customer-service-line text-green-300"></i>
                 <span>{t("subscription.heroSupport247")}</span>
               </div>

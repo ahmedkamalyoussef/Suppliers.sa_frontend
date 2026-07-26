@@ -503,7 +503,7 @@ export default function SystemSettings() {
                 : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
             }`}
           >
-            <i className="ri-backup-line mr-2"></i>
+            <i className="ri-backup-line me-2"></i>
             {t("systemSettings.buttons.createBackup")}
           </button>
           <button
@@ -515,7 +515,7 @@ export default function SystemSettings() {
                 : "bg-green-500 text-white hover:bg-green-600 cursor-pointer"
             }`}
           >
-            <i className="ri-save-line mr-2"></i>
+            <i className="ri-save-line me-2"></i>
             {t("systemSettings.buttons.saveChanges")}
           </button>
         </div>
@@ -525,7 +525,7 @@ export default function SystemSettings() {
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
         {/* Tabs Navigation */}
         <div className="border-b border-gray-200 overflow-x-auto">
-          <nav className="flex space-x-4 sm:space-x-6 px-4 sm:px-6 min-w-max">
+          <nav className="flex gap-4 sm:gap-6 px-4 sm:px-6 min-w-max">
             {sections.map((section) => (
               <button
                 key={section.id}
@@ -641,7 +641,7 @@ export default function SystemSettings() {
               </div>*/}
 
               <div className="bg-yellow-50 p-3 sm:p-4 rounded-lg border border-yellow-200">
-                <label className="flex items-start sm:items-center space-x-3">
+                <label className="flex items-start sm:items-center gap-3">
                   <input
                     type="checkbox"
                     checked={settings.general.maintenanceMode}
@@ -709,7 +709,7 @@ export default function SystemSettings() {
               </div>
 
               {/*<div className="space-y-3 sm:space-y-4">
-                <label className="flex items-start sm:items-center space-x-3">
+                <label className="flex items-start sm:items-center gap-3">
                   <input
                     type="checkbox"
                     checked={settings.business.autoApproval}
@@ -732,7 +732,7 @@ export default function SystemSettings() {
                   </div>
                 </label>
 
-                <label className="flex items-start sm:items-center space-x-3">
+                <label className="flex items-start sm:items-center gap-3">
                   <input
                     type="checkbox"
                     checked={settings.business.verificationRequired}
@@ -755,7 +755,7 @@ export default function SystemSettings() {
                   </div>
                 </label>
 
-                <label className="flex items-start sm:items-center space-x-3">
+                <label className="flex items-start sm:items-center gap-3">
                   <input
                     type="checkbox"
                     checked={settings.business.premiumFeaturesEnabled}
@@ -932,7 +932,7 @@ export default function SystemSettings() {
               </div>
 
               <div className="space-y-3 sm:space-y-4">
-                {/*<label className="flex items-start sm:items-center space-x-3">
+                {/*<label className="flex items-start sm:items-center gap-3">
                   <input
                     type="checkbox"
                     checked={settings.security.twoFactorRequired}
@@ -955,7 +955,7 @@ export default function SystemSettings() {
                   </div>
                 </label>*/}
 
-                {/*<label className="flex items-start sm:items-center space-x-3">
+                {/*<label className="flex items-start sm:items-center gap-3">
                   <input
                     type="checkbox"
                     checked={settings.security.passwordStrengthRequired}
@@ -978,7 +978,7 @@ export default function SystemSettings() {
                   </div>
                 </label>*/}
 
-                {/*<label className="flex items-start sm:items-center space-x-3">
+                {/*<label className="flex items-start sm:items-center gap-3">
                   <input
                     type="checkbox"
                     checked={settings.security.dataEncryption}
@@ -1008,7 +1008,7 @@ export default function SystemSettings() {
           {activeSection === "notifications" && (
             <div className="space-y-4 sm:space-y-6">
               <div className="space-y-3 sm:space-y-4">
-                <label className="flex items-start sm:items-center space-x-3">
+                <label className="flex items-start sm:items-center gap-3">
                   <input
                     type="checkbox"
                     checked={settings.notifications.emailNotifications}
@@ -1031,7 +1031,7 @@ export default function SystemSettings() {
                   </div>
                 </label>
 
-                <label className="flex items-start sm:items-center space-x-3">
+                <label className="flex items-start sm:items-center gap-3">
                   <input
                     type="checkbox"
                     checked={settings.notifications.smsNotifications}
@@ -1054,7 +1054,7 @@ export default function SystemSettings() {
                   </div>
                 </label>
 
-                <label className="flex items-start sm:items-center space-x-3">
+                <label className="flex items-start sm:items-center gap-3">
                   <input
                     type="checkbox"
                     checked={settings.notifications.pushNotifications}
@@ -1077,7 +1077,7 @@ export default function SystemSettings() {
                   </div>
                 </label>
 
-                <label className="flex items-start sm:items-center space-x-3">
+                <label className="flex items-start sm:items-center gap-3">
                   <input
                     type="checkbox"
                     checked={settings.notifications.systemAlerts}
@@ -1102,7 +1102,7 @@ export default function SystemSettings() {
                   </div>
                 </label>
 
-                <label className="flex items-start sm:items-center space-x-3">
+                <label className="flex items-start sm:items-center gap-3">
                   <input
                     type="checkbox"
                     checked={settings.notifications.maintenanceNotifications}
@@ -1170,7 +1170,7 @@ export default function SystemSettings() {
               </div>
 
               <div className="space-y-3 sm:space-y-4">
-                <label className="flex items-start sm:items-center space-x-3">
+                <label className="flex items-start sm:items-center gap-3">
                   <input
                     type="checkbox"
                     checked={settings.api.apiKeysEnabled}
@@ -1193,7 +1193,7 @@ export default function SystemSettings() {
                   </div>
                 </label>
 
-                <label className="flex items-start sm:items-center space-x-3">
+                <label className="flex items-start sm:items-center gap-3">
                   <input
                     type="checkbox"
                     checked={settings.api.webhooksEnabled}
@@ -1216,7 +1216,7 @@ export default function SystemSettings() {
                   </div>
                 </label>
 
-                <label className="flex items-start sm:items-center space-x-3">
+                <label className="flex items-start sm:items-center gap-3">
                   <input
                     type="checkbox"
                     checked={settings.api.corsEnabled}
@@ -1263,7 +1263,7 @@ export default function SystemSettings() {
               onClick={handleSystemReset}
               className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 font-medium text-sm whitespace-nowrap cursor-pointer w-full sm:w-auto"
             >
-              <i className="ri-restart-line mr-2"></i>
+              <i className="ri-restart-line me-2"></i>
               {t("systemSettings.dangerZone.resetButton")}
             </button>
           </div>

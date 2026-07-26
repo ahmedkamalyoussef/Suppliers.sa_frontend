@@ -57,7 +57,7 @@ export default function MaintenancePage() {
 
         <div className="space-y-4">
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-center justify-center space-x-2 text-blue-700">
+            <div className="flex items-center justify-center gap-2 text-blue-700">
               <i className="ri-time-line text-xl"></i>
               <span className="text-sm font-medium">
               </span>
@@ -71,7 +71,7 @@ export default function MaintenancePage() {
               </p>
               <button
                 onClick={handleLogout}
-                className="w-full bg-red-500 text-white py-3 px-4 rounded-lg font-medium hover:bg-red-600 transition-colors duration-200 flex items-center justify-center space-x-2"
+                className="w-full bg-red-500 text-white py-3 px-4 rounded-lg font-medium hover:bg-red-600 transition-colors duration-200 flex items-center justify-center gap-2"
               >
                 <i className="ri-logout-box-line text-xl"></i>
                 <span>تسجيل الخروج</span>

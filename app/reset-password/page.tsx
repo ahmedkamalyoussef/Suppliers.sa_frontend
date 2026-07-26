@@ -263,12 +263,12 @@ export default function ResetPasswordPage() {
                 >
                   {isSubmitting ? (
                     <>
-                      <i className="ri-loader-4-line animate-spin mr-2"></i>
+                      <i className="ri-loader-4-line animate-spin me-2"></i>
                       {t("resetting")}
                     </>
                   ) : (
                     <>
-                      <i className="ri-lock-unlock-line mr-2"></i>
+                      <i className="ri-lock-unlock-line me-2"></i>
                       {t("resetButton")}
                     </>
                   )}

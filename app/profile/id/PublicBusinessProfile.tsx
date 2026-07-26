@@ -534,11 +534,11 @@ export default function PublicBusinessProfile({
                       onClick={() => setShowInquiryModal(true)}
                       className="bg-yellow-400 hover:bg-yellow-500 text-white px-4 sm:px-6 md:px-8 py-2 md:py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors text-xs sm:text-sm md:text-base"
                     >
-                      <i className="ri-message-line mr-1 sm:mr-2"></i>
+                      <i className="ri-message-line me-1 sm:mr-2"></i>
                       {t("publicProfile.buttons.message")}
                     </button>
                     <button className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-gray-700 px-4 sm:px-6 md:px-8 py-2 md:py-3 rounded-full font-semibold whitespace-nowrap cursor-pointer transition-colors border border-gray-300 text-xs sm:text-sm md:text-base">
-                      <i className="ri-phone-line mr-1 sm:mr-2"></i>
+                      <i className="ri-phone-line me-1 sm:mr-2"></i>
                       {t("publicProfile.buttons.callNow")}
                     </button>
                   </div>
@@ -758,11 +758,11 @@ export default function PublicBusinessProfile({
                         onClick={() => setShowInquiryModal(true)}
                         className="bg-yellow-400 text-white py-3 px-4 rounded-lg hover:bg-yellow-500 font-medium text-sm whitespace-nowrap cursor-pointer"
                       >
-                        <i className="ri-message-line mr-2"></i>
+                        <i className="ri-message-line me-2"></i>
                         {t("publicProfile.buttons.message")}
                       </button>
                       <button className="border border-yellow-400 text-yellow-600 py-3 px-4 rounded-lg hover:bg-yellow-50 font-medium text-sm whitespace-nowrap cursor-pointer">
-                        <i className="ri-phone-line mr-2"></i>
+                        <i className="ri-phone-line me-2"></i>
                         {t("publicProfile.buttons.call")}
                       </button>
                     </div>
@@ -822,7 +822,7 @@ export default function PublicBusinessProfile({
                   </div>
                   <div className="p-4">
                     <button className="w-full bg-yellow-400 text-white py-2 px-4 rounded-lg hover:bg-yellow-500 font-medium text-sm whitespace-nowrap cursor-pointer">
-                      <i className="ri-directions-line mr-2"></i>
+                      <i className="ri-directions-line me-2"></i>
                       {t("publicProfile.location.getDirections")}
                     </button>
                   </div>
@@ -865,7 +865,7 @@ export default function PublicBusinessProfile({
                 </div>
                 <div className="mt-6 text-center">
                   <p className="text-gray-600 text-sm">
-                    <i className="ri-camera-line mr-2"></i>
+                    <i className="ri-camera-line me-2"></i>
                     {t("publicProfile.photos.description")}
                   </p>
                 </div>
@@ -976,7 +976,7 @@ export default function PublicBusinessProfile({
                           }}
                           className="text-yellow-600 hover:text-yellow-700 px-3 py-1 rounded-lg border border-yellow-300 hover:bg-yellow-50 text-sm font-medium cursor-pointer transition-colors"
                         >
-                          <i className="ri-reply-line mr-1"></i>
+                          <i className="ri-reply-line me-1"></i>
                           Reply
                         </button>
                       </div>
@@ -987,10 +987,10 @@ export default function PublicBusinessProfile({
                       {/* Reply Section */}
                       {review.reply && (
                         <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
-                          <div className="flex items-start space-x-2">
+                          <div className="flex items-start gap-2">
                             <i className="ri-reply-fill text-blue-500 mt-1"></i>
                             <div className="flex-1">
-                              <div className="flex items-center space-x-2 mb-1">
+                              <div className="flex items-center gap-2 mb-1">
                                 <span className="font-medium text-blue-700 text-sm">
                                   رد العمل
                                 </span>
@@ -1029,14 +1029,14 @@ export default function PublicBusinessProfile({
                 onClick={() => setShowInquiryModal(true)}
                 className="bg-white text-yellow-600 px-8 py-4 rounded-full hover:bg-gray-50 font-semibold whitespace-nowrap cursor-pointer"
               >
-                <i className="ri-message-line mr-2"></i>
+                <i className="ri-message-line me-2"></i>
                 {t("publicProfile.buttons.message")}
               </button>
               <Link
                 href="/businesses"
                 className="border-2 border-white text-white px-8 py-4 rounded-full hover:bg-white hover:text-yellow-600 font-semibold whitespace-nowrap cursor-pointer"
               >
-                <i className="ri-arrow-left-line mr-2"></i>
+                <i className="ri-arrow-left-line me-2"></i>
                 {t("publicProfile.cta.browseMore")}
               </Link>
             </div>
@@ -1051,7 +1051,7 @@ export default function PublicBusinessProfile({
             {!isSubmitted ? (
               <>
                 <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gray-50">
-                  <div className="flex items-center space-x-4">
+                  <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
                       <i className="ri-mail-line text-yellow-600 text-xl"></i>
                     </div>
@@ -1081,7 +1081,7 @@ export default function PublicBusinessProfile({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        <i className="ri-user-line mr-1"></i>
+                        <i className="ri-user-line me-1"></i>
                         {t("publicProfile.inquiry.form.name")}
                       </label>
                       <input
@@ -1103,7 +1103,7 @@ export default function PublicBusinessProfile({
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        <i className="ri-building-line mr-1"></i>
+                        <i className="ri-building-line me-1"></i>
                         {t("publicProfile.inquiry.form.company")}
                       </label>
                       <input
@@ -1127,7 +1127,7 @@ export default function PublicBusinessProfile({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        <i className="ri-mail-line mr-1"></i>
+                        <i className="ri-mail-line me-1"></i>
                         {t("publicProfile.inquiry.form.email")}
                       </label>
                       <input
@@ -1149,7 +1149,7 @@ export default function PublicBusinessProfile({
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        <i className="ri-phone-line mr-1"></i>
+                        <i className="ri-phone-line me-1"></i>
                         {t("publicProfile.inquiry.form.phone")}
                       </label>
                       <input
@@ -1172,7 +1172,7 @@ export default function PublicBusinessProfile({
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <i className="ri-price-tag-3-line mr-1"></i>
+                      <i className="ri-price-tag-3-line me-1"></i>
                       {t("publicProfile.inquiry.form.subject")}
                     </label>
                     <input
@@ -1195,7 +1195,7 @@ export default function PublicBusinessProfile({
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <i className="ri-message-2-line mr-1"></i>
+                      <i className="ri-message-2-line me-1"></i>
                       {t("publicProfile.inquiry.form.message")}
                     </label>
                     <textarea
@@ -1229,8 +1229,8 @@ export default function PublicBusinessProfile({
                   </div>
 
                   <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center space-x-2 text-sm text-gray-600">
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
                         <i className="ri-time-line"></i>
                         <span>
                           {t("publicProfile.inquiry.form.businessHours")}
@@ -1238,7 +1238,7 @@ export default function PublicBusinessProfile({
                       </div>
                     </div>
 
-                    <div className="flex space-x-3">
+                    <div className="flex gap-3">
                       <button
                         type="button"
                         onClick={resetInquiryForm}
@@ -1251,7 +1251,7 @@ export default function PublicBusinessProfile({
                         disabled={
                           isSubmitting || inquiryForm.message.length > 500
                         }
-                        className={`px-8 py-2 font-medium rounded-lg cursor-pointer flex items-center space-x-2 ${
+                        className={`px-8 py-2 font-medium rounded-lg cursor-pointer flex items-center gap-2 ${
                           isSubmitting || inquiryForm.message.length > 500
                             ? "bg-gray-400 text-white cursor-not-allowed"
                             : "bg-yellow-400 text-white hover:bg-yellow-500"
@@ -1291,7 +1291,7 @@ export default function PublicBusinessProfile({
                   {t("publicProfile.inquiry.success.response")}
                 </p>
                 <div className="bg-yellow-50 rounded-lg p-4 mb-6">
-                  <div className="flex items-start space-x-3">
+                  <div className="flex items-start gap-3">
                     <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
                       <i className="ri-lightbulb-line text-yellow-600"></i>
                     </div>
@@ -1324,7 +1324,7 @@ export default function PublicBusinessProfile({
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gray-50">
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
                   <i className="ri-reply-line text-yellow-600 text-xl"></i>
                 </div>
@@ -1379,7 +1379,7 @@ export default function PublicBusinessProfile({
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <i className="ri-message-2-line mr-1"></i>
+                    <i className="ri-message-2-line me-1"></i>
                     Your Reply
                   </label>
                   <textarea
@@ -1392,14 +1392,14 @@ export default function PublicBusinessProfile({
                 </div>
 
                 <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
                       <i className="ri-information-line"></i>
                       <span>Your reply will be publicly visible</span>
                     </div>
                   </div>
 
-                  <div className="flex space-x-3">
+                  <div className="flex gap-3">
                     <button
                       type="button"
                       onClick={() => {
@@ -1471,7 +1471,7 @@ export default function PublicBusinessProfile({
                         }
                       }}
                       disabled={!replyForm.reply.trim() || isSendingReply}
-                      className="px-8 py-2 bg-yellow-400 text-white rounded-lg hover:bg-yellow-500 font-medium cursor-pointer flex items-center space-x-2 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                      className="px-8 py-2 bg-yellow-400 text-white rounded-lg hover:bg-yellow-500 font-medium cursor-pointer flex items-center gap-2 disabled:bg-gray-300 disabled:cursor-not-allowed"
                     >
                       {isSendingReply ? (
                         <>
@@ -1492,7 +1492,7 @@ export default function PublicBusinessProfile({
               {/* Error Message */}
               {replyError && (
                 <div className="p-4 bg-red-50 border border-red-200 rounded-lg mb-4">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center gap-2">
                     <i className="ri-error-warning-line text-red-600"></i>
                     <span className="text-red-700 text-sm">{replyError}</span>
                   </div>

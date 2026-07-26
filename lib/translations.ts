@@ -1562,7 +1562,11 @@ export const translations = {
         "autoFillButton": "Auto-Fill Demo Code",
         "verifyButton": "Verify Code",
         "resendCode": "Didn't receive the code? Resend",
-        "backButton": "Change verification method"
+        "backButton": "Change verification method",
+        "codeSentTitle": "Verification Code Sent",
+        "codeSentMessage": "We've sent a verification code to your {method}: {contact}",
+        "methodPhone": "phone number",
+        "methodEmail": "email address"
       },
       "step4": {
         "title": "Account Verified!",
@@ -4502,7 +4506,11 @@ export const translations = {
         "autoFillButton": "تعبئة تلقائية للرمز",
         "verifyButton": "التحقق من الرمز",
         "resendCode": "لم تستلم الرمز؟ أعد الإرسال",
-        "backButton": "تغيير طريقة التحقق"
+        "backButton": "تغيير طريقة التحقق",
+        "codeSentTitle": "تم إرسال رمز التحقق",
+        "codeSentMessage": "لقد أرسلنا رمز التحقق إلى {method}: {contact}",
+        "methodPhone": "رقم الهاتف",
+        "methodEmail": "عنوان البريد الإلكتروني"
       },
       "step4": {
         "title": "تم التحقق من الحساب!",

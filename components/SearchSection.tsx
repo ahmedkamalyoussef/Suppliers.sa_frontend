@@ -621,12 +621,12 @@ export default function SearchSection() {
                       <button
                         key={category.id}
                         onClick={() => setSelectedCategory(category.id)}
-                        className={`w-full flex items-center space-x-1 sm:space-x-2 md:space-x-3 p-1.5 sm:p-2 md:p-3 rounded-xl transition-all cursor-pointer ${
+                        className={`w-full flex items-center gap-1.5 sm:gap-2 md:gap-3 p-1.5 sm:p-2 md:p-3 rounded-xl transition-all cursor-pointer ${
                           selectedCategory === category.id
                             ? "bg-yellow-400 text-white shadow-md"
                             : "hover:bg-gray-50 text-gray-700"
                         } ${
-                          isRTL ? "space-x-reverse text-right" : "text-left"
+                          isRTL ? "text-right" : "text-left"
                         }`}
                       >
                         <div
@@ -664,13 +664,9 @@ export default function SearchSection() {
                       isRTL ? "text-right" : "text-left"
                     }`}
                   >
-                    <p className="text-xs sm:text-sm md:text-base font-bold text-gray-700">
-                      <i
-                        className={`ri-lightbulb-line text-yellow-500 ${
-                          isRTL ? "ml-1 sm:ml-2" : "mr-1 sm:mr-2"
-                        }`}
-                      ></i>
-                      {t("searchRequest.guideTitle")}
+                    <p className="text-xs sm:text-sm md:text-base font-bold text-gray-700 flex items-center gap-2">
+                      <i className="ri-lightbulb-line text-yellow-500"></i>
+                      <span>{t("searchRequest.guideTitle")}</span>
                     </p>
                   </div>
 
@@ -703,10 +699,10 @@ export default function SearchSection() {
                     {/* Button تحت نفس القديم */}
                     <button
                       type="submit"
-                      className="w-full bg-yellow-400 text-white py-2.5 sm:py-3 md:py-4 rounded-xl hover:bg-yellow-500 font-semibold text-sm sm:text-base md:text-lg whitespace-nowrap cursor-pointer flex items-center justify-center"
+                      className="w-full bg-yellow-400 text-white py-2.5 sm:py-3 md:py-4 rounded-xl hover:bg-yellow-500 font-semibold text-sm sm:text-base md:text-lg whitespace-nowrap cursor-pointer flex items-center justify-center gap-2"
                     >
-                      <i className="ri-search-line mr-1 sm:mr-2"></i>
-                      {t("searchBusinesses")}
+                      <i className="ri-search-line"></i>
+                      <span>{t("searchBusinesses")}</span>
                     </button>
                   </form>
                 </div>
@@ -734,7 +730,7 @@ export default function SearchSection() {
                         isRTL ? "text-right" : "text-left"
                       }`}
                     >
-                      <div className="flex items-center space-x-1 sm:space-x-2">
+                      <div className="flex items-center gap-1 sm:gap-2">
                         <div
                           className={`w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-3 md:h-3 ${
                             categories
@@ -999,7 +995,7 @@ export default function SearchSection() {
                         className="w-full py-3 md:py-4 px-4 md:px-5 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:outline-none resize-none transition-colors bg-gray-50 hover:bg-white text-gray-800 placeholder:text-gray-500"
                         required
                       />
-                      <div className="absolute bottom-3 right-4 flex items-center space-x-4 text-xs">
+                      <div className="absolute bottom-3 right-4 flex items-center gap-4 text-xs">
                         <span
                           className={`${
                             sentenceCount > 2 ? "text-red-500" : "text-gray-500"
@@ -1034,7 +1030,7 @@ export default function SearchSection() {
                       >
                         {isSubmitting ? (
                           <>
-                            <i className="ri-loader-4-line animate-spin mr-2"></i>
+                            <i className="ri-loader-4-line animate-spin me-2"></i>
                             <span className="hidden sm:inline">
                               {t("searchRequest.submittingLong")}
                             </span>
@@ -1044,7 +1040,7 @@ export default function SearchSection() {
                           </>
                         ) : (
                           <>
-                            <i className="ri-send-plane-line mr-2"></i>
+                            <i className="ri-send-plane-line me-2"></i>
                             <span className="hidden sm:inline">
                               {t("searchRequest.submit")}
                             </span>
@@ -1093,7 +1089,7 @@ export default function SearchSection() {
                       </h3>
                     </div>
                     <div className="space-y-3 md:space-y-4">
-                      <div className="flex items-start space-x-3">
+                      <div className="flex items-start gap-3">
                         <div className="w-5 h-5 md:w-6 md:h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs md:text-sm font-bold mt-0.5">
                           1
                         </div>
@@ -1101,7 +1097,7 @@ export default function SearchSection() {
                           {t("searchRequest.step1")}
                         </p>
                       </div>
-                      <div className="flex items-start space-x-3">
+                      <div className="flex items-start gap-3">
                         <div className="w-5 h-5 md:w-6 md:h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs md:text-sm font-bold mt-0.5">
                           2
                         </div>
@@ -1109,7 +1105,7 @@ export default function SearchSection() {
                           {t("searchRequest.step2")}
                         </p>
                       </div>
-                      <div className="flex items-start space-x-3">
+                      <div className="flex items-start gap-3">
                         <div className="w-5 h-5 md:w-6 md:h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs md:text-sm font-bold mt-0.5">
                           3
                         </div>
@@ -1117,7 +1113,7 @@ export default function SearchSection() {
                           {t("searchRequest.step3")}
                         </p>
                       </div>
-                      <div className="flex items-start space-x-3">
+                      <div className="flex items-start gap-3">
                         <div className="w-5 h-5 md:w-6 md:h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs md:text-sm font-bold mt-0.5">
                           4
                         </div>
@@ -1153,17 +1149,17 @@ export default function SearchSection() {
 
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
               <ul className="space-y-2 text-sm text-gray-700">
-                <li className="flex items-center space-x-2">
-                  <i className="ri-check-line text-green-500 font-bold"></i>
-                  <span>Submit custom supplier requests</span>
+                <li className="flex items-center gap-2">
+                  <i className="ri-checkbox-circle-fill text-green-500"></i>
+                  <span>100% Free - No Hidden Fees</span>
                 </li>
-                <li className="flex items-center space-x-2">
-                  <i className="ri-check-line text-green-500 font-bold"></i>
-                  <span>Get instant supplier responses</span>
+                <li className="flex items-center gap-2">
+                  <i className="ri-checkbox-circle-fill text-green-500"></i>
+                  <span>Get Quotes from Verified Suppliers</span>
                 </li>
-                <li className="flex items-center space-x-2">
-                  <i className="ri-check-line text-green-500 font-bold"></i>
-                  <span>Priority support</span>
+                <li className="flex items-center gap-2">
+                  <i className="ri-checkbox-circle-fill text-green-500"></i>
+                  <span>Save Time and Find the Best Deals</span>
                 </li>
               </ul>
             </div>

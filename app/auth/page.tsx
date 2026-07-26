@@ -391,12 +391,12 @@ export default function AuthPage() {
           >
             {isSubmitting ? (
               <>
-                <i className="ri-loader-4-line animate-spin mr-2"></i>
+                <i className="ri-loader-4-line animate-spin me-2"></i>
                 {t("auth.signin.signingIn")}
               </>
             ) : (
               <>
-                <i className="ri-login-circle-line mr-2"></i>
+                <i className="ri-login-circle-line me-2"></i>
                 {t("auth.signin.button")}
               </>
             )}
@@ -573,7 +573,7 @@ export default function AuthPage() {
         >
           {isSubmitting ? (
             <>
-              <i className="ri-loader-4-line animate-spin mr-2"></i>
+              <i className="ri-loader-4-line animate-spin me-2"></i>
               {t("auth.signup.step1.submitting")}
             </>
           ) : (
@@ -614,7 +614,7 @@ export default function AuthPage() {
           disabled={isVerifying}
           className="w-full p-6 border-2 border-gray-200 rounded-lg hover:border-yellow-400 hover:bg-yellow-50 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
               <i className="ri-phone-line text-green-600 text-xl"></i>
             </div>
@@ -634,7 +634,7 @@ export default function AuthPage() {
           disabled={isVerifying}
           className="w-full p-6 border-2 border-gray-200 rounded-lg hover:border-yellow-400 hover:bg-yellow-50 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
               <i className="ri-mail-line text-blue-600 text-xl"></i>
             </div>
@@ -686,7 +686,7 @@ export default function AuthPage() {
       </div>
 
       <div className="space-y-6">
-        <div className="flex justify-center space-x-4">
+        <div className="flex justify-center gap-4">
           {verificationCode.map((digit, index) => (
             <input
               key={index}
@@ -717,12 +717,12 @@ export default function AuthPage() {
           >
             {isVerifying ? (
               <>
-                <i className="ri-loader-4-line animate-spin mr-2"></i>
+                <i className="ri-loader-4-line animate-spin me-2"></i>
                 {t("auth.signup.step3.verifying")}
               </>
             ) : (
               <>
-                <i className="ri-check-line mr-2"></i>
+                <i className="ri-check-line me-2"></i>
                 {t("auth.signup.step3.verifyButton")}
               </>
             )}
@@ -780,7 +780,7 @@ export default function AuthPage() {
             ((translations as any)[language]?.auth?.signup?.step4
               ?.checklist as string[]) || []
           ).map((item: string, index: number) => (
-            <li key={index} className="flex items-center space-x-2">
+            <li key={index} className="flex items-center gap-2">
               <i className="ri-check-line text-green-600"></i>
               <span>{item}</span>
             </li>

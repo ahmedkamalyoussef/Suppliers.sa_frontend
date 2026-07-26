@@ -242,7 +242,7 @@ export default function RegisterPage() {
 
       {errors.general && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2">
             <i className="ri-error-warning-line text-red-600"></i>
             <span className="text-red-700 text-sm">{errors.general}</span>
           </div>
@@ -450,7 +450,7 @@ export default function RegisterPage() {
             ((translations as any)[language]?.register?.step4
               ?.checklist as string[]) || []
           ).map((item: string, index: number) => (
-            <li key={index} className="flex items-center space-x-2">
+            <li key={index} className="flex items-center gap-2">
               <i className="ri-check-line text-green-600"></i>
               <span>{item}</span>
             </li>

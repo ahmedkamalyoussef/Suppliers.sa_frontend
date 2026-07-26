@@ -421,12 +421,12 @@ export default function SupplierCommunications() {
           >
             {loading ? (
               <>
-                <i className="ri-loader-4-line animate-spin mr-2"></i>
+                <i className="ri-loader-4-line animate-spin me-2"></i>
                 {language === "ar" ? "جاري البحث..." : "Searching..."}
               </>
             ) : (
               <>
-                <i className="ri-search-line mr-2"></i>
+                <i className="ri-search-line me-2"></i>
                 {language === "ar" ? "عرض التواصل" : "View Communications"}
               </>
             )}

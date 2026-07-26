@@ -122,9 +122,9 @@ export default function MessageModal({ isOpen, onClose, businessId, businessName
               <form onSubmit={handleMessageSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">
-                      <i className="ri-user-line mr-1"></i>
-                      {t("businessProfile.name")} *
+                    <label className="block text-xs font-semibold text-gray-700 mb-1 flex items-center gap-1.5">
+                      <i className="ri-user-line text-gray-500"></i>
+                      <span>{t("businessProfile.yourName")}</span>
                     </label>
                     <input
                       type="text"
@@ -142,9 +142,9 @@ export default function MessageModal({ isOpen, onClose, businessId, businessName
                     />
                   </div>
                   <div>
-                    <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">
-                      <i className="ri-building-line mr-1"></i>
-                      {t("businessProfile.company")}
+                    <label className="block text-xs font-semibold text-gray-700 mb-1 flex items-center gap-1.5">
+                      <i className="ri-building-line text-gray-500"></i>
+                      <span>{t("businessProfile.company")}</span>
                     </label>
                     <input
                       type="text"
@@ -164,9 +164,9 @@ export default function MessageModal({ isOpen, onClose, businessId, businessName
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">
-                      <i className="ri-mail-line mr-1"></i>
-                      {t("businessProfile.email")} *
+                    <label className="block text-xs font-semibold text-gray-700 mb-1 flex items-center gap-1.5">
+                      <i className="ri-mail-line text-gray-500"></i>
+                      <span>{t("businessProfile.emailAddress")}</span>
                     </label>
                     <input
                       type="email"
@@ -184,9 +184,9 @@ export default function MessageModal({ isOpen, onClose, businessId, businessName
                     />
                   </div>
                   <div>
-                    <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">
-                      <i className="ri-phone-line mr-1"></i>
-                      {t("businessProfile.phone")}
+                    <label className="block text-xs font-semibold text-gray-700 mb-1 flex items-center gap-1.5">
+                      <i className="ri-phone-line text-gray-500"></i>
+                      <span>{t("businessProfile.phoneNumber")}</span>
                     </label>
                     <input
                       type="tel"
@@ -205,9 +205,9 @@ export default function MessageModal({ isOpen, onClose, businessId, businessName
                 </div>
 
                 <div>
-                  <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">
-                    <i className="ri-message-2-line mr-1"></i>
-                    {t("businessProfile.subject")}
+                  <label className="block text-xs font-semibold text-gray-700 mb-1 flex items-center gap-1.5">
+                    <i className="ri-message-2-line text-gray-500"></i>
+                    <span>{t("businessProfile.subject")}</span>
                   </label>
                   <input
                     type="text"
@@ -225,9 +225,9 @@ export default function MessageModal({ isOpen, onClose, businessId, businessName
                 </div>
 
                 <div>
-                  <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">
-                    <i className="ri-message-2-line mr-1"></i>
-                    {t("businessProfile.message")}
+                  <label className="block text-xs font-semibold text-gray-700 mb-1 flex items-center gap-1.5">
+                    <i className="ri-message-2-line text-gray-500"></i>
+                    <span>{t("businessProfile.message")}</span>
                   </label>
                   <textarea
                     name="message"
@@ -267,7 +267,7 @@ export default function MessageModal({ isOpen, onClose, businessId, businessName
                     disabled={
                       isSubmitting || inquiryForm.message.length > 500
                     }
-                    className={`px-4 py-2 md:px-8 md:py-2 font-medium rounded-lg cursor-pointer flex items-center space-x-1 md:space-x-2 text-xs md:text-sm ${
+                    className={`px-4 py-2 md:px-8 md:py-2 font-medium rounded-lg cursor-pointer flex items-center gap-1.5 md:gap-2 text-xs md:text-sm ${
                       isSubmitting || inquiryForm.message.length > 500
                         ? "bg-gray-400 text-white cursor-not-allowed"
                         : "bg-yellow-400 text-white hover:bg-yellow-500"

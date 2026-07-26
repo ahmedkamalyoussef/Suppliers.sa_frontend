@@ -549,7 +549,7 @@ export default function EmployeeManagement() {
           disabled={loading || saving}
           className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 font-medium whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <i className="ri-add-line mr-2"></i>
+          <i className="ri-add-line me-2"></i>
           {t("employeeManagement.addEmployee")}
         </button>
       </div>
@@ -558,7 +558,7 @@ export default function EmployeeManagement() {
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
           <div className="flex items-center">
-            <i className="ri-error-warning-line mr-2"></i>
+            <i className="ri-error-warning-line me-2"></i>
             {error}
           </div>
         </div>
@@ -576,7 +576,7 @@ export default function EmployeeManagement() {
           {/* Employee Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                   <i className="ri-team-line text-blue-600 text-xl"></i>
                 </div>
@@ -592,7 +592,7 @@ export default function EmployeeManagement() {
             </div>
 
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                   <i className="ri-user-line text-green-600 text-xl"></i>
                 </div>
@@ -608,7 +608,7 @@ export default function EmployeeManagement() {
             </div>
 
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
                   <i className="ri-time-line text-yellow-600 text-xl"></i>
                 </div>
@@ -624,7 +624,7 @@ export default function EmployeeManagement() {
             </div>
 
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
                   <i className="ri-user-unfollow-line text-gray-600 text-xl"></i>
                 </div>
@@ -678,7 +678,7 @@ export default function EmployeeManagement() {
                   {employees.map((employee) => (
                     <tr key={employee.id} className="hover:bg-gray-50">
                       <td className="py-4 px-6">
-                        <div className="flex items-center space-x-3">
+                        <div className="flex items-center gap-3">
                           <img
                             src={getAvatarUrl(
                               employee.profile_image,
@@ -746,7 +746,7 @@ export default function EmployeeManagement() {
                         </span>
                       </td>
                       <td className="py-4 px-6">
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center gap-2">
                           <button
                             onClick={() => setSelectedEmployee(employee)}
                             className="text-blue-600 hover:text-blue-700 cursor-pointer"
@@ -925,7 +925,7 @@ export default function EmployeeManagement() {
                               {permissions.map((permission) => (
                                 <label
                                   key={permission.id}
-                                  className="flex items-center space-x-2"
+                                  className="flex items-center gap-2"
                                 >
                                   <input
                                     type="checkbox"
@@ -965,7 +965,7 @@ export default function EmployeeManagement() {
                     </div>
                   </div>
 
-                  <div className="flex space-x-3">
+                  <div className="flex gap-3">
                     <button
                       onClick={() => setShowAddEmployee(false)}
                       className="flex-1 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-sm whitespace-nowrap cursor-pointer"
@@ -987,7 +987,7 @@ export default function EmployeeManagement() {
                           : "bg-gray-300 text-gray-500 cursor-not-allowed"
                       }`}
                     >
-                      <i className="ri-add-line mr-2"></i>
+                      <i className="ri-add-line me-2"></i>
                       {t("employeeManagement.addEmployee")}
                     </button>
                   </div>
@@ -1123,7 +1123,7 @@ export default function EmployeeManagement() {
                               {permissions.map((permission) => (
                                 <label
                                   key={permission.id}
-                                  className="flex items-center space-x-2"
+                                  className="flex items-center gap-2"
                                 >
                                   <input
                                     type="checkbox"
@@ -1163,7 +1163,7 @@ export default function EmployeeManagement() {
                     </div>
                   </div>
 
-                  <div className="flex space-x-3">
+                  <div className="flex gap-3">
                     <button
                       onClick={() => setShowEditEmployee(false)}
                       className="flex-1 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium text-sm whitespace-nowrap cursor-pointer"
@@ -1212,7 +1212,7 @@ export default function EmployeeManagement() {
                 </div>
 
                 <div className="p-6 space-y-6">
-                  <div className="flex items-center space-x-4">
+                  <div className="flex items-center gap-4">
                     <img
                       src={getAvatarUrl(
                         selectedEmployee.profile_image,
@@ -1226,7 +1226,7 @@ export default function EmployeeManagement() {
                         {selectedEmployee.name}
                       </h4>
                       <p className="text-gray-600">{selectedEmployee.email}</p>
-                      <div className="flex items-center space-x-3 mt-1">
+                      <div className="flex items-center gap-3 mt-1">
                         <span className="text-sm text-gray-500">
                           {selectedEmployee.role} •{" "}
                           {selectedEmployee.department}
@@ -1239,9 +1239,9 @@ export default function EmployeeManagement() {
                           {getStatusText(selectedEmployee.status)}
                         </span>
                       </div>
-                      <div className="mt-2 flex items-center space-x-4 text-sm text-gray-500">
+                      <div className="mt-2 flex items-center gap-4 text-sm text-gray-500">
                         <span className="flex items-center">
-                          <i className="ri-calendar-line mr-1"></i>
+                          <i className="ri-calendar-line me-1"></i>
                           Joined:{" "}
                           {new Date(
                             selectedEmployee.created_at
@@ -1249,7 +1249,7 @@ export default function EmployeeManagement() {
                         </span>
                         {selectedEmployee.last_login_at && (
                           <span className="flex items-center">
-                            <i className="ri-time-line mr-1"></i>
+                            <i className="ri-time-line me-1"></i>
                             Last login:{" "}
                             {new Date(
                               selectedEmployee.last_login_at
@@ -1282,7 +1282,7 @@ export default function EmployeeManagement() {
                               {permissions.map((permission, index) => (
                                 <div
                                   key={index}
-                                  className="flex items-center space-x-2"
+                                  className="flex items-center gap-2"
                                 >
                                   <i className="ri-check-line text-green-500 text-sm"></i>
                                   <span className="text-sm text-gray-600">

@@ -298,7 +298,7 @@ function DashboardContent() {
               </div>
 
               {/* Customization Buttons */}
-              <div className="absolute top-1 end-4 flex space-x-2 rtl:space-x-reverse">
+              <div className="absolute top-1 end-4 flex gap-2 rtl:">
                 <button
                   onClick={() => setShowProfileCustomization(true)}
                   className="bg-white/90 backdrop-blur-sm text-gray-600 p-2 rounded-lg hover:bg-white shadow-sm cursor-pointer"
@@ -316,7 +316,7 @@ function DashboardContent() {
               </div>
 
               <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-4 sm:space-y-0">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-6 space-y-4 sm:space-y-0">
                   <div className="relative flex-shrink-0">
                     <img
                       alt={user?.name || "User"}
@@ -337,13 +337,13 @@ function DashboardContent() {
 
                     <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
                       <span className="flex items-center">
-                        <i className="ri-calendar-line mr-1"></i>
+                        <i className="ri-calendar-line me-1"></i>
                         {user
                           ? `Member since ${user.memberSince}`
                           : "Loading..."}
                       </span>
                       <span className="flex items-center">
-                        <i className="ri-vip-crown-line mr-1 text-yellow-500"></i>
+                        <i className="ri-vip-crown-line me-1 text-yellow-500"></i>
                         {user 
                           ? (user.plan === 'premium_monthly' || user.plan === 'premium_yearly' 
                             ? (document.documentElement.dir === 'rtl' ? 'Premium' : 'مميزة')
@@ -360,7 +360,7 @@ function DashboardContent() {
                       !user ? "opacity-50 cursor-not-allowed" : ""
                     }`}
                   >
-                    <i className="ri-eye-line mr-2"></i>
+                    <i className="ri-eye-line me-2"></i>
                     View Public Profile
                   </Link>
                 </div>
@@ -370,7 +370,7 @@ function DashboardContent() {
             {/* Tabs Navigation */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
               <div className="overflow-x-auto">
-                <div className="flex space-x-4 md:space-x-8 px-2 md:px-6 border-b border-gray-200">
+                <div className="flex gap-4 md:gap-8 px-2 md:px-6 border-b border-gray-200">
                   {tabs.map((tab) => (
                     <button
                       key={tab.id}
@@ -500,7 +500,7 @@ function DashboardContent() {
                     </button>
                   </div>
                   <div className="p-6 space-y-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-4 sm:space-y-0">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 space-y-4 sm:space-y-0">
                       <div className="relative">
                         <img
                           src={
@@ -557,7 +557,7 @@ function DashboardContent() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex justify-end space-x-2 pt-2">
+                    <div className="flex justify-end gap-2 pt-2">
                       <button
                         onClick={() => {
                           setShowPhotoUpload(false);

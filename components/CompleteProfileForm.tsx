@@ -1357,7 +1357,7 @@ export default function CompleteProfileForm({
           </span>
         </div>
 
-        <div className="flex space-x-1 md:space-x-2 mb-3 md:mb-4">
+        <div className="flex gap-1 md:gap-2 mb-3 md:mb-4">
           {[1, 2, 3, 4, 5, 6].map((step) => (
             <div
               key={step}
@@ -1390,7 +1390,7 @@ export default function CompleteProfileForm({
                 {businessTypes.map((type) => (
                   <label
                     key={type.value}
-                    className={`flex items-center space-x-2 md:space-x-3 p-3 md:p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                    className={`flex items-center gap-2 md:gap-3 p-3 md:p-4 border-2 rounded-lg cursor-pointer transition-all ${
                       formData.businessType === type.value
                         ? "border-yellow-400 bg-yellow-50"
                         : "border-gray-200 hover:border-gray-300"
@@ -1466,7 +1466,7 @@ export default function CompleteProfileForm({
                 {categories.filter(cat => cat.id !== 'all').map((category) => (
                   <label
                     key={category.id}
-                    className={`flex items-center space-x-2 md:space-x-3 p-2 md:p-3 border rounded-lg cursor-pointer transition-all ${
+                    className={`flex items-center gap-2 md:gap-3 p-2 md:p-3 border rounded-lg cursor-pointer transition-all ${
                       selectedCategories.includes(category.id)
                         ? "border-yellow-400 bg-yellow-50"
                         : "border-gray-200 hover:border-gray-300"
@@ -1536,7 +1536,7 @@ export default function CompleteProfileForm({
             {/* Products/Services Keywords Section */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg md:rounded-xl p-4 md:p-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 md:mb-4 gap-2">
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center gap-2">
                   <i className="ri-search-line text-blue-600 text-lg md:text-xl"></i>
                   <h4 className="text-base md:text-lg font-semibold text-blue-800">
                     {t("completeProfile.step1.keywordsTitle")} *
@@ -1547,7 +1547,7 @@ export default function CompleteProfileForm({
                   onClick={() => setShowKeywordGuide(!showKeywordGuide)}
                   className="text-blue-600 hover:text-blue-700 text-xs md:text-sm font-medium"
                 >
-                  <i className="ri-question-line mr-1"></i>
+                  <i className="ri-question-line me-1"></i>
                   {t("completeProfile.step1.howToOptimize")}
                 </button>
               </div>
@@ -1555,11 +1555,11 @@ export default function CompleteProfileForm({
               {showKeywordGuide && (
                 <div className="bg-white p-3 md:p-4 rounded-lg mb-3 md:mb-4 border border-blue-200">
                   <h5 className="font-medium text-gray-800 mb-2 md:mb-3 text-sm md:text-base">
-                    <i className="ri-lightbulb-line text-yellow-500 mr-2"></i>
+                    <i className="ri-lightbulb-line text-yellow-500 me-2"></i>
                     {t("completeProfile.step1.searchMatching")}
                   </h5>
                   <div className="space-y-2 md:space-y-3 text-xs md:text-sm text-gray-700">
-                    <div className="flex items-start space-x-2 md:space-x-3">
+                    <div className="flex items-start gap-2 md:gap-3">
                       <i className="ri-search-2-line text-green-500 mt-0.5 text-sm md:text-base"></i>
                       <div>
                         <p className="font-medium">
@@ -1568,7 +1568,7 @@ export default function CompleteProfileForm({
                         <p>{t("completeProfile.step1.searchMatchingDesc")}</p>
                       </div>
                     </div>
-                    <div className="flex items-start space-x-2 md:space-x-3">
+                    <div className="flex items-start gap-2 md:gap-3">
                       <i className="ri-price-tag-3-line text-blue-500 mt-0.5 text-sm md:text-base"></i>
                       <div>
                         <p className="font-medium">
@@ -1577,7 +1577,7 @@ export default function CompleteProfileForm({
                         <p>{t("completeProfile.step1.beSpecificDesc")}</p>
                       </div>
                     </div>
-                    <div className="flex items-start space-x-2 md:space-x-3">
+                    <div className="flex items-start gap-2 md:gap-3">
                       <i className="ri-group-line text-purple-500 mt-0.5 text-sm md:text-base"></i>
                       <div>
                         <p className="font-medium">
@@ -1590,7 +1590,7 @@ export default function CompleteProfileForm({
                     </div>
                     <div className="bg-yellow-50 p-2 md:p-3 rounded border border-yellow-200">
                       <p className="text-yellow-800 font-medium text-xs">
-                        <i className="ri-star-line mr-1"></i>
+                        <i className="ri-star-line me-1"></i>
                         {t("completeProfile.step1.proTip")}
                       </p>
                     </div>
@@ -1649,13 +1649,13 @@ export default function CompleteProfileForm({
                       >
                         {isSelected ? (
                           <>
-                            <i className="ri-check-line mr-1"></i>
+                            <i className="ri-check-line me-1"></i>
                             {keyword}
-                            <i className="ri-close-circle-line text-red-500 ml-1 hover:text-red-700"></i>
+                            <i className="ri-close-circle-line text-red-500 ms-1 hover:text-red-700"></i>
                           </>
                         ) : (
                           <>
-                            <i className="ri-add-line mr-1"></i>
+                            <i className="ri-add-line me-1"></i>
                             {keyword}
                           </>
                         )}
@@ -1708,7 +1708,7 @@ export default function CompleteProfileForm({
                 keywordSuggestions.length > 0 && (
                   <div className="mt-4">
                     <p className="text-xs md:text-sm font-medium text-blue-700 mb-2 md:mb-3">
-                      <i className="ri-magic-line mr-1"></i>
+                      <i className="ri-magic-line me-1"></i>
                       {t("completeProfile.step1.quickSuggestions")}
                     </p>
                     <div className="flex flex-wrap gap-1 md:gap-2">
@@ -1743,13 +1743,13 @@ export default function CompleteProfileForm({
                           >
                             {isSelected ? (
                               <>
-                                <i className="ri-check-line text-green-600 mr-1"></i>
+                                <i className="ri-check-line text-green-600 me-1"></i>
                                 {keyword}
-                                <i className="ri-close-circle-line text-red-500 ml-1 hover:text-red-700"></i>
+                                <i className="ri-close-circle-line text-red-500 ms-1 hover:text-red-700"></i>
                               </>
                             ) : (
                               <>
-                                <i className="ri-add-line mr-1"></i>
+                                <i className="ri-add-line me-1"></i>
                                 {keyword}
                               </>
                             )}
@@ -1781,7 +1781,7 @@ export default function CompleteProfileForm({
                 {targetCustomerOptions.map((customer) => (
                   <label
                     key={customer.en}
-                    className={`flex items-center space-x-2 md:space-x-3 p-2 md:p-3 border rounded-lg cursor-pointer transition-all ${
+                    className={`flex items-center gap-2 md:gap-3 p-2 md:p-3 border rounded-lg cursor-pointer transition-all ${
                       selectedTargetCustomers.includes(customer.en)
                         ? "border-yellow-400 bg-yellow-50"
                         : "border-gray-200 hover:border-gray-300"
@@ -1850,7 +1850,7 @@ export default function CompleteProfileForm({
                 {serviceOptions.map((service) => (
                   <label
                     key={service.en}
-                    className={`flex items-center space-x-2 md:space-x-3 p-2 md:p-3 border rounded-lg cursor-pointer transition-all ${
+                    className={`flex items-center gap-2 md:gap-3 p-2 md:p-3 border rounded-lg cursor-pointer transition-all ${
                       selectedServices.includes(service.en)
                         ? "border-yellow-400 bg-yellow-50"
                         : "border-gray-200 hover:border-gray-300"
@@ -1932,7 +1932,7 @@ export default function CompleteProfileForm({
                     onClick={handleAddPhone}
                     className="text-yellow-600 hover:text-yellow-700 text-xs md:text-sm font-medium cursor-pointer"
                   >
-                    <i className="ri-add-line mr-1"></i>
+                    <i className="ri-add-line me-1"></i>
                     {t("completeProfile.step3.addNumber")}
                   </button>
                 )}
@@ -1976,7 +1976,7 @@ export default function CompleteProfileForm({
                       />
                     </div>
 
-                    <div className="flex items-center space-x-1 md:space-x-2">
+                    <div className="flex items-center gap-1 md:gap-2">
                       <input
                         type="text"
                         value={phone.name}
@@ -2013,7 +2013,7 @@ export default function CompleteProfileForm({
                     onClick={handleAddPhone}
                     className="bg-yellow-400 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg hover:bg-yellow-500 text-xs md:text-sm font-medium whitespace-nowrap cursor-pointer"
                   >
-                    <i className="ri-add-line mr-1 md:mr-2"></i>
+                    <i className="ri-add-line me-1 md:mr-2"></i>
                     {t("completeProfile.step3.addNumber")}
                   </button>
                 </div>
@@ -2034,7 +2034,7 @@ export default function CompleteProfileForm({
           <div className="space-y-4 md:space-y-6">
             {/* Working Hours Section - Compact */}
             <div className="bg-blue-50 p-3 md:p-4 rounded-lg md:rounded-xl border border-blue-200">
-              <div className="flex items-center space-x-2 mb-2 md:mb-3">
+              <div className="flex items-center gap-2 mb-2 md:mb-3">
                 <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-100 rounded-full flex items-center justify-center">
                   <i className="ri-time-line text-blue-600 text-sm md:text-lg"></i>
                 </div>
@@ -2114,7 +2114,7 @@ export default function CompleteProfileForm({
                     {!formData.workingHours[
                       day as keyof typeof formData.workingHours
                     ].closed && (
-                      <div className="flex items-center space-x-1 md:space-x-2">
+                      <div className="flex items-center gap-1 md:gap-2">
                         <input
                           type="time"
                           value={
@@ -2235,7 +2235,7 @@ export default function CompleteProfileForm({
 
             {/* Branch Management Section - Compact */}
             <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg md:rounded-xl p-3 md:p-4">
-              <div className="flex items-center space-x-2 mb-2 md:mb-3">
+              <div className="flex items-center gap-2 mb-2 md:mb-3">
                 <div className="w-6 h-6 md:w-8 md:h-8 bg-green-100 rounded-full flex items-center justify-center">
                   <i className="ri-building-line text-green-600 text-sm md:text-lg"></i>
                 </div>
@@ -2251,7 +2251,7 @@ export default function CompleteProfileForm({
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3 mb-3 md:mb-4">
                 <div className="bg-white p-2 md:p-3 rounded-lg border border-green-200">
-                  <div className="flex items-center space-x-1 mb-1">
+                  <div className="flex items-center gap-1 mb-1">
                     <i className="ri-map-pin-line text-green-500 text-xs md:text-sm"></i>
                     <span className="font-medium text-gray-700 text-xs md:text-sm">
                       {t("completeProfile.step4.multipleLocations")}
@@ -2262,7 +2262,7 @@ export default function CompleteProfileForm({
                   </p>
                 </div>
                 <div className="bg-white p-2 md:p-3 rounded-lg border border-blue-200">
-                  <div className="flex items-center space-x-1 mb-1">
+                  <div className="flex items-center gap-1 mb-1">
                     <i className="ri-time-line text-blue-500 text-xs md:text-sm"></i>
                     <span className="font-medium text-gray-700 text-xs md:text-sm">
                       {t("completeProfile.step4.flexibleHours")}
@@ -2273,7 +2273,7 @@ export default function CompleteProfileForm({
                   </p>
                 </div>
                 <div className="bg-white p-2 md:p-3 rounded-lg border border-purple-200">
-                  <div className="flex items-center space-x-1 mb-1">
+                  <div className="flex items-center gap-1 mb-1">
                     <i className="ri-team-line text-purple-500 text-xs md:text-sm"></i>
                     <span className="font-medium text-gray-700 text-xs md:text-sm">
                       {t("completeProfile.step4.betterManagement")}
@@ -2299,7 +2299,7 @@ export default function CompleteProfileForm({
                   onClick={() => setShowBranchManagement(true)}
                   className="bg-green-500 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg hover:bg-green-600 font-medium text-xs md:text-sm whitespace-nowrap cursor-pointer transition-all"
                 >
-                  <i className="ri-add-line mr-1"></i>
+                  <i className="ri-add-line me-1"></i>
                   {t("completeProfile.step4.addBranches")}
                 </button>
               </div>
@@ -2309,7 +2309,7 @@ export default function CompleteProfileForm({
             {branches.length > 0 && (
               <div className="bg-blue-50 p-3 md:p-4 rounded-lg md:rounded-xl border border-blue-200">
                 <h4 className="text-sm md:text-base font-semibold text-blue-800 mb-2 md:mb-3">
-                  <i className="ri-building-line mr-1"></i>
+                  <i className="ri-building-line me-1"></i>
                   {t("completeProfile.step4.yourBranches")} ({branches.length})
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
@@ -2318,7 +2318,7 @@ export default function CompleteProfileForm({
                       key={branch.id}
                       className="bg-white p-2 md:p-3 rounded-lg border border-blue-200"
                     >
-                      <div className="flex items-center space-x-1 md:space-x-2 mb-1">
+                      <div className="flex items-center gap-1 md:gap-2 mb-1">
                         <h5 className="font-medium text-gray-800 text-xs md:text-sm">
                           {branch.name}
                         </h5>
@@ -2333,11 +2333,11 @@ export default function CompleteProfileForm({
                         </span>
                       </div>
                       <div className="space-y-0.5 text-xs text-gray-600">
-                        <div className="flex items-center space-x-1">
+                        <div className="flex items-center gap-1">
                           <i className="ri-map-pin-line text-gray-400"></i>
                           <span className="truncate">{branch.address}</span>
                         </div>
-                        <div className="flex items-center space-x-1">
+                        <div className="flex items-center gap-1">
                           <i className="ri-phone-line text-gray-400"></i>
                           <span>{branch.phone}</span>
                         </div>
@@ -2358,14 +2358,14 @@ export default function CompleteProfileForm({
                   onClick={() => setShowBranchManagement(true)}
                   className="mt-2 md:mt-3 bg-blue-500 text-white px-2 md:px-3 py-1 md:py-1.5 rounded-lg hover:bg-blue-600 text-xs font-medium whitespace-nowrap cursor-pointer transition-all"
                 >
-                  <i className="ri-edit-line mr-1"></i>
+                  <i className="ri-edit-line me-1"></i>
                   {t("completeProfile.step4.manageBranches")}
                 </button>
               </div>
             )}
 
             <div className="bg-yellow-50 p-2 md:p-3 rounded-lg border border-yellow-200">
-              <div className="flex items-start space-x-1 md:space-x-2">
+              <div className="flex items-start gap-1 md:gap-2">
                 <i className="ri-information-line text-yellow-600 text-base md:text-lg mt-0.5"></i>
                 <div>
                   <h4 className="text-yellow-800 font-semibold mb-1 text-xs md:text-sm">
@@ -2385,7 +2385,7 @@ export default function CompleteProfileForm({
         {currentStep === 5 && (
           <div className="space-y-4 md:space-y-6">
             <div className="bg-blue-50 border border-blue-200 rounded-lg md:rounded-xl p-4 md:p-6">
-              <div className="flex items-center space-x-2 mb-3 md:mb-4">
+              <div className="flex items-center gap-2 mb-3 md:mb-4">
                 <i className="ri-map-pin-line text-blue-600 text-lg md:text-xl"></i>
                 <h4 className="text-base md:text-lg font-semibold text-blue-800">
                   {t("completeProfile.step5.mapTitle")}
@@ -2406,7 +2406,7 @@ export default function CompleteProfileForm({
 
               <div className="mt-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
                 <p className="text-xs md:text-sm text-yellow-800 mb-1">
-                  <i className="ri-map-pin-line mr-1 md:mr-2"></i>
+                  <i className="ri-map-pin-line me-1 md:mr-2"></i>
                   {t("completeProfile.selectedLocation")}: Lat{" "}
                   {selectedLocation.lat.toFixed(6)}, Lng{" "}
                   {selectedLocation.lng.toFixed(6)}
@@ -2434,7 +2434,7 @@ export default function CompleteProfileForm({
         {currentStep === 6 && (
           <div className="space-y-4 md:space-y-6">
             <div className="bg-gradient-to-r from-red-50 to-red-100 border border-red-200 rounded-lg md:rounded-xl p-4 md:p-6">
-              <div className="flex items-center space-x-2 md:space-x-3 mb-3 md:mb-4">
+              <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
                 <div className="w-8 h-8 md:w-12 md:h-12 bg-red-100 rounded-full flex items-center justify-center">
                   <i className="ri-shield-check-line text-red-600 text-lg md:text-xl"></i>
                 </div>
@@ -2453,19 +2453,19 @@ export default function CompleteProfileForm({
                   {t("completeProfile.step6.whyRequired")}
                 </h5>
                 <ul className="text-xs md:text-sm text-gray-700 space-y-1 md:space-y-2">
-                  <li className="flex items-start space-x-1 md:space-x-2">
+                  <li className="flex items-start gap-1 md:gap-2">
                     <i className="ri-check-line text-green-500 mt-0.5 text-sm md:text-base"></i>
                     <span>{t("completeProfile.step6.reason1")}</span>
                   </li>
-                  <li className="flex items-start space-x-1 md:space-x-2">
+                  <li className="flex items-start gap-1 md:gap-2">
                     <i className="ri-check-line text-green-500 mt-0.5 text-sm md:text-base"></i>
                     <span>{t("completeProfile.step6.reason2")}</span>
                   </li>
-                  <li className="flex items-start space-x-1 md:space-x-2">
+                  <li className="flex items-start gap-1 md:gap-2">
                     <i className="ri-check-line text-green-500 mt-0.5 text-sm md:text-base"></i>
                     <span>{t("completeProfile.step6.reason3")}</span>
                   </li>
-                  <li className="flex items-start space-x-1 md:space-x-2">
+                  <li className="flex items-start gap-1 md:gap-2">
                     <i className="ri-check-line text-green-500 mt-0.5 text-sm md:text-base"></i>
                     <span>{t("completeProfile.step6.reason4")}</span>
                   </li>
@@ -2516,7 +2516,7 @@ export default function CompleteProfileForm({
                   </label>
                 ) : (
                   <div className="space-y-3 md:space-y-4">
-                    <div className="flex items-center justify-center space-x-2 md:space-x-3">
+                    <div className="flex items-center justify-center gap-2 md:gap-3">
                       <i className="ri-file-check-line text-xl md:text-3xl text-green-600"></i>
                       <div className="text-left">
                         <p className="font-medium text-gray-800 text-sm md:text-base">
@@ -2538,12 +2538,12 @@ export default function CompleteProfileForm({
                       </div>
                     )}
 
-                    <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-2 md:space-x-3">
+                    <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:gap-2 md:gap-3">
                       <label
                         htmlFor="cr-upload"
                         className="bg-blue-500 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg hover:bg-blue-600 text-xs md:text-sm cursor-pointer text-center"
                       >
-                        <i className="ri-refresh-line mr-1 md:mr-2"></i>
+                        <i className="ri-refresh-line me-1 md:mr-2"></i>
                         {t("completeProfile.step6.replaceFile")}
                       </label>
                       <button
@@ -2554,7 +2554,7 @@ export default function CompleteProfileForm({
                         }}
                         className="bg-red-500 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg hover:bg-red-600 text-xs md:text-sm cursor-pointer text-center"
                       >
-                        <i className="ri-delete-bin-line mr-1 md:mr-2"></i>
+                        <i className="ri-delete-bin-line me-1 md:mr-2"></i>
                         {t("completeProfile.step6.removeFile")}
                       </button>
                     </div>
@@ -2568,23 +2568,23 @@ export default function CompleteProfileForm({
 
             <div className="bg-blue-50 p-3 md:p-4 rounded-lg">
               <h5 className="font-medium text-blue-800 mb-1 md:mb-2 text-sm md:text-base">
-                <i className="ri-information-line mr-1 md:mr-2"></i>
+                <i className="ri-information-line me-1 md:mr-2"></i>
                 {t("completeProfile.step6.whatHappensNext")}
               </h5>
               <ol className="text-xs md:text-sm text-blue-700 space-y-1">
-                <li className="flex items-start space-x-1 md:space-x-2">
+                <li className="flex items-start gap-1 md:gap-2">
                   <span className="bg-blue-200 text-blue-800 rounded-full w-4 h-4 md:w-5 md:h-5 flex items-center justify-center text-xs font-bold mt-0.5">
                     1
                   </span>
                   <span>{t("completeProfile.step6.nextStep1")}</span>
                 </li>
-                <li className="flex items-start space-x-1 md:space-x-2">
+                <li className="flex items-start gap-1 md:gap-2">
                   <span className="bg-blue-200 text-blue-800 rounded-full w-4 h-4 md:w-5 md:h-5 flex items-center justify-center text-xs font-bold mt-0.5">
                     2
                   </span>
                   <span>{t("completeProfile.step6.nextStep2")}</span>
                 </li>
-                <li className="flex items-start space-x-1 md:space-x-2">
+                <li className="flex items-start gap-1 md:gap-2">
                   <span className="bg-blue-200 text-blue-800 rounded-full w-4 h-4 md:w-5 md:h-5 flex items-center justify-center text-xs font-bold mt-0.5">
                     3
                   </span>
@@ -2738,12 +2738,12 @@ export default function CompleteProfileForm({
             >
               {isSubmitting ? (
                 <>
-                  <i className="ri-loader-4-line animate-spin mr-1 md:mr-2"></i>
+                  <i className="ri-loader-4-line animate-spin me-1 md:mr-2"></i>
                   {t("completeProfile.buttons.submittingProfile")}
                 </>
               ) : (
                 <>
-                  <i className="ri-send-plane-line mr-1 md:mr-2"></i>
+                  <i className="ri-send-plane-line me-1 md:mr-2"></i>
                   {t("completeProfile.buttons.submitVerification")}
                 </>
               )}
@@ -2812,7 +2812,7 @@ export default function CompleteProfileForm({
                 href="/dashboard"
                 className="block bg-yellow-400 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg hover:bg-yellow-500 font-medium whitespace-nowrap cursor-pointer w-full text-sm md:text-base"
               >
-                <i className="ri-user-line mr-1 md:mr-2"></i>
+                <i className="ri-user-line me-1 md:mr-2"></i>
                 {t("completeProfile.buttons.viewProfile")}
               </Link>
               <Link

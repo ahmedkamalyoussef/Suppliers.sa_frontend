@@ -51,7 +51,7 @@ export default function UnauthorizedPage() {
 
               {/* Additional Info */}
               <div className="bg-gray-50 rounded-lg p-6 mb-8">
-                <div className="flex items-center justify-center space-x-2 text-gray-700">
+                <div className="flex items-center justify-center gap-2 text-gray-700">
                   <i className="ri-information-line text-xl"></i>
                   <span>You will be redirected to the dashboard in {countdown} seconds</span>
                 </div>
@@ -63,7 +63,7 @@ export default function UnauthorizedPage() {
                   onClick={() => router.push("/dashboard")}
                   className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 font-medium transition-colors flex items-center justify-center"
                 >
-                  <i className="ri-dashboard-line mr-2"></i>
+                  <i className="ri-dashboard-line me-2"></i>
                   Go to Dashboard
                 </button>
                 
@@ -71,7 +71,7 @@ export default function UnauthorizedPage() {
                   onClick={() => router.push("/")}
                   className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 font-medium transition-colors flex items-center justify-center"
                 >
-                  <i className="ri-home-line mr-2"></i>
+                  <i className="ri-home-line me-2"></i>
                   Go Home
                 </button>
               </div>
