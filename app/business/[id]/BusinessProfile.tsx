@@ -157,7 +157,7 @@ export default function BusinessProfile() {
   useEffect(() => {
     const fetchBusinessProfile = async () => {
       if (!businessId) {
-        setError("No business ID provided");
+        setError(t("businessProfile.noIdProvided"));
         setIsLoading(false);
         return;
       }
@@ -203,7 +203,7 @@ export default function BusinessProfile() {
         setBusinessProfile(profile);
       } catch (error) {
         console.error("Error fetching business profile:", error);
-        setError("Failed to load business profile. Please try again later.");
+        setError(t("businessProfile.loadError"));
       } finally {
         setIsLoading(false);
       }

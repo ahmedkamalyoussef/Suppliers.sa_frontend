@@ -81,6 +81,7 @@ export default function CompleteProfileForm({
   nextStep,
   prevStep,
   goToStep,
+  validateStepRef,
 }: CompleteProfileFormProps) {
   const workingHoursInputRefs = useRef<
     Record<
@@ -999,18 +1000,38 @@ export default function CompleteProfileForm({
       case 6:
         // Documents validation - CR document required
         if (!formData.document && !crPreview) {
-          newErrors.document = t("completeProfile.validation.documentRequired") || "Commercial registration document is required";
+          newErrors.document = t("completeProfile.validation.documentRequired");
         }
         break;
     }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      const firstErrorField = Object.keys(newErrors)[0];
+      setTimeout(() => {
+        const errorElement = document.querySelector(
+          `[name="${firstErrorField}"], [data-field="${firstErrorField}"], #${firstErrorField}`
+        );
+        if (errorElement) {
+          errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
+          if ("focus" in errorElement && typeof (errorElement as HTMLElement).focus === "function") {
+            (errorElement as HTMLElement).focus();
+          }
+        }
+      }, 50);
       return false;
     }
 
+    setErrors({});
     return true;
   };
+
+  useEffect(() => {
+    if (validateStepRef) {
+      validateStepRef.current = (stepToValidate?: number) =>
+        validateStep(stepToValidate !== undefined ? stepToValidate : currentStep);
+    }
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1343,42 +1364,7 @@ export default function CompleteProfileForm({
   };
 
   return (
-    <div className="bg-white rounded-xl md:rounded-2xl shadow-xl p-4 md:p-6 lg:p-8 mx-2 md:mx-0">
-      <div className="mb-6 md:mb-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 md:mb-4 gap-2">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-800">
-            {t("completeProfile.title")}
-          </h2>
-          <span className="text-xs md:text-sm text-gray-500">
-            {t("completeProfile.stepOf")
-              .replace("{current}", String(currentStep))
-              .replace("{total}", "6")}{" "}
-            {/* غير من 5 ل 6 */}
-          </span>
-        </div>
-
-        <div className="flex gap-1 md:gap-2 mb-3 md:mb-4">
-          {[1, 2, 3, 4, 5, 6].map((step) => (
-            <div
-              key={step}
-              className={`h-1.5 md:h-2 flex-1 rounded-full transition-all duration-300 ${
-                step <= currentStep ? "bg-yellow-400" : "bg-gray-200"
-              }`}
-            ></div>
-          ))}
-        </div>
-
-        <h3 className="text-base md:text-lg font-semibold text-gray-700 mb-1 md:mb-2">
-          {getStepTitle(currentStep)}
-        </h3>
-        <div className="w-full bg-gray-100 rounded-full h-1">
-          <div
-            className="bg-yellow-400 h-1 rounded-full transition-all duration-300"
-            style={{ width: `${(currentStep / 6) * 100}%` }}
-          ></div>
-        </div>
-      </div>
-
+    <>
       <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
         {currentStep === 1 && (
           <div className="space-y-4 md:space-y-6">
@@ -2853,6 +2839,6 @@ export default function CompleteProfileForm({
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

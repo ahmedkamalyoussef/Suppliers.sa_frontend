@@ -731,14 +731,14 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
 
       if (response) {
         // Show success message
-        alert(
-          "Document uploaded successfully! It will be reviewed by our team.",
+        toast.success(
+          t("businessManagement.uploadSuccess") || "Document uploaded successfully! It will be reviewed by our team."
         );
       } else {
-        alert("Upload failed. Please try again.");
+        toast.error(t("businessManagement.uploadFailed"));
       }
     } catch (error) {
-      alert("Upload failed. Please try again.");
+      toast.error(t("businessManagement.uploadFailed"));
     } finally {
       setIsUploadingVerification(false);
     }

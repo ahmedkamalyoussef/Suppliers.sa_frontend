@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import CompleteProfileForm from "../../components/CompleteProfileForm";
@@ -24,8 +24,39 @@ const STEP_TITLES = {
 };
 
 export default function CompleteProfilePage() {
-  const { t } = useLanguage();
+  const { t, language, isRTL } = useLanguage();
   const router = useRouter();
+
+  const getStepTitle = useCallback(
+    (step: number) => {
+      const titlesAr: Record<number, string> = {
+        1: "معلومات النشاط التجاري",
+        2: "الفئات والكلمات المفتاحية",
+        3: "بيانات التواصل",
+        4: "الموقع وساعات العمل",
+        5: "الفروع",
+        6: "المستندات والتحقق",
+      };
+      const titlesEn: Record<number, string> = {
+        1: "Business Information",
+        2: "Categories & Keywords",
+        3: "Contact Details",
+        4: "Location & Hours",
+        5: "Branches",
+        6: "Documents & Verification",
+      };
+
+      if (isRTL || language === "ar") {
+        return titlesAr[step] || titlesEn[step];
+      }
+      return titlesEn[step] || titlesAr[step];
+    },
+    [language, isRTL]
+  );
+
+  const getCompletedText = useCallback(() => {
+    return (isRTL || language === "ar") ? "مكتمل" : "Completed";
+  }, [language, isRTL]);
 
   // Optimized state management
   const [selectedLocation, setSelectedLocation] = useState({
@@ -156,14 +187,19 @@ export default function CompleteProfilePage() {
     });
   }, []);
 
+  const validateStepRef = useRef<((step?: number) => boolean) | null>(null);
+
   const goToStep = useCallback(
     (step: number) => {
-      // Can only jump to completed steps, current step, or next step
-      if (step <= currentStep + 1) {
-        setCurrentStep(Math.min(Math.max(step, 1), TOTAL_STEPS));
+      if (step > currentStep) {
+        if (validateStepRef.current && !validateStepRef.current(currentStep)) {
+          return;
+        }
       }
+      setCurrentStep(Math.min(Math.max(step, 1), TOTAL_STEPS));
+      window.scrollTo({ top: 0, behavior: "smooth" });
     },
-    [currentStep],
+    [currentStep]
   );
 
   // Memoized progress calculation
@@ -196,7 +232,7 @@ export default function CompleteProfilePage() {
       <main className="py-8 lg:py-12 bg-gradient-to-b from-yellow-50/50 to-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           {/* Header */}
-          <div className="text-center mb-8 lg:mb-12">
+          <div className="text-center mb-6 lg:mb-8">
             <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3">
               {t("completeProfile.title")}
             </h1>
@@ -205,66 +241,87 @@ export default function CompleteProfilePage() {
             </p>
           </div>
 
-          {/* Progress Bar */}
-          <div className="mb-8 lg:mb-12">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-900">
-                  Step {currentStep} of {TOTAL_STEPS}
-                </span>
-                <span className="text-sm text-gray-500">
-                  {STEP_TITLES[currentStep as keyof typeof STEP_TITLES]}
-                </span>
+          {/* Single Unified Progress Indicator */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 lg:p-7 mb-8">
+            {/* Top row: Active step info & completion percentage */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 font-bold text-sm flex items-center justify-center shadow-xs">
+                  {currentStep}/{TOTAL_STEPS}
+                </div>
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-gray-900 leading-tight">
+                    {getStepTitle(currentStep)}
+                  </h2>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
+                    {t("completeProfile.stepOf")
+                      .replace("{current}", String(currentStep))
+                      .replace("{total}", String(TOTAL_STEPS))}
+                  </p>
+                </div>
               </div>
-              <span className="text-sm text-gray-500">
-                {Math.round(progressPercentage)}% Complete
-              </span>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 font-semibold text-xs sm:text-sm self-start sm:self-auto border border-amber-200/60">
+                <i className="ri-donut-chart-fill text-amber-500"></i>
+                <span>{Math.round(progressPercentage)}% {getCompletedText()}</span>
+              </div>
             </div>
 
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            {/* Main Progress Bar */}
+            <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden p-0.5">
               <div
-                className="bg-yellow-400 h-2 rounded-full transition-all duration-300 ease-out"
-                style={{ width: `${progressPercentage}%` }}
+                className="bg-gradient-to-r from-yellow-400 via-amber-400 to-amber-500 h-full rounded-full transition-all duration-500 ease-out shadow-xs"
+                style={{ width: `${Math.max(progressPercentage, 5)}%` }}
               ></div>
             </div>
-          </div>
 
-          {/* Step Indicators */}
-          <div className="flex justify-center mb-8 lg:mb-12">
-            <div className="flex gap-2 lg:gap-4">
-              {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map(
-                (step) => {
-                  const isAccessible = step <= currentStep + 1;
-                  return (
-                    <button
-                      key={step}
-                      onClick={() => goToStep(step)}
-                      disabled={!isAccessible}
-                      className={`w-8 h-8 lg:w-10 lg:h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 ${
-                        step === currentStep
-                          ? "bg-yellow-400 text-white"
-                          : step < currentStep
-                            ? "bg-green-500 text-white hover:bg-green-600"
-                            : isAccessible
-                              ? "bg-gray-200 text-gray-500 hover:bg-gray-300"
-                              : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                      }`}
-                      aria-label={`Go to step ${step}`}
-                      title={
-                        isAccessible
-                          ? `Go to step ${step}`
-                          : `Complete step ${step - 1} first`
-                      }
-                    >
-                      {step < currentStep ? (
-                        <i className="ri-check-line text-sm"></i>
-                      ) : (
-                        step
-                      )}
-                    </button>
-                  );
-                },
-              )}
+            {/* Interactive Step Navigation Grid */}
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mt-6 pt-5 border-t border-gray-100">
+              {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map((step) => {
+                const isCompleted = step < currentStep;
+                const isCurrent = step === currentStep;
+                const isAccessible = step <= currentStep + 1;
+                const stepTitle = getStepTitle(step);
+
+                return (
+                  <button
+                    key={step}
+                    onClick={() => goToStep(step)}
+                    disabled={!isAccessible}
+                    className={`flex items-center justify-center sm:justify-start gap-2 p-2.5 rounded-xl text-xs transition-all duration-200 ${
+                      isCurrent
+                        ? "bg-amber-400 text-gray-900 font-bold shadow-sm ring-2 ring-amber-400/30"
+                        : isCompleted
+                        ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100/70 font-medium"
+                        : isAccessible
+                        ? "bg-gray-50 text-gray-700 hover:bg-gray-100 font-medium"
+                        : "bg-gray-50/50 text-gray-400 cursor-not-allowed opacity-60"
+                    }`}
+                    aria-label={`Go to step ${step}`}
+                    title={
+                      isAccessible
+                        ? `Step ${step}: ${stepTitle}`
+                        : `Complete step ${step - 1} first`
+                    }
+                  >
+                    {isCompleted ? (
+                      <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs shrink-0">
+                        <i className="ri-check-line"></i>
+                      </span>
+                    ) : isCurrent ? (
+                      <span className="w-5 h-5 rounded-full bg-gray-900 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                        {step}
+                      </span>
+                    ) : (
+                      <span className="w-5 h-5 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs font-medium shrink-0">
+                        {step}
+                      </span>
+                    )}
+                    <span className="truncate hidden sm:inline text-left rtl:text-right">
+                      {stepTitle}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -280,6 +337,7 @@ export default function CompleteProfilePage() {
               nextStep={nextStep}
               prevStep={prevStep}
               goToStep={goToStep}
+              validateStepRef={validateStepRef}
             />
           </div>
         </div>

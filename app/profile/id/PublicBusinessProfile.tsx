@@ -343,7 +343,7 @@ export default function PublicBusinessProfile({
     e.preventDefault();
 
     if (inquiryForm.message.length > 500) {
-      alert("Message must be 500 characters or less");
+      alert(t("publicProfile.messageLengthError"));
       return;
     }
 
@@ -374,7 +374,7 @@ export default function PublicBusinessProfile({
         throw new Error("Submission failed");
       }
     } catch (error) {
-      alert("There was an error sending your message. Please try again.");
+      alert(t("publicProfile.messageSendError"));
     } finally {
       setIsSubmitting(false);
     }

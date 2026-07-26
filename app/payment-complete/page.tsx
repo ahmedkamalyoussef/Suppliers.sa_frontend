@@ -20,7 +20,7 @@ export default function PaymentComplete() {
 
   useEffect(() => {
     if (!tapId) {
-      setError('No payment ID found');
+      setError(t("payment.noIdFound"));
       setPaymentStatus('failed');
       setLoading(false);
       return;
@@ -58,7 +58,7 @@ export default function PaymentComplete() {
         setPaymentStatus('failed');
       }
     } catch (err) {
-      setError('Connection error. Please try again.');
+      setError(t("payment.connectionError"));
       setPaymentStatus('failed');
     } finally {
       setLoading(false);

@@ -250,6 +250,8 @@ export const translations = {
       "manageDesc": "You can control cookies through your browser settings. Disabling some cookies may affect site functionality."
     },
     "businessProfile": {
+      "noIdProvided": "No business ID provided",
+      "loadError": "Failed to load business profile. Please try again later.",
       "name": "Business Name",
       "ratingReviewsSuffix": "reviews",
       "openNow": "Open Now",
@@ -380,6 +382,8 @@ export const translations = {
       "loading": "Loading map..."
     },
     "dashboard": {
+      "imageOnlyAllowed": "Only image files are allowed",
+      "maxFileSize5mb": "File size must not exceed 5MB",
       "overview": "Dashboard Overview",
       "last7": "Last 7 days",
       "last30": "Last 30 days",
@@ -412,6 +416,7 @@ export const translations = {
       "noActivity": "No recent activity to display"
     },
     "businessManagement": {
+      "uploadFailed": "Upload failed. Please try again.",
       "title": "Business Management",
       "editProfile": "Edit Profile",
       "saveChanges": "Save Changes",
@@ -529,6 +534,7 @@ export const translations = {
       "sending": "Sending..."
     },
     "subscription": {
+      "planNotFound": "Plan not found",
       "heroBadge": "All-in-One Business Solution",
       "heroTitle1": "Transform Your Business with",
       "heroTitle2": " One Complete Plan",
@@ -1256,6 +1262,12 @@ export const translations = {
       }
     },
     "employeeManagement": {
+      "loadError": "Failed to load employees",
+      "fillRequiredFields": "Please fill all required fields",
+      "passwordMinLength": "Password must be at least 6 characters long",
+      "createError": "Failed to create employee",
+      "updateError": "Failed to update employee",
+      "deleteError": "Failed to delete employee",
       "title": "Employee Management",
       "addEmployee": "Add Employee",
       "totalEmployees": "Total Employees",
@@ -1709,6 +1721,23 @@ export const translations = {
       }
     },
     "systemSettings": {
+      "notifications": {
+        "updateSuccess": "System settings updated successfully!",
+        "updateError": "Failed to update system settings",
+        "backupError": "Failed to create system backup",
+        "restoreSuccess": "System settings restored to defaults successfully!",
+        "restoreError": "Failed to restore system settings",
+        "email": "Email notifications",
+        "emailDescription": "Send notifications via email",
+        "sms": "SMS notifications",
+        "smsDescription": "Send notifications via SMS",
+        "push": "Push notifications",
+        "pushDescription": "Send push notifications to mobile devices",
+        "systemAlerts": "System alerts",
+        "systemAlertsDescription": "Receive system alerts and warnings",
+        "maintenance": "Maintenance notifications",
+        "maintenanceDescription": "Notify users about maintenance schedules"
+      },
       "title": "System Settings",
       "sections": {
         "general": "General",
@@ -1760,18 +1789,6 @@ export const translations = {
         "maxLoginAttempts": "Maximum login attempts",
         "backupRetention": "Backup retention (days)"
       },
-      "notifications": {
-        "email": "Email notifications",
-        "emailDescription": "Send notifications via email",
-        "sms": "SMS notifications",
-        "smsDescription": "Send notifications via SMS",
-        "push": "Push notifications",
-        "pushDescription": "Send push notifications to mobile devices",
-        "systemAlerts": "System alerts",
-        "systemAlertsDescription": "Receive system alerts and warnings",
-        "maintenance": "Maintenance notifications",
-        "maintenanceDescription": "Notify users about maintenance schedules"
-      },
       "api": {
         "rateLimit": "Rate limit (requests/hour)",
         "documentationUrl": "Documentation URL",
@@ -1791,6 +1808,8 @@ export const translations = {
       }
     },
     "publicProfile": {
+      "messageLengthError": "Message must be 500 characters or less",
+      "messageSendError": "There was an error sending your message. Please try again.",
       "verified": "Verified",
       "reviews": {
         "title": "Customer Reviews",
@@ -1915,6 +1934,8 @@ export const translations = {
       }
     },
     "contentManagement": {
+      "loadError": "Failed to load data. Please try again.",
+      "bulkRejectNotImplemented": "Bulk reject action not implemented yet",
       "title": "Content Management",
       "buttons": {
         "approve": "Approve",
@@ -2354,7 +2375,22 @@ export const translations = {
         "infoValidation": "✓ Business information validation",
         "emailNotification": "✓ Email notification of approval status",
         "profileLive": "✓ Profile goes live once verified"
-      }
+      },
+      "stepTitles": {
+        "1": "Business Information",
+        "2": "Categories & Keywords",
+        "3": "Contact Details",
+        "4": "Location & Hours",
+        "5": "Branches",
+        "6": "Documents & Verification"
+      },
+      "completed": "Completed",
+      "step1Title": "Business Information",
+      "step2Title": "Categories & Keywords",
+      "step3Title": "Contact Details",
+      "step4Title": "Location & Hours",
+      "step5Title": "Branches",
+      "step6Title": "Documents & Verification"
     },
     "trustedPartners": {
       "title": "Trusted by Leading Saudi Companies",
@@ -2568,6 +2604,7 @@ export const translations = {
       "message": "Tell me what you would like on this page"
     },
     "businessCard": {
+      "privateProfile": "This profile is private and cannot be viewed",
       "verified": "Verified",
       "openNow": "Open Now",
       "reviews": "reviews",
@@ -2725,7 +2762,21 @@ export const translations = {
       }
     },
     "showing": "Showing",
-    "locations": "locations"
+    "locations": "locations",
+    "enhancedSearch": {
+      "voiceNotSupported": "Voice search is not supported in your browser",
+      "voiceFailed": "Voice search failed. Please try again."
+    },
+    "payment": {
+      "noIdFound": "No payment ID found",
+      "connectionError": "Connection error. Please try again.",
+      "missingInformation": "Missing payment information",
+      "stillProcessing": "Payment is still being processed"
+    },
+    "profileClient": {
+      "userLoadError": "Error loading user data",
+      "profileLoadError": "Error occurred while loading profile"
+    }
   },
   "ar": {
     "admin": {
@@ -3088,6 +3139,8 @@ export const translations = {
       "manageDesc": "يمكنك التحكم بها من إعدادات المتصفح. إيقاف بعضها قد يؤثر على الوظائف."
     },
     "businessProfile": {
+      "noIdProvided": "لم يتم توفير معرف النشاط التجاري",
+      "loadError": "فشل في تحميل ملف النشاط التجاري. يرجى المحاولة لاحقاً.",
       "name": "اسم النشاط",
       "ratingReviewsSuffix": "تقييم",
       "openNow": "مفتوح الآن",
@@ -3218,6 +3271,8 @@ export const translations = {
       "loading": "جاري تحميل الخريطة..."
     },
     "dashboard": {
+      "imageOnlyAllowed": "يُسمح بملفات الصور فقط",
+      "maxFileSize5mb": "حجم الملف يجب أن لا يتجاوز 5 ميجابايت",
       "overview": "نظرة عامة على اللوحة",
       "last7": "آخر 7 أيام",
       "last30": "آخر 30 يوماً",
@@ -3250,6 +3305,7 @@ export const translations = {
       "noActivity": "لا يوجد نشاط حديث للعرض"
     },
     "businessManagement": {
+      "uploadFailed": "فشل الرفع. يرجى المحاولة مرة أخرى.",
       "title": "إدارة النشاط التجاري",
       "editProfile": "تعديل الملف",
       "saveChanges": "حفظ التغييرات",
@@ -3425,6 +3481,7 @@ export const translations = {
       "sending": "جاري الإرسال..."
     },
     "subscription": {
+      "planNotFound": "الخطة غير موجودة",
       "heroBadge": "حل أعمال متكامل",
       "heroTitle1": "حوّل نشاطك التجاري مع",
       "heroTitle2": " خطة شاملة واحدة",
@@ -3710,6 +3767,23 @@ export const translations = {
       "viewAll": "عرض جميع الموردين"
     },
     "systemSettings": {
+      "notifications": {
+        "updateSuccess": "تم تحديث إعدادات النظام بنجاح!",
+        "updateError": "فشل في تحديث إعدادات النظام",
+        "backupError": "فشل في إنشاء النسخة الاحتياطية للنظام",
+        "restoreSuccess": "تم استعادة الإعدادات الافتراضية للنظام بنجاح!",
+        "restoreError": "فشل في استعادة إعدادات النظام",
+        "email": "الإشعارات عبر البريد الإلكتروني",
+        "emailDescription": "إرسال إشعارات عبر البريد الإلكتروني",
+        "sms": "الإشعارات عبر الرسائل النصية",
+        "smsDescription": "إرسال إشعارات عبر الرسائل النصية",
+        "push": "الإشعارات الفورية",
+        "pushDescription": "إرسال إشعارات الفورية إلى الأجهزة المحمولة",
+        "systemAlerts": "تنبيهات النظام",
+        "systemAlertsDescription": "استقبال تنبيهات وتحذيرات النظام",
+        "maintenance": "إشعارات الصيانة",
+        "maintenanceDescription": "إخطار المستخدمين بجدول الصيانة"
+      },
       "title": "إعدادات النظام",
       "sections": {
         "general": "عام",
@@ -3760,18 +3834,6 @@ export const translations = {
         "sessionTimeout": "مهلة الجلسة (دقائق)",
         "maxLoginAttempts": "الحد الأقصى لمحاولات تسجيل الدخول",
         "backupRetention": "الاحتفاظ بالنسخ الاحتياطية (أيام)"
-      },
-      "notifications": {
-        "email": "الإشعارات عبر البريد الإلكتروني",
-        "emailDescription": "إرسال إشعارات عبر البريد الإلكتروني",
-        "sms": "الإشعارات عبر الرسائل النصية",
-        "smsDescription": "إرسال إشعارات عبر الرسائل النصية",
-        "push": "الإشعارات الفورية",
-        "pushDescription": "إرسال إشعارات الفورية إلى الأجهزة المحمولة",
-        "systemAlerts": "تنبيهات النظام",
-        "systemAlertsDescription": "استقبال تنبيهات وتحذيرات النظام",
-        "maintenance": "إشعارات الصيانة",
-        "maintenanceDescription": "إخطار المستخدمين بجدول الصيانة"
       },
       "api": {
         "rateLimit": "حد المعدل (طلبات/ساعة)",
@@ -4273,6 +4335,12 @@ export const translations = {
       }
     },
     "employeeManagement": {
+      "loadError": "فشل في تحميل الموظفين",
+      "fillRequiredFields": "يرجى ملء جميع الحقول المطلوبة",
+      "passwordMinLength": "كلمة المرور يجب أن لا تقل عن 6 أحرف",
+      "createError": "فشل في إنشاء الموظف",
+      "updateError": "فشل في تحديث الموظف",
+      "deleteError": "فشل في حذف الموظف",
       "title": "إدارة الموظفين",
       "addEmployee": "إضافة موظف",
       "totalEmployees": "إجمالي الموظفين",
@@ -4604,6 +4672,8 @@ export const translations = {
       }
     },
     "publicProfile": {
+      "messageLengthError": "الرسالة يجب أن لا تتجاوز 500 حرف",
+      "messageSendError": "حدث خطأ أثناء إرسال رسالتك. يرجى المحاولة مرة أخرى.",
       "verified": "موثق",
       "reviews": {
         "title": "تقييمات العملاء",
@@ -4746,6 +4816,8 @@ export const translations = {
       "fetchError": "فشل في جلب الشراكات"
     },
     "contentManagement": {
+      "loadError": "فشل في تحميل البيانات. يرجى المحاولة مرة أخرى.",
+      "bulkRejectNotImplemented": "إجراء الرفض الجماعي غير متاح حالياً",
       "title": "إدارة المحتوى",
       "buttons": {
         "approve": "موافقة",
@@ -5185,7 +5257,22 @@ export const translations = {
         "infoValidation": "✓ التحقق من معلومات العمل",
         "emailNotification": "✓ إشعار البريد الإلكتروني لحالة الموافقة",
         "profileLive": "✓ يصبح الملف الشخصي نشطاً بمجرد التحقق"
-      }
+      },
+      "stepTitles": {
+        "1": "معلومات النشاط التجاري",
+        "2": "الفئات والكلمات المفتاحية",
+        "3": "بيانات التواصل",
+        "4": "الموقع وساعات العمل",
+        "5": "الفروع",
+        "6": "المستندات والتحقق"
+      },
+      "completed": "مكتمل",
+      "step1Title": "معلومات النشاط التجاري",
+      "step2Title": "الفئات والكلمات المفتاحية",
+      "step3Title": "بيانات التواصل",
+      "step4Title": "الموقع وساعات العمل",
+      "step5Title": "الفروع",
+      "step6Title": "المستندات والتحقق"
     },
     "branchManagement": {
       "title": "إدارة الفروع",
@@ -5359,6 +5446,7 @@ export const translations = {
       }
     },
     "businessCard": {
+      "privateProfile": "البروفايل خاص ولا يمكن مشاهدته",
       "verified": "موثق",
       "openNow": "مفتوح الآن",
       "reviews": "تقييم",
@@ -5494,6 +5582,20 @@ export const translations = {
       "message": "أخبرنا بما تريد أن تراه في هذه الصفحة"
     },
     "showing": "عرض",
-    "locations": "مواقع"
+    "locations": "مواقع",
+    "enhancedSearch": {
+      "voiceNotSupported": "البحث الصوتي غير مدعوم في متصفحك",
+      "voiceFailed": "فشل البحث الصوتي. يرجى المحاولة مرة أخرى."
+    },
+    "payment": {
+      "noIdFound": "لم يتم العثور على معرف الدفع",
+      "connectionError": "خطأ في الاتصال. يرجى المحاولة مرة أخرى.",
+      "missingInformation": "معلومات الدفع مفقودة",
+      "stillProcessing": "جاري معالجة عملية الدفع"
+    },
+    "profileClient": {
+      "userLoadError": "خطأ في تحميل بيانات المستخدم",
+      "profileLoadError": "حدث خطأ أثناء تحميل الملف الشخصي"
+    }
   }
 };

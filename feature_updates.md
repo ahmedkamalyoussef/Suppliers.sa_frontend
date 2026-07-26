@@ -1,253 +1,205 @@
-````text id="g4tn8y"
-# Internationalize All Error Messages, Success Messages, and Toast Notifications
+```text id="f9mr2d"
+# Enforce Step Validation Before Navigation
 
-Perform a complete internationalization (i18n) audit of the entire application to ensure that **every user-facing message** is fully localized.
+Implement comprehensive form validation across all multi-step forms in the application. Users must not be allowed to proceed to the next step until all required fields in the current step are completed and valid.
 
 ## Objective
 
-Some messages are still hardcoded in English, for example:
+Every step should validate its required fields before allowing the user to continue.
 
-> "User not found. Please check your email or create a new account."
-
-These messages should never appear directly in the UI.
-
-Every error message, success message, warning, information message, validation message, and toast notification must support both Arabic and English through the project's localization system.
+The validation experience should be clear, user-friendly, fully localized, and consistent across the entire application.
 
 ---
 
-# Scope
+## Scope
 
-Audit the entire project, including:
+Apply this behavior to **every multi-step workflow**, including but not limited to:
 
-- Frontend
-- API response handling
-- Toast notifications
-- Alert dialogs
-- Validation errors
-- Authentication
-- OCR workflow
-- File uploads
-- Forms
-- Dashboard
-- Government services
-- Review pages
-- PDF generation flow
-- Network errors
-- Permission errors
-- Generic error handlers
-- Shared utility functions
-- Custom hooks
-- Services
-- Context providers
-- Global error boundaries
+- Registration
+- Complete Profile
+- Government Services
+- Residency Service
+- Entry Visa Service
+- Driving License Service
+- OCR Review Forms
+- Any future multi-step form
 
 ---
 
-# Messages to Localize
+## Step Validation
 
-Every user-facing message must use the translation system.
+When the user clicks **Next** or attempts to continue:
+
+- Validate all required fields in the current step.
+- Prevent navigation if any validation fails.
+- Keep the user on the current step.
+- Automatically focus or scroll to the first invalid field.
+
+The user must not be able to bypass validation by clicking the Next button.
+
+---
+
+## Field-Level Validation
+
+Every required field must have its own validation rules.
 
 Examples include:
 
-## Authentication
+- Required fields
+- Email format
+- Phone number format
+- Password strength
+- Password confirmation
+- Date validation
+- Number validation
+- File upload validation
+- OCR-required fields
+- Dropdown selection
+- Checkbox acceptance
+- Radio button selection
 
-- User not found
-- Invalid email
-- Invalid password
-- Incorrect OTP
-- OTP expired
-- Account already exists
-- Login successful
-- Registration successful
-- Password updated
-- Email already in use
-- Session expired
-
----
-
-## Validation
-
-- Required field
-- Invalid phone number
-- Invalid email address
-- Passwords do not match
-- Invalid file type
-- File too large
-- Missing required documents
-- Invalid date
-- Invalid format
+Each field should validate independently.
 
 ---
 
-## OCR
+## Individual Error Messages
 
-- Upload successful
-- OCR started
-- OCR completed
-- OCR failed
-- Unable to extract data
-- Low confidence detected
-- Please review extracted information
-- Unsupported document
+Every field must display its own clear validation message directly below the field.
 
----
+Do not use generic messages such as:
 
-## Uploads
+- "Please fill all fields."
+- "Invalid form."
 
-- Upload failed
-- File uploaded successfully
-- Scan completed
-- Camera permission denied
-- Unsupported file format
-
----
-
-## Network
-
-- Network error
-- Server unavailable
-- Request timeout
-- Internal server error
-- Unauthorized
-- Forbidden
-- Resource not found
-- Something went wrong
-- Please try again later
-
----
-
-## Toast Notifications
-
-Every toast should use translations.
+Instead, provide field-specific messages.
 
 Examples:
 
-Success
+Business Name
 
-- Saved successfully
-- Updated successfully
-- Deleted successfully
-- Generated successfully
+English:
+"Business name is required."
 
-Warning
-
-- Unsaved changes
-- Missing information
-
-Info
-
-- Processing...
-- Uploading...
-- Extracting document...
-
-Error
-
-- Failed to save
-- Upload failed
-- OCR failed
-- Unexpected error
+Arabic:
+"اسم النشاط التجاري مطلوب."
 
 ---
 
-# API Error Handling
+Email
 
-Do not display raw backend messages directly to users.
+English:
+"Please enter a valid email address."
 
-Instead:
+Arabic:
+"يرجى إدخال بريد إلكتروني صحيح."
 
-1. Map backend error codes (or HTTP status codes) to localization keys whenever possible.
-2. Display the translated message based on the current language.
-3. Preserve the original backend message internally for logging and debugging if needed.
+---
 
-Example:
+Phone Number
 
-Backend:
+English:
+"Please enter a valid phone number."
 
-```json
-{
-  "code": "USER_NOT_FOUND",
-  "message": "User not found."
-}
+Arabic:
+"يرجى إدخال رقم جوال صحيح."
+
+---
+
+Password
+
+English:
+"Password must contain at least 8 characters."
+
+Arabic:
+"يجب أن تتكون كلمة المرور من 8 أحرف على الأقل."
+
+---
+
+Sponsor Civil ID
+
+English:
+"Please upload both the front and back sides of the Sponsor Civil ID."
+
+Arabic:
+"يرجى رفع وجهي البطاقة المدنية للكفيل."
+
+---
+
+Passport
+
+English:
+"Passport upload is required."
+
+Arabic:
+"يرجى رفع جواز السفر."
+
+---
+
+Terms & Conditions
+
+English:
+"You must accept the Terms and Conditions."
+
+Arabic:
+"يجب الموافقة على الشروط والأحكام."
+
+---
+
+## Real-Time Validation
+
+After an error appears:
+
+- Revalidate the field as the user types or changes its value.
+- Remove the error immediately once the field becomes valid.
+- Do not wait until the user clicks Next again.
+
+---
+
+## Error Styling
+
+All validation errors should:
+
+- Be displayed directly beneath the related field.
+- Use consistent styling across the application.
+- Be easy to read.
+- Work correctly in both RTL and LTR layouts.
+- Never overlap other UI elements.
+
+Invalid fields should also have a clear visual state (e.g., error border or highlight) consistent with the project's design system.
+
+---
+
+## Localization
+
+All validation messages must be fully localized.
+
+Every validation message should exist in both:
+
+- Arabic
+- English
+
+No validation message should be hardcoded.
+
+Use the existing translation system for every validation rule.
+
+---
+
+## Accessibility
+
+- Associate each error message with its corresponding field.
+- Move focus to the first invalid field after validation.
+- Support keyboard navigation.
+- Ensure screen readers can announce validation errors where applicable.
+
+---
+
+## Technical Requirements
+
+- Reuse the existing validation framework.
+- Centralize validation rules wherever possible.
+- Avoid duplicated validation logic.
+- Preserve existing business logic.
+- Follow Clean Architecture.
+- Maintain the project's coding standards.
+- Deliver a production-ready validation system with consistent behavior across the entire application.
 ```
-
-Frontend:
-
-```ts
-t("errors.userNotFound")
-```
-
-Instead of displaying the raw English text.
-
----
-
-# Translation Files
-
-Ensure every message exists in:
-
-- Arabic translations
-- English translations
-
-Maintain a consistent structure, for example:
-
-```json
-{
-  "errors": {
-    "userNotFound": "...",
-    "invalidPassword": "...",
-    "networkError": "..."
-  },
-  "success": {
-    "saved": "...",
-    "updated": "..."
-  },
-  "validation": {
-    "required": "...",
-    "invalidEmail": "..."
-  },
-  "toast": {
-    "uploadSuccess": "...",
-    "ocrCompleted": "..."
-  }
-}
-```
-
----
-
-# Runtime Audit
-
-Search the entire codebase for:
-
-- Hardcoded English strings
-- Hardcoded Arabic strings
-- `toast.success("...")`
-- `toast.error("...")`
-- `toast.warning("...")`
-- `toast.info("...")`
-- `alert("...")`
-- `console messages` accidentally shown to users
-- Error dialogs
-- Snackbar components
-- Modal messages
-
-Replace every user-facing string with a translation key.
-
----
-
-# Technical Requirements
-
-- Do not change business logic.
-- Reuse the existing localization system.
-- Preserve current functionality.
-- Do not introduce duplicate translation keys.
-- Centralize common messages for reuse.
-- Follow the existing translation architecture.
-- Maintain Clean Architecture and coding standards.
-
----
-
-## Expected Result
-
-There should be **zero hardcoded user-facing messages** anywhere in the application.
-
-Regardless of where a message originates (frontend, API, validation, OCR, upload, authentication, or toast), it must always be displayed in the currently selected language (Arabic or English) using the project's localization system.
-````

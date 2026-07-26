@@ -206,7 +206,7 @@ export default function ContentManagement() {
         setApprovedToday(approvedTodayResponse.approvedToday);
       } catch (err) {
         console.error("Failed to fetch data:", err);
-        setError("Failed to load data. Please try again.");
+        setError(t("contentManagement.loadError"));
       } finally {
         setLoading(false);
       }
@@ -526,7 +526,7 @@ export default function ContentManagement() {
       } else if (action === "reject") {
         // Handle bulk reject if needed
         // Implementation depends on what reject should do for each type
-        toast.info("Bulk reject action not implemented yet");
+        toast.info(t("contentManagement.bulkRejectNotImplemented"));
       }
 
       setSelectedItems([]);

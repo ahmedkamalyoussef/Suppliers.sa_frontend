@@ -524,13 +524,13 @@ function DashboardContent() {
 
                               // Validate file type
                               if (!file.type.startsWith("image/")) {
-                                alert("يُسمح بملفات الصور فقط");
+                                toast.error(t("dashboard.imageOnlyAllowed"));
                                 return;
                               }
 
                               // Validate file size (5MB max)
                               if (file.size > 5 * 1024 * 1024) {
-                                alert("حجم الملف يجب أن لا يتجاوز 5 ميجابايت");
+                                toast.error(t("dashboard.maxFileSize5mb"));
                                 return;
                               }
 

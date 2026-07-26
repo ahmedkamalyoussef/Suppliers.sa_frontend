@@ -19,7 +19,7 @@ export default function PaymentSuccess() {
     } else if (transaction_id) {
       checkTransactionStatus(transaction_id);
     } else {
-      setError("Missing payment information");
+      setError(t("payment.missingInformation"));
       setLoading(false);
     }
   }, [router.query]);
@@ -39,7 +39,7 @@ export default function PaymentSuccess() {
       }
     } catch (error) {
       console.error("Error verifying payment:", error);
-      setError("Connection error");
+      setError(t("payment.connectionError"));
     } finally {
       setLoading(false);
     }
@@ -69,14 +69,14 @@ export default function PaymentSuccess() {
             setSubscription(data.data);
           }
         } else {
-          setError("Payment is still being processed");
+          setError(t("payment.stillProcessing"));
         }
       } else {
         setError(data.message || "Transaction check failed");
       }
     } catch (error) {
       console.error("Error checking transaction:", error);
-      setError("Connection error");
+      setError(t("payment.connectionError"));
     } finally {
       setLoading(false);
     }

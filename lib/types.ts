@@ -87,6 +87,7 @@ export interface CompleteProfileFormProps {
   nextStep: () => void;
   prevStep: () => void;
   goToStep: (step: number) => void;
+  validateStepRef?: React.MutableRefObject<((step?: number) => boolean) | null>;
 }
 
 export interface Business {

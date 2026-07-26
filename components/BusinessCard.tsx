@@ -69,17 +69,17 @@ export default function BusinessCard({
           const user = JSON.parse(userData);
           if (user.id.toString() !== business.id.toString()) {
             // Logged in but not the owner
-            toast.error("البروفايل خاص ولا يمكن مشاهدته");
+            toast.error(t("businessCard.privateProfile"));
             return;
           }
           // Logged in and owner - allow access
         } catch (error) {
-          toast.error("البروفايل خاص ولا يمكن مشاهدته");
+          toast.error(t("businessCard.privateProfile"));
           return;
         }
       } else {
         // Not logged in
-        toast.error("البروفايل خاص ولا يمكن مشاهدته");
+        toast.error(t("businessCard.privateProfile"));
         return;
       }
     }

@@ -167,7 +167,7 @@ export default function EmployeeManagement() {
       setEmployees(response.admins);
     } catch (err) {
       console.error("Error fetching admins:", err);
-      setError("Failed to load employees");
+      setError(t("employeeManagement.loadError"));
     } finally {
       setLoading(false);
     }
@@ -331,12 +331,12 @@ export default function EmployeeManagement() {
       !newEmployee.department ||
       !newEmployee.password
     ) {
-      setError("Please fill all required fields");
+      setError(t("employeeManagement.fillRequiredFields"));
       return;
     }
 
     if (newEmployee.password.length < 6) {
-      setError("Password must be at least 6 characters long");
+      setError(t("employeeManagement.passwordMinLength"));
       return;
     }
 
@@ -396,9 +396,9 @@ export default function EmployeeManagement() {
       );
     } catch (err) {
       console.error("Error creating admin:", err);
-      setError("Failed to create employee");
+      setError(t("employeeManagement.createError"));
       showToast(
-        isRTL ? "فشل في إنشاء الموظف" : "Failed to create employee",
+        t("employeeManagement.createError"),
         "error"
       );
     } finally {
@@ -494,9 +494,9 @@ export default function EmployeeManagement() {
       );
     } catch (err) {
       console.error("Error updating admin:", err);
-      setError("Failed to update employee");
+      setError(t("employeeManagement.updateError"));
       showToast(
-        isRTL ? "فشل في تحديث الموظف" : "Failed to update employee",
+        t("employeeManagement.updateError"),
         "error"
       );
     } finally {
@@ -518,9 +518,9 @@ export default function EmployeeManagement() {
       );
     } catch (err) {
       console.error("Error deleting admin:", err);
-      setError("Failed to delete employee");
+      setError(t("employeeManagement.deleteError"));
       showToast(
-        isRTL ? "فشل في حذف الموظف" : "Failed to delete employee",
+        t("employeeManagement.deleteError"),
         "error"
       );
     } finally {

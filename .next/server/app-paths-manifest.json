@@ -1,4 +1,4 @@
 {
-  "/add-business/page": "app/add-business/page.js",
-  "/login/page": "app/login/page.js"
+  "/complete-profile/page": "app/complete-profile/page.js",
+  "/not-found": "app/not-found.js"
 }

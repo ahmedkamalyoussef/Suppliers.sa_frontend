@@ -93,7 +93,7 @@ export default function PricingPlans() {
 
       const plan = plans.find(p => p.id === planId);
       if (!plan) {
-        alert("Plan not found");
+        alert(t("subscription.planNotFound"));
         return;
       }
 

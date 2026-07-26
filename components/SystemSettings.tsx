@@ -341,9 +341,9 @@ export default function SystemSettings() {
 
       // Show success toast
       if (response.success) {
-        toast.success("System settings updated successfully!");
+        toast.success(t("systemSettings.notifications.updateSuccess"));
       } else {
-        toast.error("Failed to update system settings");
+        toast.error(t("systemSettings.notifications.updateError"));
       }
     } catch (error: any) {
       console.error("Error updating system settings:", error);
@@ -357,7 +357,7 @@ export default function SystemSettings() {
       const errorMessage =
         error instanceof Error
           ? error.message
-          : "Failed to update system settings";
+          : t("systemSettings.notifications.updateError");
       toast.error(errorMessage);
     }
   };
@@ -370,15 +370,15 @@ export default function SystemSettings() {
       if (response.success) {
         const backupInfo = response.backup 
           ? `Backup created: ${response.backup.filename} (${response.backup.size_formatted})`
-          : "System backup created successfully";
+          : t("systemSettings.notifications.backupError");
         
         toast.success(backupInfo);
       } else {
-        toast.error("Failed to create system backup");
+        toast.error(t("systemSettings.notifications.backupError"));
       }
     } catch (error) {
       console.error("Error creating system backup:", error);
-      const errorMessage = error instanceof Error ? error.message : "Failed to create system backup";
+      const errorMessage = error instanceof Error ? error.message : t("systemSettings.notifications.backupError");
       toast.error(errorMessage);
     }
   };
@@ -398,7 +398,7 @@ export default function SystemSettings() {
       const response = await apiService.restoreSystemSettings();
 
       if (response.success) {
-        toast.success("System settings restored to defaults successfully!");
+        toast.success(t("systemSettings.notifications.restoreSuccess"));
         // Refresh the settings data
         const fetchSystemSettings = async () => {
           try {
@@ -474,14 +474,14 @@ export default function SystemSettings() {
 
         fetchSystemSettings();
       } else {
-        toast.error("Failed to restore system settings");
+        toast.error(t("systemSettings.notifications.restoreError"));
       }
     } catch (error) {
       console.error("Error restoring system settings:", error);
       const errorMessage =
         error instanceof Error
           ? error.message
-          : "Failed to restore system settings";
+          : t("systemSettings.notifications.restoreError");
       toast.error(errorMessage);
     }
   };

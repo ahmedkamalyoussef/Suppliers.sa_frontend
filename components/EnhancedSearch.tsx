@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useLanguage } from "@/lib/LanguageContext";
 
 interface EnhancedSearchProps {
   onSearch: (term: string) => void;
 }
 
 export default function EnhancedSearch({ onSearch }: EnhancedSearchProps) {
+  const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState("");
   const [isVoiceSearch, setIsVoiceSearch] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -28,7 +30,7 @@ export default function EnhancedSearch({ onSearch }: EnhancedSearchProps) {
       !("webkitSpeechRecognition" in window) &&
       !("SpeechRecognition" in window)
     ) {
-      alert("Voice search is not supported in your browser");
+      alert(t("enhancedSearch.voiceNotSupported"));
       return;
     }
 
@@ -56,7 +58,7 @@ export default function EnhancedSearch({ onSearch }: EnhancedSearchProps) {
 
     recognition.onerror = (event: any) => {
       setIsVoiceSearch(false);
-      alert("Voice search failed. Please try again.");
+      alert(t("enhancedSearch.voiceFailed"));
     };
 
     recognition.onend = () => {

@@ -127,8 +127,24 @@ export default function BusinessRegistrationForm() {
         newErrors.referralCode = t("business.errors.referralCodeInvalid");
       }
     }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      const firstErrorField = Object.keys(newErrors)[0];
+      setTimeout(() => {
+        const errorElement = document.querySelector(
+          `[name="${firstErrorField}"], [data-field="${firstErrorField}"], #${firstErrorField}`
+        );
+        if (errorElement) {
+          errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
+          if ("focus" in errorElement && typeof (errorElement as HTMLElement).focus === "function") {
+            (errorElement as HTMLElement).focus();
+          }
+        }
+      }, 50);
+      return false;
+    }
+    setErrors({});
+    return true;
   };
 
   const handleRegistrationSubmit = async (

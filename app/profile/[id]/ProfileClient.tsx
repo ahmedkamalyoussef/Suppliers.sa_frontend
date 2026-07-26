@@ -43,7 +43,7 @@ export default function ProfileClient({ id }: { id: string }) {
                 return; // This will unmount the component and remount with the new ID
               }
             } catch (e) {
-              setError("خطأ في تحميل بيانات المستخدم");
+              setError(t("profileClient.userLoadError"));
               return;
             }
           } else {
@@ -97,7 +97,7 @@ export default function ProfileClient({ id }: { id: string }) {
 
         setProfileData(data);
       } catch (err) {
-        setError("حدث خطأ أثناء تحميل الملف الشخصي");
+        setError(t("profileClient.profileLoadError"));
       } finally {
         setIsLoading(false);
       }
