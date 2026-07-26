@@ -26,14 +26,14 @@ export type Branch = {
   id: string;
   name: string;
   address: string;
-  phone: string;
-  email: string;
-  manager: string;
+  phone?: string;
+  email?: string;
+  manager?: string;
   location: { lat: number; lng: number };
-  workingHours: WorkingHours;
-  status: "active" | "inactive" | string;
-  specialServices: string[];
-  isMainBranch: boolean;
+  workingHours?: WorkingHours;
+  status?: "active" | "inactive" | string;
+  specialServices?: string[];
+  isMainBranch?: boolean;
 };
 
 export interface ProfileFormData {
@@ -245,24 +245,24 @@ export interface AdminInquiryListResponse {
 // Branch Management Interfaces
 export interface BranchCreateRequest {
   name: string;
-  phone: string;
-  email: string;
-  address: string;
-  manager_name: string;
-  location: {
+  phone?: string;
+  email?: string;
+  address?: string;
+  manager_name?: string;
+  location?: {
     lat: number;
     lng: number;
   };
-  workingHours: {
+  workingHours?: {
     [key: string]: {
       open: string;
       close: string;
       closed: boolean;
     };
   };
-  specialServices: string[];
-  status: "active" | "inactive";
-  isMainBranch: boolean;
+  specialServices?: string[];
+  status?: "active" | "inactive";
+  isMainBranch?: boolean;
 }
 
 export interface BranchUpdateRequest {
@@ -290,10 +290,10 @@ export interface BranchUpdateRequest {
 export interface BranchResponse {
   id: string;
   name: string;
-  phone: string;
-  email: string;
+  phone?: string;
+  email?: string;
   address: string;
-  manager: string;
+  manager?: string;
   status: "active" | "inactive";
   isMainBranch: boolean;
   location: {

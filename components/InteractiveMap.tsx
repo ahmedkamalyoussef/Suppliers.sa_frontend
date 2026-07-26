@@ -6,8 +6,12 @@ import { useLanguage } from "@/lib/LanguageContext";
 
 // Define types
 interface Business {
-  id: number;
+  id: number | string;
+  supplierId?: number | string;
+  supplierName?: string;
   name: string;
+  branchId?: number | string | null;
+  branchName?: string | null;
   address: string;
   lat: number;
   lng: number;
@@ -23,6 +27,8 @@ interface Business {
   phone?: string;
   contactEmail?: string;
   description?: string;
+  slug?: string;
+  isBranch?: boolean;
 }
 
 interface MapProps {
@@ -361,9 +367,16 @@ const InteractiveMap = ({
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;${
               isRtl ? "flex-direction:row-reverse;" : ""
             }">
-              <h3 style="font-weight:700;color:#111827;font-size:14px;margin:0;">${
-                business.name
-              }</h3>
+              <div>
+                <h3 style="font-weight:700;color:#111827;font-size:14px;margin:0;">${
+                  business.supplierName || business.name
+                }</h3>
+                ${
+                  business.branchName
+                    ? `<span style="display:inline-block;padding:2px 6px;border-radius:8px;background:#1E40AF;color:#fff;font-size:9px;font-weight:700;margin-top:2px;">📍 ${business.branchName}</span>`
+                    : `<span style="display:inline-block;padding:2px 6px;border-radius:8px;background:#065F46;color:#fff;font-size:9px;font-weight:700;margin-top:2px;">🏢 ${isRtl ? "الفرع الرئيسي" : "Main Location"}</span>`
+                }
+              </div>
               <span style="padding:3px 6px;border-radius:12px;background:${
                 businessData.status === "approved" || businessData.status === "active" ? "#10B981" : "#F59E0B"
               };color:#fff;font-size:9px;font-weight:600;">

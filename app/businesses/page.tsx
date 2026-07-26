@@ -15,6 +15,7 @@ import AIChatWidget from "../../components/AIChatWidget";
 import AIFilterBar from "../../components/AIFilterBar";
 import { apiService } from "../../lib/api";
 import { categories, getCategoryName } from "../../lib/categories";
+import { transformBusinessesToMapItems } from "../../lib/mapUtils";
 
 export interface Business {
   id: number;
@@ -601,40 +602,9 @@ function BusinessesContent() {
     // You can implement navigation or other actions when a business is clicked
   }, []);
 
-  // Transform businesses to match InteractiveMap's expected format
+  // Transform businesses to match InteractiveMap's expected format (including multi-branch markers)
   const mapBusinesses = useMemo(() => {
-    return filteredBusinesses.map((business) => {
-      const serviceDistance =
-        typeof business.serviceDistance === "string"
-          ? parseFloat(business.serviceDistance)
-          : business.serviceDistance || 0;
-
-      return {
-        id: business.id,
-        name: business.name,
-        address: business.location || "Address not available",
-        lat:
-          typeof business.lat === "string"
-            ? parseFloat(business.lat)
-            : business.lat || 0,
-        lng:
-          typeof business.lng === "string"
-            ? parseFloat(business.lng)
-            : business.lng || 0,
-        type: business.businessType,
-        category: business.category,
-        categories: business.categories || [],
-        businessType: business.businessType,
-        profileImage: business.profileImage,
-        serviceDistance: serviceDistance,
-        rating: business.rating || 0,
-        reviewsCount: business.reviewsCount || 0,
-        status: business.status,
-        phone: business.phone || "",
-        contactEmail: business.contactEmail || "",
-        description: business.description || "",
-      };
-    });
+    return transformBusinessesToMapItems(filteredBusinesses);
   }, [filteredBusinesses]);
 
   return (

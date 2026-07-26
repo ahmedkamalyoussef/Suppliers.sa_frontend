@@ -79,8 +79,12 @@ function loadGoogleMapsScript(apiKey: string): Promise<void> {
 
 // Define types
 interface Business {
-  id: number;
+  id: number | string;
+  supplierId?: number | string;
+  supplierName?: string;
   name: string;
+  branchId?: number | string | null;
+  branchName?: string | null;
   address: string;
   lat: number;
   lng: number;
@@ -96,6 +100,8 @@ interface Business {
   phone?: string;
   contactEmail?: string;
   description?: string;
+  slug?: string;
+  isBranch?: boolean;
 }
 
 interface MapProps {
@@ -231,13 +237,17 @@ const InteractiveMapGoogle = ({
     const bounds = new g.maps.LatLngBounds();
 
     businesses.forEach((business) => {
-      // Create yellow pin with S marker content
+      const isBranchMarker = business.isBranch;
+      const pinColor = isBranchMarker ? "#2563EB" : "#FACC15";
+      const pinLetter = "S";
+
+      // Create yellow pin (#FACC15) with 'S' for Main Office or Blue pin (#2563EB) with 'S' for Branch
       const pinSvg = document.createElement("div");
       pinSvg.innerHTML = `
         <svg width="28" height="38" viewBox="0 0 36 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); cursor: pointer; transform: translate(-50%, -100%);">
-          <path d="M18 0C8.059 0 0 8.059 0 18c0 13.5 18 30 18 30s18-16.5 18-30C36 8.059 27.941 0 18 0z" fill="#FACC15"/>
+          <path d="M18 0C8.059 0 0 8.059 0 18c0 13.5 18 30 18 30s18-16.5 18-30C36 8.059 27.941 0 18 0z" fill="${pinColor}"/>
           <circle cx="18" cy="18" r="10" fill="white"/>
-          <text x="18" y="23" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#FACC15">S</text>
+          <text x="18" y="23" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="${pinColor}">${pinLetter}</text>
         </svg>
       `;
 
@@ -247,7 +257,7 @@ const InteractiveMapGoogle = ({
         marker = new g.maps.marker.AdvancedMarkerElement({
           position: { lat: business.lat, lng: business.lng },
           map: mapRef.current,
-          title: business.name,
+          title: `${business.supplierName || business.name} - ${isBranchMarker ? business.branchName : 'Main Office'}`,
           content: pinSvg.firstElementChild,
         });
       } else {
@@ -255,13 +265,13 @@ const InteractiveMapGoogle = ({
         marker = new g.maps.Marker({
           position: { lat: business.lat, lng: business.lng },
           map: mapRef.current,
-          title: business.name,
+          title: `${business.supplierName || business.name} - ${isBranchMarker ? business.branchName : 'Main Office'}`,
           icon: {
             url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
               <svg width="28" height="38" viewBox="0 0 36 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M18 0C8.059 0 0 8.059 0 18c0 13.5 18 30 18 30s18-16.5 18-30C36 8.059 27.941 0 18 0z" fill="#FACC15"/>
+                <path d="M18 0C8.059 0 0 8.059 0 18c0 13.5 18 30 18 30s18-16.5 18-30C36 8.059 27.941 0 18 0z" fill="${pinColor}"/>
                 <circle cx="18" cy="18" r="10" fill="white"/>
-                <text x="18" y="23" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#FACC15">S</text>
+                <text x="18" y="23" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="${pinColor}">${pinLetter}</text>
               </svg>
             `),
             scaledSize: new g.maps.Size(28, 38),
@@ -383,14 +393,27 @@ const InteractiveMapGoogle = ({
           <div style="background:#FACC15;padding:10px 15px;display:flex;align-items:center;justify-content:space-between;${
             isRtl ? "flex-direction:row-reverse;" : ""
           }">
-            <h3 style="font-weight:700;color:#000;font-size:15px;margin:0;">${
-              business.name
-            }</h3>
+            <div>
+              <h3 style="font-weight:800;color:#000;font-size:15px;margin:0;">${
+                business.supplierName || business.name
+              }</h3>
+              ${
+                business.branchName
+                  ? `<span style="display:inline-block;padding:2px 8px;border-radius:10px;background:#1E40AF;color:#fff;font-size:10px;font-weight:700;margin-top:3px;">📍 ${business.branchName}</span>`
+                  : `<span style="display:inline-block;padding:2px 8px;border-radius:10px;background:#065F46;color:#fff;font-size:10px;font-weight:700;margin-top:3px;">🏢 ${isRtl ? "الفرع الرئيسي" : "Main Location"}</span>`
+              }
+            </div>
             <span style="padding:4px 8px;border-radius:20px;background:#10B981;color:#fff;font-size:10px;font-weight:700;box-shadow:0 2px 4px rgba(0,0,0,0.1);">
               ${t.verified || "Verified"}
             </span>
           </div>
           <div style="padding:15px;">
+            <!-- Branch Address -->
+            <div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:10px;color:#374151;font-size:12px;line-height:1.4;background:#F9FAFB;padding:8px 10px;border-radius:8px;border:1px solid #F3F4F6;">
+              <span style="color:#F59E0B;flex-shrink:0;">📍</span>
+              <span style="font-weight:500;">${business.address}</span>
+            </div>
+
             <div style="display:flex;gap:12px;margin-bottom:12px;${
               isRtl ? "flex-direction:row-reverse;" : ""
             }">
@@ -434,7 +457,7 @@ const InteractiveMapGoogle = ({
               </div>
             </div>
 
-            <button onclick="window.location.href='/business/${business.id}'" style="width:100%;margin-top:15px;background:#FACC15;color:#000;border:none;padding:8px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;transition:background 0.2s;">
+            <button onclick="window.location.href='/business/${business.slug || business.supplierId || business.id}'" style="width:100%;margin-top:15px;background:#FACC15;color:#000;border:none;padding:8px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;transition:background 0.2s;">
               ${isRtl ? "عرض الملف الشخصي" : "View Profile"}
             </button>
           </div>

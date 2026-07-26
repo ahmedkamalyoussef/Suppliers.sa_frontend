@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/lib/LanguageContext";
 import { apiService, ValidationError, type RegistrationData } from "@/lib/api";
+import { toast } from "react-toastify";
 import VerificationStep from "@/components/VerificationStep";
 
 export default function RegisterPage() {
@@ -108,7 +109,23 @@ export default function RegisterPage() {
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    if (Object.keys(newErrors).length > 0) {
+      toast.warning(t("completeProfile.validation.incompleteMessage"));
+      const firstErrorField = Object.keys(newErrors)[0];
+      setTimeout(() => {
+        const errorElement = document.querySelector(
+          `[name="${firstErrorField}"], [data-field="${firstErrorField}"], #${firstErrorField}`
+        );
+        if (errorElement) {
+          errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
+          if ("focus" in errorElement && typeof (errorElement as HTMLElement).focus === "function") {
+            (errorElement as HTMLElement).focus();
+          }
+        }
+      }, 50);
+      return false;
+    }
+    return true;
   };
 
   const handleStep1Submit = async (e: React.FormEvent) => {

@@ -88,10 +88,7 @@ export default function ManageBusinessesPage() {
         // Update existing branch
         const updateData: BranchUpdateRequest = {
           name: branchData.name,
-          phone: branchData.phone,
-          email: branchData.email,
           address: branchData.address,
-          manager: branchData.manager,
           location: branchData.location,
           workingHours: branchData.workingHours,
           specialServices: branchData.specialServices,
@@ -113,10 +110,7 @@ export default function ManageBusinessesPage() {
         // Create new branch
         const createData: BranchCreateRequest = {
           name: branchData.name,
-          phone: branchData.phone,
-          email: branchData.email,
           address: branchData.address,
-          manager_name: branchData.manager,
           location: branchData.location,
           workingHours: branchData.workingHours,
           specialServices: branchData.specialServices,

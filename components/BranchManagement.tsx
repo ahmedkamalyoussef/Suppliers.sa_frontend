@@ -1,880 +1,562 @@
 "use client";
 
-import { useRef, useState } from "react";
-import type React from "react";
+import React, { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { useLanguage } from "../lib/LanguageContext";
-import { getCategoryName } from "../lib/categories";
-import type { Branch } from "../lib/types";
-type BranchWorkingHoursDay = {
-  open: string;
-  close: string;
-  closed: boolean;
-};
+import { apiService } from "../lib/api";
+import { type Branch } from "../lib/types";
 
-type WorkingHours = {
-  monday: BranchWorkingHoursDay;
-  tuesday: BranchWorkingHoursDay;
-  wednesday: BranchWorkingHoursDay;
-  thursday: BranchWorkingHoursDay;
-  friday: BranchWorkingHoursDay;
-  saturday: BranchWorkingHoursDay;
-  sunday: BranchWorkingHoursDay;
-};
+import LocationPickerModal from "./LocationPickerModal";
 
-type BranchManagementProps = {
-  branches: Branch[];
-  setBranches: (branches: Branch[]) => void;
-  mainBusinessData: {
-    businessName: string;
-    category: string;
-    businessType?: string;
-  };
-  onSaveBranch?: (
-    branchData: Branch,
-    editingBranch: Branch | null
-  ) => Promise<void>;
-  onDeleteBranch?: (branchId: string) => Promise<void>;
-  onToggleBranchStatus?: (branchId: string) => Promise<void>;
-};
+const BusinessLocationMap = dynamic(() => import("./BusinessLocationMap"), {
+  ssr: false,
+});
+
+export interface BranchManagementProps {
+  supplierId?: string | number;
+  branches?: Branch[];
+  setBranches?: React.Dispatch<React.SetStateAction<Branch[]>> | ((branches: Branch[]) => void);
+  initialBranches?: Branch[];
+  onBranchesChange?: (branches: Branch[]) => void;
+  isEditingProfile?: boolean;
+  mainBusinessData?: any;
+  onSaveBranch?: (branchData: Branch, editingBranch: Branch | null) => Promise<any> | void;
+  onDeleteBranch?: (branchId: string) => Promise<any> | void;
+  onToggleBranchStatus?: (branchId: string) => Promise<any> | void;
+}
 
 export default function BranchManagement({
-  branches,
-  setBranches,
-  mainBusinessData,
-  onSaveBranch,
-  onDeleteBranch,
-  onToggleBranchStatus,
+  supplierId,
+  branches: propBranches,
+  setBranches: propSetBranches,
+  initialBranches = [],
+  onBranchesChange,
+  isEditingProfile = false,
 }: BranchManagementProps) {
-  const { t, language } = useLanguage();
-  const workingHoursInputRefs = useRef<
-    Record<
-      string,
-      { open?: HTMLInputElement | null; close?: HTMLInputElement | null }
-    >
-  >({});
+  const { language, isRTL } = useLanguage();
+  const [localBranches, setLocalBranches] = useState<Branch[]>(
+    propBranches || initialBranches
+  );
 
-  const [showAddBranch, setShowAddBranch] = useState<boolean>(false);
+  const branches = propBranches || localBranches;
+
+  const [hasBranchesAnswer, setHasBranchesAnswer] = useState<"yes" | "no" | null>(
+    branches.length > 0 ? "yes" : null
+  );
+
+  const [showAddBranch, setShowAddBranch] = useState(false);
   const [editingBranch, setEditingBranch] = useState<Branch | null>(null);
-  const [newBranch, setNewBranch] = useState<Branch>({
-    id: "",
-    name: "",
-    address: "",
-    phone: "",
-    email: "",
-    manager: "",
-    location: { lat: 24.7136, lng: 46.6753 },
-    workingHours: {
-      monday: { open: "09:00", close: "17:00", closed: false },
-      tuesday: { open: "09:00", close: "17:00", closed: false },
-      wednesday: { open: "09:00", close: "17:00", closed: false },
-      thursday: { open: "09:00", close: "17:00", closed: false },
-      friday: { open: "09:00", close: "17:00", closed: false },
-      saturday: { open: "10:00", close: "16:00", closed: false },
-      sunday: { open: "10:00", close: "16:00", closed: true },
-    },
-    status: "active",
-    specialServices: [],
-    isMainBranch: false,
-  });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [selectedLocation, setSelectedLocation] = useState<{
-    lat: number;
-    lng: number;
-  }>({
+  const [isPickingMapLocation, setIsPickingMapLocation] = useState(false);
+
+  // Form State
+  const [branchName, setBranchName] = useState("");
+  const [branchAddress, setBranchAddress] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number }>({
     lat: 24.7136,
     lng: 46.6753,
   });
 
-  const saudiCities = [
-    { name: "Riyadh", lat: 24.7136, lng: 46.6753 },
-    { name: "Jeddah", lat: 21.4858, lng: 39.1925 },
-    { name: "Mecca", lat: 21.3891, lng: 39.8579 },
-    { name: "Medina", lat: 24.5247, lng: 39.5692 },
-    { name: "Dammam", lat: 26.4207, lng: 50.0888 },
-    { name: "Khobar", lat: 26.2172, lng: 50.1971 },
-  ];
+  const [isSaving, setIsSaving] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | number | null>(null);
+  const [errors, setErrors] = useState<{ name?: string; address?: string }>({});
 
-  const specialServices = [
-    t("branchManagement.services.expressDelivery"),
-    t("branchManagement.services.installation"),
-    t("branchManagement.services.technicalSupport"),
-    t("branchManagement.services.bulkOrders"),
-    t("branchManagement.services.emergency"),
-    t("branchManagement.services.consultation"),
-    t("branchManagement.services.training"),
-    t("branchManagement.services.maintenance"),
-  ];
+  useEffect(() => {
+    if (propBranches) {
+      setLocalBranches(propBranches);
+      if (propBranches.length > 0) setHasBranchesAnswer("yes");
+    } else if (initialBranches && initialBranches.length > 0) {
+      setLocalBranches(initialBranches);
+      setHasBranchesAnswer("yes");
+    }
+  }, [propBranches, initialBranches]);
 
-  const handleInputChange = (field: keyof Branch, value: any) => {
-    setNewBranch((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: "" }));
+  // Sync branches up to parent form
+  const updateBranchesState = (newBranches: Branch[]) => {
+    if (propSetBranches) {
+      (propSetBranches as any)(newBranches);
+    } else {
+      setLocalBranches(newBranches);
+    }
+    if (onBranchesChange) {
+      onBranchesChange(newBranches);
     }
   };
 
-  const handleLocationSelect = (city: string) => {
-    const selectedCity = saudiCities.find((c) => c.name === city);
-    if (selectedCity) {
-      setSelectedLocation(selectedCity);
-      setNewBranch((prev) => ({
-        ...prev,
-        location: selectedCity,
-      }));
-    }
+  const handleLocationSelect = (loc: { lat: number; lng: number }) => {
+    setSelectedLocation(loc);
   };
 
-  const handleWorkingHoursChange = (
-    day: keyof WorkingHours,
-    field: keyof BranchWorkingHoursDay,
-    value: string | boolean
-  ) => {
-    setNewBranch((prev) => ({
-      ...prev,
-      workingHours: {
-        ...prev.workingHours,
-        [day]: {
-          ...prev.workingHours[day],
-          [field]: value,
-        },
-      },
-    }));
-  };
-
-  const applyWorkingHoursToAllDays = (sourceDay: keyof WorkingHours) => {
-    setNewBranch((prev) => {
-      const source = prev.workingHours[sourceDay];
-      return {
-        ...prev,
-        workingHours: (
-          Object.keys(prev.workingHours) as Array<keyof WorkingHours>
-        ).reduce((acc, day) => {
-          acc[day] = { ...source };
-          return acc;
-        }, {} as WorkingHours),
-      };
-    });
-  };
-
-  const applyWorkingHoursToNextDays = (sourceDay: keyof WorkingHours) => {
-    const dayOrder: Array<keyof WorkingHours> = [
-      "monday",
-      "tuesday",
-      "wednesday",
-      "thursday",
-      "friday",
-      "saturday",
-      "sunday",
-    ];
-    setNewBranch((prev) => {
-      const source = prev.workingHours[sourceDay];
-      const startIndex = dayOrder.indexOf(sourceDay);
-      if (startIndex < 0) return prev;
-
-      const next = { ...prev.workingHours };
-      for (let i = startIndex + 1; i < dayOrder.length; i++) {
-        const d = dayOrder[i];
-        next[d] = { ...source };
-      }
-
-      return { ...prev, workingHours: next };
-    });
-  };
-
-  const handleServiceToggle = (service: string) => {
-    setNewBranch((prev) => ({
-      ...prev,
-      specialServices: prev.specialServices.includes(service)
-        ? prev.specialServices.filter((s) => s !== service)
-        : [...prev.specialServices, service],
-    }));
-  };
-
-  const validateBranch = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!newBranch.name.trim())
-      newErrors.name = t("branchManagement.errors.nameRequired");
-    if (!newBranch.address.trim())
-      newErrors.address = t("branchManagement.errors.addressRequired");
-    if (!newBranch.phone.trim())
-      newErrors.phone = t("branchManagement.errors.phoneRequired");
-    if (!newBranch.manager.trim())
-      newErrors.manager = t("branchManagement.errors.managerRequired");
-
-    const existingBranch = branches.find(
-      (b) =>
-        b.name.toLowerCase() === newBranch.name.toLowerCase() &&
-        b.id !== newBranch.id
-    );
-    if (existingBranch) {
-      newErrors.name = t("branchManagement.errors.nameExists");
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSaveBranch = async () => {
-    if (!validateBranch()) return;
-
-    const branchData = {
-      ...newBranch,
-      id: editingBranch ? editingBranch.id : Date.now().toString(),
-      location: selectedLocation,
-    } as Branch;
-
-    try {
-      if (onSaveBranch) {
-        await onSaveBranch(branchData, editingBranch);
-      } else {
-        // Fallback to local state management
-        if (editingBranch) {
-          const updated = branches.map((b) =>
-            b.id === editingBranch.id ? branchData : b
-          );
-          setBranches(updated);
-        } else {
-          const updated = [...branches, branchData];
-          setBranches(updated);
-        }
-      }
-      handleCancelAdd();
-    } catch (error) {
-      console.error("Error saving branch:", error);
-      // You might want to show an error message to the user here
-    }
-  };
-
-  const handleEditBranch = (branch: Branch) => {
-    setEditingBranch(branch);
-    setNewBranch({ ...branch });
-    setSelectedLocation(branch.location);
-    setShowAddBranch(true);
-  };
-
-  const handleDeleteBranch = async (branchId: string) => {
-    if (window.confirm(t("branchManagement.deleteConfirm"))) {
-      try {
-        if (onDeleteBranch) {
-          await onDeleteBranch(branchId);
-        } else {
-          // Fallback to local state management
-          const updated = branches.filter((b) => b.id !== branchId);
-          setBranches(updated);
-        }
-      } catch (error) {
-        console.error("Error deleting branch:", error);
-        // You might want to show an error message to the user here
-      }
-    }
-  };
-
-  const handleCancelAdd = () => {
-    setShowAddBranch(false);
-    setEditingBranch(null);
-    setNewBranch({
-      id: "",
-      name: "",
-      address: "",
-      phone: "",
-      email: "",
-      manager: "",
-      location: { lat: 24.7136, lng: 46.6753 },
-      workingHours: {
-        monday: { open: "09:00", close: "17:00", closed: false },
-        tuesday: { open: "09:00", close: "17:00", closed: false },
-        wednesday: { open: "09:00", close: "17:00", closed: false },
-        thursday: { open: "09:00", close: "17:00", closed: false },
-        friday: { open: "09:00", close: "17:00", closed: false },
-        saturday: { open: "10:00", close: "16:00", closed: false },
-        sunday: { open: "10:00", close: "16:00", closed: true },
-      },
-      status: "active",
-      specialServices: [],
-      isMainBranch: false,
-    });
+  const resetForm = () => {
+    setBranchName("");
+    setBranchAddress("");
     setSelectedLocation({ lat: 24.7136, lng: 46.6753 });
+    setEditingBranch(null);
+    setShowAddBranch(false);
+    setIsPickingMapLocation(false);
     setErrors({});
   };
 
-  const toggleBranchStatus = async (branchId: string) => {
+  const handleEditBranch = (branch: Branch, openMapDirectly = false) => {
+    setEditingBranch(branch);
+    setBranchName(branch.name || "");
+    setBranchAddress(branch.address || "");
+    if (branch.location && Number(branch.location.lat) && Number(branch.location.lng)) {
+      setSelectedLocation({
+        lat: Number(branch.location.lat),
+        lng: Number(branch.location.lng),
+      });
+    }
+    setShowAddBranch(true);
+    setIsPickingMapLocation(openMapDirectly);
+  };
+
+  const handleSaveBranch = async () => {
+    const newErrors: { name?: string; address?: string } = {};
+    if (!branchName.trim()) {
+      newErrors.name =
+        language === "ar" ? "اسم الفرع مطلوب" : "Branch name is required";
+    }
+    if (!branchAddress.trim()) {
+      newErrors.address =
+        language === "ar" ? "عنوان الفرع مطلوب" : "Branch address is required";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setIsSaving(true);
+    setErrors({});
+
     try {
-      if (onToggleBranchStatus) {
-        await onToggleBranchStatus(branchId);
+      const branchPayload: any = {
+        name: branchName.trim(),
+        address: branchAddress.trim(),
+        location: selectedLocation,
+        latitude: selectedLocation.lat,
+        longitude: selectedLocation.lng,
+      };
+
+      if (supplierId && !isEditingProfile) {
+        if (editingBranch && editingBranch.id) {
+          const res = await apiService.updateBranch(String(editingBranch.id), branchPayload);
+          const updated = res.branch || (res as any).data || {
+            ...editingBranch,
+            name: branchName,
+            address: branchAddress,
+            location: selectedLocation,
+          };
+          const nextList = branches.map((b) => (b.id === editingBranch.id ? updated : b));
+          updateBranchesState(nextList);
+        } else {
+          const res = await apiService.createBranch(branchPayload);
+          const created = res.branch || (res as any).data || {
+            id: `branch_${Date.now()}`,
+            name: branchName,
+            address: branchAddress,
+            location: selectedLocation,
+          };
+          updateBranchesState([...branches, created]);
+        }
       } else {
-        // Fallback to local state management
-        const updated = branches.map((b) =>
-          b.id === branchId
-            ? { ...b, status: b.status === "active" ? "inactive" : "active" }
-            : b
-        );
-        setBranches(updated);
+        // Local form state
+        if (editingBranch) {
+          const updatedList = branches.map((b) =>
+            b.id === editingBranch.id
+              ? { ...b, name: branchName, address: branchAddress, location: selectedLocation }
+              : b
+          );
+          updateBranchesState(updatedList);
+        } else {
+          const newBranch: Branch = {
+            id: `temp_${Date.now()}`,
+            name: branchName,
+            address: branchAddress,
+            location: selectedLocation,
+          };
+          updateBranchesState([...branches, newBranch]);
+        }
       }
-    } catch (error) {
-      console.error("Error toggling branch status:", error);
-      // You might want to show an error message to the user here
+
+      resetForm();
+    } catch (err) {
+      console.error("Failed to save branch:", err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteBranch = async (id: string | number) => {
+    try {
+      if (supplierId && !isEditingProfile) {
+        await apiService.deleteBranch(String(id));
+      }
+      const nextList = branches.filter((b) => b.id !== id);
+      updateBranchesState(nextList);
+      if (nextList.length === 0) {
+        setHasBranchesAnswer(null);
+      }
+    } catch (err) {
+      console.error("Failed to delete branch:", err);
+    } finally {
+      setDeleteConfirmId(null);
     }
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-8">
-      <div className="flex items-center justify-between mb-8">
+    <div className="bg-white border border-gray-200 rounded-3xl p-6 md:p-8 shadow-sm transition-all">
+      {/* HEADER SECTION */}
+      <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
+        <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-900 flex items-center justify-center font-bold shadow-sm">
+          <i className="ri-git-branch-line text-2xl"></i>
+        </div>
         <div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
-            {t("branchManagement.title")}
-          </h2>
-          <p className="text-gray-600">
-            {t("branchManagement.subtitle")} {mainBusinessData.businessName}
+          <h3 className="text-lg md:text-xl font-bold text-gray-900">
+            {language === "ar" ? "الفروع والفروع الإضافية" : "Additional Branches"}
+          </h3>
+          <p className="text-xs text-gray-500 font-medium">
+            {language === "ar"
+              ? "هل لديك فروع أخرى لنشاطك التجاري تريد عرضها للعملاء؟"
+              : "Do you have additional branch locations for your business?"}
           </p>
         </div>
-        <button
-          onClick={() => setShowAddBranch(true)}
-          className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 font-medium whitespace-nowrap cursor-pointer transition-all"
-        >
-          <i className="ri-add-line me-2"></i>
-          {t("branchManagement.addNewBranch")}
-        </button>
       </div>
 
-      {/* Business Overview */}
-      <div className="bg-blue-50 p-6 rounded-xl mb-8 border border-blue-200">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-            <i className="ri-building-line text-blue-600 text-xl"></i>
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-blue-800">
-              {mainBusinessData.businessName}
-            </h3>
-            <p className="text-blue-600 text-sm">
-              {typeof mainBusinessData.category === 'string' 
-                ? getCategoryName(mainBusinessData.category, language === 'ar' ? 'ar' : 'en')
-                : (mainBusinessData.category as any)?.en || mainBusinessData.category || 'Unknown'
-              } • {mainBusinessData.businessType}
-            </p>
-          </div>
-        </div>
+      {/* STEP 1: YES / NO QUESTION */}
+      {hasBranchesAnswer === null && (
+        <div className="max-w-lg mx-auto text-center py-6">
+          <h4 className="text-base font-bold text-gray-800 mb-6">
+            {language === "ar"
+              ? "هل لديك فروع أخرى؟"
+              : "Do you have additional branches?"}
+          </h4>
 
-        <div className="grid grid-cols-1 md:grid-cols-1 gap-4 text-sm">
-          <div className="bg-white p-3 rounded-lg">
-            <div className="flex items-center gap-2 mb-1">
-              <i className="ri-map-pin-line text-green-500"></i>
-              <span className="font-medium text-gray-700">
-                {t("branchManagement.totalBranches")}
-              </span>
-            </div>
-            <p className="text-2xl font-bold text-gray-800">
-              {branches.length}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Branches List */}
-      {branches.length > 0 ? (
-        <div className="space-y-4 mb-8">
-          {branches.map((branch) => (
-            <div
-              key={branch.id}
-              className="border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow"
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button
+              type="button"
+              onClick={() => {
+                setHasBranchesAnswer("yes");
+                setShowAddBranch(true);
+              }}
+              className="w-full sm:w-1/2 bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold py-4 px-6 rounded-2xl transition-all shadow-md shadow-amber-400/20 flex items-center justify-center gap-2 text-base cursor-pointer"
             >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-start gap-4">
-                  <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                      branch.status === "active"
-                        ? "bg-green-100"
-                        : "bg-gray-100"
-                    }`}
-                  >
-                    <i
-                      className={`ri-store-line text-xl ${
-                        branch.status === "active"
-                          ? "text-green-600"
-                          : "text-gray-500"
-                      }`}
-                    ></i>
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-semibold text-gray-800">
-                        {branch.name}
-                      </h3>
-                    </div>
-                    <div className="space-y-1 text-sm text-gray-600">
-                      <div className="flex items-center gap-2">
-                        <i className="ri-map-pin-line text-gray-400"></i>
-                        <span>{branch.address}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <i className="ri-phone-line text-gray-400"></i>
-                        <span>{branch.phone}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <i className="ri-user-line text-gray-400"></i>
-                        <span>
-                          {t("branchManagement.manager")}: {branch.manager}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <i className="ri-check-line text-xl font-bold"></i>
+              <span>{language === "ar" ? "نعم" : "Yes"}</span>
+            </button>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleEditBranch(branch)}
-                    className="bg-blue-100 text-blue-700 px-3 py-2 rounded-lg hover:bg-blue-200 text-sm font-medium whitespace-nowrap cursor-pointer transition-all flex items-center gap-1"
-                  >
-                    <i className="ri-edit-line"></i>
-                    {t("branchManagement.edit")}
-                  </button>
-                  <button
-                    onClick={() => handleDeleteBranch(branch.id)}
-                    className="bg-red-100 text-red-700 px-3 py-2 rounded-lg hover:bg-red-200 text-sm font-medium whitespace-nowrap cursor-pointer transition-all flex items-center gap-1"
-                  >
-                    <i className="ri-delete-bin-line"></i>
-                    {t("branchManagement.delete")}
-                  </button>
-                </div>
-              </div>
-
-              {/* Branch Details */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-100">
-                <div>
-                  <h4 className="font-medium text-gray-700 mb-2">
-                    {t("branchManagement.workingHours")}
-                  </h4>
-                  <div className="space-y-1 text-sm">
-                    {Object.entries(branch.workingHours).map(([day, hours]) => (
-                      <div key={day} className="flex justify-between">
-                        <span className="capitalize text-gray-600">
-                          {t(`branchManagement.days.${day}`)}:
-                        </span>
-                        <span className="text-gray-800">
-                          {hours.closed
-                            ? t("branchManagement.closed")
-                            : `${hours.open} - ${hours.close}`}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {branch.specialServices.length > 0 && (
-                  <div>
-                    <h4 className="font-medium text-gray-700 mb-2">
-                      {t("branchManagement.specialServices")}
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {branch.specialServices.map((service) => (
-                        <span
-                          key={service}
-                          className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs"
-                        >
-                          {service}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-12 bg-gray-50 rounded-xl">
-          <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i className="ri-store-line text-gray-400 text-2xl"></i>
+            <button
+              type="button"
+              onClick={() => {
+                setHasBranchesAnswer("no");
+                updateBranchesState([]);
+              }}
+              className="w-full sm:w-1/2 bg-white hover:bg-gray-100 text-gray-700 font-bold py-4 px-6 rounded-2xl transition-all border border-gray-200 shadow-sm flex items-center justify-center gap-2 text-base cursor-pointer"
+            >
+              <i className="ri-close-line text-xl font-bold"></i>
+              <span>{language === "ar" ? "لا" : "No"}</span>
+            </button>
           </div>
-          <h3 className="text-lg font-medium text-gray-600 mb-2">
-            {t("branchManagement.noBranches")}
-          </h3>
-          <p className="text-gray-500 mb-6">
-            {t("branchManagement.noBranchesDesc")}
+        </div>
+      )}
+
+      {/* NO BRANCHES SELECTED STATE */}
+      {hasBranchesAnswer === "no" && (
+        <div className="max-w-lg mx-auto text-center py-8 px-6 bg-gray-50/80 rounded-3xl border border-gray-200/80">
+          <div className="w-14 h-14 bg-gray-200/70 text-gray-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <i className="ri-store-2-line text-2xl"></i>
+          </div>
+          <h4 className="text-base font-bold text-gray-800 mb-1">
+            {language === "ar" ? "لا توجد فروع إضافية" : "No Additional Branches"}
+          </h4>
+          <p className="text-xs text-gray-600 mb-5">
+            {language === "ar"
+              ? "سيتم الاعتماد على الموقع الرئيسي فقط. يمكنك إضافة فروع جديدة لاحقاً."
+              : "Only your main business location will be displayed. You can add branches anytime."}
           </p>
           <button
-            onClick={() => setShowAddBranch(true)}
-            className="bg-yellow-400 text-white px-6 py-3 rounded-lg hover:bg-yellow-500 font-medium whitespace-nowrap cursor-pointer transition-all flex items-center justify-center gap-2 mx-auto"
+            type="button"
+            onClick={() => setHasBranchesAnswer(null)}
+            className="inline-flex items-center gap-2 text-amber-900 font-bold text-xs bg-amber-100 hover:bg-amber-200 px-4 py-2 rounded-xl transition-colors cursor-pointer"
           >
-            <i className="ri-add-line"></i>
-            {t("branchManagement.addFirstBranch")}
+            <i className={isRTL ? "ri-arrow-right-line" : "ri-arrow-left-line"}></i>
+            <span>{language === "ar" ? "تغيير الإجابة" : "Change Choice"}</span>
           </button>
         </div>
       )}
 
-      {/* Add/Edit Branch Modal */}
-      {showAddBranch && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-8 max-w-4xl w-full max-h-screen overflow-y-auto">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-gray-800">
-                {editingBranch
-                  ? t("branchManagement.editBranch")
-                  : t("branchManagement.addNewBranch")}
-              </h3>
-              <button
-                onClick={handleCancelAdd}
-                className="text-gray-400 hover:text-gray-600 text-2xl"
-              >
-                <i className="ri-close-line"></i>
-              </button>
-            </div>
+      {/* YES BRANCHES STATE */}
+      {hasBranchesAnswer === "yes" && (
+        <div className="space-y-6">
+          {/* BRANCH CARDS DIRECTORY */}
+          {branches.length > 0 && !showAddBranch && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {branches.map((branch) => {
+                  const hasLoc =
+                    branch.location &&
+                    Number(branch.location.lat) &&
+                    Number(branch.location.lng);
 
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t("branchManagement.form.branchName")} *
-                </label>
-                <input
-                  type="text"
-                  value={newBranch.name}
-                  onChange={(e) => handleInputChange("name", e.target.value)}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ${
-                    errors.name ? "border-red-300" : "border-gray-300"
-                  }`}
-                  placeholder={t("branchManagement.form.branchNamePlaceholder")}
-                />
-                {errors.name && (
-                  <p className="text-red-500 text-xs mt-1">{errors.name}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t("branchManagement.form.branchAddress")} *
-                </label>
-                <textarea
-                  value={newBranch.address}
-                  onChange={(e) => handleInputChange("address", e.target.value)}
-                  rows={3}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm resize-none ${
-                    errors.address ? "border-red-300" : "border-gray-300"
-                  }`}
-                  placeholder={t("branchManagement.form.addressPlaceholder")}
-                />
-                {errors.address && (
-                  <p className="text-red-500 text-xs mt-1">{errors.address}</p>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("branchManagement.form.branchPhone")} *
-                  </label>
-                  <input
-                    type="tel"
-                    value={newBranch.phone}
-                    onChange={(e) => handleInputChange("phone", e.target.value)}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ${
-                      errors.phone ? "border-red-300" : "border-gray-300"
-                    }`}
-                    placeholder="+966 50 123 4567"
-                  />
-                  {errors.phone && (
-                    <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("branchManagement.form.branchEmail")}
-                  </label>
-                  <input
-                    type="email"
-                    value={newBranch.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
-                    placeholder="branch@company.com"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t("branchManagement.form.branchManager")} *
-                </label>
-                <input
-                  type="text"
-                  value={newBranch.manager}
-                  onChange={(e) => handleInputChange("manager", e.target.value)}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ${
-                    errors.manager ? "border-red-300" : "border-gray-300"
-                  }`}
-                  placeholder={t("branchManagement.form.managerPlaceholder")}
-                />
-                {errors.manager && (
-                  <p className="text-red-500 text-xs mt-1">{errors.manager}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t("branchManagement.form.location")}
-                </label>
-                <select
-                  value={
-                    saudiCities.find(
-                      (c) =>
-                        c.lat === selectedLocation.lat &&
-                        c.lng === selectedLocation.lng
-                    )?.name || ""
-                  }
-                  onChange={(e) => handleLocationSelect(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
-                >
-                  <option value="">
-                    {t("branchManagement.form.selectCity")}
-                  </option>
-                  {saudiCities.map((city) => (
-                    <option key={city.name} value={city.name}>
-                      {city.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  {t("branchManagement.form.specialServices")}
-                </label>
-                <div className="grid grid-cols-1 gap-3">
-                  {specialServices.map((service) => (
-                    <label
-                      key={service}
-                      className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${
-                        newBranch.specialServices.includes(service)
-                          ? "border-yellow-400 bg-yellow-50"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
+                  return (
+                    <div
+                      key={branch.id}
+                      className="bg-white border border-gray-200 hover:border-amber-300 rounded-2xl p-4 transition-all shadow-sm flex flex-col justify-between"
                     >
-                      <input
-                        type="checkbox"
-                        checked={newBranch.specialServices.includes(service)}
-                        onChange={() => handleServiceToggle(service)}
-                        className="w-4 h-4 text-yellow-400 border-gray-300 rounded focus:ring-yellow-400"
-                      />
-                      <span className="text-sm text-gray-700">{service}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Location Map Preview */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h4 className="font-medium text-gray-700 mb-3">
-                  {t("branchManagement.branchLocation")}
-                </h4>
-                <div className="relative h-64 bg-gray-200 rounded-lg overflow-hidden">
-                  <iframe
-                    src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3024.2!2d${selectedLocation.lng}!3d${selectedLocation.lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2z${selectedLocation.lat}%2C${selectedLocation.lng}!5e0!3m2!1sen!2sus!4v1645123456789!5m2!1sen!2sus&disableDefaultUI=true&gestureHandling=none&scrollwheel=false&disableDoubleClickZoom=true&clickableIcons=false`}
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0 }}
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    title="Branch Location Map"
-                  ></iframe>
-
-                  <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                    <div className="w-6 h-6 bg-red-500 rounded-full border-2 border-white shadow-lg"></div>
-                  </div>
-                </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  Lat: {selectedLocation.lat.toFixed(6)}, Lng:{" "}
-                  {selectedLocation.lng.toFixed(6)}
-                </p>
-              </div>
-
-              {/* Working Hours */}
-              <div>
-                <h4 className="text-lg font-semibold text-gray-800 mb-4">
-                  {t("branchManagement.workingHours")}
-                </h4>
-                <div className="space-y-4">
-                  {Object.keys(newBranch.workingHours).map((day) => {
-                    const typedDay = day as keyof WorkingHours;
-                    return (
-                      <div
-                        key={typedDay}
-                        className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg"
-                      >
-                        <div className="w-20">
-                          <span className="text-sm font-medium text-gray-700 capitalize">
-                            {t(`branchManagement.days.${typedDay}`)}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              applyWorkingHoursToNextDays(typedDay)
-                            }
-                            className="text-xs px-2 py-1 rounded border border-gray-200 text-gray-700 hover:bg-white whitespace-nowrap cursor-pointer"
-                          >
-                            {t("branchManagement.copyToNext")}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => applyWorkingHoursToAllDays(typedDay)}
-                            className="text-xs px-2 py-1 rounded border border-gray-200 text-gray-700 hover:bg-white whitespace-nowrap cursor-pointer"
-                          >
-                            {t("branchManagement.applyAll")}
-                          </button>
-                        </div>
-
-                        <label className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={newBranch.workingHours[typedDay].closed}
-                            onChange={(e) =>
-                              handleWorkingHoursChange(
-                                typedDay,
-                                "closed",
-                                e.target.checked
-                              )
-                            }
-                            className="w-4 h-4 text-yellow-400 border-gray-300 rounded focus:ring-yellow-400 mr-2"
-                          />
-                          <span className="text-sm text-gray-600">
-                            {t("branchManagement.closed")}
-                          </span>
-                        </label>
-
-                        {!newBranch.workingHours[typedDay].closed && (
-                          <div className="flex items-center gap-2 flex-1">
-                            <input
-                              type="time"
-                              value={newBranch.workingHours[typedDay].open}
-                              onChange={(e) =>
-                                handleWorkingHoursChange(
-                                  typedDay,
-                                  "open",
-                                  e.target.value
-                                )
-                              }
-                              onKeyDown={(e) => {
-                                if (e.key === "ArrowRight") {
-                                  e.preventDefault();
-                                  workingHoursInputRefs.current[
-                                    typedDay
-                                  ]?.close?.focus();
-                                  return;
-                                }
-                                if (e.key === "Enter") {
-                                  e.preventDefault();
-                                  const dayOrder: Array<keyof WorkingHours> = [
-                                    "monday",
-                                    "tuesday",
-                                    "wednesday",
-                                    "thursday",
-                                    "friday",
-                                    "saturday",
-                                    "sunday",
-                                  ];
-                                  const idx = dayOrder.indexOf(typedDay);
-                                  const nextDay =
-                                    idx >= 0 ? dayOrder[idx + 1] : undefined;
-                                  if (nextDay) {
-                                    workingHoursInputRefs.current[
-                                      nextDay
-                                    ]?.open?.focus();
-                                  }
-                                }
-                              }}
-                              ref={(el) => {
-                                workingHoursInputRefs.current[typedDay] = {
-                                  ...(workingHoursInputRefs.current[typedDay] ||
-                                    {}),
-                                  open: el,
-                                };
-                              }}
-                              className="px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
-                            />
-                            <span className="text-gray-500">
-                              {t("branchManagement.to")}
-                            </span>
-                            <input
-                              type="time"
-                              value={newBranch.workingHours[typedDay].close}
-                              onChange={(e) =>
-                                handleWorkingHoursChange(
-                                  typedDay,
-                                  "close",
-                                  e.target.value
-                                )
-                              }
-                              onKeyDown={(e) => {
-                                if (e.key === "ArrowLeft") {
-                                  e.preventDefault();
-                                  workingHoursInputRefs.current[
-                                    typedDay
-                                  ]?.open?.focus();
-                                  return;
-                                }
-                                if (e.key === "Enter") {
-                                  e.preventDefault();
-                                  const dayOrder: Array<keyof WorkingHours> = [
-                                    "monday",
-                                    "tuesday",
-                                    "wednesday",
-                                    "thursday",
-                                    "friday",
-                                    "saturday",
-                                    "sunday",
-                                  ];
-                                  const idx = dayOrder.indexOf(typedDay);
-                                  const nextDay =
-                                    idx >= 0 ? dayOrder[idx + 1] : undefined;
-                                  if (nextDay) {
-                                    workingHoursInputRefs.current[
-                                      nextDay
-                                    ]?.open?.focus();
-                                  }
-                                }
-                              }}
-                              ref={(el) => {
-                                workingHoursInputRefs.current[typedDay] = {
-                                  ...(workingHoursInputRefs.current[typedDay] ||
-                                    {}),
-                                  close: el,
-                                };
-                              }}
-                              className="px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
-                            />
+                      <div>
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center font-bold">
+                              <i className="ri-map-pin-2-fill text-lg"></i>
+                            </div>
+                            <h4 className="font-bold text-gray-900 text-sm line-clamp-1">
+                              {branch.name}
+                            </h4>
                           </div>
+
+                          {/* Location Status Badge */}
+                          {hasLoc && (
+                            <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100/90 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                              <i className="ri-checkbox-circle-fill text-emerald-600"></i>
+                              <span>{language === "ar" ? "تم تحديد الموقع" : "Location Selected"}</span>
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="text-xs text-gray-600 bg-gray-50 p-2.5 rounded-xl border border-gray-100 line-clamp-2 mb-3">
+                          {branch.address}
+                        </p>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
+                        <button
+                          type="button"
+                          onClick={() => handleEditBranch(branch, false)}
+                          className="px-3 py-1.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
+                        >
+                          <i className="ri-edit-line"></i>
+                          <span>{language === "ar" ? "تعديل" : "Edit"}</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleEditBranch(branch, true)}
+                          className="px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
+                        >
+                          <i className="ri-map-pin-line"></i>
+                          <span>{language === "ar" ? "تغيير الموقع" : "Change Location"}</span>
+                        </button>
+
+                        {deleteConfirmId === branch.id ? (
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteBranch(branch.id)}
+                              className="px-3 py-1.5 rounded-xl bg-red-500 text-white text-xs font-bold cursor-pointer"
+                            >
+                              {language === "ar" ? "تأكيد" : "Confirm"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setDeleteConfirmId(null)}
+                              className="px-2 py-1.5 rounded-xl bg-gray-200 text-gray-700 text-xs font-bold cursor-pointer"
+                            >
+                              <i className="ri-close-line"></i>
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setDeleteConfirmId(branch.id)}
+                            className="px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
+                          >
+                            <i className="ri-delete-bin-line"></i>
+                            <span>{language === "ar" ? "حذف" : "Delete"}</span>
+                          </button>
                         )}
                       </div>
-                    );
-                  })}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Add Branch Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  resetForm();
+                  setShowAddBranch(true);
+                }}
+                className="w-full py-3.5 bg-amber-50 hover:bg-amber-100 border-2 border-dashed border-amber-300 text-amber-900 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
+              >
+                <i className="ri-add-line text-lg"></i>
+                <span>{language === "ar" ? "إضافة فرع آخر" : "Add Another Branch"}</span>
+              </button>
+            </div>
+          )}
+
+          {/* BRANCH FORM CONTAINER (When Adding/Editing) */}
+          {(showAddBranch || branches.length === 0) && (
+            <div className="bg-gray-50/70 border border-gray-200 rounded-2xl p-5 md:p-6 space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-gray-200">
+                <h4 className="font-bold text-gray-900 text-base flex items-center gap-2">
+                  <i className={editingBranch ? "ri-edit-line text-amber-600" : "ri-add-circle-line text-amber-600"}></i>
+                  <span>
+                    {editingBranch
+                      ? language === "ar"
+                        ? "تعديل الفرع"
+                        : "Edit Branch"
+                      : language === "ar"
+                      ? "إضافة فرع جديد"
+                      : "Add New Branch"}
+                  </span>
+                </h4>
+
+                {branches.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={resetForm}
+                    className="text-xs font-bold text-gray-500 hover:text-gray-800 bg-white px-3 py-1.5 rounded-xl border border-gray-200 cursor-pointer"
+                  >
+                    {language === "ar" ? "إلغاء" : "Cancel"}
+                  </button>
+                )}
+              </div>
+
+              {/* 1. Branch Name Input */}
+              <div>
+                <label className="block text-xs font-bold text-gray-800 mb-1.5">
+                  {language === "ar" ? "اسم الفرع *" : "Branch Name *"}
+                </label>
+                <input
+                  type="text"
+                  value={branchName}
+                  onChange={(e) => {
+                    setBranchName(e.target.value);
+                    if (errors.name) setErrors((prev) => ({ ...prev, name: "" }));
+                  }}
+                  placeholder={
+                    language === "ar"
+                      ? "مثال: فرع العليا - الرياض"
+                      : "e.g. Olaya Branch - Riyadh"
+                  }
+                  className={`w-full px-3.5 py-2.5 rounded-xl border text-xs bg-white outline-none focus:ring-2 focus:ring-amber-400 ${
+                    errors.name ? "border-red-300 bg-red-50" : "border-gray-300"
+                  }`}
+                />
+                {errors.name && (
+                  <p className="text-red-500 text-xs mt-1 font-medium">{errors.name}</p>
+                )}
+              </div>
+
+              {/* 2. Branch Address Input */}
+              <div>
+                <label className="block text-xs font-bold text-gray-800 mb-1.5">
+                  {language === "ar" ? "عنوان الفرع *" : "Branch Address *"}
+                </label>
+                <textarea
+                  value={branchAddress}
+                  onChange={(e) => {
+                    setBranchAddress(e.target.value);
+                    if (errors.address) setErrors((prev) => ({ ...prev, address: "" }));
+                  }}
+                  rows={2}
+                  placeholder={
+                    language === "ar"
+                      ? "أدخل عنوان الفرع التفصيلي..."
+                      : "Enter detailed branch address..."
+                  }
+                  className={`w-full px-3.5 py-2.5 rounded-xl border text-xs bg-white resize-none outline-none focus:ring-2 focus:ring-amber-400 ${
+                    errors.address ? "border-red-300 bg-red-50" : "border-gray-300"
+                  }`}
+                />
+                {errors.address && (
+                  <p className="text-red-500 text-xs mt-1 font-medium">{errors.address}</p>
+                )}
+              </div>
+
+              {/* 3. Location Picker Summary & Modal Launcher */}
+              <div>
+                <label className="block text-xs font-bold text-gray-800 mb-1.5">
+                  {language === "ar" ? "موقع الفرع على الخريطة *" : "Branch Location on Map *"}
+                </label>
+
+                <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-emerald-500 text-white flex items-center justify-center font-bold shadow-sm">
+                      <i className="ri-checkbox-circle-fill text-xl"></i>
+                    </div>
+                    <div>
+                      <span className="block text-xs font-bold text-emerald-900">
+                        {language === "ar" ? "تم تحديد موقع الفرع" : "Branch Location Selected"}
+                      </span>
+                      <span className="text-xs font-mono text-emerald-700">
+                        Lat {selectedLocation.lat.toFixed(5)}, Lng {selectedLocation.lng.toFixed(5)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsPickingMapLocation(true)}
+                    className="px-4 py-2 rounded-xl bg-white border border-emerald-300 text-emerald-900 hover:bg-emerald-100 text-xs font-bold transition-all cursor-pointer shadow-2xs flex items-center gap-2"
+                  >
+                    <i className="ri-map-pin-2-line text-emerald-600 text-sm"></i>
+                    <span>{language === "ar" ? "تحديد / تغيير الموقع على الخريطة" : "Select / Change Location on Map"}</span>
+                  </button>
                 </div>
+
+                {/* Modal Location Picker */}
+                <LocationPickerModal
+                  isOpen={isPickingMapLocation}
+                  onClose={() => setIsPickingMapLocation(false)}
+                  onConfirm={handleLocationSelect}
+                  initialLocation={selectedLocation}
+                  title={
+                    language === "ar"
+                      ? `تحديد موقع ${branchName || "الفرع"}`
+                      : `Select Location for ${branchName || "Branch"}`
+                  }
+                />
+              </div>
+
+              {/* Form Action Buttons */}
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-200">
+                {branches.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={resetForm}
+                    className="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-xs font-bold rounded-xl cursor-pointer hover:bg-gray-100"
+                  >
+                    {language === "ar" ? "إلغاء" : "Cancel"}
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleSaveBranch}
+                  disabled={isSaving}
+                  className="px-5 py-2 bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold text-xs rounded-xl shadow-sm transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                >
+                  {isSaving ? (
+                    <i className="ri-loader-4-line animate-spin"></i>
+                  ) : (
+                    <i className="ri-save-line"></i>
+                  )}
+                  <span>
+                    {editingBranch
+                      ? language === "ar"
+                        ? "تحديث الفرع"
+                        : "Update Branch"
+                      : language === "ar"
+                      ? "حفظ الفرع"
+                      : "Save Branch"}
+                  </span>
+                </button>
               </div>
             </div>
-
-            <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-200">
-              <button
-                onClick={handleCancelAdd}
-                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium whitespace-nowrap cursor-pointer transition-all"
-              >
-                {t("branchManagement.cancel")}
-              </button>
-              <button
-                onClick={handleSaveBranch}
-                className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 font-medium whitespace-nowrap cursor-pointer transition-all flex items-center gap-2"
-              >
-                <i className="ri-save-line"></i>
-                {editingBranch
-                  ? t("branchManagement.updateBranch")
-                  : t("branchManagement.addBranch")}
-              </button>
-            </div>
-          </div>
+          )}
         </div>
       )}
     </div>

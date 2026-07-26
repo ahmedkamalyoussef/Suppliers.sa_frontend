@@ -19,6 +19,9 @@ import {
   type Branch,
 } from "./../lib/types";
 
+import KeywordTagInput from "./KeywordTagInput";
+import BusinessHoursConfig from "./BusinessHoursConfig";
+
 const BusinessLocationMap = dynamic(() => import("./BusinessLocationMap"), {
   ssr: false,
 });
@@ -1008,6 +1011,10 @@ export default function CompleteProfileForm({
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+
+      // Display localized toast notification informing user of missing required fields
+      toast.warning(t("completeProfile.validation.incompleteMessage"));
+
       const firstErrorField = Object.keys(newErrors)[0];
       setTimeout(() => {
         const errorElement = document.querySelector(
@@ -1081,12 +1088,6 @@ export default function CompleteProfileForm({
 
       if (!formData.categories || formData.categories.length === 0) {
         setSubmitStatus("At least one business category is required");
-        setIsSubmitting(false);
-        return;
-      }
-
-      if (!formData.services || formData.services.length === 0) {
-        setSubmitStatus("At least one service is required");
         setIsSubmitting(false);
         return;
       }
@@ -1518,10 +1519,10 @@ export default function CompleteProfileForm({
             </div>
 
             {/* Products/Services Keywords Section */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg md:rounded-xl p-4 md:p-6">
-              <div className="flex items-center gap-2 mb-3 md:mb-4">
-                <i className="ri-search-line text-blue-600 text-lg md:text-xl"></i>
-                <h4 className="text-base md:text-lg font-semibold text-blue-800">
+            <div className="bg-blue-50/70 border border-blue-200 rounded-lg md:rounded-xl p-4 md:p-6 space-y-4">
+              <div className="flex items-center gap-2">
+                <i className="ri-hashtag text-blue-600 text-lg md:text-xl"></i>
+                <h4 className="text-base md:text-lg font-semibold text-blue-900">
                   {t("completeProfile.step1.keywordsTitle")} *
                 </h4>
               </div>
@@ -1532,153 +1533,31 @@ export default function CompleteProfileForm({
                 text={t("completeProfile.step1.keywordsHelpBox.text")}
                 exampleTitle={t("completeProfile.step1.keywordsHelpBox.exampleTitle")}
                 exampleContent={t("completeProfile.step1.keywordsHelpBox.exampleContent")}
-                className="mb-4"
               />
 
-              {/* ⭐⭐ الكلمات المفتاحية الجاهزة ⭐⭐ */}
-              <div className="mb-3 md:mb-4">
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {[
-                    "wholesale supplier",
-                    "retail products",
-                    "bulk orders",
-                    "custom solutions",
-                    "premium quality",
-                    "fast delivery",
-                    "competitive prices",
-                    "professional service",
-                    "reliable partner",
-                    "expert consultation",
-                  ].map((keyword, index) => {
-                    const isSelected = productKeywords.includes(keyword);
-                    return (
-                      <button
-                        key={index}
-                        type="button"
-                        onClick={() => {
-                          if (isSelected) {
-                            // Remove if already selected
-                            const newKeywords = productKeywords.filter(
-                              (k) => k !== keyword,
-                            );
-                            setProductKeywords(newKeywords);
-                            setKeywordInput(newKeywords.join(", "));
-                            setFormData((prev) => ({
-                              ...prev,
-                              productKeywords: newKeywords,
-                            }));
-                          } else {
-                            // Add if not selected
-                            const newKeywords = [...productKeywords, keyword];
-                            setProductKeywords(newKeywords);
-                            setKeywordInput(newKeywords.join(", "));
-                            setFormData((prev) => ({
-                              ...prev,
-                              productKeywords: newKeywords,
-                            }));
-                          }
-                        }}
-                        className={`px-3 py-2 rounded-full text-xs font-medium transition-all cursor-pointer flex items-center ${isSelected
-                          ? "bg-green-100 text-green-800 border border-green-300 hover:bg-green-200"
-                          : "bg-white text-gray-700 border border-gray-300 hover:bg-blue-50 hover:border-blue-300"
-                          }`}
-                      >
-                        {isSelected ? (
-                          <>
-                            <i className="ri-check-line me-1"></i>
-                            {keyword}
-                            <i className="ri-close-circle-line text-red-500 ms-1 hover:text-red-700"></i>
-                          </>
-                        ) : (
-                          <>
-                            <i className="ri-add-line me-1"></i>
-                            {keyword}
-                          </>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <textarea
-                  value={keywordInput}
-                  onChange={(e) => setKeywordInput(e.target.value)}
-                  onBlur={saveKeywords}
-                  rows={3}
-                  className={`w-full px-3 md:px-4 py-2 md:py-3 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-sm resize-none ${errors.productKeywords
-                    ? "border-red-300"
-                    : "border-gray-300"
-                    }`}
-                  placeholder={t("completeProfile.step1.keywordsPlaceholder")}
-                />
-                <div className="flex justify-between items-center mt-1 md:mt-2">
-                  <span
-                    className={`text-xs ${errors.productKeywords ? "text-red-500" : "text-gray-600"
-                      }`}
-                  >
-                    {errors.productKeywords ||
-                      `${productKeywords.length} ${t(
-                        "completeProfile.step1.keywordsCount",
-                      )}`}
-                  </span>
-                </div>
-              </div>
-
-              {/* Keyword Suggestions */}
-              {selectedCategories.length > 0 &&
-                keywordSuggestions.length > 0 && (
-                  <div className="mt-4">
-                    <p className="text-xs md:text-sm font-medium text-blue-700 mb-2 md:mb-3">
-                      <i className="ri-magic-line me-1"></i>
-                      {t("completeProfile.step1.quickSuggestions")}
-                    </p>
-                    <div className="flex flex-wrap gap-1 md:gap-2">
-                      {keywordSuggestions.map((keyword, index) => {
-                        const isSelected = productKeywords.includes(keyword);
-                        return (
-                          <button
-                            key={index}
-                            type="button"
-                            onClick={() => {
-                              if (isSelected) {
-                                // Remove if already selected
-                                const newKeywords = productKeywords.filter(
-                                  (k) => k !== keyword,
-                                );
-                                setProductKeywords(newKeywords);
-                                setKeywordInput(newKeywords.join(", "));
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  productKeywords: newKeywords,
-                                }));
-                              } else {
-                                // Add if not selected
-                                addSuggestedKeyword(keyword);
-                              }
-                            }}
-                            className={`px-2 md:px-3 py-1 rounded-full text-xs transition-colors cursor-pointer flex items-center ${isSelected
-                              ? "bg-green-50 border border-green-300 text-green-800 hover:bg-green-100"
-                              : "bg-white border border-blue-300 text-blue-700 hover:bg-blue-50"
-                              }`}
-                          >
-                            {isSelected ? (
-                              <>
-                                <i className="ri-check-line text-green-600 me-1"></i>
-                                {keyword}
-                                <i className="ri-close-circle-line text-red-500 ms-1 hover:text-red-700"></i>
-                              </>
-                            ) : (
-                              <>
-                                <i className="ri-add-line me-1"></i>
-                                {keyword}
-                              </>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
+              <KeywordTagInput
+                selectedKeywords={productKeywords}
+                onChange={(newKeywords) => {
+                  setProductKeywords(newKeywords);
+                  setKeywordInput(newKeywords.join(", "));
+                  setFormData((prev) => ({
+                    ...prev,
+                    productKeywords: newKeywords,
+                  }));
+                  if (errors.productKeywords) {
+                    setErrors((prev) => ({ ...prev, productKeywords: "" }));
+                  }
+                }}
+                context={{
+                  businessName: formData.businessName,
+                  categories: selectedCategories,
+                  description: formData.description,
+                  services: formData.services,
+                  targetMarket: selectedTargetCustomers,
+                  businessType: formData.businessType,
+                }}
+                error={errors.productKeywords}
+              />
             </div>
           </div>
         )}
@@ -1941,352 +1820,47 @@ export default function CompleteProfileForm({
 
         {currentStep === 4 && (
           <div className="space-y-4 md:space-y-6">
-            {/* Working Hours Section - Compact */}
-            <div className="bg-blue-50 p-3 md:p-4 rounded-lg md:rounded-xl border border-blue-200">
-              <div className="flex items-center gap-2 mb-2 md:mb-3">
-                <div className="w-6 h-6 md:w-8 md:h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <i className="ri-time-line text-blue-600 text-sm md:text-lg"></i>
+            {/* Working Hours Section - Redesigned */}
+            <div className="bg-blue-50/70 border border-blue-200 rounded-2xl p-4 md:p-6 space-y-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
+                  <i className="ri-time-line text-lg"></i>
                 </div>
                 <div>
-                  <h4 className="text-sm md:text-base font-semibold text-blue-800">
+                  <h4 className="text-base font-bold text-blue-900">
                     {t("completeProfile.step4.workingHours")}
                   </h4>
-                  <p className="text-blue-700 text-xs">
+                  <p className="text-blue-700 text-xs font-medium">
                     {t("completeProfile.step4.workingHoursDesc")}
                   </p>
                 </div>
               </div>
 
-              {errors.workingHours && (
-                <p className="text-red-500 text-xs mb-2">{errors.workingHours}</p>
-              )}
-
-              <div className="space-y-1 md:space-y-2">
-                {Object.keys(formData.workingHours).map((day) => (
-                  <div
-                    key={day}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-2 bg-white rounded-lg border border-blue-200 gap-1 md:gap-2"
-                  >
-                    <div className="w-16">
-                      <span className="text-xs font-medium text-gray-700 capitalize">
-                        {day}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-end gap-1">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          applyWorkingHoursToNextDays(
-                            day as keyof typeof formData.workingHours,
-                          )
-                        }
-                        className="text-[10px] md:text-xs px-1.5 py-0.5 rounded border border-blue-200 text-blue-700 hover:bg-blue-50 whitespace-nowrap cursor-pointer"
-                      >
-                        {t("completeProfile.step4.copyToNext")}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          applyWorkingHoursToAllDays(
-                            day as keyof typeof formData.workingHours,
-                          )
-                        }
-                        className="text-[10px] md:text-xs px-1.5 py-0.5 rounded border border-blue-200 text-blue-700 hover:bg-blue-50 whitespace-nowrap cursor-pointer"
-                      >
-                        {t("completeProfile.step4.applyAll")}
-                      </button>
-                    </div>
-
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={
-                          formData.workingHours[
-                            day as keyof typeof formData.workingHours
-                          ].closed
-                        }
-                        onChange={(e) =>
-                          handleWorkingHoursChange(
-                            day as keyof typeof formData.workingHours,
-                            "closed",
-                            e.target.checked,
-                          )
-                        }
-                        className="w-3 h-3 text-yellow-400 border-gray-300 rounded focus:ring-yellow-400 mr-1"
-                      />
-                      <span className="text-xs text-gray-600">
-                        {t("completeProfile.step4.dayClosed")}
-                      </span>
-                    </label>
-
-                    {!formData.workingHours[
-                      day as keyof typeof formData.workingHours
-                    ].closed && (
-                        <div className="flex items-center gap-1 md:gap-2">
-                          <input
-                            type="time"
-                            value={
-                              formData.workingHours[
-                                day as keyof typeof formData.workingHours
-                              ].open
-                            }
-                            onChange={(e) =>
-                              handleWorkingHoursChange(
-                                day as keyof typeof formData.workingHours,
-                                "open",
-                                e.target.value,
-                              )
-                            }
-                            onKeyDown={(e) => {
-                              if (e.key === "ArrowRight") {
-                                e.preventDefault();
-                                workingHoursInputRefs.current[
-                                  day
-                                ]?.close?.focus();
-                                return;
-                              }
-                              if (e.key === "Enter") {
-                                e.preventDefault();
-                                const currentDay =
-                                  day as keyof typeof formData.workingHours;
-                                const dayOrder: Array<
-                                  keyof typeof formData.workingHours
-                                > = [
-                                    "monday",
-                                    "tuesday",
-                                    "wednesday",
-                                    "thursday",
-                                    "friday",
-                                    "saturday",
-                                    "sunday",
-                                  ];
-                                const idx = dayOrder.indexOf(currentDay);
-                                const nextDay =
-                                  idx >= 0 ? dayOrder[idx + 1] : undefined;
-                                if (nextDay) {
-                                  workingHoursInputRefs.current[
-                                    nextDay
-                                  ]?.open?.focus();
-                                }
-                              }
-                            }}
-                            ref={(el) => {
-                              workingHoursInputRefs.current[day] = {
-                                ...(workingHoursInputRefs.current[day] || {}),
-                                open: el,
-                              };
-                            }}
-                            className="px-1 md:px-2 py-0.5 md:py-1 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-xs"
-                          />
-                          <span className="text-gray-500 text-xs">
-                            {t("completeProfile.step4.timeTo")}
-                          </span>
-                          <input
-                            type="time"
-                            value={
-                              formData.workingHours[
-                                day as keyof typeof formData.workingHours
-                              ].close
-                            }
-                            onChange={(e) =>
-                              handleWorkingHoursChange(
-                                day as keyof typeof formData.workingHours,
-                                "close",
-                                e.target.value,
-                              )
-                            }
-                            onKeyDown={(e) => {
-                              if (e.key === "ArrowLeft") {
-                                e.preventDefault();
-                                workingHoursInputRefs.current[day]?.open?.focus();
-                                return;
-                              }
-                              if (e.key === "Enter") {
-                                e.preventDefault();
-                                const currentDay =
-                                  day as keyof typeof formData.workingHours;
-                                const dayOrder: Array<
-                                  keyof typeof formData.workingHours
-                                > = [
-                                    "monday",
-                                    "tuesday",
-                                    "wednesday",
-                                    "thursday",
-                                    "friday",
-                                    "saturday",
-                                    "sunday",
-                                  ];
-                                const idx = dayOrder.indexOf(currentDay);
-                                const nextDay =
-                                  idx >= 0 ? dayOrder[idx + 1] : undefined;
-                                if (nextDay) {
-                                  workingHoursInputRefs.current[
-                                    nextDay
-                                  ]?.open?.focus();
-                                }
-                              }
-                            }}
-                            ref={(el) => {
-                              workingHoursInputRefs.current[day] = {
-                                ...(workingHoursInputRefs.current[day] || {}),
-                                close: el,
-                              };
-                            }}
-                            className="px-1 md:px-2 py-0.5 md:py-1 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-xs"
-                          />
-                        </div>
-                      )}
-                  </div>
-                ))}
-              </div>
+              <BusinessHoursConfig
+                workingHours={formData.workingHours}
+                onChange={(newHours) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    workingHours: newHours as any,
+                  }));
+                  if (errors.workingHours) {
+                    setErrors((prev) => ({ ...prev, workingHours: "" }));
+                  }
+                }}
+                error={errors.workingHours}
+              />
             </div>
 
-            {/* Branch Management Section - Compact */}
-            <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg md:rounded-xl p-3 md:p-4">
-              <div className="flex items-center gap-2 mb-2 md:mb-3">
-                <div className="w-6 h-6 md:w-8 md:h-8 bg-green-100 rounded-full flex items-center justify-center">
-                  <i className="ri-building-line text-green-600 text-sm md:text-lg"></i>
-                </div>
-                <div>
-                  <h4 className="text-sm md:text-base font-semibold text-green-800">
-                    {t("completeProfile.step4.multipleBranches")}
-                  </h4>
-                  <p className="text-green-700 text-xs">
-                    {t("completeProfile.step4.multipleBranchesDesc")}
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3 mb-3 md:mb-4">
-                <div className="bg-white p-2 md:p-3 rounded-lg border border-green-200">
-                  <div className="flex items-center gap-1 mb-1">
-                    <i className="ri-map-pin-line text-green-500 text-xs md:text-sm"></i>
-                    <span className="font-medium text-gray-700 text-xs md:text-sm">
-                      {t("completeProfile.step4.multipleLocations")}
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-600">
-                    {t("completeProfile.step4.serveCustomers")}
-                  </p>
-                </div>
-                <div className="bg-white p-2 md:p-3 rounded-lg border border-blue-200">
-                  <div className="flex items-center gap-1 mb-1">
-                    <i className="ri-time-line text-blue-500 text-xs md:text-sm"></i>
-                    <span className="font-medium text-gray-700 text-xs md:text-sm">
-                      {t("completeProfile.step4.flexibleHours")}
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-600">
-                    {t("completeProfile.step4.differentHours")}
-                  </p>
-                </div>
-                <div className="bg-white p-2 md:p-3 rounded-lg border border-purple-200">
-                  <div className="flex items-center gap-1 mb-1">
-                    <i className="ri-team-line text-purple-500 text-xs md:text-sm"></i>
-                    <span className="font-medium text-gray-700 text-xs md:text-sm">
-                      {t("completeProfile.step4.betterManagement")}
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-600">
-                    {t("completeProfile.step4.trackPerformance")}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                  <p className="text-green-800 font-medium text-xs md:text-sm">
-                    {t("completeProfile.step4.readyToAddBranches")}
-                  </p>
-                  <p className="text-green-600 text-xs">
-                    {t("completeProfile.step4.skipStep")}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowBranchManagement(true)}
-                  className="bg-green-500 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg hover:bg-green-600 font-medium text-xs md:text-sm whitespace-nowrap cursor-pointer transition-all"
-                >
-                  <i className="ri-add-line me-1"></i>
-                  {t("completeProfile.step4.addBranches")}
-                </button>
-              </div>
-            </div>
-
-            {/* Current Branches Summary - Compact */}
-            {branches.length > 0 && (
-              <div className="bg-blue-50 p-3 md:p-4 rounded-lg md:rounded-xl border border-blue-200">
-                <h4 className="text-sm md:text-base font-semibold text-blue-800 mb-2 md:mb-3">
-                  <i className="ri-building-line me-1"></i>
-                  {t("completeProfile.step4.yourBranches")} ({branches.length})
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
-                  {branches.slice(0, 4).map((branch) => (
-                    <div
-                      key={branch.id}
-                      className="bg-white p-2 md:p-3 rounded-lg border border-blue-200"
-                    >
-                      <div className="flex items-center gap-1 md:gap-2 mb-1">
-                        <h5 className="font-medium text-gray-800 text-xs md:text-sm">
-                          {branch.name}
-                        </h5>
-                        <span
-                          className={`px-1.5 md:px-2 py-0.5 rounded-full text-xs font-medium ${branch.status === "active"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-gray-100 text-gray-600"
-                            }`}
-                        >
-                          {branch.status}
-                        </span>
-                      </div>
-                      <div className="space-y-0.5 text-xs text-gray-600">
-                        <div className="flex items-center gap-1">
-                          <i className="ri-map-pin-line text-gray-400"></i>
-                          <span className="truncate">{branch.address}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <i className="ri-phone-line text-gray-400"></i>
-                          <span>{branch.phone}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  {branches.length > 4 && (
-                    <div className="bg-gray-100 p-2 md:p-3 rounded-lg border border-gray-200 flex items-center justify-center">
-                      <span className="text-gray-600 font-medium text-xs md:text-sm">
-                        +{branches.length - 4}{" "}
-                        {t("completeProfile.step4.moreBranches")}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowBranchManagement(true)}
-                  className="mt-2 md:mt-3 bg-blue-500 text-white px-2 md:px-3 py-1 md:py-1.5 rounded-lg hover:bg-blue-600 text-xs font-medium whitespace-nowrap cursor-pointer transition-all"
-                >
-                  <i className="ri-edit-line me-1"></i>
-                  {t("completeProfile.step4.manageBranches")}
-                </button>
-              </div>
-            )}
-
-            <div className="bg-yellow-50 p-2 md:p-3 rounded-lg border border-yellow-200">
-              <div className="flex items-start gap-1 md:gap-2">
-                <i className="ri-information-line text-yellow-600 text-base md:text-lg mt-0.5"></i>
-                <div>
-                  <h4 className="text-yellow-800 font-semibold mb-1 text-xs md:text-sm">
-                    {t("completeProfile.step4.branchBenefits")}
-                  </h4>
-                  <ul className="text-xs text-gray-700 space-y-0.5">
-                    <li>{t("completeProfile.step4.benefit1")}</li>
-                    <li>{t("completeProfile.step4.benefit2")}</li>
-                    <li>{t("completeProfile.step4.benefit3")}</li>
-                    <li>{t("completeProfile.step4.benefit4")}</li>
-                  </ul>
-                </div>
-              </div>
+            {/* Branch Management Section */}
+            <div className="mt-6">
+              <BranchManagement
+                branches={branches}
+                setBranches={setBranches}
+                mainBusinessData={{
+                  businessName: formData.businessName,
+                  category: formData.businessType,
+                }}
+              />
             </div>
           </div>
         )}

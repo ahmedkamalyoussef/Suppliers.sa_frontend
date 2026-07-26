@@ -2192,7 +2192,9 @@ export const translations = {
         "locationRequired": "Business location is required",
         "addressRequired": "Business address is required",
         "workingHoursRequired": "Please set working hours for at least one day",
-        "documentRequired": "Commercial registration document is required"
+        "documentRequired": "Commercial registration document is required",
+        "incompleteTitle": "Incomplete Information",
+        "incompleteMessage": "Please complete all required fields before continuing."
       },
       "steps": {
         "businessInfo": "Basic Business Information",
@@ -2486,6 +2488,8 @@ export const translations = {
     "branchManagement": {
       "title": "Branch Management",
       "subtitle": "Manage multiple locations for",
+      "hasBranchesQuestion": "Do you have additional branches?",
+      "hasBranchesDesc": "If your business operates from more than one location, you can add and manage your branches here.",
       "addNewBranch": "Add New Branch",
       "editBranch": "Edit Branch",
       "addBranch": "Add Branch",
@@ -5080,7 +5084,9 @@ export const translations = {
         "locationRequired": "موقع النشاط التجاري مطلوب",
         "addressRequired": "عنوان النشاط التجاري مطلوب",
         "workingHoursRequired": "يرجى تحديد ساعات العمل ليوم واحد على الأقل",
-        "documentRequired": "وثيقة السجل التجاري مطلوبة"
+        "documentRequired": "وثيقة السجل التجاري مطلوبة",
+        "incompleteTitle": "بيانات غير مكتملة",
+        "incompleteMessage": "يرجى استكمال جميع الحقول المطلوبة قبل المتابعة."
       },
       "steps": {
         "businessInfo": "معلومات العمل الأساسي",
@@ -5289,6 +5295,8 @@ export const translations = {
     "branchManagement": {
       "title": "إدارة الفروع",
       "subtitle": "إدارة المواقع المتعددة لـ",
+      "hasBranchesQuestion": "هل لديك فروع أخرى؟",
+      "hasBranchesDesc": "إذا كان نشاطك التجاري يعمل من أكثر من موقع، يمكنك إضافة وإدارة فروعك هنا.",
       "addNewBranch": "إضافة فرع جديد",
       "totalBranches": "إجمالي الفروع",
       "activeBranches": "الفروع النشطة",

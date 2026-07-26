@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useLanguage } from "../lib/LanguageContext"; // تأكد من المسار
 import { validateSaudiLocation } from "../lib/saudiLocationValidation";
 import { toast } from "react-toastify";
+import type { Branch } from "../lib/types";
 
 const GOOGLE_MAPS_SCRIPT_ID = "google-maps-js";
 
@@ -107,10 +108,13 @@ interface Location {
   lng: number;
 }
 interface BusinessLocationMapProps {
-  selectedLocation: Location;
-  setSelectedLocation: (location: Location) => void;
+  selectedLocation?: Location;
+  setSelectedLocation?: (location: Location) => void;
   isEditing?: boolean; // Add isEditing prop
   alwaysEditable?: boolean;
+  allBranches?: Branch[];
+  activeBranchId?: string | null;
+  onBranchClick?: (branch: Branch) => void;
 }
 
 type LocationMethod = "map" | "city" | "address";
@@ -262,21 +266,30 @@ export const findNearestCity = (lat: number, lng: number): City => {
 };
 
 export default function BusinessLocationMap({
-  selectedLocation,
+  selectedLocation = { lat: 24.7136, lng: 46.6753 },
   setSelectedLocation,
   isEditing = false, // Default to false
   alwaysEditable = false,
+  allBranches,
+  activeBranchId,
+  onBranchClick,
 }: BusinessLocationMapProps) {
-  const { t, language } = useLanguage();
+  const { t, language, isRTL } = useLanguage();
   const canEdit = alwaysEditable || isEditing;
   const [selectedCity, setSelectedCity] = useState<string>("");
   const [customAddress, setCustomAddress] = useState<string>("");
   const [locationMethod, setLocationMethod] = useState<LocationMethod>("map");
   const [isValidating, setIsValidating] = useState(false); // Add loading state
+
+  const safeSetSelectedLocation = (location: Location) => {
+    if (setSelectedLocation) {
+      setSelectedLocation(location);
+    }
+  };
   
   // Set default to Riyadh if no location provided or if location is invalid
   useEffect(() => {
-    if (!selectedLocation || !selectedLocation.lat || !selectedLocation.lng) {
+    if (setSelectedLocation && (!selectedLocation || !selectedLocation.lat || !selectedLocation.lng)) {
       setSelectedLocation({
         lat: 24.7136, // Riyadh coordinates
         lng: 46.6753
@@ -304,14 +317,14 @@ export default function BusinessLocationMap({
         );
       }
       
-      setSelectedLocation({
+      safeSetSelectedLocation({
         lat: validatedLocation.lat,
         lng: validatedLocation.lng
       });
     } catch (error) {
       console.error("Error validating location:", error);
       // Fallback to Riyadh if validation fails
-      setSelectedLocation({
+      safeSetSelectedLocation({
         lat: 24.7136,
         lng: 46.6753
       });
@@ -327,6 +340,8 @@ export default function BusinessLocationMap({
   const mapDivRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
+  const branchMarkersRef = useRef<Map<string, any>>(new Map());
+  const infoWindowRef = useRef<any>(null);
   const canEditRef = useRef<boolean>(canEdit);
   const mapClickListenerRef = useRef<any>(null);
   const markerDragListenerRef = useRef<any>(null);
@@ -470,7 +485,115 @@ export default function BusinessLocationMap({
     const next = new g.maps.LatLng(nextLocation.lat, nextLocation.lng);
     mapRef.current.panTo(next);
     markerRef.current.setPosition(next);
-  }, [isMounted, isMapsReady, selectedLocation.lat, selectedLocation.lng]);
+  }, [isMounted, isMapsReady, selectedLocation?.lat, selectedLocation?.lng]);
+
+  // Multi-branch marker synchronization and viewport bounds auto-fitting
+  useEffect(() => {
+    if (!isMounted || !isMapsReady || !mapRef.current) return;
+    const g = (window as any).google;
+    if (!g?.maps) return;
+
+    if (!allBranches || allBranches.length === 0) {
+      branchMarkersRef.current.forEach((m) => m.setMap(null));
+      branchMarkersRef.current.clear();
+      return;
+    }
+
+    if (!infoWindowRef.current) {
+      infoWindowRef.current = new g.maps.InfoWindow();
+    }
+
+    const currentMarkerMap = branchMarkersRef.current;
+    const activeIds = new Set<string>();
+    const bounds = new g.maps.LatLngBounds();
+    let validBranchCount = 0;
+
+    allBranches.forEach((branch) => {
+      if (!branch.id || !branch.location) return;
+      const lat = Number(branch.location.lat);
+      const lng = Number(branch.location.lng);
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+
+      validBranchCount++;
+      activeIds.add(branch.id);
+      const latLng = new g.maps.LatLng(lat, lng);
+      bounds.extend(latLng);
+
+      const isSelected = activeBranchId === branch.id;
+
+      let marker = currentMarkerMap.get(branch.id);
+      if (marker) {
+        marker.setPosition(latLng);
+        marker.setTitle(branch.name);
+      } else {
+        marker = new g.maps.Marker({
+          position: latLng,
+          map: mapRef.current,
+          title: branch.name,
+          icon: {
+            url: customMarkerSvg,
+            scaledSize: new g.maps.Size(32, 42),
+            anchor: new g.maps.Point(16, 42),
+          },
+        });
+        currentMarkerMap.set(branch.id, marker);
+      }
+
+      g.maps.event.clearListeners(marker, "click");
+      marker.addListener("click", () => {
+        const contentStr = `
+          <div style="direction: ${isRTL ? 'rtl' : 'ltr'}; text-align: ${isRTL ? 'right' : 'left'}; font-family: system-ui, -apple-system, sans-serif; padding: 6px 10px; max-width: 240px;">
+            <div style="font-weight: 800; font-size: 14px; color: #111827; margin-bottom: 4px;">${branch.name}</div>
+            <div style="font-size: 12px; color: #4B5563; line-height: 1.4;">${branch.address}</div>
+          </div>
+        `;
+        infoWindowRef.current.setContent(contentStr);
+        infoWindowRef.current.open(mapRef.current, marker);
+
+        if (onBranchClick) {
+          onBranchClick(branch);
+        }
+      });
+
+      if (isSelected && infoWindowRef.current) {
+        const contentStr = `
+          <div style="direction: ${isRTL ? 'rtl' : 'ltr'}; text-align: ${isRTL ? 'right' : 'left'}; font-family: system-ui, -apple-system, sans-serif; padding: 6px 10px; max-width: 240px;">
+            <div style="font-weight: 800; font-size: 14px; color: #111827; margin-bottom: 4px;">${branch.name}</div>
+            <div style="font-size: 12px; color: #4B5563; line-height: 1.4;">${branch.address}</div>
+          </div>
+        `;
+        infoWindowRef.current.setContent(contentStr);
+        infoWindowRef.current.open(mapRef.current, marker);
+      }
+    });
+
+    // Remove deleted markers
+    currentMarkerMap.forEach((m, id) => {
+      if (!activeIds.has(id)) {
+        m.setMap(null);
+        currentMarkerMap.delete(id);
+      }
+    });
+
+    // Auto-fit map bounds
+    if (validBranchCount === 1) {
+      const single = allBranches.find((b) => b.location && Number.isFinite(Number(b.location.lat)));
+      if (single) {
+        mapRef.current.setCenter({
+          lat: Number(single.location.lat),
+          lng: Number(single.location.lng),
+        });
+        mapRef.current.setZoom(14);
+      }
+    } else if (validBranchCount > 1) {
+      mapRef.current.fitBounds(bounds, {
+        top: 50,
+        bottom: 50,
+        left: 50,
+        right: 50,
+      });
+    }
+  }, [isMounted, isMapsReady, allBranches, activeBranchId, isRTL, onBranchClick]);
 
   useEffect(() => {
     if (!isMounted || !isMapsReady) return;
@@ -497,7 +620,7 @@ export default function BusinessLocationMap({
     const city = saudiCities.find((c) => c.name === cityName);
     if (city) {
       // Skip validation for known Saudi cities from dropdown
-      setSelectedLocation({
+      safeSetSelectedLocation({
         lat: city.lat,
         lng: city.lng,
       });

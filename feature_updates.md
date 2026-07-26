@@ -1,205 +1,176 @@
-```text id="f9mr2d"
-# Enforce Step Validation Before Navigation
+```text id="u9xp4n"
+# Redesign the Business Hours and Branches Experience
 
-Implement comprehensive form validation across all multi-step forms in the application. Users must not be allowed to proceed to the next step until all required fields in the current step are completed and valid.
+Improve the user experience for both the **Business Hours** section and the **Branches** section. The current implementation is functional but not intuitive enough and has several RTL usability issues.
+
+---
+
+# 1. Redesign the Weekly Business Hours
 
 ## Objective
 
-Every step should validate its required fields before allowing the user to continue.
+The current weekly schedule is difficult to use and doesn't provide the best user experience.
 
-The validation experience should be clear, user-friendly, fully localized, and consistent across the entire application.
-
----
-
-## Scope
-
-Apply this behavior to **every multi-step workflow**, including but not limited to:
-
-- Registration
-- Complete Profile
-- Government Services
-- Residency Service
-- Entry Visa Service
-- Driving License Service
-- OCR Review Forms
-- Any future multi-step form
+Create a cleaner, simpler, and more modern interface that allows users to configure their opening hours quickly with minimal effort.
 
 ---
 
-## Step Validation
+## New Design Requirements
 
-When the user clicks **Next** or attempts to continue:
+Create a card for each day of the week.
 
-- Validate all required fields in the current step.
-- Prevent navigation if any validation fails.
-- Keep the user on the current step.
-- Automatically focus or scroll to the first invalid field.
+Each day should contain:
 
-The user must not be able to bypass validation by clicking the Next button.
+- Day Name
+- Open / Closed Toggle
 
----
+If the business is **Closed** that day:
 
-## Field-Level Validation
+- Hide all time fields.
 
-Every required field must have its own validation rules.
+If the business is **Open**:
 
-Examples include:
+Display only:
 
-- Required fields
-- Email format
-- Phone number format
-- Password strength
-- Password confirmation
-- Date validation
-- Number validation
-- File upload validation
-- OCR-required fields
-- Dropdown selection
-- Checkbox acceptance
-- Radio button selection
+- Opening Time
+- Closing Time
 
-Each field should validate independently.
+The layout should be simple, clean, and easy to scan.
 
 ---
 
-## Individual Error Messages
+## Better Time Picker
 
-Every field must display its own clear validation message directly below the field.
+Replace the current time input with a more user-friendly time picker.
 
-Do not use generic messages such as:
+Requirements:
 
-- "Please fill all fields."
-- "Invalid form."
+- Easy to use on desktop.
+- Easy to use on mobile.
+- Consistent design.
+- Clear AM / PM selection.
+- Smooth interaction.
 
-Instead, provide field-specific messages.
-
-Examples:
-
-Business Name
-
-English:
-"Business name is required."
-
-Arabic:
-"اسم النشاط التجاري مطلوب."
+Avoid requiring users to manually type times whenever possible.
 
 ---
 
-Email
+## RTL Improvements
 
-English:
-"Please enter a valid email address."
+The current Arabic layout has several issues.
 
-Arabic:
-"يرجى إدخال بريد إلكتروني صحيح."
+When the application language is Arabic:
 
----
+- Opening Time and Closing Time should remain visually clear.
+- Time picker layout should not break.
+- AM / PM controls should remain properly aligned and easy to use.
+- Input fields should not overlap.
+- Icons should mirror correctly.
+- Field spacing should remain consistent.
+- The Arabic version should feel identical in quality to the English version.
 
-Phone Number
-
-English:
-"Please enter a valid phone number."
-
-Arabic:
-"يرجى إدخال رقم جوال صحيح."
+The RTL implementation should be native, not simply mirrored.
 
 ---
 
-Password
+## Optional Productivity Features
 
-English:
-"Password must contain at least 8 characters."
+If compatible with the existing architecture, include:
 
-Arabic:
-"يجب أن تتكون كلمة المرور من 8 أحرف على الأقل."
+- Copy Monday's hours to all days.
+- Apply the same schedule to selected days.
+- Quick "Open 24 Hours" option.
+- Quick "Closed All Day" option.
 
----
-
-Sponsor Civil ID
-
-English:
-"Please upload both the front and back sides of the Sponsor Civil ID."
-
-Arabic:
-"يرجى رفع وجهي البطاقة المدنية للكفيل."
+These actions should save users time without adding unnecessary complexity.
 
 ---
 
-Passport
+# 2. Improve the Branches Section
 
-English:
-"Passport upload is required."
+## Objective
 
-Arabic:
-"يرجى رفع جواز السفر."
+The current Branches section works, but the design can be significantly cleaner and easier to use.
 
----
-
-Terms & Conditions
-
-English:
-"You must accept the Terms and Conditions."
-
-Arabic:
-"يجب الموافقة على الشروط والأحكام."
+Redesign it using a simpler, more modern layout that matches the rest of the application.
 
 ---
 
-## Real-Time Validation
+## Branch Creation Flow
 
-After an error appears:
+Each branch should only require:
 
-- Revalidate the field as the user types or changes its value.
-- Remove the error immediately once the field becomes valid.
-- Do not wait until the user clicks Next again.
+- Branch Name
+- Branch Address
+- Select Location on Map
 
----
+After selecting the location:
 
-## Error Styling
-
-All validation errors should:
-
-- Be displayed directly beneath the related field.
-- Use consistent styling across the application.
-- Be easy to read.
-- Work correctly in both RTL and LTR layouts.
-- Never overlap other UI elements.
-
-Invalid fields should also have a clear visual state (e.g., error border or highlight) consistent with the project's design system.
+- Save the coordinates.
+- Close the location picker.
+- Return to the branch form.
 
 ---
 
-## Localization
+## Remove the Persistent Map
 
-All validation messages must be fully localized.
+Currently, after selecting a branch location, the map remains visible below the form.
 
-Every validation message should exist in both:
+This is unnecessary and takes up valuable space.
 
-- Arabic
-- English
+### Required Behavior
 
-No validation message should be hardcoded.
+- Show the map only while the user is selecting a location.
+- Once the location is confirmed, hide the map automatically.
+- Display a simple confirmation instead, such as:
+  - "Location Selected"
+  - Or a small location summary with an edit/change location button.
 
-Use the existing translation system for every validation rule.
+The map should reopen only if the user chooses to change the branch location.
 
 ---
 
-## Accessibility
+## Branch Cards
 
-- Associate each error message with its corresponding field.
-- Move focus to the first invalid field after validation.
-- Support keyboard navigation.
-- Ensure screen readers can announce validation errors where applicable.
+After saving a branch:
+
+Display it as a clean card showing:
+
+- Branch Name
+- Branch Address
+- Location Selected indicator
+
+Provide actions to:
+
+- Edit
+- Change Location
+- Delete
+
+Keep the cards compact and visually consistent.
+
+---
+
+## User Experience
+
+The overall experience should be:
+
+- Minimal
+- Modern
+- Easy for non-technical users
+- Fully responsive
+- RTL/LTR compatible
+- Consistent with the application's design system
+
+Reduce unnecessary scrolling and make the interface feel lighter and more intuitive.
 
 ---
 
 ## Technical Requirements
 
-- Reuse the existing validation framework.
-- Centralize validation rules wherever possible.
-- Avoid duplicated validation logic.
-- Preserve existing business logic.
-- Follow Clean Architecture.
-- Maintain the project's coding standards.
-- Deliver a production-ready validation system with consistent behavior across the entire application.
+- Preserve all existing functionality.
+- Do not change business logic.
+- Reuse existing components wherever possible.
+- Maintain compatibility with existing APIs and data models.
+- Follow Clean Architecture and the project's coding standards.
+- Deliver a polished, production-ready implementation with an improved user experience for both Business Hours and Branch Management.
 ```

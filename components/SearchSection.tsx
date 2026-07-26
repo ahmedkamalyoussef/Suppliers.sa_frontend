@@ -8,6 +8,7 @@ import { useAuth } from "../hooks/useAuth";
 import FeaturedBusinesses from "./FeaturedBusinesses";
 import InteractiveMapGoogle from "./InteractiveMap.google";
 import { apiService } from "../lib/api";
+import { transformBusinessesToMapItems } from "../lib/mapUtils";
 export default function SearchSection() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -44,32 +45,8 @@ export default function SearchSection() {
 
         const response = await apiService.getBusinesses(params);
 
-        // Transform API data to match businessLocations format
-        const locations = response.data.map((business: any) => ({
-          ...business, // Spread all business properties
-          id: business.id,
-          name: business.name,
-          address: business.address || "Address not available",
-          lat: parseFloat(business.latitude) || 0,
-          lng: parseFloat(business.longitude) || 0,
-          type: business.category,
-          category:
-            business.category?.toLowerCase().replace(/\s+/g, "-") || "other",
-          businessType: business.businessType,
-          businessImage: business.profileImage,
-          serviceDistance: business.serviceDistance,
-          rating: business.rating || 0,
-          reviewsCount: business.reviewsCount || 0,
-          // Keep the original categories array if it exists
-          categories: business.categories || [business.category],
-          // Map mainPhone to phone for backward compatibility
-          phone: business.mainPhone || business.phone,
-          // Ensure all required fields have defaults
-          status: business.status || "pending",
-          contactEmail: business.contactEmail,
-          targetMarket: business.targetMarket,
-          services: business.services,
-        }));
+        // Transform API data with all branch markers using transformBusinessesToMapItems
+        const locations = transformBusinessesToMapItems(response.data);
 
         setBusinessLocations(locations);
         setBusinesses(response.data);
