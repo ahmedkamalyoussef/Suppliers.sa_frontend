@@ -15,8 +15,8 @@
   "/payment-complete/page": "app/payment-complete/page.js",
   "/policies/page": "app/policies/page.js",
   "/privacy/page": "app/privacy/page.js",
-  "/register/page": "app/register/page.js",
   "/reset-password/page": "app/reset-password/page.js",
+  "/register/page": "app/register/page.js",
   "/subscription/page": "app/subscription/page.js",
   "/success-stories/page": "app/success-stories/page.js",
   "/support/page": "app/support/page.js",
@@ -25,8 +25,8 @@
   "/verification-status/page": "app/verification-status/page.js",
   "/business/id/page": "app/business/id/page.js",
   "/business/[id]/page": "app/business/[id]/page.js",
+  "/complete-profile/page": "app/complete-profile/page.js",
   "/profile/[id]/page": "app/profile/[id]/page.js",
   "/profile/id/page": "app/profile/id/page.js",
-  "/complete-profile/page": "app/complete-profile/page.js",
   "/dashboard/page": "app/dashboard/page.js"
 }

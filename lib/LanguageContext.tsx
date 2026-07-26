@@ -101,10 +101,23 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useLanguage(_unused?: string) {
+export function useLanguage(prefix?: string) {
   const context = useContext(LanguageContext);
   if (context === undefined) {
     throw new Error("useLanguage must be used within a LanguageProvider");
+  }
+  if (prefix) {
+    return {
+      ...context,
+      t: (key: string) => {
+        const prefixedKey = `${prefix}.${key}`;
+        const prefixedTranslation = context.t(prefixedKey);
+        if (prefixedTranslation !== prefixedKey) {
+          return prefixedTranslation;
+        }
+        return context.t(key);
+      },
+    };
   }
   return context;
 }
