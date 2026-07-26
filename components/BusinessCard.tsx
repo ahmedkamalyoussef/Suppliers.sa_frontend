@@ -49,6 +49,19 @@ export default function BusinessCard({
 }: BusinessCardProps) {
   const { t, language } = useLanguage();
 
+  const getFormattedBusinessType = (type?: string) => {
+    if (!type || type === "undefined" || type === "null") {
+      return language === "ar" ? "غير محدد" : "Unspecified";
+    }
+    const normalized = type.toLowerCase().trim();
+    const key = `publicProfile.businessTypes.${normalized}`;
+    const val = t(key);
+    if (val && val !== key && !val.includes("publicProfile.")) {
+      return val;
+    }
+    return type.charAt(0).toUpperCase() + type.slice(1);
+  };
+
   const [showMessageModal, setShowMessageModal] = useState(false);
 
   // Check if user is logged in
@@ -201,23 +214,26 @@ export default function BusinessCard({
                   target.src = companyImg.src;
                 }}
               />
-              <div className="absolute top-2 right-2 bg-white rounded-full px-2 py-1 shadow-md">
-                <div
-                  className={`${getStatusColor(
-                    business.status || "unknown",
-                  )} px-2 py-1 rounded-full flex items-center gap-1`}
-                >
-                  <i
-                    className={`${getStatusIcon(
-                      business.status || "unknown",
-                    )} text-xs`}
-                  ></i>
-                  <span className="text-xs font-medium">
-                    {(business.status || "unknown")?.charAt(0).toUpperCase() +
-                      (business.status || "unknown")?.slice(1)}
-                  </span>
+              {business.status && business.status !== "unknown" && (
+                <div className="absolute top-2 right-2 bg-white rounded-full px-2 py-1 shadow-md">
+                  <div
+                    className={`${getStatusColor(
+                      business.status,
+                    )} px-2 py-1 rounded-full flex items-center gap-1`}
+                  >
+                    <i
+                      className={`${getStatusIcon(
+                        business.status,
+                      )} text-xs`}
+                    ></i>
+                    <span className="text-xs font-medium">
+                      {t(`publicProfile.status.${business.status.toLowerCase()}`) ||
+                        business.status.charAt(0).toUpperCase() +
+                          business.status.slice(1)}
+                    </span>
+                  </div>
                 </div>
-              </div>
+              )}
               {business.status === "verified" && (
                 <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium shadow-md">
                   {t("businessCard.verified")}
@@ -244,11 +260,7 @@ export default function BusinessCard({
                         )} text-xs`}
                       ></i>
                       <span className="text-xs font-medium">
-                        {t(
-                          `publicProfile.businessTypes.${business.businessType?.toLowerCase()}`,
-                        ) ||
-                          business.businessType?.charAt(0).toUpperCase() +
-                            business.businessType?.slice(1)}
+                        {getFormattedBusinessType(business.businessType)}
                       </span>
                     </div>
                     {business.openNow && (
@@ -287,41 +299,49 @@ export default function BusinessCard({
                   </div>
 
                   <div className="space-y-2 mb-4">
-                    <div className="flex items-center text-xs text-gray-600">
-                      <i className="ri-map-pin-line w-4 h-4 flex items-center justify-center me-2"></i>
-                      <span>{business.location}</span>
-                    </div>
-                    <div className="flex items-center text-xs text-gray-600">
-                      <i className="ri-group-line w-4 h-4 flex items-center justify-center me-2"></i>
-                      <span>
-                        {t("businessCard.serves")}:{" "}
-                        {business.services.join(", ")}
-                      </span>
-                    </div>
-                    <div className="flex items-center text-xs text-gray-600">
-                      <i className="ri-map-pin-range-line w-4 h-4 flex items-center justify-center me-2"></i>
-                      <span>
-                        {t("businessCard.serviceArea")}:{" "}
-                        {business.serviceDistance}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    {business.services.slice(0, 3).map((service, index) => (
-                      <span
-                        key={index}
-                        className="bg-yellow-50 text-yellow-700 px-3 py-1 rounded-full text-xs font-medium"
-                      >
-                        {service}
-                      </span>
-                    ))}
-                    {business.services.length > 3 && (
-                      <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-medium">
-                        +{business.services.length - 3} {t("businessCard.more")}
-                      </span>
+                    {business.location && (
+                      <div className="flex items-center text-xs text-gray-600">
+                        <i className="ri-map-pin-line w-4 h-4 flex items-center justify-center me-2"></i>
+                        <span>{business.location}</span>
+                      </div>
+                    )}
+                    {Array.isArray(business.services) && business.services.length > 0 && (
+                      <div className="flex items-center text-xs text-gray-600">
+                        <i className="ri-group-line w-4 h-4 flex items-center justify-center me-2"></i>
+                        <span>
+                          {t("businessCard.serves")}:{" "}
+                          {business.services.join(", ")}
+                        </span>
+                      </div>
+                    )}
+                    {business.serviceDistance && business.serviceDistance !== "0" && business.serviceDistance !== 0 && (
+                      <div className="flex items-center text-xs text-gray-600">
+                        <i className="ri-map-pin-range-line w-4 h-4 flex items-center justify-center me-2"></i>
+                        <span>
+                          {t("businessCard.serviceArea")}:{" "}
+                          {business.serviceDistance}
+                        </span>
+                      </div>
                     )}
                   </div>
+
+                  {Array.isArray(business.services) && business.services.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {business.services.slice(0, 3).map((service, index) => (
+                        <span
+                          key={index}
+                          className="bg-yellow-50 text-yellow-700 px-3 py-1 rounded-full text-xs font-medium"
+                        >
+                          {service}
+                        </span>
+                      ))}
+                      {business.services.length > 3 && (
+                        <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-medium">
+                          +{business.services.length - 3} {t("businessCard.more")}
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Actions - Fixed positioning */}
@@ -363,23 +383,26 @@ export default function BusinessCard({
             target.src = companyImg.src;
           }}
         />
-        <div className="absolute top-3 right-3  rounded-full shadow-md">
-          <div
-            className={`${getStatusColor(
-              business.status || "unknown",
-            )} px-2 py-1 rounded-full flex items-center gap-1`}
-          >
-            <i
-              className={`${getStatusIcon(
-                business.status || "unknown",
-              )} text-xs`}
-            ></i>
-            <span className="text-xs font-medium">
-              {(business.status || "unknown")?.charAt(0).toUpperCase() +
-                (business.status || "unknown")?.slice(1)}
-            </span>
+        {business.status && business.status !== "unknown" && (
+          <div className="absolute top-3 right-3 rounded-full shadow-md">
+            <div
+              className={`${getStatusColor(
+                business.status,
+              )} px-2 py-1 rounded-full flex items-center gap-1`}
+            >
+              <i
+                className={`${getStatusIcon(
+                  business.status,
+                )} text-xs`}
+              ></i>
+              <span className="text-xs font-medium">
+                {t(`publicProfile.status.${business.status.toLowerCase()}`) ||
+                  business.status.charAt(0).toUpperCase() +
+                    business.status.slice(1)}
+              </span>
+            </div>
           </div>
-        </div>
+        )}
         <div className="absolute top-3 left-3 flex items-center gap-2">
           <div
             className={`${getBusinessTypeColor(
@@ -392,11 +415,7 @@ export default function BusinessCard({
               )} text-xs`}
             ></i>
             <span className="text-xs font-medium">
-              {t(
-                `publicProfile.businessTypes.${business.businessType?.toLowerCase()}`,
-              ) ||
-                business.businessType?.charAt(0).toUpperCase() +
-                  business.businessType?.slice(1)}
+              {getFormattedBusinessType(business.businessType)}
             </span>
           </div>
           {business.verified && (
@@ -425,7 +444,9 @@ export default function BusinessCard({
               {getCategoryName(business.category, language === 'ar' ? 'ar' : 'en')}
             </p>
           </div>
-          <p className="text-gray-500 text-xs">{business.location}</p>
+          {business.location && (
+            <p className="text-gray-500 text-xs">{business.location}</p>
+          )}
         </div>
 
         <div className="flex items-center mb-3">
@@ -446,38 +467,46 @@ export default function BusinessCard({
           </span>
         </div>
 
-        <div className="mb-3 space-y-1">
-          <div className="flex items-center text-xs text-gray-600">
-            <i className="ri-group-line w-3 h-3 flex items-center justify-center me-2"></i>
-            <span>
-              {t("businessCard.serves")}: {business.services.slice(0, 2).join(", ")}
-            </span>
-          </div>
-          <div className="flex items-center text-xs text-gray-600">
-            <i className="ri-map-pin-range-line w-3 h-3 flex items-center justify-center me-2"></i>
-            <span>
-              {t("businessCard.serviceArea")}: {business.serviceDistance}
-            </span>
-          </div>
-        </div>
-
-        <div className="mb-3 flex-1">
-          <div className="flex flex-wrap gap-1">
-            {business.services.slice(0, 2).map((service, index) => (
-              <span
-                key={index}
-                className="bg-yellow-50 text-yellow-700 px-2 py-1 rounded-full text-xs font-medium"
-              >
-                {service}
-              </span>
-            ))}
-            {business.services.length > 2 && (
-              <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs font-medium">
-                +{business.services.length - 2} {t("businessCard.more")}
-              </span>
+        {((Array.isArray(business.services) && business.services.length > 0) || (business.serviceDistance && business.serviceDistance !== "0" && business.serviceDistance !== 0)) && (
+          <div className="mb-3 space-y-1">
+            {Array.isArray(business.services) && business.services.length > 0 && (
+              <div className="flex items-center text-xs text-gray-600">
+                <i className="ri-group-line w-3 h-3 flex items-center justify-center me-2"></i>
+                <span>
+                  {t("businessCard.serves")}: {business.services.slice(0, 2).join(", ")}
+                </span>
+              </div>
+            )}
+            {business.serviceDistance && business.serviceDistance !== "0" && business.serviceDistance !== 0 && (
+              <div className="flex items-center text-xs text-gray-600">
+                <i className="ri-map-pin-range-line w-3 h-3 flex items-center justify-center me-2"></i>
+                <span>
+                  {t("businessCard.serviceArea")}: {business.serviceDistance}
+                </span>
+              </div>
             )}
           </div>
-        </div>
+        )}
+
+        {Array.isArray(business.services) && business.services.length > 0 && (
+          <div className="mb-3 flex-1">
+            <div className="flex flex-wrap gap-1">
+              {business.services.slice(0, 2).map((service, index) => (
+                <span
+                  key={index}
+                  className="bg-yellow-50 text-yellow-700 px-2 py-1 rounded-full text-xs font-medium"
+                >
+                  {service}
+                </span>
+              ))}
+              {business.services.length > 2 && (
+                <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs font-medium">
+                  +{business.services.length - 2} {t("businessCard.more")}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Buttons - Always at bottom */}
         <div className="flex gap-2 mt-auto">

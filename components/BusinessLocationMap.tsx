@@ -115,6 +115,7 @@ interface BusinessLocationMapProps {
   allBranches?: Branch[];
   activeBranchId?: string | null;
   onBranchClick?: (branch: Branch) => void;
+  hideHeader?: boolean;
 }
 
 type LocationMethod = "map" | "city" | "address";
@@ -273,6 +274,7 @@ export default function BusinessLocationMap({
   allBranches,
   activeBranchId,
   onBranchClick,
+  hideHeader = false,
 }: BusinessLocationMapProps) {
   const { t, language, isRTL } = useLanguage();
   const canEdit = alwaysEditable || isEditing;
@@ -677,80 +679,82 @@ export default function BusinessLocationMap({
   };
 
   return (
-    <div className="sticky top-8">
-      <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-        <div className="p-6 bg-yellow-50 border-b border-yellow-100">
-          <h3 className="text-xl font-bold text-gray-800 mb-2">
-            {t("map.setLocationTitle")}
-          </h3>
-          <p className="text-sm text-gray-600">{t("map.setLocationDesc")}</p>
-          {!canEdit && (
-            <div className="mt-3 p-3 bg-yellow-100 border border-yellow-200 rounded-lg">
-              <div className="flex items-center gap-2">
-                <i className="ri-lock-line text-yellow-600"></i>
-                <span className="text-sm text-yellow-800 font-medium">
-                  {t("map.editModeRequired") ||
-                    "Click 'Edit Profile' to modify location"}
-                </span>
+    <div className={hideHeader ? "w-full flex flex-col h-full" : "sticky top-8"}>
+      <div className={hideHeader ? "bg-white w-full flex flex-col h-full" : "bg-white rounded-2xl shadow-xl overflow-hidden"}>
+        {!hideHeader && (
+          <div className="p-6 bg-yellow-50 border-b border-yellow-100">
+            <h3 className="text-xl font-bold text-gray-800 mb-2">
+              {t("map.setLocationTitle")}
+            </h3>
+            <p className="text-sm text-gray-600">{t("map.setLocationDesc")}</p>
+            {!canEdit && (
+              <div className="mt-3 p-3 bg-yellow-100 border border-yellow-200 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <i className="ri-lock-line text-yellow-600"></i>
+                  <span className="text-sm text-yellow-800 font-medium">
+                    {t("map.editModeRequired") ||
+                      "Click 'Edit Profile' to modify location"}
+                  </span>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
         {/* Location Method Selection */}
-        <div className="p-4 bg-gray-50 border-b border-gray-100">
-          <div className="flex gap-2 mb-4">
+        <div className="p-3 sm:p-4 bg-gray-50 border-b border-gray-100">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3">
             <button
               type="button"
               onClick={() => setLocationMethod("map")}
               disabled={!canEdit}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              className={`w-full px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${
                 locationMethod === "map"
-                  ? "bg-yellow-400 text-white"
-                  : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
+                  ? "bg-yellow-400 text-gray-900 shadow-xs"
+                  : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
               } ${!canEdit ? "opacity-50 cursor-not-allowed" : ""}`}
             >
-              <i className="ri-map-pin-line me-2"></i>
-              {t("map.methodPin")}
+              <i className="ri-map-pin-line text-amber-600"></i>
+              <span>{t("map.methodPin")}</span>
             </button>
             <button
               type="button"
               onClick={() => setLocationMethod("city")}
               disabled={!canEdit}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              className={`w-full px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${
                 locationMethod === "city"
-                  ? "bg-yellow-400 text-white"
-                  : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
+                  ? "bg-yellow-400 text-gray-900 shadow-xs"
+                  : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
               } ${!canEdit ? "opacity-50 cursor-not-allowed" : ""}`}
             >
-              <i className="ri-building-line me-2"></i>
-              {t("map.methodCity")}
+              <i className="ri-building-line text-amber-600"></i>
+              <span>{t("map.methodCity")}</span>
             </button>
             <button
               type="button"
               onClick={() => setLocationMethod("address")}
               disabled={!canEdit}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              className={`w-full px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${
                 locationMethod === "address"
-                  ? "bg-yellow-400 text-white"
-                  : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-50"
+                  ? "bg-yellow-400 text-gray-900 shadow-xs"
+                  : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
               } ${!canEdit ? "opacity-50 cursor-not-allowed" : ""}`}
             >
-              <i className="ri-road-map-line me-2"></i>
-              {t("map.methodAddress")}
+              <i className="ri-road-map-line text-amber-600"></i>
+              <span>{t("map.methodAddress")}</span>
             </button>
           </div>
 
           {locationMethod === "city" && (
-            <div className="space-y-3">
-              <label className="block text-sm font-medium text-gray-700">
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-gray-700">
                 {t("map.selectMajorCity")}
               </label>
               <select
                 value={selectedCity}
                 onChange={(e) => handleCitySelect(e.target.value)}
                 disabled={!canEdit}
-                className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm pr-8 ${
+                className={`w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-xs sm:text-sm font-medium ${
                   !canEdit ? "opacity-50 cursor-not-allowed bg-gray-100" : ""
                 }`}
               >
@@ -765,8 +769,8 @@ export default function BusinessLocationMap({
           )}
 
           {locationMethod === "address" && (
-            <div className="space-y-3">
-              <label className="block text-sm font-medium text-gray-700">
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-gray-700">
                 {t("map.enterCompleteAddress")}
               </label>
               <input
@@ -775,7 +779,7 @@ export default function BusinessLocationMap({
                 onChange={(e) => setCustomAddress(e.target.value)}
                 placeholder={t("map.addressPlaceholder")}
                 disabled={!canEdit}
-                className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ${
+                className={`w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-xs sm:text-sm ${
                   !canEdit ? "opacity-50 cursor-not-allowed bg-gray-100" : ""
                 }`}
               />
@@ -783,26 +787,26 @@ export default function BusinessLocationMap({
                 type="button"
                 onClick={handleAddressGeocode}
                 disabled={!customAddress.trim() || !canEdit}
-                className="w-full bg-yellow-400 text-white py-2 px-4 rounded-lg hover:bg-yellow-500 font-medium text-sm whitespace-nowrap cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-yellow-400 text-gray-900 py-2 px-4 rounded-xl hover:bg-yellow-500 font-bold text-xs sm:text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
               >
-                <i className="ri-search-line me-2"></i>
-                {t("map.findLocation")}
+                <i className="ri-search-line"></i>
+                <span>{t("map.findLocation")}</span>
               </button>
             </div>
           )}
 
           {locationMethod === "map" && (
-            <div className="text-center">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2">
               <button
                 type="button"
                 onClick={getCurrentLocation}
                 disabled={!canEdit}
-                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 font-medium text-sm whitespace-nowrap cursor-pointer mr-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
               >
-                <i className="ri-crosshair-line me-2"></i>
-                {t("map.useMyLocation")}
+                <i className="ri-crosshair-line text-base"></i>
+                <span>{t("map.useMyLocation")}</span>
               </button>
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-gray-500 font-medium">
                 {t("map.orClickOnMap")}
               </span>
             </div>
@@ -810,7 +814,13 @@ export default function BusinessLocationMap({
         </div>
 
         {/* Map Container Area */}
-        <div className="relative h-96 w-full z-0 bg-gray-100">
+        <div
+          className={
+            hideHeader
+              ? "flex-1 min-h-[380px] sm:min-h-[480px] w-full z-0 bg-gray-100 relative"
+              : "relative h-[380px] sm:h-[480px] md:h-[540px] w-full z-0 bg-gray-100"
+          }
+        >
           {/* هنا نقوم بفحص isMounted لمنع ظهور الخريطة على السيرفر */}
           {!isMounted ? (
             <div className="w-full h-full flex items-center justify-center text-gray-500">
@@ -831,51 +841,55 @@ export default function BusinessLocationMap({
           )}
         </div>
 
-        <div className="p-4 bg-gray-50 space-y-3">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600">{t("map.latitude")}</span>
-            <span className="font-mono text-gray-800">
-              {selectedLocation.lat}
-            </span>
-          </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600">{t("map.longitude")}</span>
-            <span className="font-mono text-gray-800">
-              {selectedLocation.lng}
-            </span>
-          </div>
+        {!hideHeader && (
+          <>
+            <div className="p-4 bg-gray-50 space-y-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-600">{t("map.latitude")}</span>
+                <span className="font-mono text-gray-800">
+                  {selectedLocation.lat}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-600">{t("map.longitude")}</span>
+                <span className="font-mono text-gray-800">
+                  {selectedLocation.lng}
+                </span>
+              </div>
 
-          {locationMethod === "map" && (
-            <button
-              type="button"
-              onClick={handleMapClick}
-              disabled={!canEdit}
-              className="w-full bg-yellow-400 text-white py-2 px-4 rounded-lg hover:bg-yellow-500 font-medium text-sm whitespace-nowrap cursor-pointer transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <i className="ri-crosshair-line me-2"></i>
-              {t("map.adjustPin")}
-            </button>
-          )}
-        </div>
+              {locationMethod === "map" && (
+                <button
+                  type="button"
+                  onClick={handleMapClick}
+                  disabled={!canEdit}
+                  className="w-full bg-yellow-400 text-white py-2 px-4 rounded-lg hover:bg-yellow-500 font-medium text-sm whitespace-nowrap cursor-pointer transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <i className="ri-crosshair-line me-2"></i>
+                  {t("map.adjustPin")}
+                </button>
+              )}
+            </div>
 
-        <div className="p-4 bg-blue-50 border-t border-blue-100">
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-              <i className="ri-information-line text-blue-600 text-sm"></i>
+            <div className="p-4 bg-blue-50 border-t border-blue-100">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <i className="ri-information-line text-blue-600 text-sm"></i>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-blue-800 mb-1">
+                    {t("map.tipsTitle")}
+                  </h4>
+                  <ul className="text-xs text-blue-700 space-y-1">
+                    <li>{t("map.tip1")}</li>
+                    <li>{t("map.tip2")}</li>
+                    <li>{t("map.tip3")}</li>
+                    <li>{t("map.tip4")}</li>
+                  </ul>
+                </div>
+              </div>
             </div>
-            <div>
-              <h4 className="text-sm font-medium text-blue-800 mb-1">
-                {t("map.tipsTitle")}
-              </h4>
-              <ul className="text-xs text-blue-700 space-y-1">
-                <li>{t("map.tip1")}</li>
-                <li>{t("map.tip2")}</li>
-                <li>{t("map.tip3")}</li>
-                <li>{t("map.tip4")}</li>
-              </ul>
-            </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
     </div>
   );

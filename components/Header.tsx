@@ -440,7 +440,13 @@ export default function Header() {
                           onClick={() => setIsUserMenuOpen(false)}
                         ></div>
 
-                        <div className="fixed lg:absolute right-4 lg:right-0 top-16 lg:top-auto lg:mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 z-50">
+                        <div
+                          className={`fixed lg:absolute ${
+                            isRTL
+                              ? "left-4 lg:left-0 lg:right-auto"
+                              : "right-4 lg:right-0 lg:left-auto"
+                          } top-16 lg:top-auto lg:mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 z-50`}
+                        >
                           <div className="px-4 py-3 border-b border-gray-100 lg:hidden">
                             <div className="flex items-center gap-3">
                               <div className="w-12 h-12 bg-yellow-400 text-white rounded-full flex items-center justify-center font-medium">
@@ -459,7 +465,7 @@ export default function Header() {
 
                           <Link
                             href={`/profile/${user?.id || "me"}`}
-                            className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
+                            className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors text-start"
                             onClick={() => setIsUserMenuOpen(false)}
                           >
                             <i className="ri-user-line text-lg"></i>
@@ -470,7 +476,7 @@ export default function Header() {
 
                           <Link
                             href="/dashboard"
-                            className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
+                            className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors text-start"
                             onClick={() => setIsUserMenuOpen(false)}
                           >
                             <i className="ri-dashboard-line text-lg"></i>
@@ -483,7 +489,7 @@ export default function Header() {
 
                           <button
                             onClick={handleSignOut}
-                            className="w-full flex items-center gap-3 px-4 py-3 text-left text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                            className="w-full flex items-center gap-3 px-4 py-3 text-start text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                           >
                             <i className="ri-logout-box-r-line text-lg"></i>
                             <span className="text-sm font-medium">

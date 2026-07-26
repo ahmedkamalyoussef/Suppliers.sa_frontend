@@ -654,22 +654,22 @@ export default function EmployeeManagement() {
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    <th className="text-left py-3 px-6 text-sm font-medium text-gray-700">
+                    <th className="text-start py-3 px-6 text-sm font-medium text-gray-700">
                       {t("employeeManagement.employee")}
                     </th>
-                    <th className="text-left py-3 px-6 text-sm font-medium text-gray-700">
+                    <th className="text-start py-3 px-6 text-sm font-medium text-gray-700">
                       {t("employeeManagement.roleDepartment")}
                     </th>
-                    <th className="text-left py-3 px-6 text-sm font-medium text-gray-700">
+                    <th className="text-start py-3 px-6 text-sm font-medium text-gray-700">
                       {t("employeeManagement.status")}
                     </th>
-                    <th className="text-left py-3 px-6 text-sm font-medium text-gray-700">
+                    <th className="text-start py-3 px-6 text-sm font-medium text-gray-700">
                       {t("employeeManagement.permissions")}
                     </th>
-                    <th className="text-left py-3 px-6 text-sm font-medium text-gray-700">
+                    <th className="text-start py-3 px-6 text-sm font-medium text-gray-700">
                       {t("employeeManagement.lastActive")}
                     </th>
-                    <th className="text-left py-3 px-6 text-sm font-medium text-gray-700">
+                    <th className="text-start py-3 px-6 text-sm font-medium text-gray-700">
                       {t("employeeManagement.actions")}
                     </th>
                   </tr>

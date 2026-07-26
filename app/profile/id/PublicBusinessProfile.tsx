@@ -149,23 +149,48 @@ export default function PublicBusinessProfile({
   };
 
   // Helper function to get translated business type
-  const getTranslatedBusinessType = (type: string): string => {
-    if (!type) return type;
-    return t(`publicProfile.businessTypes.${type.toLowerCase()}`) || type;
+  const getTranslatedBusinessType = (type?: string): string => {
+    if (!type || type === "undefined" || type === "null") {
+      return language === "ar" ? "غير محدد" : "Unspecified";
+    }
+    const normalized = type.toLowerCase().trim();
+    const key = `publicProfile.businessTypes.${normalized}`;
+    const val = t(key);
+    if (val && val !== key && !val.includes("publicProfile.")) {
+      return val;
+    }
+    return type.charAt(0).toUpperCase() + type.slice(1);
   };
 
   // Helper function to get translated status
-  const getTranslatedStatus = (status: string): string => {
-    if (!status) return status;
-    const statuses = getNestedTranslation("publicProfile.status");
-    return statuses[status.toLowerCase()] || status;
+  const getTranslatedStatus = (status?: string): string => {
+    if (!status || status === "undefined" || status === "null") {
+      return language === "ar" ? "غير محدد" : "Unspecified";
+    }
+    const normalized = status.toLowerCase().trim();
+    const key = `publicProfile.status.${normalized}`;
+    const val = t(key);
+    if (val && val !== key && !val.includes("publicProfile.")) {
+      return val;
+    }
+    return status.charAt(0).toUpperCase() + status.slice(1);
   };
 
   // Helper function to get translated phone type
-  const getTranslatedPhoneType = (type: string): string => {
-    if (!type) return type;
-    const phoneTypes = getNestedTranslation("publicProfile.phoneTypes");
-    return phoneTypes[type.toLowerCase()] || type;
+  const getTranslatedPhoneType = (type?: string): string => {
+    if (!type || type === "undefined" || type === "null") return "";
+    const normalized = type.toLowerCase().trim();
+    const key = `publicProfile.phoneTypes.${normalized}`;
+    const val = t(key);
+    if (val && val !== key && !val.includes("publicProfile.")) {
+      return val;
+    }
+    const fallbackKey = `completeProfile.phoneTypes.${normalized}`;
+    const fallbackVal = t(fallbackKey);
+    if (fallbackVal && fallbackVal !== fallbackKey && !fallbackVal.includes("completeProfile.")) {
+      return fallbackVal;
+    }
+    return type;
   };
 
   // Map API data to business object

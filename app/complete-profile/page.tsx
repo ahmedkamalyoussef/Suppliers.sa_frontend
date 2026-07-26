@@ -18,8 +18,8 @@ const STEP_TITLES = {
   1: "Business Information",
   2: "Categories & Keywords",
   3: "Contact Details",
-  4: "Location & Hours",
-  5: "Branches",
+  4: "Hours",
+  5: "Location & Branches",
   6: "Documents",
 };
 
@@ -33,16 +33,16 @@ export default function CompleteProfilePage() {
         1: "معلومات النشاط التجاري",
         2: "الفئات والكلمات المفتاحية",
         3: "بيانات التواصل",
-        4: "الموقع وساعات العمل",
-        5: "الفروع",
+        4: "ساعات العمل",
+        5: "الموقع والفروع",
         6: "المستندات والتحقق",
       };
       const titlesEn: Record<number, string> = {
         1: "Business Information",
         2: "Categories & Keywords",
         3: "Contact Details",
-        4: "Location & Hours",
-        5: "Branches",
+        4: "Hours",
+        5: "Location & Branches",
         6: "Documents & Verification",
       };
 

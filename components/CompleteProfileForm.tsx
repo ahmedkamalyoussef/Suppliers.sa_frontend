@@ -988,9 +988,9 @@ export default function CompleteProfileForm({
         break;
 
       case 4:
-        // Working hours validation - at least one day should be open (not closed and has times)
-        const hasOpenDay = Object.values(formData.workingHours).some(
-          (day) => !day.closed && day.open && day.close && day.open !== "" && day.close !== ""
+        // Working hours validation - at least one day should be open
+        const hasOpenDay = Object.values(formData.workingHours || {}).some(
+          (day) => !day.closed && (day.open || "09:00") && (day.close || "17:00")
         );
         if (!hasOpenDay) {
           newErrors.workingHours = t("completeProfile.validation.workingHoursRequired");
@@ -1820,7 +1820,7 @@ export default function CompleteProfileForm({
 
         {currentStep === 4 && (
           <div className="space-y-4 md:space-y-6">
-            {/* Working Hours Section - Redesigned */}
+            {/* Working Hours Section */}
             <div className="bg-blue-50/70 border border-blue-200 rounded-2xl p-4 md:p-6 space-y-3">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
@@ -1850,54 +1850,48 @@ export default function CompleteProfileForm({
                 error={errors.workingHours}
               />
             </div>
-
-            {/* Branch Management Section */}
-            <div className="mt-6">
-              <BranchManagement
-                branches={branches}
-                setBranches={setBranches}
-                mainBusinessData={{
-                  businessName: formData.businessName,
-                  category: formData.businessType,
-                }}
-              />
-            </div>
           </div>
         )}
-        {currentStep === 5 && (
-          <div className="space-y-4 md:space-y-6">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg md:rounded-xl p-4 md:p-6">
-              <div className="flex items-center gap-2 mb-3 md:mb-4">
-                <i className="ri-map-pin-line text-blue-600 text-lg md:text-xl"></i>
-                <h4 className="text-base md:text-lg font-semibold text-blue-800">
-                  {t("completeProfile.step5.mapTitle")}
-                </h4>
-              </div>
-              <p className="text-sm text-gray-600 mb-4">
-                {t("completeProfile.step5.mapDescription")}
-              </p>
 
-              {/* الخريطة بحجم أكبر */}
-              <div className="h-[800px] rounded-lg overflow-hidden border border-gray-300 shadow-lg">
+        {currentStep === 5 && (
+          <div className="space-y-6">
+            {/* SECTION 1: Main Business Location */}
+            <div className="bg-white border border-gray-200 rounded-3xl p-6 md:p-8 shadow-sm space-y-4">
+              <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
+                <div className="w-10 h-10 rounded-2xl bg-amber-100 text-amber-900 flex items-center justify-center font-bold shadow-xs">
+                  <i className="ri-map-pin-2-fill text-xl"></i>
+                </div>
+                <div>
+                  <h4 className="text-base md:text-lg font-bold text-gray-900">
+                    {language === "ar" ? "الموقع الرئيسي للنشاط التجاري" : "Main Business Location"}
+                  </h4>
+                  <p className="text-xs text-gray-500 font-medium">
+                    {language === "ar"
+                      ? "حدد موضع المركز الرئيسي لنشاطك التجاري على الخريطة"
+                      : "Set the primary location for your business on the map"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Interactive Main Location Map Canvas */}
+              <div className="w-full rounded-2xl border border-gray-200 shadow-sm relative overflow-hidden">
                 <BusinessLocationMap
                   selectedLocation={selectedLocation}
                   setSelectedLocation={handleLocationChange}
                   alwaysEditable
                 />
               </div>
-
-              <div className="mt-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                <p className="text-xs md:text-sm text-yellow-800 mb-1">
-                  <i className="ri-map-pin-line me-1 md:mr-2"></i>
-                  {t("completeProfile.selectedLocation")}: Lat{" "}
-                  {selectedLocation.lat.toFixed(6)}, Lng{" "}
-                  {selectedLocation.lng.toFixed(6)}
-                </p>
-                <p className="text-xs text-yellow-700">
-                  {t("completeProfile.locationInstructions")}
-                </p>
-              </div>
             </div>
+
+            {/* SECTION 2: Additional Branches Section */}
+            <BranchManagement
+              branches={branches}
+              setBranches={setBranches}
+              mainBusinessData={{
+                businessName: formData.businessName,
+                category: formData.businessType,
+              }}
+            />
           </div>
         )}
 
@@ -1914,60 +1908,22 @@ export default function CompleteProfileForm({
 
         {currentStep === 6 && (
           <div className="space-y-4 md:space-y-6">
-            <div className="bg-gradient-to-r from-red-50 to-red-100 border border-red-200 rounded-lg md:rounded-xl p-4 md:p-6">
-              <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
-                <div className="w-8 h-8 md:w-12 md:h-12 bg-red-100 rounded-full flex items-center justify-center">
-                  <i className="ri-shield-check-line text-red-600 text-lg md:text-xl"></i>
-                </div>
-                <div>
-                  <h4 className="text-base md:text-lg font-semibold text-red-800">
-                    {t("completeProfile.step6.verificationRequired")}
-                  </h4>
-                  <p className="text-red-700 text-xs md:text-sm">
-                    {t("completeProfile.step6.verificationDesc")}
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-white p-3 md:p-4 rounded-lg border border-red-200">
-                <h5 className="font-medium text-gray-800 mb-2 md:mb-3 text-sm md:text-base">
-                  {t("completeProfile.step6.whyRequired")}
-                </h5>
-                <ul className="text-xs md:text-sm text-gray-700 space-y-1 md:space-y-2">
-                  <li className="flex items-start gap-1 md:gap-2">
-                    <i className="ri-check-line text-green-500 mt-0.5 text-sm md:text-base"></i>
-                    <span>{t("completeProfile.step6.reason1")}</span>
-                  </li>
-                  <li className="flex items-start gap-1 md:gap-2">
-                    <i className="ri-check-line text-green-500 mt-0.5 text-sm md:text-base"></i>
-                    <span>{t("completeProfile.step6.reason2")}</span>
-                  </li>
-                  <li className="flex items-start gap-1 md:gap-2">
-                    <i className="ri-check-line text-green-500 mt-0.5 text-sm md:text-base"></i>
-                    <span>{t("completeProfile.step6.reason3")}</span>
-                  </li>
-                  <li className="flex items-start gap-1 md:gap-2">
-                    <i className="ri-check-line text-green-500 mt-0.5 text-sm md:text-base"></i>
-                    <span>{t("completeProfile.step6.reason4")}</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t("completeProfile.step6.crDocument")} *
+            {/* 1. Primary Action: Upload Commercial Registration Container */}
+            <div className="bg-white border border-gray-200 rounded-3xl p-5 md:p-7 shadow-sm space-y-3">
+              <label className="block text-sm md:text-base font-bold text-gray-900 mb-1">
+                {t("completeProfile.step6.crDocument")}
               </label>
               {errors.document && (
-                <p className="text-red-500 text-xs mb-2">{errors.document}</p>
+                <p className="text-red-500 text-xs font-semibold mb-2">{errors.document}</p>
               )}
               <div
-                className={`border-2 border-dashed rounded-lg p-4 md:p-6 text-center transition-all ${errors.crFile || errors.document
-                  ? "border-red-300 bg-red-50"
-                  : crFile
-                    ? "border-green-300 bg-green-50"
-                    : "border-gray-300 hover:border-yellow-400 hover:bg-yellow-50"
-                  }`}
+                className={`border-2 border-dashed rounded-2xl p-6 md:p-8 text-center transition-all duration-200 ${
+                  errors.crFile || errors.document
+                    ? "border-red-300 bg-red-50/60"
+                    : crFile
+                    ? "border-emerald-400 bg-emerald-50/40"
+                    : "border-amber-200 bg-amber-50/20 hover:border-amber-400 hover:bg-amber-50/60 hover:shadow-sm cursor-pointer group"
+                }`}
               >
                 <input
                   type="file"
@@ -1978,31 +1934,35 @@ export default function CompleteProfileForm({
                 />
 
                 {!crFile ? (
-                  <label htmlFor="cr-upload" className="cursor-pointer">
-                    <div className="space-y-2 md:space-y-3">
-                      <i className="ri-upload-cloud-2-line text-2xl md:text-4xl text-gray-400"></i>
+                  <label htmlFor="cr-upload" className="cursor-pointer block w-full">
+                    <div className="space-y-3">
+                      <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-100/80 text-amber-600 flex items-center justify-center group-hover:scale-105 group-hover:bg-amber-200/80 transition-all">
+                        <i className="ri-upload-cloud-2-fill text-2xl md:text-3xl"></i>
+                      </div>
                       <div>
-                        <p className="text-base md:text-lg font-medium text-gray-700">
+                        <p className="text-base md:text-lg font-bold text-gray-800 group-hover:text-amber-900 transition-colors">
                           {t("completeProfile.step6.uploadCR")}
                         </p>
-                        <p className="text-xs md:text-sm text-gray-500">
+                        <p className="text-xs md:text-sm text-gray-500 font-medium mt-1">
                           {t("completeProfile.step6.uploadDesc")}
                         </p>
-                        <p className="text-xs text-gray-400 mt-1 md:mt-2">
+                        <p className="text-xs text-gray-400 mt-2 font-mono">
                           {t("completeProfile.step6.supportedFormats")}
                         </p>
                       </div>
                     </div>
                   </label>
                 ) : (
-                  <div className="space-y-3 md:space-y-4">
-                    <div className="flex items-center justify-center gap-2 md:gap-3">
-                      <i className="ri-file-check-line text-xl md:text-3xl text-green-600"></i>
-                      <div className="text-left">
-                        <p className="font-medium text-gray-800 text-sm md:text-base">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                        <i className="ri-file-check-fill text-2xl"></i>
+                      </div>
+                      <div className="text-start">
+                        <p className="font-bold text-gray-900 text-sm md:text-base">
                           {crFile.name}
                         </p>
-                        <p className="text-xs md:text-sm text-gray-500">
+                        <p className="text-xs text-gray-500 font-medium">
                           {(crFile.size / 1024 / 1024).toFixed(2)} MB
                         </p>
                       </div>
@@ -2013,17 +1973,17 @@ export default function CompleteProfileForm({
                         <img
                           src={crPreview}
                           alt="CR Preview"
-                          className="w-full h-auto rounded-lg shadow-md"
+                          className="w-full h-auto rounded-xl border border-gray-200 shadow-sm"
                         />
                       </div>
                     )}
 
-                    <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:gap-2 md:gap-3">
+                    <div className="flex flex-col sm:flex-row justify-center gap-2 pt-2">
                       <label
                         htmlFor="cr-upload"
-                        className="bg-blue-500 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg hover:bg-blue-600 text-xs md:text-sm cursor-pointer text-center"
+                        className="bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold px-4 py-2 rounded-xl text-xs md:text-sm cursor-pointer text-center transition-colors shadow-xs flex items-center justify-center gap-1.5"
                       >
-                        <i className="ri-refresh-line me-1 md:mr-2"></i>
+                        <i className="ri-refresh-line text-sm"></i>
                         {t("completeProfile.step6.replaceFile")}
                       </label>
                       <button
@@ -2032,9 +1992,9 @@ export default function CompleteProfileForm({
                           setCrFile(null);
                           setCrPreview("");
                         }}
-                        className="bg-red-500 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg hover:bg-red-600 text-xs md:text-sm cursor-pointer text-center"
+                        className="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-bold px-4 py-2 rounded-xl text-xs md:text-sm cursor-pointer text-center transition-colors flex items-center justify-center gap-1.5"
                       >
-                        <i className="ri-delete-bin-line me-1 md:mr-2"></i>
+                        <i className="ri-delete-bin-line text-sm"></i>
                         {t("completeProfile.step6.removeFile")}
                       </button>
                     </div>
@@ -2042,8 +2002,49 @@ export default function CompleteProfileForm({
                 )}
               </div>
               {errors.crFile && (
-                <p className="text-red-500 text-xs mt-1">{errors.crFile}</p>
+                <p className="text-red-500 text-xs font-semibold mt-1">{errors.crFile}</p>
               )}
+            </div>
+
+            {/* 2. Secondary Info: Business Verification Explanation Card */}
+            <div className="bg-gradient-to-r from-amber-50/70 to-orange-50/70 border border-amber-200/80 rounded-3xl p-5 md:p-6 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-amber-100 text-amber-900 flex items-center justify-center font-bold shadow-xs">
+                  <i className="ri-shield-check-fill text-xl"></i>
+                </div>
+                <div>
+                  <h4 className="text-base md:text-lg font-bold text-amber-950">
+                    {t("completeProfile.step6.verificationRequired")}
+                  </h4>
+                  <p className="text-amber-800 text-xs md:text-sm font-medium">
+                    {t("completeProfile.step6.verificationDesc")}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white/90 p-4 rounded-2xl border border-amber-200/60 shadow-xs space-y-2">
+                <h5 className="font-bold text-gray-900 text-sm md:text-base">
+                  {t("completeProfile.step6.whyRequired")}
+                </h5>
+                <ul className="text-xs md:text-sm text-gray-700 space-y-2 font-medium">
+                  <li className="flex items-start gap-2">
+                    <i className="ri-check-line text-emerald-600 mt-0.5 text-base font-bold"></i>
+                    <span>{t("completeProfile.step6.reason1")}</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <i className="ri-check-line text-emerald-600 mt-0.5 text-base font-bold"></i>
+                    <span>{t("completeProfile.step6.reason2")}</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <i className="ri-check-line text-emerald-600 mt-0.5 text-base font-bold"></i>
+                    <span>{t("completeProfile.step6.reason3")}</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <i className="ri-check-line text-emerald-600 mt-0.5 text-base font-bold"></i>
+                    <span>{t("completeProfile.step6.reason4")}</span>
+                  </li>
+                </ul>
+              </div>
             </div>
 
             <div className="bg-blue-50 p-3 md:p-4 rounded-lg">
@@ -2076,71 +2077,6 @@ export default function CompleteProfileForm({
               </p>
             </div>
 
-            {/* Profile Summary */}
-            <div className="bg-green-50 p-4 md:p-6 rounded-lg mt-4 md:mt-6">
-              <h4 className="text-base md:text-lg font-semibold text-green-800 mb-3 md:mb-4">
-                {t("completeProfile.step6.profileSummary")}
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 text-xs md:text-sm">
-                <div>
-                  <p>
-                    <span className="font-medium">
-                      {t("completeProfile.step6.business")}:
-                    </span>{" "}
-                    {formData.businessName}
-                  </p>
-                  <p>
-                    <span className="font-medium">
-                      {t("completeProfile.step6.category")}:
-                    </span>{" "}
-                    {getCategoryName(formData.category, language === 'ar' ? 'ar' : 'en')}
-                  </p>
-                  <p>
-                    <span className="font-medium">
-                      {t("completeProfile.step6.type")}:
-                    </span>{" "}
-                    {getTranslatedTextWithValue(
-                      businessTypes,
-                      formData.businessType,
-                    )}
-                  </p>
-                  <p>
-                    <span className="font-medium">
-                      {t("completeProfile.step6.services")}:
-                    </span>{" "}
-                    {selectedServices.length}{" "}
-                    {t("completeProfile.step6.selected")}
-                  </p>
-                </div>
-                <div>
-                  <p>
-                    <span className="font-medium">
-                      {t("completeProfile.step6.email")}:
-                    </span>{" "}
-                    {formData.contactEmail}
-                  </p>
-                  <p>
-                    <span className="font-medium">
-                      {t("completeProfile.step6.phone")}:
-                    </span>{" "}
-                    {formData.contactPhone}
-                  </p>
-                  <p>
-                    <span className="font-medium">
-                      {t("completeProfile.step6.targetCustomers")}:
-                    </span>{" "}
-                    {selectedTargetCustomers.length}{" "}
-                    {t("completeProfile.step6.types")}
-                  </p>
-                  <p>
-                    <span className="font-medium">
-                      {t("completeProfile.step6.keywords")}:
-                    </span>{" "}
-                    {getKeywordCount()} {t("completeProfile.step6.added")}
-                  </p>
-                </div>
-              </div>
-            </div>
           </div>
         )}
 
@@ -2258,43 +2194,72 @@ export default function CompleteProfileForm({
       )}
 
       {showVerificationModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl md:rounded-2xl p-6 md:p-8 max-w-lg w-full mx-2 text-center">
-            <div className="w-16 h-16 md:w-20 md:h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6">
-              <i className="ri-time-line text-yellow-600 text-2xl md:text-3xl"></i>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4 transition-all duration-300">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-5 text-center animate-in fade-in zoom-in-95 duration-200 border border-gray-100">
+            {/* Header Icon Badge */}
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-amber-100 to-amber-200 text-amber-900 rounded-3xl flex items-center justify-center mx-auto shadow-xs">
+              <i className="ri-checkbox-circle-fill text-3xl sm:text-4xl"></i>
             </div>
-            <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-3 md:mb-4">
-              {t("completeProfile.success.profileSubmitted")}
-            </h3>
-            <p className="text-gray-600 text-sm md:text-base mb-4 md:mb-6">
-              {t("completeProfile.success.submittedMessage")}
-            </p>
 
-            <div className="bg-blue-50 p-3 md:p-4 rounded-lg mb-4 md:mb-6 text-left">
-              <h4 className="font-semibold text-blue-800 mb-1 md:mb-2 text-sm md:text-base">
-                {t("completeProfile.success.whatHappensNext")}
+            {/* Title & Reassuring Description */}
+            <div className="space-y-2">
+              <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900 leading-tight">
+                {t("completeProfile.success.profileSubmitted")}
+              </h3>
+              <p className="text-gray-600 text-xs sm:text-sm leading-relaxed font-medium">
+                {t("completeProfile.success.submittedMessage")}
+              </p>
+            </div>
+
+            {/* What Happens Next Section */}
+            <div className="bg-slate-50 border border-slate-200/80 p-4 sm:p-5 rounded-2xl text-start space-y-3">
+              <h4 className="font-bold text-gray-900 text-xs sm:text-sm flex items-center gap-2">
+                <i className="ri-time-line text-amber-600 text-base"></i>
+                <span>{t("completeProfile.success.whatHappensNext")}</span>
               </h4>
-              <ul className="text-xs md:text-sm text-blue-700 space-y-1">
-                <li>{t("completeProfile.success.documentVerification")}</li>
-                <li>{t("completeProfile.success.infoValidation")}</li>
-                <li>{t("completeProfile.success.emailNotification")}</li>
-                <li>{t("completeProfile.success.profileLive")}</li>
+              <ul className="text-xs sm:text-sm text-gray-700 space-y-2 font-medium">
+                <li className="flex items-start gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
+                    ✓
+                  </span>
+                  <span>{t("completeProfile.success.documentVerification")}</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
+                    ✓
+                  </span>
+                  <span>{t("completeProfile.success.infoValidation")}</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
+                    ✓
+                  </span>
+                  <span>{t("completeProfile.success.emailNotification")}</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
+                    ✓
+                  </span>
+                  <span>{t("completeProfile.success.profileLive")}</span>
+                </li>
               </ul>
             </div>
 
-            <div className="space-y-2 md:space-y-3">
+            {/* Action Buttons */}
+            <div className="space-y-2.5 pt-1">
               <Link
                 href="/dashboard"
-                className="block bg-yellow-400 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg hover:bg-yellow-500 font-medium whitespace-nowrap cursor-pointer w-full text-sm md:text-base"
+                className="w-full bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold py-3 px-6 rounded-xl shadow-xs transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer"
               >
-                <i className="ri-user-line me-1 md:mr-2"></i>
-                {t("completeProfile.buttons.viewProfile")}
+                <i className="ri-user-3-line text-base"></i>
+                <span>{t("completeProfile.buttons.viewProfile")}</span>
               </Link>
               <Link
                 href="/"
-                className="block border border-gray-300 text-gray-600 px-4 md:px-6 py-2 md:py-3 rounded-lg hover:bg-gray-50 font-medium whitespace-nowrap cursor-pointer w-full text-sm md:text-base"
+                className="w-full bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 font-bold py-3 px-6 rounded-xl transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer"
               >
-                {t("completeProfile.buttons.close")}
+                <i className="ri-close-line text-base"></i>
+                <span>{t("completeProfile.buttons.close")}</span>
               </Link>
             </div>
           </div>

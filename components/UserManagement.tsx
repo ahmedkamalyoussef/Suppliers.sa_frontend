@@ -875,7 +875,7 @@ export default function UserManagement() {
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="text-left py-3 px-4 sm:px-6">
+                <th className="text-start py-3 px-4 sm:px-6">
                   <input
                     type="checkbox"
                     className="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-2 focus:ring-red-400"
@@ -888,10 +888,10 @@ export default function UserManagement() {
                     }}
                   />
                 </th>
-                <th className="text-left py-3 px-4 sm:px-6 text-sm font-medium text-gray-700">
+                <th className="text-start py-3 px-4 sm:px-6 text-sm font-medium text-gray-700">
                   {language === "ar" ? "المستخدم" : "User"}
                 </th>
-                <th className="text-left py-3 px-4 sm:px-6 text-sm font-medium text-gray-700">
+                <th className="text-start py-3 px-4 sm:px-6 text-sm font-medium text-gray-700">
                   {language === "ar" ? "العمل التجاري" : "Business"}
                 </th>
                 <th className="text-left py-3 px-4 sm:px-6 text-sm font-medium text-gray-700">

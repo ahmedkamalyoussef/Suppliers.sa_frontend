@@ -96,6 +96,13 @@ export default function BranchManagement({
     setErrors({});
   };
 
+  const handleCancelBranch = () => {
+    resetForm();
+    if (branches.length === 0) {
+      setHasBranchesAnswer(null);
+    }
+  };
+
   const handleEditBranch = (branch: Branch, openMapDirectly = false) => {
     setEditingBranch(branch);
     setBranchName(branch.name || "");
@@ -413,15 +420,14 @@ export default function BranchManagement({
                   </span>
                 </h4>
 
-                {branches.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={resetForm}
-                    className="text-xs font-bold text-gray-500 hover:text-gray-800 bg-white px-3 py-1.5 rounded-xl border border-gray-200 cursor-pointer"
-                  >
-                    {language === "ar" ? "إلغاء" : "Cancel"}
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={handleCancelBranch}
+                  className="text-xs font-bold text-gray-500 hover:text-gray-800 bg-white px-3 py-1.5 rounded-xl border border-gray-200 cursor-pointer flex items-center gap-1 transition-colors"
+                >
+                  <i className="ri-close-line text-sm"></i>
+                  <span>{language === "ar" ? "إلغاء" : "Cancel"}</span>
+                </button>
               </div>
 
               {/* 1. Branch Name Input */}
@@ -482,9 +488,9 @@ export default function BranchManagement({
                   {language === "ar" ? "موقع الفرع على الخريطة *" : "Branch Location on Map *"}
                 </label>
 
-                <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
+                <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 sm:p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-2xs">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-emerald-500 text-white flex items-center justify-center font-bold shadow-sm">
+                    <div className="w-10 h-10 rounded-2xl bg-emerald-500 text-white flex items-center justify-center font-bold shadow-sm shrink-0">
                       <i className="ri-checkbox-circle-fill text-xl"></i>
                     </div>
                     <div>
@@ -500,7 +506,7 @@ export default function BranchManagement({
                   <button
                     type="button"
                     onClick={() => setIsPickingMapLocation(true)}
-                    className="px-4 py-2 rounded-xl bg-white border border-emerald-300 text-emerald-900 hover:bg-emerald-100 text-xs font-bold transition-all cursor-pointer shadow-2xs flex items-center gap-2"
+                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-white border border-emerald-300 text-emerald-900 hover:bg-emerald-100 text-xs font-bold transition-all cursor-pointer shadow-2xs flex items-center justify-center gap-2"
                   >
                     <i className="ri-map-pin-2-line text-emerald-600 text-sm"></i>
                     <span>{language === "ar" ? "تحديد / تغيير الموقع على الخريطة" : "Select / Change Location on Map"}</span>
@@ -522,22 +528,21 @@ export default function BranchManagement({
               </div>
 
               {/* Form Action Buttons */}
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-200">
-                {branches.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={resetForm}
-                    className="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-xs font-bold rounded-xl cursor-pointer hover:bg-gray-100"
-                  >
-                    {language === "ar" ? "إلغاء" : "Cancel"}
-                  </button>
-                )}
+              <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 pt-3 border-t border-gray-200">
+                <button
+                  type="button"
+                  onClick={handleCancelBranch}
+                  className="w-full sm:w-auto px-4 py-2.5 bg-white border border-gray-300 text-gray-700 text-xs font-bold rounded-xl cursor-pointer hover:bg-gray-100 transition-all flex items-center justify-center gap-1.5"
+                >
+                  <i className="ri-close-line text-sm"></i>
+                  <span>{language === "ar" ? "إلغاء" : "Cancel"}</span>
+                </button>
 
                 <button
                   type="button"
                   onClick={handleSaveBranch}
                   disabled={isSaving}
-                  className="px-5 py-2 bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold text-xs rounded-xl shadow-sm transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                  className="w-full sm:w-auto px-5 py-2.5 bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold text-xs rounded-xl shadow-sm transition-all cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
                 >
                   {isSaving ? (
                     <i className="ri-loader-4-line animate-spin"></i>

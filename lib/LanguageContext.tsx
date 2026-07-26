@@ -54,6 +54,21 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }, [language, mounted]);
 
   const t = (key: string): string => {
+    if (!key) return "";
+
+    // Prevent displaying raw keys containing .undefined or .null
+    if (key.endsWith(".undefined") || key.endsWith(".null") || key.endsWith(".unspecified")) {
+      if (key.includes("businessTypes")) {
+        return language === "ar" ? "مورد" : "Supplier";
+      }
+      const unspecifiedKey = key.replace(/\.(undefined|null|unspecified)$/, ".supplier");
+      const unspecifiedVal = t(unspecifiedKey);
+      if (unspecifiedVal && unspecifiedVal !== unspecifiedKey) {
+        return unspecifiedVal;
+      }
+      return language === "ar" ? "مورد" : "Supplier";
+    }
+
     // Special handling for session timeout messages
     if (key === "auth.session_timeout") {
       return SESSION_TIMEOUT_MSGS[language];

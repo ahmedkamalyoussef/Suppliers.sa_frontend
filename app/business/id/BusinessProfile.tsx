@@ -632,11 +632,14 @@ export default function BusinessProfile() {
                           )} text-xs`}
                         ></i>
                         <span className="font-medium">
-                          {business.businessType && business.businessType.trim() !== "" ? (
-                            t(`publicProfile.businessTypes.${business.businessType.toLowerCase()}`) || business.businessType
-                          ) : (
-                            t("publicProfile.businessTypes.unspecified") || "غير محدد"
-                          )}
+                          {(() => {
+                            if (!business.businessType || business.businessType === "undefined" || business.businessType === "null") {
+                              return language === "ar" ? "غير محدد" : "Unspecified";
+                            }
+                            const key = `publicProfile.businessTypes.${business.businessType.toLowerCase().trim()}`;
+                            const val = t(key);
+                            return (val && val !== key && !val.includes("publicProfile.")) ? val : business.businessType;
+                          })()}
                         </span>
                       </div>
                       <div className="flex items-center gap-0.5">
@@ -744,11 +747,14 @@ export default function BusinessProfile() {
                     {t("businessProfile.businessType")}
                   </p>
                   <p className="text-xs md:text-sm text-gray-600">
-                    {business.businessType && business.businessType.trim() !== "" ? (
-                      t(`publicProfile.businessTypes.${business.businessType.toLowerCase()}`) || business.businessType
-                    ) : (
-                      t("publicProfile.businessTypes.unspecified") || "غير محدد"
-                    )}
+                    {(() => {
+                      if (!business.businessType || business.businessType === "undefined" || business.businessType === "null") {
+                        return language === "ar" ? "غير محدد" : "Unspecified";
+                      }
+                      const key = `publicProfile.businessTypes.${business.businessType.toLowerCase().trim()}`;
+                      const val = t(key);
+                      return (val && val !== key && !val.includes("publicProfile.")) ? val : business.businessType;
+                    })()}
                   </p>
                 </div>
               </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
 import { useLanguage } from "../lib/LanguageContext";
 
@@ -32,11 +33,16 @@ export default function LocationPickerModal({
   initialLocation = { lat: 24.7136, lng: 46.6753 },
   title,
 }: LocationPickerModalProps) {
-  const { language, isRTL } = useLanguage();
+  const { language } = useLanguage();
   const isArabic = language === "ar";
 
+  const [mounted, setMounted] = useState(false);
   const [tempLocation, setTempLocation] = useState<{ lat: number; lng: number }>(initialLocation);
   const [isLocating, setIsLocating] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isOpen && initialLocation) {
@@ -44,7 +50,7 @@ export default function LocationPickerModal({
     }
   }, [isOpen, initialLocation]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   // Browser Geolocation
   const handleUseCurrentLocation = () => {
@@ -80,8 +86,8 @@ export default function LocationPickerModal({
     onClose();
   };
 
-  return (
-    <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-xs flex items-center justify-center p-0 sm:p-4 md:p-6 transition-all animate-fade-in">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] bg-black/75 backdrop-blur-xs flex items-center justify-center p-0 sm:p-4 md:p-6 transition-all animate-fade-in">
       <div className="bg-white w-full h-full sm:h-[90vh] sm:max-w-5xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden relative">
         
         {/* MODAL HEADER */}
@@ -153,11 +159,12 @@ export default function LocationPickerModal({
         </div>
 
         {/* MAP CANVAS CONTAINER */}
-        <div className="flex-1 min-h-0 w-full relative bg-gray-100">
+        <div className="flex-1 flex flex-col min-h-[380px] sm:min-h-[480px] w-full relative bg-gray-100 overflow-hidden">
           <BusinessLocationMap
             selectedLocation={tempLocation}
             setSelectedLocation={setTempLocation}
             alwaysEditable
+            hideHeader
           />
         </div>
 
@@ -191,6 +198,7 @@ export default function LocationPickerModal({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

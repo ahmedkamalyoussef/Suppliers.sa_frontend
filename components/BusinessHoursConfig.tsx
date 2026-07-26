@@ -84,17 +84,17 @@ export default function BusinessHoursConfig({
   return (
     <div className="space-y-4">
       {/* Productivity Toolbar */}
-      <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-3 flex flex-wrap items-center justify-between gap-2">
+      <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
         <div className="flex items-center gap-2 text-amber-900 font-bold text-xs">
           <i className="ri-flashlight-line text-amber-600 text-sm"></i>
           <span>{isArabic ? "إجراءات سريعة للتسهيل:" : "Quick Actions:"}</span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-1.5">
           <button
             type="button"
             onClick={copyMondayToAll}
-            className="px-2.5 py-1 rounded-xl bg-white text-amber-900 border border-amber-300/80 hover:bg-amber-100 text-xs font-semibold transition-all cursor-pointer shadow-sm flex items-center gap-1"
+            className="px-2.5 py-1.5 rounded-xl bg-white text-amber-900 border border-amber-300/80 hover:bg-amber-100 text-xs font-semibold transition-all cursor-pointer shadow-xs flex items-center justify-center gap-1"
           >
             <i className="ri-file-copy-line text-amber-600"></i>
             <span>{isArabic ? "نسخ مواعيد الاثنين للكل" : "Copy Monday to All"}</span>
@@ -103,7 +103,7 @@ export default function BusinessHoursConfig({
           <button
             type="button"
             onClick={setAll24Hours}
-            className="px-2.5 py-1 rounded-xl bg-white text-amber-900 border border-amber-300/80 hover:bg-amber-100 text-xs font-semibold transition-all cursor-pointer shadow-sm flex items-center gap-1"
+            className="px-2.5 py-1.5 rounded-xl bg-white text-amber-900 border border-amber-300/80 hover:bg-amber-100 text-xs font-semibold transition-all cursor-pointer shadow-xs flex items-center justify-center gap-1"
           >
             <i className="ri-time-line text-amber-600"></i>
             <span>{isArabic ? "مفتوح 24/7" : "Open 24/7"}</span>
@@ -112,7 +112,7 @@ export default function BusinessHoursConfig({
           <button
             type="button"
             onClick={closeWeekend}
-            className="px-2.5 py-1 rounded-xl bg-white text-amber-900 border border-amber-300/80 hover:bg-amber-100 text-xs font-semibold transition-all cursor-pointer shadow-sm flex items-center gap-1"
+            className="px-2.5 py-1.5 rounded-xl bg-white text-amber-900 border border-amber-300/80 hover:bg-amber-100 text-xs font-semibold transition-all cursor-pointer shadow-xs flex items-center justify-center gap-1"
           >
             <i className="ri-calendar-close-line text-amber-600"></i>
             <span>{isArabic ? "إغلاق الجمعة والسبت" : "Close Fri/Sat"}</span>
@@ -193,7 +193,7 @@ export default function BusinessHoursConfig({
 
               {/* Time Pickers (Visible only when day is OPEN) */}
               {!isClosed ? (
-                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 pt-2 border-t border-gray-100">
                   <TimePickerInput
                     label={isArabic ? "وقت الفتح" : "Opens at"}
                     value={dayData.open || "09:00"}

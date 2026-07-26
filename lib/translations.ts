@@ -1820,7 +1820,27 @@ export const translations = {
         "supplier": "Supplier",
         "store": "Retail Shop",
         "office": "Company",
-        "individual": "Individual Establishment"
+        "individual": "Individual Establishment",
+        "factory": "Factory / Manufacturer",
+        "wholesaler": "Wholesaler",
+        "distributor": "Distributor",
+        "company": "Company",
+        "services": "Service Provider",
+        "contractor": "Contractor",
+        "other": "Other",
+        "undefined": "Unspecified",
+        "null": "Unspecified"
+      },
+      "phoneTypes": {
+        "sales": "Sales",
+        "procurement": "Procurement",
+        "technical": "Technical Support",
+        "customer": "Customer Service",
+        "manager": "Manager",
+        "general": "General Inquiry",
+        "sales representative": "Sales Representative",
+        "support team": "Support Team",
+        "management": "Management"
       },
       "status": {
         "pending": "Pending",
@@ -2376,28 +2396,28 @@ export const translations = {
       "success": {
         "profileCompleted": "Profile Completed!",
         "successMessage": "Your business profile is now complete and will be visible to customers searching in your area.",
-        "profileSubmitted": "Profile Submitted Successfully!",
-        "submittedMessage": "Your business profile and Commercial Registration have been submitted for verification. Our team will review your documents and information within 1-2 business days.",
-        "whatHappensNext": "What happens next:",
-        "documentVerification": "✓ Document verification by our team",
-        "infoValidation": "✓ Business information validation",
-        "emailNotification": "✓ Email notification of approval status",
-        "profileLive": "✓ Profile goes live once verified"
+        "profileSubmitted": "Submit Application & Complete Registration",
+        "submittedMessage": "Your business application and verification documents have been successfully received. Our specialist team is reviewing your profile to ensure verification and activate your listing promptly (within 1-2 business days).",
+        "whatHappensNext": "What happens next?",
+        "documentVerification": "Verification and auditing of Commercial Registration documents",
+        "infoValidation": "Validation of contact details, location, and working hours",
+        "emailNotification": "Email & notification upon account approval & activation",
+        "profileLive": "Full business visibility in customer search results"
       },
       "stepTitles": {
         "1": "Business Information",
         "2": "Categories & Keywords",
         "3": "Contact Details",
-        "4": "Location & Hours",
-        "5": "Branches",
+        "4": "Working Hours",
+        "5": "Location & Branches",
         "6": "Documents & Verification"
       },
       "completed": "Completed",
       "step1Title": "Business Information",
       "step2Title": "Categories & Keywords",
       "step3Title": "Contact Details",
-      "step4Title": "Location & Hours",
-      "step5Title": "Branches",
+      "step4Title": "Working Hours",
+      "step5Title": "Location & Branches",
       "step6Title": "Documents & Verification"
     },
     "trustedPartners": {
@@ -4694,7 +4714,27 @@ export const translations = {
         "supplier": "مورد",
         "store": "متجر تجزئة",
         "office": "شركة",
-        "individual": "منشأة فردية"
+        "individual": "منشأة فردية",
+        "factory": "مصنع / مصنّع",
+        "wholesaler": "تاجر جملة",
+        "distributor": "موزع",
+        "company": "شركة",
+        "services": "مزود خدمات",
+        "contractor": "مقاول",
+        "other": "آخر",
+        "undefined": "غير محدد",
+        "null": "غير محدد"
+      },
+      "phoneTypes": {
+        "sales": "المبيعات",
+        "procurement": "المشتريات",
+        "technical": "الدعم الفني",
+        "customer": "خدمة العملاء",
+        "manager": "الإدارة",
+        "general": "استفسارات عامة",
+        "sales representative": "ممثل المبيعات",
+        "support team": "فريق الدعم",
+        "management": "الإدارة"
       },
       "status": {
         "pending": "قيد المراجعة",
@@ -5268,28 +5308,28 @@ export const translations = {
       "success": {
         "profileCompleted": "اكتمل الملف الشخصي!",
         "successMessage": "اكتمل ملف تعريف عملك الآن وسيكون مرئياً للعملاء الذين يبحثون في منطقتك.",
-        "profileSubmitted": "تم تقديم الملف الشخصي بنجاح!",
-        "submittedMessage": "تم تقديم ملف تعريف عملك والسجل التجاري للتحقق. سيقوم فريقنا بمراجعة مستنداتك ومعلوماتك خلال 1-2 يوم عمل.",
-        "whatHappensNext": "ماذا يحدث بعد ذلك:",
-        "documentVerification": "✓ التحقق من المستندات من قبل فريقنا",
-        "infoValidation": "✓ التحقق من معلومات العمل",
-        "emailNotification": "✓ إشعار البريد الإلكتروني لحالة الموافقة",
-        "profileLive": "✓ يصبح الملف الشخصي نشطاً بمجرد التحقق"
+        "profileSubmitted": "إرسال الطلب وإكمال التسجيل",
+        "submittedMessage": "تم استلام ملف نشاطك التجاري ومستندات التحقق بنجاح. يقوم فريق المتخصصين لدينا الآن بمراجعة بياناتك لضمان مطابقتها وتفعيل حسابك في أقرب وقت (خلال 1-2 يوم عمل).",
+        "whatHappensNext": "ماذا يحدث بعد ذلك؟",
+        "documentVerification": "فحص وتدقيق مستندات السجل التجاري",
+        "infoValidation": "التحقق من بيانات التواصل والموقع وساعات العمل",
+        "emailNotification": "إرسال إشعار فور اعتماد الحساب وتفعيله",
+        "profileLive": "ظهور النشاط التجاري كاملاً في نتائج البحث للعملاء"
       },
       "stepTitles": {
         "1": "معلومات النشاط التجاري",
         "2": "الفئات والكلمات المفتاحية",
         "3": "بيانات التواصل",
-        "4": "الموقع وساعات العمل",
-        "5": "الفروع",
+        "4": "ساعات العمل",
+        "5": "الموقع والفروع",
         "6": "المستندات والتحقق"
       },
       "completed": "مكتمل",
       "step1Title": "معلومات النشاط التجاري",
       "step2Title": "الفئات والكلمات المفتاحية",
       "step3Title": "بيانات التواصل",
-      "step4Title": "الموقع وساعات العمل",
-      "step5Title": "الفروع",
+      "step4Title": "ساعات العمل",
+      "step5Title": "الموقع والفروع",
       "step6Title": "المستندات والتحقق"
     },
     "branchManagement": {

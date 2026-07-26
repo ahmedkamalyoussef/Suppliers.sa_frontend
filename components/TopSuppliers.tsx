@@ -7,6 +7,7 @@ import { apiService } from "../lib/api";
 import { TopRatedSuppliersResponse } from "../lib/types/topRatedSuppliers";
 import { toast } from "react-toastify";
 import MessageModal from "./MessageModal";
+import BusinessCard from "./BusinessCard";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
@@ -15,7 +16,7 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 
 export default function TopSuppliers() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [isRTL, setIsRTL] = useState(false);
   const [topSuppliers, setTopSuppliers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,23 +30,30 @@ export default function TopSuppliers() {
         const response: TopRatedSuppliersResponse =
           await apiService.getTopRatedSuppliers();
 
-        // Transform API data to match component structure
-        const transformedSuppliers = response.suppliers.map((supplier) => ({
+        // Transform API data to match BusinessCard component structure
+        const transformedSuppliers = response.suppliers.map((supplier: any) => ({
           id: supplier.id,
-          name: supplier.name,
-          category: supplier.category,
-          businessType: supplier.business_type,
-          rating: supplier.average_rating,
-          reviews: supplier.total_ratings,
-          specialization: supplier.business_name,
-          image: supplier.business_image,
-          badge: supplier.business_type,
-          features: supplier.certifications.slice(0, 3),
-          totalCertifications: supplier.total_certifications,
-          hasMoreCertifications: supplier.total_certifications > 3,
-          remainingCertifications: supplier.total_certifications - 3,
-          profile_visibility: supplier.profile_visibility,
-          allow_direct_contact: supplier.allow_direct_contact,
+          name: supplier.name || supplier.business_name || "",
+          category: supplier.category || "General",
+          businessType: supplier.business_type || "Supplier",
+          location: supplier.address || supplier.city || "",
+          rating: Number(supplier.average_rating) || 5.0,
+          reviews: Number(supplier.total_ratings) || 0,
+          reviewsCount: Number(supplier.total_ratings) || 0,
+          verified: supplier.status === "verified",
+          openNow: false,
+          lat: Number(supplier.latitude) || 0,
+          lng: Number(supplier.longitude) || 0,
+          image: supplier.business_image || supplier.image || "",
+          businessImage: supplier.business_image || "",
+          services: supplier.services || supplier.certifications || [],
+          targetCustomers: supplier.target_customers || [],
+          serviceDistance: supplier.service_distance,
+          status: supplier.status,
+          preferences: {
+            profile_visibility: supplier.profile_visibility || "public",
+            allow_direct_contact: supplier.allow_direct_contact ?? true,
+          },
         }));
 
         setTopSuppliers(transformedSuppliers);
@@ -179,30 +187,20 @@ export default function TopSuppliers() {
     };
   }, []);
 
-  const getBadgeColor = (businessType: string) => {
-    switch (businessType) {
-      case "supplier":
-        return "bg-gradient-to-r from-blue-500 to-blue-600";
+  const getBadgeColor = (businessType?: string) => {
+    const norm = (businessType || "supplier").toLowerCase().trim();
+    switch (norm) {
       case "office":
-        return "bg-gradient-to-r from-green-500 to-green-600";
+      case "company":
+        return "bg-purple-100 text-purple-700 border border-purple-200";
       case "store":
-        return "bg-gradient-to-r from-purple-500 to-purple-600";
-      case "individual":
-        return "bg-gradient-to-r from-orange-500 to-orange-600";
-      case "service":
-        return "bg-gradient-to-r from-pink-500 to-pink-600";
       case "retail":
-        return "bg-gradient-to-r from-indigo-500 to-indigo-600";
-      case "consultant":
-        return "bg-gradient-to-r from-teal-500 to-teal-600";
-      case "contractor":
-        return "bg-gradient-to-r from-red-500 to-red-600";
-      case "wholesale":
-        return "bg-gradient-to-r from-yellow-500 to-yellow-600";
-      case "freelancer":
-        return "bg-gradient-to-r from-cyan-500 to-cyan-600";
+        return "bg-amber-100 text-amber-800 border border-amber-200";
+      case "individual":
+        return "bg-orange-100 text-orange-700 border border-orange-200";
+      case "supplier":
       default:
-        return "bg-gradient-to-r from-gray-500 to-gray-700";
+        return "bg-blue-100 text-blue-700 border border-blue-200";
     }
   };
 
@@ -216,19 +214,28 @@ export default function TopSuppliers() {
         return "topSuppliers.badgeGoldPartner";
       case "Certified Organic":
         return "topSuppliers.badgeCertifiedOrganic";
-      case "Heritage Brand":
-        return "topSuppliers.badgeHeritageBrand";
-      case "Innovation Leader":
-        return "topSuppliers.badgeInnovationLeader";
       default:
         return "";
     }
   };
 
+  const getFormattedBusinessType = (type?: string) => {
+    if (!type || type === "undefined" || type === "null" || type === "unspecified" || type.trim() === "") {
+      return language === "ar" ? "مورد" : "Supplier";
+    }
+    const normalized = type.toLowerCase().trim();
+    const key = `publicProfile.businessTypes.${normalized}`;
+    const val = t(key);
+    if (val && val !== key && !val.includes("publicProfile.")) {
+      return val;
+    }
+    return type.charAt(0).toUpperCase() + type.slice(1);
+  };
+
   return (
     <>
       <section className="py-8 sm:py-10 md:py-12 lg:py-16 bg-gradient-to-b from-gray-50 to-white">
-        <div className="w-full px-3 sm:px-4 md:px-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-6 sm:mb-8 md:mb-12">
             <h2 className="text-xl sm:text-2xl md:text-4xl font-bold text-gray-800 mb-3 sm:mb-4">
               {t("topSuppliers.title")}
@@ -260,7 +267,6 @@ export default function TopSuppliers() {
                 autoplay={{
                   delay: 5000,
                   disableOnInteraction: false,
-                  pauseOnMouseEnter: true, // إضافة هذه الخاصية لتوقيف الأوتوبلاي عند التمرير بالفأرة
                 }}
                 loop={topSuppliers.length > 3}
                 dir={isRTL ? "rtl" : "ltr"}
@@ -268,13 +274,9 @@ export default function TopSuppliers() {
                 breakpoints={{
                   0: {
                     slidesPerView: 1,
-                    spaceBetween: 12,
-                  },
-                  640: {
-                    slidesPerView: 1,
                     spaceBetween: 16,
                   },
-                  768: {
+                  640: {
                     slidesPerView: 2,
                     spaceBetween: 16,
                   },
@@ -283,124 +285,16 @@ export default function TopSuppliers() {
                     spaceBetween: 20,
                   },
                   1280: {
-                    slidesPerView: 3,
+                    slidesPerView: 4,
                     spaceBetween: 24,
                   },
                 }}
-                // إضافة هذه الخاصية لضمان عمل السوايبر بشكل صحيح عند تغيير اللغة
                 key={isRTL ? "rtl" : "ltr"}
               >
                 {topSuppliers.map((supplier) => (
-                  <SwiperSlide key={supplier.id}>
-                    <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100 cursor-pointer h-full flex flex-col max-w-xs">
-                      <div className="relative h-28 overflow-hidden flex-shrink-0">
-                        <img
-                          src={supplier.image}
-                          alt={supplier.name}
-                          className="w-full h-full object-cover object-top"
-                          onError={(e) => {
-                            console.error(
-                              "Image failed to load:",
-                              supplier.image,
-                            );
-                            e.currentTarget.src =
-                              "https://via.placeholder.com/400x300/e5e7eb/6b7280?text=No+Image";
-                          }}
-                        />
-                        <div className="absolute top-2 left-2">
-                          <div
-                            className={`${getBadgeColor(
-                              supplier.businessType,
-                            )} text-white px-2 py-1 rounded-full shadow-lg`}
-                          >
-                            <span className="text-xs font-bold">
-                              {t(
-                                `publicProfile.businessTypes.${supplier.businessType?.toLowerCase()}`,
-                              ) || supplier.businessType}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="absolute top-2 right-2 bg-white rounded-full px-2 py-1 shadow-md">
-                          <div className="flex items-center gap-1">
-                            <i className="ri-star-fill text-yellow-400 text-xs"></i>
-                            <span className="text-xs font-bold text-gray-800">
-                              {supplier.rating}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="p-3 flex-1 flex flex-col">
-                        <h3 className="text-sm font-bold text-gray-800 mb-1">
-                          {supplier.name}
-                        </h3>
-                        <p className="text-yellow-600 font-medium text-xs mb-1">
-                          {supplier.category}
-                        </p>
-                        <p className="text-gray-500 text-xs mb-2">
-                          {supplier.specialization}
-                        </p>
-
-                        <div className="flex items-center mb-2 text-xs">
-                          {[...Array(5)].map((_, i) => (
-                            <i
-                              key={i}
-                              className={`text-xs ${
-                                i < Math.floor(supplier.rating)
-                                  ? "ri-star-fill text-yellow-400"
-                                  : "ri-star-line text-gray-300"
-                              }`}
-                            />
-                          ))}
-                          <span className="text-gray-600 ml-2">
-                            {t("topSuppliers.reviews").replace(
-                              "{{count}}",
-                              String(supplier.reviews),
-                            )}
-                          </span>
-                        </div>
-
-                        <div className="flex flex-wrap gap-1 mb-2">
-                          {supplier.features.slice(0, 2).map(
-                            (feature: string, index: number) => (
-                              <span
-                                key={index}
-                                className="bg-yellow-50 text-yellow-700 px-2 py-1 rounded-full text-xs font-medium"
-                              >
-                                {feature}
-                              </span>
-                            ),
-                          )}
-                          {supplier.hasMoreCertifications && (
-                            <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs font-medium">
-                              +{supplier.remainingCertifications}
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="flex flex-col sm:flex-row gap-2 mt-auto">
-                          {supplier.allow_direct_contact && isLoggedIn() && (
-                            <button
-                              onClick={() => handleMessageClick(supplier)}
-                              className="flex-1 bg-yellow-400 text-white py-1.5 px-2 rounded-lg hover:bg-yellow-500 text-xs font-medium transition-colors"
-                            >
-                              <i className="ri-message-line me-1"></i>{" "}
-                              {t("topSuppliers.message")}
-                            </button>
-                          )}
-                          <Link
-                            href={`/business/${supplier.id}`}
-                            onClick={(e) => handleViewProfile(e, supplier)}
-                            className={`${
-                              supplier.allow_direct_contact && isLoggedIn()
-                                ? "flex-1"
-                                : "w-full"
-                            } border border-yellow-400 text-yellow-600 py-1.5 px-2 rounded-lg hover:bg-yellow-50 text-xs font-medium text-center transition-colors`}
-                          >
-                            {t("topSuppliers.viewDetails")}
-                          </Link>
-                        </div>
-                      </div>
+                  <SwiperSlide key={supplier.id} className="h-auto pb-4">
+                    <div className="h-full">
+                      <BusinessCard business={supplier} viewMode="grid" />
                     </div>
                   </SwiperSlide>
                 ))}
@@ -410,7 +304,7 @@ export default function TopSuppliers() {
               <div className="swiper-button-prev !text-yellow-500 !scale-75 sm:!scale-100 after:!text-xl"></div>
               <div className="swiper-button-next !text-yellow-500 !scale-75 sm:!scale-100 after:!text-xl"></div>
 
-              {/* Custom Pagination - تم تحسينها */}
+              {/* Custom Pagination */}
               <div className="custom-pagination !bottom-0 mt-4"></div>
             </div>
           )}
