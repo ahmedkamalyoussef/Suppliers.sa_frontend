@@ -1,4 +1,3 @@
 {
-  "/complete-profile/page": "app/complete-profile/page.js",
-  "/not-found": "app/not-found.js"
+  "/complete-profile/page": "app/complete-profile/page.js"
 }

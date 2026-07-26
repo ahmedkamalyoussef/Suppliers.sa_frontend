@@ -2229,7 +2229,13 @@ export const translations = {
         "keywordsCount": "keywords",
         "goodLength": "Good length!",
         "quickSuggestions": "Quick suggestions based on your categories",
-        "suggestionsLabel": "Quick suggestions based on your categories:"
+        "suggestionsLabel": "Quick suggestions based on your categories:",
+        "keywordsHelpBox": {
+          "title": "Why add keywords?",
+          "text": "Keywords help users discover your profile or business more easily when searching. Add words that describe your services, products, specialties, or industry.",
+          "exampleTitle": "Example:",
+          "exampleContent": "Restaurant, Coffee, Bakery, Delivery"
+        }
       },
       "step2": {
         "whoServeLabel": "Who do you serve?",
@@ -5111,7 +5117,13 @@ export const translations = {
         "keywordsCount": "كلمات مفتاحية",
         "goodLength": "طول جيد!",
         "quickSuggestions": "اقتراحات سريعة بناءً على فئاتك",
-        "suggestionsLabel": "اقتراحات سريعة بناءً على فئاتك:"
+        "suggestionsLabel": "اقتراحات سريعة بناءً على فئاتك:",
+        "keywordsHelpBox": {
+          "title": "لماذا تضيف الكلمات المفتاحية؟",
+          "text": "تساعد الكلمات المفتاحية المستخدمين في العثور على ملفك أو نشاطك التجاري بسهولة عند البحث. أضف كلمات تصف خدماتك أو منتجاتك أو تخصصك أو مجال عملك.",
+          "exampleTitle": "مثال:",
+          "exampleContent": "مطعم، مقهى، مخبز، توصيل"
+        }
       },
       "step2": {
         "whoServeLabel": "من تخدم؟",

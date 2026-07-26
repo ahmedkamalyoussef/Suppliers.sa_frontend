@@ -5,6 +5,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { toast } from "react-toastify";
 import BranchManagement from "./BranchManagement";
+import CompactHelpBox from "./CompactHelpBox";
 import { useLanguage } from "./../lib/LanguageContext";
 import { apiService, type ProfileUpdateData } from "./../lib/api";
 import { categories, getCategoryName } from "./../lib/categories";
@@ -143,9 +144,9 @@ export default function CompleteProfileForm({
   // Helper function to get English value from translated text using centralized config
   const getEnglishValue = (translatedValue: string): string => {
     // Check if the value matches any category name in English or Arabic
-    const category = categories.find(cat => 
-      cat.id === translatedValue || 
-      cat.name.en === translatedValue || 
+    const category = categories.find(cat =>
+      cat.id === translatedValue ||
+      cat.name.en === translatedValue ||
       cat.name.ar === translatedValue
     );
     return category ? category.id : translatedValue;
@@ -918,11 +919,11 @@ export default function CompleteProfileForm({
   }) => {
     // Validate if location is within Saudi Arabia using Google Maps API
     const validatedLocation = await validateSaudiLocation(location.lat, location.lng);
-    
+
     // Show warning if location is outside Saudi Arabia
     if (!validatedLocation.isWithinSaudi) {
       toast.warning(
-        language === 'ar' 
+        language === 'ar'
           ? `تم اكتشاف موقع خارج السعودية. تم التعديل إلى ${validatedLocation.correctedTo}.`
           : `Location detected outside Saudi Arabia. Adjusted to ${validatedLocation.correctedTo}.`,
         {
@@ -931,10 +932,10 @@ export default function CompleteProfileForm({
         }
       );
     }
-    
+
     const city = await getCityFromCoordinates(validatedLocation.lat, validatedLocation.lng);
     const finalCity = city || (language === 'ar' ? 'الرياض' : 'Riyadh'); // Fallback to Riyadh if no city found
-    
+
     setFormData((prev) => ({
       ...prev,
       address: finalCity, // Set address to city name
@@ -1376,11 +1377,10 @@ export default function CompleteProfileForm({
                 {businessTypes.map((type) => (
                   <label
                     key={type.value}
-                    className={`flex items-center gap-2 md:gap-3 p-3 md:p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                      formData.businessType === type.value
-                        ? "border-yellow-400 bg-yellow-50"
-                        : "border-gray-200 hover:border-gray-300"
-                    }`}
+                    className={`flex items-center gap-2 md:gap-3 p-3 md:p-4 border-2 rounded-lg cursor-pointer transition-all ${formData.businessType === type.value
+                      ? "border-yellow-400 bg-yellow-50"
+                      : "border-gray-200 hover:border-gray-300"
+                      }`}
                   >
                     <input
                       type="radio"
@@ -1421,9 +1421,8 @@ export default function CompleteProfileForm({
                     handleInputChange("description", e.target.value)
                   }
                   rows={4}
-                  className={`w-full px-3 md:px-4 py-2 md:py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ${
-                    errors.description ? "border-red-300" : "border-gray-300"
-                  }`}
+                  className={`w-full px-3 md:px-4 py-2 md:py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ${errors.description ? "border-red-300" : "border-gray-300"
+                    }`}
                   placeholder={t(
                     "completeProfile.step1.descriptionPlaceholder",
                   )}
@@ -1452,11 +1451,10 @@ export default function CompleteProfileForm({
                 {categories.filter(cat => cat.id !== 'all').map((category) => (
                   <label
                     key={category.id}
-                    className={`flex items-center gap-2 md:gap-3 p-2 md:p-3 border rounded-lg cursor-pointer transition-all ${
-                      selectedCategories.includes(category.id)
-                        ? "border-yellow-400 bg-yellow-50"
-                        : "border-gray-200 hover:border-gray-300"
-                    }`}
+                    className={`flex items-center gap-2 md:gap-3 p-2 md:p-3 border rounded-lg cursor-pointer transition-all ${selectedCategories.includes(category.id)
+                      ? "border-yellow-400 bg-yellow-50"
+                      : "border-gray-200 hover:border-gray-300"
+                      }`}
                   >
                     <input
                       type="checkbox"
@@ -1521,68 +1519,21 @@ export default function CompleteProfileForm({
 
             {/* Products/Services Keywords Section */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg md:rounded-xl p-4 md:p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 md:mb-4 gap-2">
-                <div className="flex items-center gap-2">
-                  <i className="ri-search-line text-blue-600 text-lg md:text-xl"></i>
-                  <h4 className="text-base md:text-lg font-semibold text-blue-800">
-                    {t("completeProfile.step1.keywordsTitle")} *
-                  </h4>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowKeywordGuide(!showKeywordGuide)}
-                  className="text-blue-600 hover:text-blue-700 text-xs md:text-sm font-medium"
-                >
-                  <i className="ri-question-line me-1"></i>
-                  {t("completeProfile.step1.howToOptimize")}
-                </button>
+              <div className="flex items-center gap-2 mb-3 md:mb-4">
+                <i className="ri-search-line text-blue-600 text-lg md:text-xl"></i>
+                <h4 className="text-base md:text-lg font-semibold text-blue-800">
+                  {t("completeProfile.step1.keywordsTitle")} *
+                </h4>
               </div>
 
-              {showKeywordGuide && (
-                <div className="bg-white p-3 md:p-4 rounded-lg mb-3 md:mb-4 border border-blue-200">
-                  <h5 className="font-medium text-gray-800 mb-2 md:mb-3 text-sm md:text-base">
-                    <i className="ri-lightbulb-line text-yellow-500 me-2"></i>
-                    {t("completeProfile.step1.searchMatching")}
-                  </h5>
-                  <div className="space-y-2 md:space-y-3 text-xs md:text-sm text-gray-700">
-                    <div className="flex items-start gap-2 md:gap-3">
-                      <i className="ri-search-2-line text-green-500 mt-0.5 text-sm md:text-base"></i>
-                      <div>
-                        <p className="font-medium">
-                          {t("completeProfile.step1.searchMatching")}
-                        </p>
-                        <p>{t("completeProfile.step1.searchMatchingDesc")}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2 md:gap-3">
-                      <i className="ri-price-tag-3-line text-blue-500 mt-0.5 text-sm md:text-base"></i>
-                      <div>
-                        <p className="font-medium">
-                          {t("completeProfile.step1.beSpecific")}
-                        </p>
-                        <p>{t("completeProfile.step1.beSpecificDesc")}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2 md:gap-3">
-                      <i className="ri-group-line text-purple-500 mt-0.5 text-sm md:text-base"></i>
-                      <div>
-                        <p className="font-medium">
-                          {t("completeProfile.step1.thinkLikeCustomers")}
-                        </p>
-                        <p>
-                          {t("completeProfile.step1.thinkLikeCustomersDesc")}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="bg-yellow-50 p-2 md:p-3 rounded border border-yellow-200">
-                      <p className="text-yellow-800 font-medium text-xs">
-                        <i className="ri-star-line me-1"></i>
-                        {t("completeProfile.step1.proTip")}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
+              {/* Compact Keywords Help Box */}
+              <CompactHelpBox
+                title={t("completeProfile.step1.keywordsHelpBox.title")}
+                text={t("completeProfile.step1.keywordsHelpBox.text")}
+                exampleTitle={t("completeProfile.step1.keywordsHelpBox.exampleTitle")}
+                exampleContent={t("completeProfile.step1.keywordsHelpBox.exampleContent")}
+                className="mb-4"
+              />
 
               {/* ⭐⭐ الكلمات المفتاحية الجاهزة ⭐⭐ */}
               <div className="mb-3 md:mb-4">
@@ -1627,11 +1578,10 @@ export default function CompleteProfileForm({
                             }));
                           }
                         }}
-                        className={`px-3 py-2 rounded-full text-xs font-medium transition-all cursor-pointer flex items-center ${
-                          isSelected
-                            ? "bg-green-100 text-green-800 border border-green-300 hover:bg-green-200"
-                            : "bg-white text-gray-700 border border-gray-300 hover:bg-blue-50 hover:border-blue-300"
-                        }`}
+                        className={`px-3 py-2 rounded-full text-xs font-medium transition-all cursor-pointer flex items-center ${isSelected
+                          ? "bg-green-100 text-green-800 border border-green-300 hover:bg-green-200"
+                          : "bg-white text-gray-700 border border-gray-300 hover:bg-blue-50 hover:border-blue-300"
+                          }`}
                       >
                         {isSelected ? (
                           <>
@@ -1655,36 +1605,21 @@ export default function CompleteProfileForm({
                   onChange={(e) => setKeywordInput(e.target.value)}
                   onBlur={saveKeywords}
                   rows={3}
-                  className={`w-full px-3 md:px-4 py-2 md:py-3 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-sm resize-none ${
-                    errors.productKeywords
-                      ? "border-red-300"
-                      : "border-gray-300"
-                  }`}
+                  className={`w-full px-3 md:px-4 py-2 md:py-3 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent text-sm resize-none ${errors.productKeywords
+                    ? "border-red-300"
+                    : "border-gray-300"
+                    }`}
                   placeholder={t("completeProfile.step1.keywordsPlaceholder")}
                 />
                 <div className="flex justify-between items-center mt-1 md:mt-2">
                   <span
-                    className={`text-xs ${
-                      errors.productKeywords ? "text-red-500" : "text-gray-600"
-                    }`}
+                    className={`text-xs ${errors.productKeywords ? "text-red-500" : "text-gray-600"
+                      }`}
                   >
                     {errors.productKeywords ||
                       `${productKeywords.length} ${t(
                         "completeProfile.step1.keywordsCount",
                       )}`}
-                  </span>
-                  <span
-                    className={`text-xs ${
-                      productKeywords.length >= 3
-                        ? "text-green-500"
-                        : "text-yellow-500"
-                    }`}
-                  >
-                    {productKeywords.length >= 3
-                      ? `${t("completeProfile.step1.goodLength")}`
-                      : `${t("completeProfile.step1.addMinChars")} ${
-                          3 - productKeywords.length
-                        } ${t("completeProfile.step1.minChars")}`}
                   </span>
                 </div>
               </div>
@@ -1721,11 +1656,10 @@ export default function CompleteProfileForm({
                                 addSuggestedKeyword(keyword);
                               }
                             }}
-                            className={`px-2 md:px-3 py-1 rounded-full text-xs transition-colors cursor-pointer flex items-center ${
-                              isSelected
-                                ? "bg-green-50 border border-green-300 text-green-800 hover:bg-green-100"
-                                : "bg-white border border-blue-300 text-blue-700 hover:bg-blue-50"
-                            }`}
+                            className={`px-2 md:px-3 py-1 rounded-full text-xs transition-colors cursor-pointer flex items-center ${isSelected
+                              ? "bg-green-50 border border-green-300 text-green-800 hover:bg-green-100"
+                              : "bg-white border border-blue-300 text-blue-700 hover:bg-blue-50"
+                              }`}
                           >
                             {isSelected ? (
                               <>
@@ -1748,14 +1682,7 @@ export default function CompleteProfileForm({
             </div>
           </div>
         )}
-        {productKeywords.length === 0 && keywordInput.trim() === "" && (
-          <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
-            <i className="ri-search-line text-gray-400 text-2xl mb-2"></i>
-            <p className="text-sm text-gray-600">
-              {t("completeProfile.step1.keywordsDesc")}
-            </p>
-          </div>
-        )}
+
 
         {currentStep === 2 && (
           <div className="space-y-4 md:space-y-6">
@@ -1767,11 +1694,10 @@ export default function CompleteProfileForm({
                 {targetCustomerOptions.map((customer) => (
                   <label
                     key={customer.en}
-                    className={`flex items-center gap-2 md:gap-3 p-2 md:p-3 border rounded-lg cursor-pointer transition-all ${
-                      selectedTargetCustomers.includes(customer.en)
-                        ? "border-yellow-400 bg-yellow-50"
-                        : "border-gray-200 hover:border-gray-300"
-                    }`}
+                    className={`flex items-center gap-2 md:gap-3 p-2 md:p-3 border rounded-lg cursor-pointer transition-all ${selectedTargetCustomers.includes(customer.en)
+                      ? "border-yellow-400 bg-yellow-50"
+                      : "border-gray-200 hover:border-gray-300"
+                      }`}
                   >
                     <input
                       type="checkbox"
@@ -1806,9 +1732,8 @@ export default function CompleteProfileForm({
                 onChange={(e) =>
                   handleInputChange("serviceDistance", e.target.value)
                 }
-                className={`w-full px-3 md:px-4 py-2 md:py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm pr-8 ${
-                  errors.serviceDistance ? "border-red-300" : "border-gray-300"
-                }`}
+                className={`w-full px-3 md:px-4 py-2 md:py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm pr-8 ${errors.serviceDistance ? "border-red-300" : "border-gray-300"
+                  }`}
                 required
               >
                 <option value="">
@@ -1836,11 +1761,10 @@ export default function CompleteProfileForm({
                 {serviceOptions.map((service) => (
                   <label
                     key={service.en}
-                    className={`flex items-center gap-2 md:gap-3 p-2 md:p-3 border rounded-lg cursor-pointer transition-all ${
-                      selectedServices.includes(service.en)
-                        ? "border-yellow-400 bg-yellow-50"
-                        : "border-gray-200 hover:border-gray-300"
-                    }`}
+                    className={`flex items-center gap-2 md:gap-3 p-2 md:p-3 border rounded-lg cursor-pointer transition-all ${selectedServices.includes(service.en)
+                      ? "border-yellow-400 bg-yellow-50"
+                      : "border-gray-200 hover:border-gray-300"
+                      }`}
                   >
                     <input
                       type="checkbox"
@@ -1891,9 +1815,8 @@ export default function CompleteProfileForm({
                 name="mainPhone"
                 value={formData.mainPhone || formData.contactPhone || ""}
                 onChange={(e) => handleInputChange("mainPhone", e.target.value)}
-                className={`w-full px-3 md:px-4 py-2 md:py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ${
-                  errors.mainPhone ? "border-red-300" : "border-gray-300"
-                }`}
+                className={`w-full px-3 md:px-4 py-2 md:py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ${errors.mainPhone ? "border-red-300" : "border-gray-300"
+                  }`}
                 placeholder="+966 11 234 5678"
                 required
               />
@@ -2100,120 +2023,120 @@ export default function CompleteProfileForm({
                     {!formData.workingHours[
                       day as keyof typeof formData.workingHours
                     ].closed && (
-                      <div className="flex items-center gap-1 md:gap-2">
-                        <input
-                          type="time"
-                          value={
-                            formData.workingHours[
-                              day as keyof typeof formData.workingHours
-                            ].open
-                          }
-                          onChange={(e) =>
-                            handleWorkingHoursChange(
-                              day as keyof typeof formData.workingHours,
-                              "open",
-                              e.target.value,
-                            )
-                          }
-                          onKeyDown={(e) => {
-                            if (e.key === "ArrowRight") {
-                              e.preventDefault();
-                              workingHoursInputRefs.current[
-                                day
-                              ]?.close?.focus();
-                              return;
+                        <div className="flex items-center gap-1 md:gap-2">
+                          <input
+                            type="time"
+                            value={
+                              formData.workingHours[
+                                day as keyof typeof formData.workingHours
+                              ].open
                             }
-                            if (e.key === "Enter") {
-                              e.preventDefault();
-                              const currentDay =
-                                day as keyof typeof formData.workingHours;
-                              const dayOrder: Array<
-                                keyof typeof formData.workingHours
-                              > = [
-                                "monday",
-                                "tuesday",
-                                "wednesday",
-                                "thursday",
-                                "friday",
-                                "saturday",
-                                "sunday",
-                              ];
-                              const idx = dayOrder.indexOf(currentDay);
-                              const nextDay =
-                                idx >= 0 ? dayOrder[idx + 1] : undefined;
-                              if (nextDay) {
+                            onChange={(e) =>
+                              handleWorkingHoursChange(
+                                day as keyof typeof formData.workingHours,
+                                "open",
+                                e.target.value,
+                              )
+                            }
+                            onKeyDown={(e) => {
+                              if (e.key === "ArrowRight") {
+                                e.preventDefault();
                                 workingHoursInputRefs.current[
-                                  nextDay
-                                ]?.open?.focus();
+                                  day
+                                ]?.close?.focus();
+                                return;
                               }
-                            }
-                          }}
-                          ref={(el) => {
-                            workingHoursInputRefs.current[day] = {
-                              ...(workingHoursInputRefs.current[day] || {}),
-                              open: el,
-                            };
-                          }}
-                          className="px-1 md:px-2 py-0.5 md:py-1 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-xs"
-                        />
-                        <span className="text-gray-500 text-xs">
-                          {t("completeProfile.step4.timeTo")}
-                        </span>
-                        <input
-                          type="time"
-                          value={
-                            formData.workingHours[
-                              day as keyof typeof formData.workingHours
-                            ].close
-                          }
-                          onChange={(e) =>
-                            handleWorkingHoursChange(
-                              day as keyof typeof formData.workingHours,
-                              "close",
-                              e.target.value,
-                            )
-                          }
-                          onKeyDown={(e) => {
-                            if (e.key === "ArrowLeft") {
-                              e.preventDefault();
-                              workingHoursInputRefs.current[day]?.open?.focus();
-                              return;
-                            }
-                            if (e.key === "Enter") {
-                              e.preventDefault();
-                              const currentDay =
-                                day as keyof typeof formData.workingHours;
-                              const dayOrder: Array<
-                                keyof typeof formData.workingHours
-                              > = [
-                                "monday",
-                                "tuesday",
-                                "wednesday",
-                                "thursday",
-                                "friday",
-                                "saturday",
-                                "sunday",
-                              ];
-                              const idx = dayOrder.indexOf(currentDay);
-                              const nextDay =
-                                idx >= 0 ? dayOrder[idx + 1] : undefined;
-                              if (nextDay) {
-                                workingHoursInputRefs.current[
-                                  nextDay
-                                ]?.open?.focus();
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                const currentDay =
+                                  day as keyof typeof formData.workingHours;
+                                const dayOrder: Array<
+                                  keyof typeof formData.workingHours
+                                > = [
+                                    "monday",
+                                    "tuesday",
+                                    "wednesday",
+                                    "thursday",
+                                    "friday",
+                                    "saturday",
+                                    "sunday",
+                                  ];
+                                const idx = dayOrder.indexOf(currentDay);
+                                const nextDay =
+                                  idx >= 0 ? dayOrder[idx + 1] : undefined;
+                                if (nextDay) {
+                                  workingHoursInputRefs.current[
+                                    nextDay
+                                  ]?.open?.focus();
+                                }
                               }
+                            }}
+                            ref={(el) => {
+                              workingHoursInputRefs.current[day] = {
+                                ...(workingHoursInputRefs.current[day] || {}),
+                                open: el,
+                              };
+                            }}
+                            className="px-1 md:px-2 py-0.5 md:py-1 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-xs"
+                          />
+                          <span className="text-gray-500 text-xs">
+                            {t("completeProfile.step4.timeTo")}
+                          </span>
+                          <input
+                            type="time"
+                            value={
+                              formData.workingHours[
+                                day as keyof typeof formData.workingHours
+                              ].close
                             }
-                          }}
-                          ref={(el) => {
-                            workingHoursInputRefs.current[day] = {
-                              ...(workingHoursInputRefs.current[day] || {}),
-                              close: el,
-                            };
-                          }}
-                          className="px-1 md:px-2 py-0.5 md:py-1 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-xs"
-                        />
-                      </div>
-                    )}
+                            onChange={(e) =>
+                              handleWorkingHoursChange(
+                                day as keyof typeof formData.workingHours,
+                                "close",
+                                e.target.value,
+                              )
+                            }
+                            onKeyDown={(e) => {
+                              if (e.key === "ArrowLeft") {
+                                e.preventDefault();
+                                workingHoursInputRefs.current[day]?.open?.focus();
+                                return;
+                              }
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                const currentDay =
+                                  day as keyof typeof formData.workingHours;
+                                const dayOrder: Array<
+                                  keyof typeof formData.workingHours
+                                > = [
+                                    "monday",
+                                    "tuesday",
+                                    "wednesday",
+                                    "thursday",
+                                    "friday",
+                                    "saturday",
+                                    "sunday",
+                                  ];
+                                const idx = dayOrder.indexOf(currentDay);
+                                const nextDay =
+                                  idx >= 0 ? dayOrder[idx + 1] : undefined;
+                                if (nextDay) {
+                                  workingHoursInputRefs.current[
+                                    nextDay
+                                  ]?.open?.focus();
+                                }
+                              }
+                            }}
+                            ref={(el) => {
+                              workingHoursInputRefs.current[day] = {
+                                ...(workingHoursInputRefs.current[day] || {}),
+                                close: el,
+                              };
+                            }}
+                            className="px-1 md:px-2 py-0.5 md:py-1 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-xs"
+                          />
+                        </div>
+                      )}
                   </div>
                 ))}
               </div>
@@ -2309,11 +2232,10 @@ export default function CompleteProfileForm({
                           {branch.name}
                         </h5>
                         <span
-                          className={`px-1.5 md:px-2 py-0.5 rounded-full text-xs font-medium ${
-                            branch.status === "active"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-gray-100 text-gray-600"
-                          }`}
+                          className={`px-1.5 md:px-2 py-0.5 rounded-full text-xs font-medium ${branch.status === "active"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-600"
+                            }`}
                         >
                           {branch.status}
                         </span>
@@ -2407,11 +2329,10 @@ export default function CompleteProfileForm({
 
         {submitStatus && (
           <div
-            className={`p-3 md:p-4 rounded-lg ${
-              submitStatus.includes("Failed")
-                ? "bg-red-50 text-red-700"
-                : "bg-blue-50 text-blue-700"
-            }`}
+            className={`p-3 md:p-4 rounded-lg ${submitStatus.includes("Failed")
+              ? "bg-red-50 text-red-700"
+              : "bg-blue-50 text-blue-700"
+              }`}
           >
             <p className="text-xs md:text-sm">{submitStatus}</p>
           </div>
@@ -2467,13 +2388,12 @@ export default function CompleteProfileForm({
                 <p className="text-red-500 text-xs mb-2">{errors.document}</p>
               )}
               <div
-                className={`border-2 border-dashed rounded-lg p-4 md:p-6 text-center transition-all ${
-                  errors.crFile || errors.document
-                    ? "border-red-300 bg-red-50"
-                    : crFile
-                      ? "border-green-300 bg-green-50"
-                      : "border-gray-300 hover:border-yellow-400 hover:bg-yellow-50"
-                }`}
+                className={`border-2 border-dashed rounded-lg p-4 md:p-6 text-center transition-all ${errors.crFile || errors.document
+                  ? "border-red-300 bg-red-50"
+                  : crFile
+                    ? "border-green-300 bg-green-50"
+                    : "border-gray-300 hover:border-yellow-400 hover:bg-yellow-50"
+                  }`}
               >
                 <input
                   type="file"
@@ -2652,11 +2572,10 @@ export default function CompleteProfileForm({
 
         {submitStatus && (
           <div
-            className={`p-3 md:p-4 rounded-lg ${
-              submitStatus.includes("Failed")
-                ? "bg-red-50 text-red-700"
-                : "bg-blue-50 text-blue-700"
-            }`}
+            className={`p-3 md:p-4 rounded-lg ${submitStatus.includes("Failed")
+              ? "bg-red-50 text-red-700"
+              : "bg-blue-50 text-blue-700"
+              }`}
           >
             <p className="text-xs md:text-sm">{submitStatus}</p>
           </div>
@@ -2667,18 +2586,16 @@ export default function CompleteProfileForm({
             type="button"
             onClick={prevStep}
             disabled={currentStep === 1}
-            className={`px-4 md:px-6 py-2 md:py-3 rounded-lg font-medium whitespace-nowrap cursor-pointer transition-all text-sm md:text-base ${
-              currentStep === 1
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
+            className={`px-4 md:px-6 py-2 md:py-3 rounded-lg font-medium whitespace-nowrap cursor-pointer transition-all text-sm md:text-base ${currentStep === 1
+              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
           >
             <i
-              className={`${
-                isRTL
-                  ? "ri-arrow-right-line ml-1 md:ml-2"
-                  : "ri-arrow-left-line mr-1 md:mr-2"
-              }`}
+              className={`${isRTL
+                ? "ri-arrow-right-line ml-1 md:ml-2"
+                : "ri-arrow-left-line mr-1 md:mr-2"
+                }`}
             ></i>
             {t("completeProfile.buttons.previous")}
           </button>
@@ -2695,11 +2612,10 @@ export default function CompleteProfileForm({
             >
               {t("completeProfile.buttons.nextStep")}
               <i
-                className={`${
-                  isRTL
-                    ? "ri-arrow-left-line mr-1 md:mr-2"
-                    : "ri-arrow-right-line ml-1 md:ml-2"
-                }`}
+                className={`${isRTL
+                  ? "ri-arrow-left-line mr-1 md:mr-2"
+                  : "ri-arrow-right-line ml-1 md:ml-2"
+                  }`}
               ></i>
             </button>
           ) : (
@@ -2716,11 +2632,10 @@ export default function CompleteProfileForm({
                 }
               }}
               disabled={isSubmitting}
-              className={`px-4 md:px-6 py-2 md:py-3 rounded-lg font-medium whitespace-nowrap cursor-pointer transition-all text-sm md:text-base ${
-                isSubmitting
-                  ? "bg-gray-400 text-white cursor-not-allowed"
-                  : "bg-green-500 text-white hover:bg-green-600"
-              }`}
+              className={`px-4 md:px-6 py-2 md:py-3 rounded-lg font-medium whitespace-nowrap cursor-pointer transition-all text-sm md:text-base ${isSubmitting
+                ? "bg-gray-400 text-white cursor-not-allowed"
+                : "bg-green-500 text-white hover:bg-green-600"
+                }`}
             >
               {isSubmitting ? (
                 <>
