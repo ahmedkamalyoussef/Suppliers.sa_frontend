@@ -21,6 +21,8 @@ import {
 
 import KeywordTagInput from "./KeywordTagInput";
 import BusinessHoursConfig from "./BusinessHoursConfig";
+import PhoneInput from "./PhoneInput";
+import AdditionalPhoneNumbers from "./AdditionalPhoneNumbers";
 
 const BusinessLocationMap = dynamic(() => import("./BusinessLocationMap"), {
   ssr: false,
@@ -1686,127 +1688,29 @@ export default function CompleteProfileForm({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t("completeProfile.step3.mainPhoneLabel")} *
-              </label>
-              <input
-                type="tel"
-                name="mainPhone"
+              <PhoneInput
+                label={`${t("completeProfile.step3.mainPhoneLabel")} *`}
                 value={formData.mainPhone || formData.contactPhone || ""}
-                onChange={(e) => handleInputChange("mainPhone", e.target.value)}
-                className={`w-full px-3 md:px-4 py-2 md:py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ${errors.mainPhone ? "border-red-300" : "border-gray-300"
-                  }`}
-                placeholder="+966 11 234 5678"
+                error={errors.mainPhone}
                 required
+                onChange={(val) => handleInputChange("mainPhone", val)}
               />
-              {errors.mainPhone && (
-                <p className="text-red-500 text-xs mt-1">{errors.mainPhone}</p>
-              )}
               <p className="text-xs text-gray-500 mt-1">
                 {t("completeProfile.step3.mainPhoneDesc")}
               </p>
             </div>
 
-            {/* Additional Phone Numbers Section - Simplified */}
-            <div>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 md:mb-3 gap-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  {t("completeProfile.step3.additionalPhones")} (
-                  {t("completeProfile.optional")})
-                </label>
-                {additionalPhones.length < 4 && (
-                  <button
-                    type="button"
-                    onClick={handleAddPhone}
-                    className="text-yellow-600 hover:text-yellow-700 text-xs md:text-sm font-medium cursor-pointer"
-                  >
-                    <i className="ri-add-line me-1"></i>
-                    {t("completeProfile.step3.addNumber")}
-                  </button>
-                )}
-              </div>
-
-              <p className="text-xs md:text-sm text-gray-600 mb-3 md:mb-4">
-                {t("completeProfile.step3.additionalPhonesDesc")}
-              </p>
-
-              <div className="space-y-2 md:space-y-3">
-                {additionalPhones.map((phone, index) => (
-                  <div
-                    key={phone.id}
-                    className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3 p-2 md:p-3 bg-gray-50 rounded-lg"
-                  >
-                    <div>
-                      <select
-                        value={phone.type}
-                        onChange={(e) =>
-                          handlePhoneChange(phone.id, "type", e.target.value)
-                        }
-                        className="w-full px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm pr-8"
-                      >
-                        {phoneTypes.map((type) => (
-                          <option key={type} value={type}>
-                            {type}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <input
-                        type="tel"
-                        value={phone.number}
-                        onChange={(e) =>
-                          handlePhoneChange(phone.id, "number", e.target.value)
-                        }
-                        className="w-full px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
-                        placeholder="+966 50 123 4567"
-                      />
-                    </div>
-
-                    <div className="flex items-center gap-1 md:gap-2">
-                      <input
-                        type="text"
-                        value={phone.name}
-                        onChange={(e) =>
-                          handlePhoneChange(phone.id, "name", e.target.value)
-                        }
-                        className="flex-1 px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
-                        placeholder={t(
-                          "completeProfile.step3.contactNamePlaceholder",
-                        )}
-                      />
-                      {additionalPhones.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => handleRemovePhone(phone.id)}
-                          className="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center text-red-600 hover:text-red-700 hover:bg-red-50 rounded cursor-pointer"
-                        >
-                          <i className="ri-close-line text-sm md:text-base"></i>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {additionalPhones.length === 0 && (
-                <div className="text-center py-4 md:py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                  <i className="ri-phone-line text-gray-400 text-xl md:text-2xl mb-1 md:mb-2"></i>
-                  <p className="text-gray-600 text-xs md:text-sm mb-2 md:mb-3">
-                    {t("completeProfile.step3.noAdditionalNumbers")}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={handleAddPhone}
-                    className="bg-yellow-400 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg hover:bg-yellow-500 text-xs md:text-sm font-medium whitespace-nowrap cursor-pointer"
-                  >
-                    <i className="ri-add-line me-1 md:mr-2"></i>
-                    {t("completeProfile.step3.addNumber")}
-                  </button>
-                </div>
-              )}
-            </div>
+            {/* Additional Phone Numbers Section */}
+            <AdditionalPhoneNumbers
+              phones={additionalPhones}
+              onChange={(updatedPhones) => {
+                setAdditionalPhones(updatedPhones);
+                setFormData((prev) => ({
+                  ...prev,
+                  additionalPhones: updatedPhones,
+                }));
+              }}
+            />
 
             {/* Address is now automatically set from the selected location */}
             <input

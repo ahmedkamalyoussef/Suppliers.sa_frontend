@@ -238,16 +238,18 @@ const InteractiveMapGoogle = ({
 
     businesses.forEach((business) => {
       const isBranchMarker = business.isBranch;
-      const pinColor = isBranchMarker ? "#2563EB" : "#FACC15";
+      const pinColor = isBranchMarker ? "#FEF08A" : "#FACC15";
+      const textColor = isBranchMarker ? "#CA8A04" : "#FACC15";
       const pinLetter = "S";
+      const strokeAttr = isBranchMarker ? 'stroke="#EAB308" stroke-width="1.5"' : '';
 
-      // Create yellow pin (#FACC15) with 'S' for Main Office or Blue pin (#2563EB) with 'S' for Branch
+      // Create yellow pin (#FACC15) with 'S' for Main Office or Light Yellow pin (#FEF08A) with 'S' for Branch
       const pinSvg = document.createElement("div");
       pinSvg.innerHTML = `
         <svg width="28" height="38" viewBox="0 0 36 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); cursor: pointer; transform: translate(-50%, -100%);">
-          <path d="M18 0C8.059 0 0 8.059 0 18c0 13.5 18 30 18 30s18-16.5 18-30C36 8.059 27.941 0 18 0z" fill="${pinColor}"/>
+          <path d="M18 0C8.059 0 0 8.059 0 18c0 13.5 18 30 18 30s18-16.5 18-30C36 8.059 27.941 0 18 0z" fill="${pinColor}" ${strokeAttr}/>
           <circle cx="18" cy="18" r="10" fill="white"/>
-          <text x="18" y="23" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="${pinColor}">${pinLetter}</text>
+          <text x="18" y="23" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="${textColor}">${pinLetter}</text>
         </svg>
       `;
 
@@ -269,9 +271,9 @@ const InteractiveMapGoogle = ({
           icon: {
             url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
               <svg width="28" height="38" viewBox="0 0 36 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M18 0C8.059 0 0 8.059 0 18c0 13.5 18 30 18 30s18-16.5 18-30C36 8.059 27.941 0 18 0z" fill="${pinColor}"/>
+                <path d="M18 0C8.059 0 0 8.059 0 18c0 13.5 18 30 18 30s18-16.5 18-30C36 8.059 27.941 0 18 0z" fill="${pinColor}" ${strokeAttr}/>
                 <circle cx="18" cy="18" r="10" fill="white"/>
-                <text x="18" y="23" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="${pinColor}">${pinLetter}</text>
+                <text x="18" y="23" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="${textColor}">${pinLetter}</text>
               </svg>
             `),
             scaledSize: new g.maps.Size(28, 38),

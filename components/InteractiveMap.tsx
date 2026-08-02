@@ -272,19 +272,22 @@ const InteractiveMap = ({
       const newMarkers: any[] = [];
 
       businesses.forEach((business) => {
-        const markerColor = getBusinessMarkerColor(business.type);
+        const isBranchMarker = business.isBranch;
+        const pinColor = isBranchMarker ? "#FEF08A" : "#FACC15";
+        const textColor = isBranchMarker ? "#CA8A04" : "#FACC15";
+        const strokeAttr = isBranchMarker ? 'stroke="#EAB308" stroke-width="1.5"' : '';
 
-        // Create custom marker - Yellow Pin with S
+        // Create custom marker - Yellow Pin for Main, Light Yellow Pin for Branch
         const customIcon = L.divIcon({
           className: "custom-marker",
           html: `
             <svg width="36" height="48" viewBox="0 0 36 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); cursor: pointer;">
               <!-- Pin shape -->
-              <path d="M18 0C8.059 0 0 8.059 0 18c0 13.5 18 30 18 30s18-16.5 18-30C36 8.059 27.941 0 18 0z" fill="#FACC15"/>
+              <path d="M18 0C8.059 0 0 8.059 0 18c0 13.5 18 30 18 30s18-16.5 18-30C36 8.059 27.941 0 18 0z" fill="${pinColor}" ${strokeAttr}/>
               <!-- White circle background for S -->
               <circle cx="18" cy="18" r="10" fill="white"/>
               <!-- Letter S -->
-              <text x="18" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#FACC15">S</text>
+              <text x="18" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="${textColor}">S</text>
             </svg>
           `,
           iconSize: [36, 48],

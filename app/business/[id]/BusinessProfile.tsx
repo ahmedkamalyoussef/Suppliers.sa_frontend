@@ -11,6 +11,7 @@ import { getCategoryName } from "@/lib/categories";
 import { BusinessProfile as BusinessProfileType } from "../../../lib/api";
 import { useAuth } from "@/lib/UserContext";
 import companyLogo from "@/lib/assets/company.png";
+import PhoneInput from "@/components/PhoneInput";
 
 type BusinessProfileProps = {};
 
@@ -1357,25 +1358,16 @@ export default function BusinessProfile() {
                         placeholder="your@email.com"
                       />
                     </div>
-                    <div>
-                      <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">
-                        <i className="ri-phone-line me-1"></i>
-                        Phone Number
-                      </label>
-                      <input
-                        type="tel"
-                        name="phone"
+                      <PhoneInput
+                        label="Phone Number"
                         value={inquiryForm.phone}
-                        onChange={(e) =>
+                        onChange={(val) =>
                           setInquiryForm({
                             ...inquiryForm,
-                            phone: e.target.value,
+                            phone: val,
                           })
                         }
-                        className="w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-xs md:text-sm"
-                        placeholder="+966 5X XXX XXXX"
                       />
-                    </div>
                   </div>
 
                   {/* Subject Line */}

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useLanguage } from "../lib/LanguageContext";
 import { apiService } from "../lib/api";
+import PhoneInput from "./PhoneInput";
 
 interface MessageModalProps {
   isOpen: boolean;
@@ -183,25 +184,16 @@ export default function MessageModal({ isOpen, onClose, businessId, businessName
                       placeholder="your@email.com"
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1 flex items-center gap-1.5">
-                      <i className="ri-phone-line text-gray-500"></i>
-                      <span>{t("businessProfile.phoneNumber")}</span>
-                    </label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={inquiryForm.phone}
-                      onChange={(e) =>
-                        setInquiryForm({
-                          ...inquiryForm,
-                          phone: e.target.value,
-                        })
-                      }
-                      className="w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-xs md:text-sm"
-                      placeholder="+966 50 123 4567"
-                    />
-                  </div>
+                  <PhoneInput
+                    label={t("businessProfile.phoneNumber")}
+                    value={inquiryForm.phone}
+                    onChange={(val) =>
+                      setInquiryForm({
+                        ...inquiryForm,
+                        phone: val,
+                      })
+                    }
+                  />
                 </div>
 
                 <div>

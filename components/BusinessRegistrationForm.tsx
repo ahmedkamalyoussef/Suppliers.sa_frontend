@@ -8,6 +8,7 @@ import ReferralNotification from "./ReferralNotification";
 import { apiService, ValidationError, type RegistrationData } from "../lib/api";
 import VerificationStep from "./VerificationStep";
 import PoliciesModal from "./PoliciesModal";
+import PhoneInput from "./PhoneInput";
 
 interface LocalRegistrationData {
   businessName: string;
@@ -327,33 +328,14 @@ export default function BusinessRegistrationForm() {
               )}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 ltr:text-left rtl:text-right">
-                {t("auth.signup.step1.phoneLabel")}
-              </label>
-              <div className="flex items-center border rounded-lg focus-within:ring-2 focus-within:ring-yellow-400 focus-within:border-transparent overflow-hidden border-gray-300" dir="ltr">
-                <span className="px-3 md:px-4 py-2 md:py-3 bg-gray-100 text-gray-700 font-medium text-sm border-r border-gray-300 whitespace-nowrap flex items-center gap-1 select-none" dir="ltr">
-                  +966 ▾
-                </span>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  value={registrationData.phone}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/[^0-9]/g, "");
-                    handleInputChange("phone", value);
-                  }}
-                  placeholder={t("business.form.phonePlaceholder")}
-                  className={`flex-1 px-3 md:px-4 py-2 md:py-3 border-0 focus:ring-0 text-sm outline-none ltr:text-left rtl:text-right ${
-                    errors.phone ? "bg-red-50" : ""
-                  }`}
-                  required
-                />
-              </div>
-              {errors.phone && (
-                <p className="text-red-500 text-xs mt-1 ltr:text-left rtl:text-right">{errors.phone}</p>
-              )}
-            </div>
+            <PhoneInput
+              label={t("auth.signup.step1.phoneLabel")}
+              value={registrationData.phone}
+              onChange={(val) => handleInputChange("phone", val)}
+              error={errors.phone}
+              placeholder={t("business.form.phonePlaceholder")}
+              required
+            />
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">

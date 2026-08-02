@@ -32,6 +32,9 @@ export default function BranchManagement({
   initialBranches = [],
   onBranchesChange,
   isEditingProfile = false,
+  onSaveBranch,
+  onDeleteBranch,
+  onToggleBranchStatus,
 }: BranchManagementProps) {
   const { language, isRTL } = useLanguage();
   const [localBranches, setLocalBranches] = useState<Branch[]>(
@@ -145,8 +148,17 @@ export default function BranchManagement({
         longitude: selectedLocation.lng,
       };
 
-      if (supplierId && !isEditingProfile) {
-        if (editingBranch && editingBranch.id) {
+      if (onSaveBranch) {
+        const payloadToPass: Branch = {
+          ...(editingBranch || {}),
+          id: editingBranch?.id || "",
+          name: branchName.trim(),
+          address: branchAddress.trim(),
+          location: selectedLocation,
+        };
+        await onSaveBranch(payloadToPass, editingBranch);
+      } else if (!isEditingProfile && apiService.isAuthenticated()) {
+        if (editingBranch && editingBranch.id && !String(editingBranch.id).startsWith("temp_")) {
           const res = await apiService.updateBranch(String(editingBranch.id), branchPayload);
           const updated = res.branch || (res as any).data || {
             ...editingBranch,
@@ -196,12 +208,17 @@ export default function BranchManagement({
 
   const handleDeleteBranch = async (id: string | number) => {
     try {
-      if (supplierId && !isEditingProfile) {
+      if (onDeleteBranch) {
+        await onDeleteBranch(String(id));
+      } else if (!isEditingProfile && apiService.isAuthenticated() && !String(id).startsWith("temp_")) {
         await apiService.deleteBranch(String(id));
+        const nextList = branches.filter((b) => b.id !== id);
+        updateBranchesState(nextList);
+      } else {
+        const nextList = branches.filter((b) => b.id !== id);
+        updateBranchesState(nextList);
       }
-      const nextList = branches.filter((b) => b.id !== id);
-      updateBranchesState(nextList);
-      if (nextList.length === 0) {
+      if (branches.length <= 1) {
         setHasBranchesAnswer(null);
       }
     } catch (err) {

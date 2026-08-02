@@ -20,6 +20,8 @@ import {
 
 import KeywordTagInput from "./KeywordTagInput";
 import BusinessHoursConfig from "./BusinessHoursConfig";
+import PhoneInput from "./PhoneInput";
+import AdditionalPhoneNumbers from "./AdditionalPhoneNumbers";
 
 const BusinessLocationMap = dynamic(() => import("./BusinessLocationMap"), {
   ssr: false,
@@ -84,12 +86,7 @@ interface BusinessData {
   targetCustomers: string[];
   services: string[];
   categories: string[];
-  additionalPhones: Array<{
-    id: number;
-    type: string;
-    number: string;
-    name: string;
-  }>;
+  additionalPhones: AdditionalPhone[];
   location: { lat: number; lng: number };
   workingHours: {
     monday: DayWorkingHours;
@@ -1513,24 +1510,16 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("businessManagement.form.phone")}
-                  </label>
-                  <input
-                    type="tel"
+                  <PhoneInput
+                    label={t("businessManagement.form.phone")}
                     value={businessData.phone}
                     disabled={!isEditing}
-                    onChange={(e) =>
+                    onChange={(val) =>
                       setBusinessData({
                         ...businessData,
-                        phone: e.target.value,
+                        phone: val,
                       })
                     }
-                    className={`w-full px-4 py-3 border rounded-lg text-sm ${
-                      isEditing
-                        ? "border-gray-300 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
-                        : "border-gray-200 bg-gray-50"
-                    }`}
                   />
                 </div>
 
@@ -1675,112 +1664,16 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
               </div>
 
               {/* Additional Phone Numbers Section */}
-              <div>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    {t("businessManagement.form.additionalPhones")}
-                  </label>
-                  {isEditing && businessData.additionalPhones.length < 4 && (
-                    <button
-                      type="button"
-                      onClick={handleAddPhone}
-                      className="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600"
-                    >
-                      <i className="ri-add-line me-1"></i>
-                      {t("businessManagement.form.addPhone")}
-                    </button>
-                  )}
-                </div>
-
-                <p className="text-xs text-gray-600 mb-3">
-                  {t("businessManagement.form.additionalPhonesDescription")}
-                </p>
-
-                <div className="space-y-2 md:space-y-3">
-                  {businessData.additionalPhones.map((phone) => (
-                    <div
-                      key={phone.id}
-                      className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3 p-2 md:p-3 bg-gray-50 rounded-lg"
-                    >
-                      <div>
-                        <select
-                          value={phone.type}
-                          disabled={!isEditing}
-                          onChange={(e) =>
-                            handlePhoneChange(phone.id, "type", e.target.value)
-                          }
-                          className="w-full px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm pr-8"
-                        >
-                          {phoneTypes.map((type) => (
-                            <option key={type} value={type}>
-                              {type}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div>
-                        <input
-                          type="tel"
-                          value={phone.number}
-                          disabled={!isEditing}
-                          onChange={(e) =>
-                            handlePhoneChange(
-                              phone.id,
-                              "number",
-                              e.target.value,
-                            )
-                          }
-                          className="w-full px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
-                          placeholder="+966 50 123 4567"
-                        />
-                      </div>
-
-                      <div className="flex items-center gap-1 md:gap-2">
-                        <input
-                          type="text"
-                          value={phone.name}
-                          disabled={!isEditing}
-                          onChange={(e) =>
-                            handlePhoneChange(phone.id, "name", e.target.value)
-                          }
-                          className="flex-1 px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
-                          placeholder={t("businessManagement.form.contactName")}
-                        />
-                        {isEditing &&
-                          businessData.additionalPhones.length > 1 && (
-                            <button
-                              type="button"
-                              onClick={() => handleRemovePhone(phone.id)}
-                              className="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center text-red-600 hover:text-red-700 hover:bg-red-50 rounded cursor-pointer"
-                            >
-                              <i className="ri-close-line text-sm md:text-base"></i>
-                            </button>
-                          )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {businessData.additionalPhones.length === 0 && (
-                  <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                    <i className="ri-phone-line text-gray-400 text-2xl mb-2"></i>
-                    <p className="text-gray-600 text-sm mb-3">
-                      {t("businessManagement.form.noAdditionalPhones")}
-                    </p>
-                    {isEditing && (
-                      <button
-                        type="button"
-                        onClick={handleAddPhone}
-                        className="bg-yellow-400 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg hover:bg-yellow-500 text-xs md:text-sm font-medium whitespace-nowrap cursor-pointer"
-                      >
-                        <i className="ri-add-line me-1 md:mr-2"></i>
-                        {t("businessManagement.form.addFirstPhone")}
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
+              <AdditionalPhoneNumbers
+                phones={businessData.additionalPhones}
+                isEditing={isEditing}
+                onChange={(updatedPhones) =>
+                  setBusinessData({
+                    ...businessData,
+                    additionalPhones: updatedPhones,
+                  })
+                }
+              />
             </div>
           )}
 

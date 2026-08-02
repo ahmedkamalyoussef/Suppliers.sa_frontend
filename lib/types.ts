@@ -7,7 +7,7 @@ export interface WorkingHours {
 }
 
 export interface AdditionalPhone {
-  id: number;
+  id: number | string;
   type: string;
   number: string;
   name: string;

@@ -96,13 +96,12 @@ export default function ManageBusinessesPage() {
           status: branchData.status as "active" | "inactive",
         };
 
-        await apiService.updateBranch(editingBranch.id, updateData);
+        const response = await apiService.updateBranch(String(editingBranch.id), updateData);
+        const updatedBranch = response.branch || { ...editingBranch, ...branchData };
 
         // Update local state
         const updated = branches.map((b) =>
-          b.id === editingBranch.id
-            ? { ...branchData, id: editingBranch.id }
-            : b
+          b.id === editingBranch.id ? updatedBranch : b
         );
         setBranches(updated);
         showToast(t("branchManagement.branchUpdated"), "success");

@@ -1,7 +1,7 @@
 {
   "/complete-profile/page": "app/complete-profile/page.js",
-  "/page": "app/page.js",
-  "/businesses/page": "app/businesses/page.js",
   "/login/page": "app/login/page.js",
-  "/add-business/page": "app/add-business/page.js"
+  "/page": "app/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/manage-businesses/page": "app/manage-businesses/page.js"
 }

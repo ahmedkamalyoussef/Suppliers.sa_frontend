@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/lib/LanguageContext";
 import { apiService } from "@/lib/api";
+import PhoneInput from "./PhoneInput";
 
 interface FormData {
   name: string;
@@ -186,19 +187,12 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t("contactModal.form.phoneLabel")}
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={(e) => handleInputChange("phone", e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
-                  placeholder={t("contactModal.form.phonePlaceholder")}
-                />
-              </div>
+              <PhoneInput
+                label={t("contactModal.form.phoneLabel")}
+                value={formData.phone}
+                onChange={(val) => handleInputChange("phone", val)}
+                placeholder={t("contactModal.form.phonePlaceholder")}
+              />
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">

@@ -361,6 +361,132 @@ export const categories: Category[] = [
     },
     icon: "ri-truck-line",
     color: "from-indigo-400 to-indigo-600"
+  },
+  {
+    id: "Construction Services and Consultation",
+    name: {
+      en: "Construction Services and Consultation",
+      ar: "خدمات البناء والاستشارات"
+    },
+    icon: "ri-building-2-line",
+    color: "from-orange-500 to-orange-700"
+  },
+  {
+    id: "IT & Cybersecurity",
+    name: {
+      en: "IT & Cybersecurity",
+      ar: "تقنية المعلومات والأمن السيبراني"
+    },
+    icon: "ri-shield-keyhole-line",
+    color: "from-cyan-500 to-blue-700"
+  },
+  {
+    id: "Logistics & Supply Chain",
+    name: {
+      en: "Logistics & Supply Chain",
+      ar: "الخدمات اللوجستية وسلسلة الإمداد"
+    },
+    icon: "ri-route-line",
+    color: "from-teal-400 to-teal-600"
+  },
+  {
+    id: "Freight & Shipping",
+    name: {
+      en: "Freight & Shipping",
+      ar: "خدمات الشحن ونقل البضائع"
+    },
+    icon: "ri-ship-line",
+    color: "from-blue-500 to-blue-700"
+  },
+  {
+    id: "Maintenance & Repair Services",
+    name: {
+      en: "Maintenance & Repair Services",
+      ar: "خدمات الصيانة والإصلاح"
+    },
+    icon: "ri-hammer-line",
+    color: "from-amber-500 to-amber-700"
+  },
+  {
+    id: "Cleaning Services",
+    name: {
+      en: "Cleaning Services",
+      ar: "خدمات التنظيف"
+    },
+    icon: "ri-sparkling-line",
+    color: "from-sky-400 to-sky-600"
+  },
+  {
+    id: "Waste Management",
+    name: {
+      en: "Waste Management",
+      ar: "إدارة النفايات"
+    },
+    icon: "ri-delete-bin-line",
+    color: "from-lime-500 to-green-700"
+  },
+  {
+    id: "Financial Services",
+    name: {
+      en: "Financial Services",
+      ar: "الخدمات المالية"
+    },
+    icon: "ri-bank-line",
+    color: "from-emerald-500 to-emerald-700"
+  },
+  {
+    id: "Legal Services",
+    name: {
+      en: "Legal Services",
+      ar: "الخدمات القانونية"
+    },
+    icon: "ri-scales-3-line",
+    color: "from-slate-500 to-slate-700"
+  },
+  {
+    id: "Human Resources Services",
+    name: {
+      en: "Human Resources Services",
+      ar: "خدمات الموارد البشرية"
+    },
+    icon: "ri-team-line",
+    color: "from-violet-400 to-violet-600"
+  },
+  {
+    id: "Fire Safety & Systems",
+    name: {
+      en: "Fire Safety & Systems",
+      ar: "خدمات السلامة ومكافحة الحريق"
+    },
+    icon: "ri-fire-line",
+    color: "from-red-500 to-red-700"
+  },
+  {
+    id: "Facility Maintenance",
+    name: {
+      en: "Facility Maintenance",
+      ar: "صيانة المرافق"
+    },
+    icon: "ri-building-4-line",
+    color: "from-stone-400 to-stone-600"
+  },
+  {
+    id: "Industrial Maintenance",
+    name: {
+      en: "Industrial Maintenance",
+      ar: "الصيانة الصناعية"
+    },
+    icon: "ri-settings-5-line",
+    color: "from-zinc-500 to-zinc-700"
+  },
+  {
+    id: "Retail & Trading",
+    name: {
+      en: "Retail & Trading",
+      ar: "تجارة التجزئة والتجارة العامة"
+    },
+    icon: "ri-store-2-line",
+    color: "from-rose-400 to-rose-600"
   }
 ];
 

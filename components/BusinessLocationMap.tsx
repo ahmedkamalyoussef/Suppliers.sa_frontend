@@ -8,12 +8,21 @@ import type { Branch } from "../lib/types";
 
 const GOOGLE_MAPS_SCRIPT_ID = "google-maps-js";
 
-// Custom yellow marker with S - SVG data URI
+// Custom yellow marker with S for main location
 const customMarkerSvg = `data:image/svg+xml,${encodeURIComponent(`
 <svg width="28" height="38" viewBox="0 0 36 48" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path d="M18 0C8.059 0 0 8.059 0 18c0 13.5 18 30 18 30s18-16.5 18-30C36 8.059 27.941 0 18 0z" fill="#FACC15"/>
   <circle cx="18" cy="18" r="10" fill="white"/>
   <text x="18" y="23" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#FACC15">S</text>
+</svg>
+`)}`;
+
+// Custom light yellow marker with S for branch locations
+const branchMarkerSvg = `data:image/svg+xml,${encodeURIComponent(`
+<svg width="28" height="38" viewBox="0 0 36 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M18 0C8.059 0 0 8.059 0 18c0 13.5 18 30 18 30s18-16.5 18-30C36 8.059 27.941 0 18 0z" fill="#FEF08A" stroke="#EAB308" stroke-width="1.5"/>
+  <circle cx="18" cy="18" r="10" fill="white"/>
+  <text x="18" y="23" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#CA8A04">S</text>
 </svg>
 `)}`;
 
@@ -533,7 +542,7 @@ export default function BusinessLocationMap({
           map: mapRef.current,
           title: branch.name,
           icon: {
-            url: customMarkerSvg,
+            url: branchMarkerSvg,
             scaledSize: new g.maps.Size(32, 42),
             anchor: new g.maps.Point(16, 42),
           },

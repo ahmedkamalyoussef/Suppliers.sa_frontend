@@ -10,6 +10,7 @@ import { useLanguage } from "@/lib/LanguageContext";
 import { apiService, ValidationError, type RegistrationData } from "@/lib/api";
 import { toast } from "react-toastify";
 import VerificationStep from "@/components/VerificationStep";
+import PhoneInput from "@/components/PhoneInput";
 
 export default function RegisterPage() {
   const { t, translations, language } = useLanguage();
@@ -292,36 +293,14 @@ export default function RegisterPage() {
           )}
         </div>
 
-        <div>
-          <label
-            htmlFor="phone"
-            className="block text-sm font-medium text-gray-700 mb-2 ltr:text-left rtl:text-right"
-          >
-            {t("register.step1.phoneLabel")}
-          </label>
-          <div className="flex items-center border rounded-lg focus-within:ring-2 focus-within:ring-yellow-400 focus-within:border-transparent overflow-hidden border-gray-300" dir="ltr">
-            <span className="px-3 md:px-4 py-3 bg-gray-100 text-gray-700 font-medium text-sm border-r border-gray-300 whitespace-nowrap flex items-center gap-1 select-none" dir="ltr">
-              +966 ▾
-            </span>
-            <input
-              type="tel"
-              id="phone"
-              inputMode="numeric"
-              value={formData.phone}
-              onChange={(e) => {
-                const val = e.target.value.replace(/[^0-9]/g, "");
-                handleInputChange("phone", val);
-              }}
-              className={`w-full px-4 py-3 border-0 focus:ring-0 text-sm outline-none ltr:text-left rtl:text-right ${
-                errors.phone ? "bg-red-50" : ""
-              }`}
-              placeholder={t("register.step1.phonePlaceholder")}
-            />
-          </div>
-          {errors.phone && (
-            <p className="text-red-500 text-xs mt-1 ltr:text-left rtl:text-right">{errors.phone}</p>
-          )}
-        </div>
+        <PhoneInput
+          id="phone"
+          label={t("register.step1.phoneLabel")}
+          value={formData.phone}
+          onChange={(val) => handleInputChange("phone", val)}
+          error={errors.phone}
+          placeholder={t("register.step1.phonePlaceholder")}
+        />
 
         <div>
           <label

@@ -20,7 +20,7 @@ export default function VerificationPendingStatus() {
     businessInfo: {
       name: "Metro Electronics Supply",
       category: "Electronics & Electrical Supplies",
-      phone: "+966 50 123 4567",
+      phone: "50 123 4567",
       email: "info@metroelectronics.com",
     },
   });

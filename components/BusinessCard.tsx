@@ -226,11 +226,11 @@ export default function BusinessCard({
                         business.status,
                       )} text-xs`}
                     ></i>
-                    <span className="text-xs font-medium">
-                      {t(`publicProfile.status.${business.status.toLowerCase()}`) ||
-                        business.status.charAt(0).toUpperCase() +
-                          business.status.slice(1)}
-                    </span>
+                      {(() => {
+                        const statusKey = `publicProfile.status.${business.status.toLowerCase()}`;
+                        const val = t(statusKey);
+                        return val && val !== statusKey && !val.includes('publicProfile.') ? val : business.status.charAt(0).toUpperCase() + business.status.slice(1);
+                      })()}
                   </div>
                 </div>
               )}
@@ -396,9 +396,11 @@ export default function BusinessCard({
                 )} text-xs`}
               ></i>
               <span className="text-xs font-medium">
-                {t(`publicProfile.status.${business.status.toLowerCase()}`) ||
-                  business.status.charAt(0).toUpperCase() +
-                    business.status.slice(1)}
+                {(() => {
+                  const statusKey = `publicProfile.status.${business.status.toLowerCase()}`;
+                  const val = t(statusKey);
+                  return val && val !== statusKey && !val.includes('publicProfile.') ? val : business.status.charAt(0).toUpperCase() + business.status.slice(1);
+                })()}
               </span>
             </div>
           </div>

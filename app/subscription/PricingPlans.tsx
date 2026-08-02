@@ -162,11 +162,30 @@ export default function PricingPlans() {
   };
 
   const getPlanDisplayName = (plan: any) => {
-    // Show "Premium" for both premium_monthly and premium_yearly
+    if (language === 'ar') {
+      const nameMap: Record<string, string> = {
+        basic: 'أساسية',
+        premium_monthly: 'مميزة',
+        premium_yearly: 'مميزة',
+      };
+      return nameMap[plan.name] || plan.display_name;
+    }
     if (plan.name === 'premium_monthly' || plan.name === 'premium_yearly') {
-      return language === 'ar' ? 'مميزة' : 'Premium';
+      return 'Premium';
     }
     return plan.display_name;
+  };
+
+  const getPlanDescription = (plan: any) => {
+    if (language === 'ar') {
+      const descMap: Record<string, string> = {
+        basic: 'مثالية للأنشطة التجارية المبتدئة',
+        premium_monthly: 'حل متكامل لنمو أعمالك',
+        premium_yearly: 'حل متكامل لنمو أعمالك - وفّر 25%',
+      };
+      return descMap[plan.name] || plan.description;
+    }
+    return plan.description;
   };
 
   const getPlanByCycle = (cycle: "monthly" | "yearly") => {
@@ -199,7 +218,7 @@ export default function PricingPlans() {
           <h3 className="text-2xl font-bold text-gray-900 mb-2">
             {getPlanDisplayName(plan)}
           </h3>
-          <p className="text-gray-600 mb-4">{plan.description}</p>
+          <p className="text-gray-600 mb-4">{getPlanDescription(plan)}</p>
           <div className="text-4xl font-bold text-blue-600 mb-2">
             {formatPrice(plan)}
           </div>
