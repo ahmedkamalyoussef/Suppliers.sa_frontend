@@ -4,7 +4,7 @@ import React from "react";
 
 interface CompactHelpBoxProps {
   title: string;
-  text: string;
+  text: React.ReactNode;
   exampleTitle?: string;
   exampleContent?: string;
   className?: string;
@@ -17,6 +17,33 @@ export default function CompactHelpBox({
   exampleContent,
   className = "",
 }: CompactHelpBoxProps) {
+  const renderFormattedText = (content: React.ReactNode) => {
+    if (typeof content !== "string") return content;
+
+    const regex = /(?:<b>|<strong>|\*\*)(.*?)(?:<\/b>|<\/strong>|\*\*)/g;
+    const parts: React.ReactNode[] = [];
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = regex.exec(content)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push(content.substring(lastIndex, match.index));
+      }
+      parts.push(
+        <strong key={match.index} className="font-bold text-amber-950">
+          {match[1]}
+        </strong>
+      );
+      lastIndex = regex.lastIndex;
+    }
+
+    if (lastIndex < content.length) {
+      parts.push(content.substring(lastIndex));
+    }
+
+    return parts.length > 0 ? parts : content;
+  };
+
   return (
     <div
       className={`bg-amber-50/80 border border-amber-200/80 rounded-xl p-3.5 md:p-4 text-xs md:text-sm text-amber-900 shadow-xs flex items-start gap-3 transition-all ${className}`}
@@ -29,7 +56,7 @@ export default function CompactHelpBox({
           {title}
         </h5>
         <p className="text-amber-900/90 leading-relaxed text-xs">
-          {text}
+          {renderFormattedText(text)}
         </p>
         {exampleContent && (
           <div className="pt-1.5 border-t border-amber-200/60 mt-1.5 flex flex-wrap items-center gap-1 text-xs">

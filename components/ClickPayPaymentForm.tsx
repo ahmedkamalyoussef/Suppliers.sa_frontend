@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { PaymentPlan } from "../lib/clickpay/types";
+import PhoneInput from "./PhoneInput";
 import {
   formatCurrency,
   isValidEmail,
@@ -201,21 +202,14 @@ const ClickPayPaymentForm: React.FC<ClickPayPaymentFormProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Phone Number *
-          </label>
-          <input
-            type="tel"
+          <PhoneInput
+            label="Phone Number"
+            required
             value={customerData.phone}
-            onChange={(e) => handleInputChange("phone", e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              errors.phone ? "border-red-500" : "border-gray-300"
-            }`}
-            placeholder="05xxxxxxxx"
+            onChange={(val) => handleInputChange("phone", val)}
+            error={errors.phone}
+            placeholder="50 123 4567"
           />
-          {errors.phone && (
-            <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
-          )}
         </div>
 
         <div>

@@ -22,6 +22,7 @@ import KeywordTagInput from "./KeywordTagInput";
 import BusinessHoursConfig from "./BusinessHoursConfig";
 import PhoneInput from "./PhoneInput";
 import AdditionalPhoneNumbers from "./AdditionalPhoneNumbers";
+import { CONTACT_TYPES } from "../lib/contactTypes";
 
 const BusinessLocationMap = dynamic(() => import("./BusinessLocationMap"), {
   ssr: false,
@@ -767,14 +768,8 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
     }
   };
 
-  // Phone types with translations (like CompleteProfileForm)
-  const phoneTypes = [
-    "Sales Representative",
-    "Procurement",
-    "Technical Support",
-    "Customer Service",
-    "General Inquiry",
-  ];
+  // Phone types derived from central CONTACT_TYPES config
+  const phoneTypes = CONTACT_TYPES.map((c) => c.value);
 
   const handleTargetCustomerToggle = (customer: string) => {
     const englishCustomer =

@@ -192,7 +192,7 @@ export default function KeywordTagInput({
             </div>
             <span>
               {language === "ar"
-                ? "مقترحات كلمات مفتاحية تناسب نشاطك التجاري:"
+                ? "مقترحات كلمات مفتاحية يمكنك اختيارها بشكل سريع:"
                 : "Suggested Keywords matching your business:"}
             </span>
           </div>

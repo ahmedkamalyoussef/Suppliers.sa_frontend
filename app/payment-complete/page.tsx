@@ -5,6 +5,7 @@ import { useLanguage } from '../../lib/LanguageContext';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
+import { CodeText } from '../../components/BidiText';
 
 export default function PaymentComplete() {
   const { t, language } = useLanguage();
@@ -128,7 +129,7 @@ export default function PaymentComplete() {
             </p>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-blue-800 text-sm">
-                {language === 'ar' ? '🔍 معرف الدفع:' : '🔍 Payment ID:'} {tapId}
+                {language === 'ar' ? '🔍 معرف الدفع:' : '🔍 Payment ID:'} <CodeText value={tapId} />
               </p>
             </div>
           </div>
@@ -176,7 +177,7 @@ export default function PaymentComplete() {
                       <span className="text-gray-600">
                         {language === 'ar' ? 'معرف الدفع' : 'Payment ID'}
                       </span>
-                      <span className="font-medium text-gray-900">{paymentDetails.tap_id}</span>
+                      <CodeText className="font-medium text-gray-900" value={paymentDetails.tap_id} />
                     </div>
                     <div className="flex justify-between py-2 border-b border-gray-200">
                       <span className="text-gray-600">

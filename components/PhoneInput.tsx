@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { extractNationalPhoneNumber } from "../lib/phoneUtils";
 
 export interface PhoneInputProps {
   value: string;
@@ -31,11 +32,14 @@ export default function PhoneInput({
   inputClassName = "",
   countryCode = "+966",
 }: PhoneInputProps) {
+  // Always extract only the national number portion for input display
+  const displayValue = extractNationalPhoneNumber(value, countryCode);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawVal = e.target.value;
-    // Allow digits, spaces, hyphens and plus
-    const cleanVal = rawVal.replace(/[^0-9]/g, "");
-    onChange(cleanVal);
+    // Strip country code if pasted or typed, strip non-digits and leading zeros
+    const cleanNationalVal = extractNationalPhoneNumber(rawVal, countryCode);
+    onChange(cleanNationalVal);
   };
 
   return (
@@ -57,27 +61,31 @@ export default function PhoneInput({
             : "border-gray-300 hover:border-gray-400"
         } ${disabled ? "bg-gray-100/70 opacity-70 cursor-not-allowed" : "bg-white"}`}
         dir="ltr"
+        style={{ direction: "ltr", unicodeBidi: "isolate" }}
       >
-        <span
-          className="px-3 md:px-4 py-2 md:py-2.5 bg-gray-100 text-gray-700 font-semibold text-xs md:text-sm border-r border-gray-300 whitespace-nowrap flex items-center gap-1 select-none shrink-0"
+        <bdi
+          className="px-3 md:px-4 py-2 md:py-2.5 bg-gray-100 text-gray-700 font-semibold text-xs md:text-sm border-r border-gray-300 whitespace-nowrap flex items-center gap-1 select-none shrink-0 bidi-ltr"
           dir="ltr"
+          style={{ direction: "ltr", unicodeBidi: "isolate" }}
         >
-          {countryCode} ▾
-        </span>
+          {countryCode}
+        </bdi>
 
         <input
           type="tel"
           id={id}
           name={name}
           inputMode="numeric"
-          value={value}
+          dir="ltr"
+          value={displayValue}
           disabled={disabled}
           onChange={handleInputChange}
           placeholder={placeholder || "50 123 4567"}
           required={required}
-          className={`w-full px-3 md:px-4 py-2 md:py-2.5 border-0 focus:ring-0 text-xs md:text-sm outline-none text-gray-900 placeholder:text-gray-400 ltr:text-left rtl:text-right ${
+          className={`w-full px-3 md:px-4 py-2 md:py-2.5 border-0 focus:ring-0 text-xs md:text-sm outline-none text-gray-900 placeholder:text-gray-400 text-left ${
             disabled ? "bg-transparent cursor-not-allowed" : ""
           } ${inputClassName}`}
+          style={{ direction: "ltr", unicodeBidi: "isolate" }}
         />
       </div>
 
@@ -89,3 +97,4 @@ export default function PhoneInput({
     </div>
   );
 }
+

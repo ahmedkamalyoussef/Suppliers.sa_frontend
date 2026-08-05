@@ -5,6 +5,7 @@ import { useLanguage } from "@/lib/LanguageContext";
 import { useAuth } from "@/lib/UserContext";
 import { apiService } from "@/lib/api";
 import { toast } from "react-toastify";
+import PhoneInput from "./PhoneInput";
 
 interface User {
   name: string;
@@ -448,16 +449,12 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("settings.profile.phone")}
-                  </label>
-                  <input
-                    type="tel"
+                  <PhoneInput
+                    label={t("settings.profile.phone")}
                     value={settings.profile.phone}
-                    onChange={(e) =>
-                      handleSettingChange("profile", "phone", e.target.value)
+                    onChange={(val) =>
+                      handleSettingChange("profile", "phone", val)
                     }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
                   />
                 </div>
 

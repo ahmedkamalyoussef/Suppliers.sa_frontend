@@ -8,6 +8,7 @@ import MessageModal from "./MessageModal";
 import companyImg from "../lib/assets/company.png";
 import { getApiUrl } from "../lib/config";
 import { getCategoryIcon, getCategoryColor, getCategoryName } from "../lib/categories";
+import { LtrValue, CodeText } from "./BidiText";
 
 interface Business {
   id: number;
@@ -234,7 +235,7 @@ export default function BusinessCard({
                   </div>
                 </div>
               )}
-              {business.status === "verified" && (
+              {(business.verified || business.status === "verified" || business.badge === "verified") && (
                 <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium shadow-md">
                   {t("businessCard.verified")}
                 </div>
@@ -293,7 +294,7 @@ export default function BusinessCard({
                       ))}
                     </div>
                     <span className="text-sm text-gray-600 ml-2">
-                      {business.rating} ({business.reviews}{" "}
+                      <LtrValue value={business.rating} /> (<CodeText value={business.reviews} />{" "}
                       {t("businessCard.reviews")})
                     </span>
                   </div>

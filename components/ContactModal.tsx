@@ -5,6 +5,9 @@ import { useLanguage } from "@/lib/LanguageContext";
 import { apiService } from "@/lib/api";
 import PhoneInput from "./PhoneInput";
 
+import { EmailText } from "./BidiText";
+import { formatE164PhoneNumber } from "../lib/phoneUtils";
+
 interface FormData {
   name: string;
   email: string;
@@ -84,7 +87,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
       await apiService.createInquiry({
         name: formData.name,
         email: formData.email,
-        phone: formData.phone,
+        phone: formatE164PhoneNumber(formData.phone, "+966"),
         subject: formData.subject,
         message: formData.message,
       });
@@ -283,9 +286,7 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                 <div className="flex justify-center">
                   <div className="flex items-center gap-2">
                     <i className="ri-mail-line text-yellow-600"></i>
-                    <span className="text-sm text-gray-700">
-                      Supplier.com.sa@gmail.com
-                    </span>
+                    <EmailText className="text-sm text-gray-700" value="Supplier.com.sa@gmail.com" />
                   </div>
                 </div>
               </div>

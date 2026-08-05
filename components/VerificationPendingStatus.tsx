@@ -1,27 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useLanguage } from "../lib/LanguageContext";
+import { useAuth } from "../lib/UserContext";
 
 export default function VerificationPendingStatus() {
   const { t } = useLanguage();
+  const { user, refreshUser } = useAuth();
+
+  useEffect(() => {
+    refreshUser();
+  }, []);
+
+  const isVerified = user?.verified || user?.status === "active" || user?.status === "verified" || user?.status === "approved";
+  const currentStatus = isVerified ? "approved" : (user?.status || "pending");
+
   const [verificationStatus] = useState({
-    status: "pending", // pending, reviewing, approved, rejected
+    status: currentStatus, // pending, reviewing, approved, rejected
     submittedDate: "2024-01-20",
     expectedDate: "2024-01-22",
     documentsUploaded: [
       {
         name: "Commercial Registration",
-        status: "uploaded",
+        status: isVerified ? "verified" : "uploaded",
         uploadDate: "2024-01-20",
       },
     ],
     businessInfo: {
-      name: "Metro Electronics Supply",
+      name: user?.name || "Metro Electronics Supply",
       category: "Electronics & Electrical Supplies",
-      phone: "50 123 4567",
-      email: "info@metroelectronics.com",
+      phone: user?.phone || "50 123 4567",
+      email: user?.email || "info@metroelectronics.com",
     },
   });
 

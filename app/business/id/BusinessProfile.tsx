@@ -1185,7 +1185,7 @@ export default function BusinessProfile() {
                           >
                             {hours.closed
                               ? t("businessProfile.closedLabel")
-                              : `${hours.open} - ${hours.close}`}
+                              : <bdi dir="ltr" style={{ direction: "ltr", unicodeBidi: "isolate" }}>{hours.open} - {hours.close}</bdi>}
                           </span>
                         </div>
                       )

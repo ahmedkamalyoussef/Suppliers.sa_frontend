@@ -523,7 +523,7 @@ export default function Header() {
                       <div className="hidden sm:flex items-center gap-2 md:gap-3">
                         <Link
                           href="/add-business"
-                          className="text-gray-700 hover:text-yellow-600 font-medium transition-colors text-sm"
+                          className="text-gray-700 hover:text-yellow-600 font-medium transition-colors text-sm hover:bg-white p-2 rounded-lg border border-gray-200"
                         >
                           {t("nav.register")}
                         </Link>

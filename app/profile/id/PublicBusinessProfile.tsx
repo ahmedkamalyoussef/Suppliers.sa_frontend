@@ -10,6 +10,9 @@ import { useLanguage } from "@/lib/LanguageContext";
 import { SupplierProfile, apiService } from "@/lib/api";
 import { useAuth } from "@/lib/UserContext";
 import companyLogo from "@/lib/assets/company.png";
+import { PhoneNumber, EmailText, UrlText, CodeText, LtrValue } from "@/components/BidiText";
+import PhoneInput from "@/components/PhoneInput";
+import { getContactTypeLabel } from "@/lib/contactTypes";
 
 type WorkingDay = {
   open: string;
@@ -179,18 +182,7 @@ export default function PublicBusinessProfile({
   // Helper function to get translated phone type
   const getTranslatedPhoneType = (type?: string): string => {
     if (!type || type === "undefined" || type === "null") return "";
-    const normalized = type.toLowerCase().trim();
-    const key = `publicProfile.phoneTypes.${normalized}`;
-    const val = t(key);
-    if (val && val !== key && !val.includes("publicProfile.")) {
-      return val;
-    }
-    const fallbackKey = `completeProfile.phoneTypes.${normalized}`;
-    const fallbackVal = t(fallbackKey);
-    if (fallbackVal && fallbackVal !== fallbackKey && !fallbackVal.includes("completeProfile.")) {
-      return fallbackVal;
-    }
-    return type;
+    return getContactTypeLabel(type, language);
   };
 
   // Map API data to business object
@@ -481,22 +473,24 @@ export default function PublicBusinessProfile({
                       {supplier?.status && (
                         <div
                           className={`${
-                            supplier.status.toLowerCase() === "pending"
-                              ? "bg-yellow-500"
-                              : supplier.status.toLowerCase() === "verified"
+                            (supplier.status.toLowerCase() === "verified" || supplier.status.toLowerCase() === "active")
                               ? "bg-green-500"
+                              : supplier.status.toLowerCase() === "pending"
+                              ? "bg-yellow-500"
                               : "bg-gray-500"
                           } text-white px-2 py-0.5 md:px-4 md:py-2 rounded-full flex items-center gap-1 md:gap-2 text-xs`}
                         >
                           <i
                             className={`ri-${
-                              supplier.status.toLowerCase() === "verified"
+                              (supplier.status.toLowerCase() === "verified" || supplier.status.toLowerCase() === "active")
                                 ? "verified-badge-fill"
                                 : "time-line"
                             }`}
                           ></i>
                           <span className="font-medium capitalize">
-                            {getTranslatedStatus(supplier.status)}
+                            {(supplier.status.toLowerCase() === "verified" || supplier.status.toLowerCase() === "active")
+                              ? (language === "ar" ? "موثق" : "Verified")
+                              : getTranslatedStatus(supplier.status)}
                           </span>
                         </div>
                       )}
@@ -649,7 +643,7 @@ export default function PublicBusinessProfile({
                           href={`tel:${business.phone}`}
                           className="text-gray-800 font-medium hover:text-yellow-600"
                         >
-                          {business.phone}
+                          <PhoneNumber phone={business.phone} />
                         </a>
                       </div>
                     </div>
@@ -681,7 +675,7 @@ export default function PublicBusinessProfile({
                                 href={`tel:${phone.number}`}
                                 className="text-gray-800 font-medium hover:text-blue-600 block"
                               >
-                                {phone.number}
+                                <PhoneNumber phone={phone.number} />
                               </a>
                               {phone.name && (
                                 <span className="text-xs text-gray-500 block">
@@ -738,7 +732,7 @@ export default function PublicBusinessProfile({
                           href={`mailto:${business.email}`}
                           className="text-gray-800 font-medium hover:text-yellow-600"
                         >
-                          {business.email}
+                          <EmailText value={business.email} />
                         </a>
                       </div>
                     </div>
@@ -757,7 +751,7 @@ export default function PublicBusinessProfile({
                           rel="noopener noreferrer"
                           className="text-gray-800 font-medium hover:text-yellow-600"
                         >
-                          {t("publicProfile.contact.visitWebsite")}
+                          <UrlText value={t("publicProfile.contact.visitWebsite")} />
                         </a>
                       </div>
                     </div>
@@ -820,7 +814,7 @@ export default function PublicBusinessProfile({
                         >
                           {hours.closed
                             ? t("publicProfile.workingHours.closed")
-                            : `${hours.open} - ${hours.close}`}
+                            : <bdi dir="ltr" style={{ direction: "ltr", unicodeBidi: "isolate" }}>{hours.open} - {hours.close}</bdi>}
                         </span>
                       </div>
                     ))}
@@ -1173,21 +1167,15 @@ export default function PublicBusinessProfile({
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        <i className="ri-phone-line me-1"></i>
-                        {t("publicProfile.inquiry.form.phone")}
-                      </label>
-                      <input
-                        type="tel"
-                        name="phone"
+                      <PhoneInput
+                        label={t("publicProfile.inquiry.form.phone")}
                         value={inquiryForm.phone}
-                        onChange={(e) =>
+                        onChange={(val) =>
                           setInquiryForm({
                             ...inquiryForm,
-                            phone: e.target.value,
+                            phone: val,
                           })
                         }
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
                         placeholder={t(
                           "publicProfile.inquiry.form.phonePlaceholder"
                         )}

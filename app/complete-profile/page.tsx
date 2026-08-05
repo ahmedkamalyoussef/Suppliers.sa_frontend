@@ -236,9 +236,7 @@ export default function CompleteProfilePage() {
             <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3">
               {t("completeProfile.title")}
             </h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              {t("completeProfile.subtitle")}
-            </p>
+            
           </div>
 
           {/* Single Unified Progress Indicator */}
@@ -246,9 +244,7 @@ export default function CompleteProfilePage() {
             {/* Top row: Active step info & completion percentage */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 font-bold text-sm flex items-center justify-center shadow-xs">
-                  {currentStep}/{TOTAL_STEPS}
-                </div>
+                
                 <div>
                   <h2 className="text-base sm:text-lg font-bold text-gray-900 leading-tight">
                     {getStepTitle(currentStep)}

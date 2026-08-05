@@ -50,22 +50,27 @@ export default function TimePickerInput({
   return (
     <div className="flex flex-col gap-1">
       {label && (
-        <span className="text-xs font-semibold text-gray-700">{label}</span>
+        <span className="text-xs font-semibold text-gray-700 ltr:text-left rtl:text-right">
+          {label}
+        </span>
       )}
       <div
-        className={`flex items-center gap-1 bg-white border border-gray-200 hover:border-amber-400 focus-within:border-amber-400 focus-within:ring-2 focus-within:ring-amber-100 rounded-xl p-1 shadow-sm transition-all ${
+        className={`flex items-center gap-1 bg-white border border-gray-200 hover:border-amber-400 focus-within:border-amber-400 focus-within:ring-2 focus-within:ring-amber-100 rounded-xl p-1 shadow-sm transition-all bidi-ltr ${
           disabled ? "opacity-50 cursor-not-allowed bg-gray-50" : ""
         }`}
+        dir="ltr"
+        style={{ direction: "ltr", unicodeBidi: "isolate" }}
       >
-        {/* Hour Dropdown */}
+        {/* Hour Dropdown (Always Left) */}
         <select
           value={hour12}
           disabled={disabled}
           onChange={(e) =>
             emitChange(parseInt(e.target.value, 10), minute, period)
           }
-          className="bg-transparent text-xs font-bold text-gray-800 py-1 px-1.5 outline-none cursor-pointer rounded-lg hover:bg-gray-100/80 transition-colors"
+          className="bg-transparent text-xs font-bold text-gray-800 py-1 px-1.5 outline-none cursor-pointer rounded-lg hover:bg-gray-100/80 transition-colors bidi-ltr"
           dir="ltr"
+          style={{ direction: "ltr", unicodeBidi: "isolate" }}
         >
           {hoursList.map((h) => (
             <option key={h} value={h}>
@@ -74,15 +79,22 @@ export default function TimePickerInput({
           ))}
         </select>
 
-        <span className="text-gray-400 font-bold text-xs select-none">:</span>
+        <span
+          className="text-gray-400 font-bold text-xs select-none bidi-isolate"
+          dir="ltr"
+          style={{ direction: "ltr", unicodeBidi: "isolate" }}
+        >
+          :
+        </span>
 
-        {/* Minute Dropdown */}
+        {/* Minute Dropdown (Always Middle Right) */}
         <select
           value={minute}
           disabled={disabled}
           onChange={(e) => emitChange(hour12, e.target.value, period)}
-          className="bg-transparent text-xs font-bold text-gray-800 py-1 px-1.5 outline-none cursor-pointer rounded-lg hover:bg-gray-100/80 transition-colors"
+          className="bg-transparent text-xs font-bold text-gray-800 py-1 px-1.5 outline-none cursor-pointer rounded-lg hover:bg-gray-100/80 transition-colors bidi-ltr"
           dir="ltr"
+          style={{ direction: "ltr", unicodeBidi: "isolate" }}
         >
           {minutesList.map((m) => (
             <option key={m} value={m}>
@@ -91,8 +103,12 @@ export default function TimePickerInput({
           ))}
         </select>
 
-        {/* AM / PM Toggle Pills */}
-        <div className="flex items-center bg-gray-100 rounded-lg p-0.5 ms-1">
+        {/* AM / PM Toggle Pills (Always Far Right) */}
+        <div
+          className="flex items-center bg-gray-100 rounded-lg p-0.5 ms-1 bidi-ltr"
+          dir="ltr"
+          style={{ direction: "ltr", unicodeBidi: "isolate" }}
+        >
           <button
             type="button"
             disabled={disabled}

@@ -12,13 +12,7 @@ export interface AdditionalPhoneNumbersProps {
   maxCount?: number;
 }
 
-const PHONE_TYPES = [
-  { value: "Sales Representative", ar: "مبيعات", en: "Sales Representative" },
-  { value: "Procurement", ar: "مشتريات", en: "Procurement" },
-  { value: "Technical Support", ar: "دعم فني", en: "Technical Support" },
-  { value: "Customer Service", ar: "خدمة العملاء", en: "Customer Service" },
-  { value: "General Inquiry", ar: "استفسارات عامة", en: "General Inquiry" },
-];
+import { CONTACT_TYPES } from "../lib/contactTypes";
 
 export default function AdditionalPhoneNumbers({
   phones = [],
@@ -111,7 +105,7 @@ export default function AdditionalPhoneNumbers({
                       : "border-gray-300"
                   }`}
                 >
-                  {PHONE_TYPES.map((t) => (
+                  {CONTACT_TYPES.map((t) => (
                     <option key={t.value} value={t.value}>
                       {isArabic ? t.ar : t.en}
                     </option>

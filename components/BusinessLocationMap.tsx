@@ -691,11 +691,11 @@ export default function BusinessLocationMap({
     <div className={hideHeader ? "w-full flex flex-col h-full" : "sticky top-8"}>
       <div className={hideHeader ? "bg-white w-full flex flex-col h-full" : "bg-white rounded-2xl shadow-xl overflow-hidden"}>
         {!hideHeader && (
-          <div className="p-6 bg-yellow-50 border-b border-yellow-100">
-            <h3 className="text-xl font-bold text-gray-800 mb-2">
+          <div className="p-0">
+            {/* <h3 className="text-xl font-bold text-gray-800 mb-2">
               {t("map.setLocationTitle")}
             </h3>
-            <p className="text-sm text-gray-600">{t("map.setLocationDesc")}</p>
+            <p className="text-sm text-gray-600">{t("map.setLocationDesc")}</p> */}
             {!canEdit && (
               <div className="mt-3 p-3 bg-yellow-100 border border-yellow-200 rounded-lg">
                 <div className="flex items-center gap-2">

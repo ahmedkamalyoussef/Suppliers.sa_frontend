@@ -10,6 +10,7 @@ import { useLanguage } from "@/lib/LanguageContext";
 import { api } from "@/lib/api/service";
 import { API_CONFIG } from "@/lib/api/config";
 import PhoneInput from "@/components/PhoneInput";
+import { formatE164PhoneNumber } from "@/lib/phoneUtils";
 
 export default function AuthPage() {
   const { t, translations, language } = useLanguage();
@@ -146,7 +147,7 @@ export default function AuthPage() {
     try {
       const response: any = await api.post(API_CONFIG.auth.sendOtp, {
         email: formData.email,
-        ...(method === "phone" && { phone: formData.phone }),
+        ...(method === "phone" && { phone: formatE164PhoneNumber(formData.phone, "+966") }),
       });
 
       // Handle different response structures

@@ -2,6 +2,7 @@
 
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
+import { EmailText, PhoneNumber } from "../../components/BidiText";
 import { useLanguage } from "../../lib/LanguageContext";
 
 export default function PrivacyPage() {
@@ -159,9 +160,9 @@ export default function PrivacyPage() {
                 </p>
                 <div className="bg-gray-50 p-4 rounded-lg mt-4">
                   <p className="text-gray-700">
-                    <strong>{t("privacy.email")}</strong> privacy@supplier.sa
+                    <strong>{t("privacy.email")}</strong> <EmailText value="privacy@supplier.sa" />
                     <br />
-                    <strong>{t("privacy.phone")}</strong> +966 11 123 4567
+                    <strong>{t("privacy.phone")}</strong> <PhoneNumber phone="+966 11 123 4567" />
                     <br />
                     <strong>{t("privacy.address")}</strong> Riyadh, Saudi Arabia
                   </p>

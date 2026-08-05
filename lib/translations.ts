@@ -1832,6 +1832,8 @@ export const translations = {
         "null": "Unspecified"
       },
       "phoneTypes": {
+        "companyManager": "Company Manager",
+        "company manager": "Company Manager",
         "sales": "Sales",
         "procurement": "Procurement",
         "technical": "Technical Support",
@@ -2258,7 +2260,7 @@ export const translations = {
         "suggestionsLabel": "Quick suggestions based on your categories:",
         "keywordsHelpBox": {
           "title": "Why add keywords?",
-          "text": "Keywords help users discover your profile or business more easily when searching. Add words that describe your services, products, specialties, or industry.",
+          "text": "Keywords help users discover your profile or business more easily when searching. Add words that describe your <strong>services, products</strong>, specialties, or industry.",
           "exampleTitle": "Example:",
           "exampleContent": "Restaurant, Coffee, Bakery, Delivery"
         }
@@ -2395,7 +2397,7 @@ export const translations = {
         "viewListing": "View Your Listing",
         "continueEditing": "Continue Editing",
         "viewProfile": "View Profile",
-        "close": "Close"
+        "close": "Close.Go to Home Page"
       },
       "success": {
         "profileCompleted": "Profile Completed!",
@@ -2841,7 +2843,7 @@ export const translations = {
       "pricing": "الأسعار",
       "dashboard": "لوحة التحكم",
       "contact": "اتصل بنا",
-      "register": "تسجيل",
+      "register": "انشاء حساب",
       "login": "تسجيل الدخول",
       "allSuppliers": "جميع الموردين",
       "subscription": "الاشتراك",
@@ -3365,8 +3367,8 @@ export const translations = {
         "phone": "الهاتف",
         "email": "البريد الإلكتروني",
         "website": "الموقع الإلكتروني",
-        "serviceDistance": "مسافة الخدمة",
-        "whoDoYouServe": "من تخدم؟",
+        "serviceDistance": "مسافه الخدمة من مقر الشركة",
+        "whoDoYouServe": "من تخدم؟",  
         "description": "الوصف",
         "characters": "حرف",
         "additionalPhones": "أرقام هواتف إضافية (اختياري)",
@@ -4730,6 +4732,8 @@ export const translations = {
         "null": "غير محدد"
       },
       "phoneTypes": {
+        "companyManager": "مسؤول الشركة",
+        "company manager": "مسؤول الشركة",
         "sales": "المبيعات",
         "procurement": "المشتريات",
         "technical": "الدعم الفني",
@@ -5111,9 +5115,9 @@ export const translations = {
       }
     },
     "completeProfile": {
-      "title": "إكمال الملف الشخصي للعمل",
+      "title": "أكمل ملف النشاط التجاري للشركة",
       "stepOf": "الخطوة {current} من {total}",
-      "subtitle": "إكمل ملف تعريف عملك للبدء",
+      "subtitle": "أكمل ملف تعريف عملك للبدء",
       "accountVerified": "تم التحقق من الحساب",
       "optional": "اختياري",
       "business": "العمل",
@@ -5147,16 +5151,16 @@ export const translations = {
       "step1": {
         "addMinChars": "أضف",
         "minChars": "20 حرفاً كحد أدنى",
-        "businessTypeLabel": "نوع العمل",
+        "businessTypeLabel": "نوع النشاط التجاري",
         "descriptionLabel": "وصف النشاط التجاري",
         "descriptionPlaceholder": "أخبرنا عن نشاطك التجاري ومنتجاتك وخدماتك...",
         "descriptionHelp": "يساعد الوصف التفصيلي العملاء على فهم ما يميز نشاطك التجاري.",
-        "categoriesLabel": "فئات العمل",
-        "categoriesDesc": "اختر الفئات التي تنطبق على عملك. هذا يساعد ",
+        "categoriesLabel": "فئات النشاط التجاري",
+        "categoriesDesc": "اختر الفئات التي تنطبق على عملك ",
         "clearAll": "مسح الكل",
         "categoriesSelected": "الفئات المحددة",
         "selectedCategories": "الفئات المحددة",
-        "keywordsTitle": "الكلمات المفتاحية للمنتجات والخدمات",
+        "keywordsTitle": "كيف يستطيع المستخدم العثور عليك؟",
         "keywordsPlaceholder": "أدخل الكلمات المفتاحية بفواصل",
         "keywordsAdded": "كلمات مفتاحية مضافة",
         "keywordsDesc": "سيتم استخدام هذه الكلمات لتحسين ظهورك في نتائج البحث",
@@ -5174,14 +5178,14 @@ export const translations = {
         "suggestionsLabel": "اقتراحات سريعة بناءً على فئاتك:",
         "keywordsHelpBox": {
           "title": "لماذا تضيف الكلمات المفتاحية؟",
-          "text": "تساعد الكلمات المفتاحية المستخدمين في العثور على ملفك أو نشاطك التجاري بسهولة عند البحث. أضف كلمات تصف خدماتك أو منتجاتك أو تخصصك أو مجال عملك.",
+          "text": "تساعد الكلمات المفتاحية المستخدمين في العثور على ملفك أو نشاطك التجاري بسهولة عند البحث. أضف كلمات تصف <strong>خدماتك أو منتجاتك</strong> أو تخصصك أو مجال عملك.",
           "exampleTitle": "مثال:",
-          "exampleContent": "مطعم، مقهى، مخبز، توصيل"
+          "exampleContent": "مورد ادوات بناء , صناعات بترولية , ادوات الكترونية , خدمات شحن"
         }
       },
       "step2": {
         "whoServeLabel": "من تخدم؟",
-        "serviceDistanceLabel": "مسافة الخدمة",
+        "serviceDistanceLabel":"مسافه الخدمة من مقر الشركة",
         "servicesLabel": "الخدمات المقدمة",
         "servicesDesc": "اختر الخدمات التي تقدمها لعملائك",
         "serviceDistancePlaceholder": "اختر مسافة الخدمة"
@@ -5189,7 +5193,7 @@ export const translations = {
       "step3": {
         "websiteLabel": "الموقع الإلكتروني",
         "mainPhoneLabel": "الهاتف الرئيسي",
-        "mainPhoneDesc": "رقم الهاتف الأساسي للعملاء للاتصال بك",
+        "mainPhoneDesc": "رقم الهاتف الأساسي الذي يمكن للعملاء الاتصال بك من خلاله",
         "additionalPhones": "أرقام هواتف إضافية",
         "addNumber": "إضافة رقم",
         "additionalPhonesDesc": "أضف أرقام هواتف إضافية لأقسام مختلفة في شركتك (مثل المبيعات، الدعم الفني، إلخ)",
@@ -5197,6 +5201,8 @@ export const translations = {
         "contactNamePlaceholder": "اسم جهة الاتصال"
       },
       "phoneTypes": {
+        "companyManager": "مسؤول الشركة",
+        "company manager": "مسؤول الشركة",
         "sales": "مبيعات",
         "procurement": "مشتريات",
         "technical": "دعم فني",
@@ -5311,7 +5317,7 @@ export const translations = {
         "viewListing": "عرض القائمة الخاصة بك",
         "continueEditing": "متابعة التحرير",
         "viewProfile": "عرض الملف الشخصي",
-        "close": "إغلاق"
+        "close": " إغلاق و الانتقال للصفحة الرئيسية"
       },
       "success": {
         "profileCompleted": "اكتمل الملف الشخصي!",

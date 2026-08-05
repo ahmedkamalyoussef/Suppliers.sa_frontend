@@ -9,6 +9,8 @@ import {
   type VerifyOtpRequest,
 } from "../lib/api";
 
+import { PhoneNumber, EmailText, LtrValue } from "./BidiText";
+
 interface VerificationStepProps {
   phone: string;
   email: string;
@@ -35,12 +37,6 @@ export default function VerificationStep({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  const phoneSubtitle = phone
-    ? `${t("register.step2.phoneSubtitle").split("+")[0].trim()} +966 ${phone}`
-    : t("register.step2.phoneSubtitle");
-  const emailSubtitle = email
-    ? `${t("register.step2.emailSubtitle").split("@")[0].trim()} ${email}`
-    : t("register.step2.emailSubtitle");
 
   const handleVerificationMethodSelect = async (method: "phone" | "email") => {
     setVerificationMethod(method);
@@ -219,7 +215,10 @@ export default function VerificationStep({
                   <h3 className="font-semibold text-gray-800">
                     {t("register.step2.phoneTitle")}
                   </h3>
-                  <p className="text-gray-600 text-sm">{phoneSubtitle}</p>
+                  <p className="text-gray-600 text-sm">
+                    {t("register.step2.phoneSubtitle").split("+")[0].trim()}{" "}
+                    {phone ? <PhoneNumber phone={phone} countryCode="+966" /> : null}
+                  </p>
                 </div>
               </div>
             </button>
@@ -237,7 +236,10 @@ export default function VerificationStep({
                   <h3 className="font-semibold text-gray-800">
                     {t("register.step2.emailTitle")}
                   </h3>
-                  <p className="text-gray-600 text-sm">{emailSubtitle}</p>
+                  <p className="text-gray-600 text-sm">
+                    {t("register.step2.emailSubtitle").split("@")[0].trim()}{" "}
+                    {email ? <EmailText value={email} /> : null}
+                  </p>
                 </div>
               </div>
             </button>
@@ -289,13 +291,19 @@ export default function VerificationStep({
             </div>
             <p className="text-blue-700 text-sm mt-1">
               {t("register.step3.codeSentMessage")
-                .replace(
+                .split("{contact}")[0]
+                ?.replace(
                   "{method}",
                   verificationMethod === "phone"
                     ? t("register.step3.methodPhone")
                     : t("register.step3.methodEmail")
-                )
-                .replace("{contact}", verificationMethod === "phone" ? phone : email)}
+                )}
+              {verificationMethod === "phone" ? (
+                <PhoneNumber phone={phone} countryCode="+966" />
+              ) : (
+                <EmailText value={email} />
+              )}
+              {t("register.step3.codeSentMessage").split("{contact}")[1] || ""}
             </p>
           </div>
 

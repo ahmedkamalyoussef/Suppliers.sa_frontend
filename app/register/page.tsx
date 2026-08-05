@@ -11,6 +11,7 @@ import { apiService, ValidationError, type RegistrationData } from "@/lib/api";
 import { toast } from "react-toastify";
 import VerificationStep from "@/components/VerificationStep";
 import PhoneInput from "@/components/PhoneInput";
+import { formatE164PhoneNumber } from "@/lib/phoneUtils";
 
 export default function RegisterPage() {
   const { t, translations, language } = useLanguage();
@@ -140,9 +141,7 @@ export default function RegisterPage() {
         const apiData: RegistrationData = {
           businessName: formData.businessName,
           email: formData.email,
-          phone: formData.phone.startsWith("+")
-            ? formData.phone
-            : `+966${formData.phone}`,
+          phone: formatE164PhoneNumber(formData.phone, "+966"),
           password: formData.password,
           password_confirmation: formData.confirmPassword,
           accept_policies: true,

@@ -9,6 +9,7 @@ import { apiService, ValidationError, type RegistrationData } from "../lib/api";
 import VerificationStep from "./VerificationStep";
 import PoliciesModal from "./PoliciesModal";
 import PhoneInput from "./PhoneInput";
+import { formatE164PhoneNumber } from "../lib/phoneUtils";
 
 interface LocalRegistrationData {
   businessName: string;
@@ -160,9 +161,7 @@ export default function BusinessRegistrationForm() {
       const apiData: RegistrationData = {
         businessName: registrationData.businessName,
         email: registrationData.email,
-        phone: registrationData.phone.startsWith("+")
-          ? registrationData.phone
-          : `+966${registrationData.phone}`,
+        phone: formatE164PhoneNumber(registrationData.phone, "+966"),
         password: registrationData.password,
         password_confirmation: registrationData.confirmPassword,
         accept_policies: registrationData.acceptPolicies,

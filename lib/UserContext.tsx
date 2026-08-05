@@ -76,6 +76,7 @@ export interface User {
   profileImage: string;
   emailVerifiedAt: string;
   status: string;
+  verified?: boolean;
   plan: string;
   profileCompletion: number;
   profile?: any;
@@ -91,6 +92,7 @@ export interface AuthContextType {
   login: (user: User, token: string, tokenType: string) => void;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -164,7 +166,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const updateUser = (userData: Partial<User>) => {
     if (user) {
-      setUser({ ...user, ...userData });
+      const updated = { ...user, ...userData };
+      setUser(updated);
+      localStorage.setItem("supplier_user", JSON.stringify(updated));
+    }
+  };
+
+  const refreshUser = async () => {
+    if (!token) return;
+    try {
+      const response = await apiService.getProfile();
+      if (response && response.data) {
+        const updatedUser: User = {
+          id: response.data.id,
+          slug: response.data.slug || "",
+          name: response.data.name,
+          email: response.data.email,
+          phone: response.data.phone || "",
+          profileImage: response.data.profile_image || "",
+          emailVerifiedAt: response.data.email_verified_at || "",
+          status: response.data.status,
+          verified: response.data.status === "active" || response.data.status === "verified",
+          plan: response.data.plan || "free",
+          profileCompletion: response.data.profile_completion || 100,
+        };
+        setUser(updatedUser);
+        localStorage.setItem("supplier_user", JSON.stringify(updatedUser));
+      }
+    } catch (error) {
+      console.error("Failed to refresh user profile:", error);
     }
   };
 
@@ -181,6 +211,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         updateUser,
+        refreshUser,
       }}
     >
       {children}

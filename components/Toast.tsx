@@ -58,7 +58,7 @@ export default function Toast({
         {type === "success" && <i className="ri-check-line text-xl"></i>}
         {type === "error" && <i className="ri-error-warning-line text-xl"></i>}
         {type === "info" && <i className="ri-information-line text-xl"></i>}
-        <span className="font-medium">{message}</span>
+        <span className="font-medium bidi-isolate">{message}</span>
       </div>
     </div>
   );

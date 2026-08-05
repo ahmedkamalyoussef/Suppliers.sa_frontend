@@ -170,3 +170,18 @@
 /*::-webkit-scrollbar {
   width: 3px;
 }*/
+
+/* Bidirectional Text Isolation Utilities */
+.bidi-ltr {
+  direction: ltr !important;
+  unicode-bidi: isolate !important;
+}
+
+.bidi-rtl {
+  direction: rtl !important;
+  unicode-bidi: isolate !important;
+}
+
+bdi, .bidi-isolate {
+  unicode-bidi: isolate !important;
+}

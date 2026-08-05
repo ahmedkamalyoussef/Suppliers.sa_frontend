@@ -23,6 +23,8 @@ import KeywordTagInput from "./KeywordTagInput";
 import BusinessHoursConfig from "./BusinessHoursConfig";
 import PhoneInput from "./PhoneInput";
 import AdditionalPhoneNumbers from "./AdditionalPhoneNumbers";
+import { formatE164PhoneNumber } from "../lib/phoneUtils";
+import { CONTACT_TYPES } from "../lib/contactTypes";
 
 const BusinessLocationMap = dynamic(() => import("./BusinessLocationMap"), {
   ssr: false,
@@ -66,13 +68,9 @@ const serviceDistanceOptions = [
 // Service options with translations
 const serviceOptions = [
   { en: "Wholesale", ar: "البيع بالجملة" },
-  { en: "Retail", ar: "التجزئة" },
-  { en: "Repair Services", ar: "خدمات الإصلاح" },
   { en: "Consulting", ar: "الاستشارات" },
-  { en: "Installation", ar: "التثبيت" },
   { en: "Maintenance", ar: "الصيانة" },
-  { en: "Custom Orders", ar: "طلبات مخصصة" },
-  { en: "Bulk Orders", ar: "طلبات بالجملة" },
+  { en: "Custom Orders", ar: "طلبات مخصصة  حسب الطلب" },
   { en: "Emergency Services", ar: "خدمات الطوارئ" },
   { en: "Delivery", ar: "التوصيل" },
 ];
@@ -1123,8 +1121,11 @@ export default function CompleteProfileForm({
         serviceDistance: formData.serviceDistance.toString(),
         services: formData.services,
         website: formData.website,
-        mainPhone: mainPhoneValue, // Use validated main phone value
-        additionalPhones: formData.additionalPhones,
+        mainPhone: formatE164PhoneNumber(mainPhoneValue, "+966"),
+        additionalPhones: (formData.additionalPhones || []).map((p) => ({
+          ...p,
+          number: formatE164PhoneNumber(p.number, "+966"),
+        })),
         address: formData.address,
         location: formData.location,
         description: formData.description,
@@ -1259,14 +1260,9 @@ export default function CompleteProfileForm({
     return productKeywords.length;
   };
 
-  const phoneTypes = [
-    t("completeProfile.phoneTypes.sales"),
-    t("completeProfile.phoneTypes.procurement"),
-    t("completeProfile.phoneTypes.technical"),
-    t("completeProfile.phoneTypes.customer"),
-    t("completeProfile.phoneTypes.manager"),
-    t("completeProfile.phoneTypes.general"),
-  ];
+  const phoneTypes = CONTACT_TYPES.map((ct) =>
+    language === "ar" ? ct.ar : ct.en
+  );
 
   const handleCategoryToggle = (category: string): void => {
     const englishCategory = getEnglishValue(category);
@@ -1523,9 +1519,9 @@ export default function CompleteProfileForm({
             {/* Products/Services Keywords Section */}
             <div className="bg-blue-50/70 border border-blue-200 rounded-lg md:rounded-xl p-4 md:p-6 space-y-4">
               <div className="flex items-center gap-2">
-                <i className="ri-hashtag text-blue-600 text-lg md:text-xl"></i>
+                {/* <i className="ri-hashtag text-blue-600 text-lg md:text-xl"></i> */}
                 <h4 className="text-base md:text-lg font-semibold text-blue-900">
-                  {t("completeProfile.step1.keywordsTitle")} *
+                  {t("completeProfile.step1.keywordsTitle")}
                 </h4>
               </div>
 
@@ -1663,9 +1659,7 @@ export default function CompleteProfileForm({
                   </label>
                 ))}
               </div>
-              <p className="text-xs text-gray-500 mt-1 md:mt-2">
-                {t("completeProfile.step2.servicesDesc")}
-              </p>
+              
             </div>
           </div>
         )}
@@ -1821,13 +1815,12 @@ export default function CompleteProfileForm({
                 <p className="text-red-500 text-xs font-semibold mb-2">{errors.document}</p>
               )}
               <div
-                className={`border-2 border-dashed rounded-2xl p-6 md:p-8 text-center transition-all duration-200 ${
-                  errors.crFile || errors.document
+                className={`border-2 border-dashed rounded-2xl p-6 md:p-8 text-center transition-all duration-200 ${errors.crFile || errors.document
                     ? "border-red-300 bg-red-50/60"
                     : crFile
-                    ? "border-emerald-400 bg-emerald-50/40"
-                    : "border-amber-200 bg-amber-50/20 hover:border-amber-400 hover:bg-amber-50/60 hover:shadow-sm cursor-pointer group"
-                }`}
+                      ? "border-emerald-400 bg-emerald-50/40"
+                      : "border-amber-200 bg-amber-50/20 hover:border-amber-400 hover:bg-amber-50/60 hover:shadow-sm cursor-pointer group"
+                  }`}
               >
                 <input
                   type="file"

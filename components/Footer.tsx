@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useLanguage } from "../lib/LanguageContext";
 import { useAuth } from "../hooks/useAuth";
 import { FaTwitter, FaLinkedin, FaWhatsapp } from "react-icons/fa";
+import { CodeText } from "./BidiText";
+
 // import Logo from "./Logo";
 
 export default function Footer() {
@@ -212,7 +214,9 @@ export default function Footer() {
               {/* Commercial Register - Right Side */}
               <div className="text-right">
                 <p className="text-xs text-yellow-100">
-                  {t("footer.commercialRegistered")}
+                  {t("footer.commercialRegistered").split(/\d+/)[0]}
+                  <CodeText value={t("footer.commercialRegistered").match(/\d+/)?.[0] || ""} />
+                  {t("footer.commercialRegistered").split(/\d+/)[1] || ""}
                 </p>
               </div>
             </div>
