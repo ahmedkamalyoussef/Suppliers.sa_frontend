@@ -344,13 +344,13 @@ export default function BusinessProfile() {
     workingHours: (() => {
       // Default working hours in case the API doesn't return any
       const defaultWorkingHours = {
+        sunday: { open: "10:00", close: "16:00", closed: true },
         monday: { open: "09:00", close: "18:00", closed: false },
         tuesday: { open: "09:00", close: "18:00", closed: false },
         wednesday: { open: "09:00", close: "18:00", closed: false },
         thursday: { open: "09:00", close: "18:00", closed: false },
         friday: { open: "14:00", close: "22:00", closed: false },
         saturday: { open: "10:00", close: "16:00", closed: true },
-        sunday: { open: "10:00", close: "16:00", closed: true },
       };
 
       // If no working hours from API, return defaults
@@ -363,13 +363,13 @@ export default function BusinessProfile() {
 
       // Convert API format to our format
       const mappedWorkingHours = {
+        sunday: apiWorkingHours.sunday || defaultWorkingHours.sunday,
         monday: apiWorkingHours.monday || defaultWorkingHours.monday,
         tuesday: apiWorkingHours.tuesday || defaultWorkingHours.tuesday,
         wednesday: apiWorkingHours.wednesday || defaultWorkingHours.wednesday,
         thursday: apiWorkingHours.thursday || defaultWorkingHours.thursday,
         friday: apiWorkingHours.friday || defaultWorkingHours.friday,
         saturday: apiWorkingHours.saturday || defaultWorkingHours.saturday,
-        sunday: apiWorkingHours.sunday || defaultWorkingHours.sunday,
       };
 
       return mappedWorkingHours;
@@ -1141,8 +1141,18 @@ export default function BusinessProfile() {
                     {t("businessProfile.workingHours")}
                   </h3>
                   <div className="space-y-2 md:space-y-3">
-                    {Object.entries(business.workingHours).map(
-                      ([day, hours]) => (
+                    {[
+                      "sunday",
+                      "monday",
+                      "tuesday",
+                      "wednesday",
+                      "thursday",
+                      "friday",
+                      "saturday",
+                    ].map((day) => {
+                      const hours = (business.workingHours as any)[day];
+                      if (!hours) return null;
+                      return (
                         <div
                           key={day}
                           className="flex justify-between items-center"
@@ -1166,8 +1176,8 @@ export default function BusinessProfile() {
                             )}
                           </span>
                         </div>
-                      )
-                    )}
+                      );
+                    })}
                   </div>
                 </div>
 

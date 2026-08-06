@@ -865,35 +865,44 @@ export default function PublicBusinessProfile({
                   </h3>
                   <div className="space-y-3">
                     {(
-                      Object.entries(business.workingHours) as [
-                        keyof WorkingHoursRecord,
-                        WorkingDay
-                      ][]
-                    ).map(([day, hours]) => (
-                      <div
-                        key={day}
-                        className="flex justify-between items-center"
-                      >
-                        <span className="text-gray-700 font-medium capitalize">
-                          {t(`publicProfile.workingHours.days.${day}`)}
-                        </span>
-                        <span
-                          className={`text-sm font-medium ${
-                            hours.closed ? "text-red-600" : "text-green-600"
-                          }`}
+                      [
+                        "sunday",
+                        "monday",
+                        "tuesday",
+                        "wednesday",
+                        "thursday",
+                        "friday",
+                        "saturday",
+                      ] as (keyof WorkingHoursRecord)[]
+                    ).map((day) => {
+                      const hours = business.workingHours[day];
+                      if (!hours) return null;
+                      return (
+                        <div
+                          key={day}
+                          className="flex justify-between items-center"
                         >
-                          {hours.closed ? (
-                            t("publicProfile.workingHours.closed")
-                          ) : (
-                            <span dir={language === "ar" ? "rtl" : "ltr"} className="inline-flex items-center gap-1 font-medium">
-                              <span>{formatTime12h(hours.open, language)}</span>
-                              <span className="mx-0.5 text-gray-400">-</span>
-                              <span>{formatTime12h(hours.close, language)}</span>
-                            </span>
-                          )}
-                        </span>
-                      </div>
-                    ))}
+                          <span className="text-gray-700 font-medium capitalize">
+                            {t(`publicProfile.workingHours.days.${day}`)}
+                          </span>
+                          <span
+                            className={`text-sm font-medium ${
+                              hours.closed ? "text-red-600" : "text-green-600"
+                            }`}
+                          >
+                            {hours.closed ? (
+                              t("publicProfile.workingHours.closed")
+                            ) : (
+                              <span dir={language === "ar" ? "rtl" : "ltr"} className="inline-flex items-center gap-1 font-medium">
+                                <span>{formatTime12h(hours.open, language)}</span>
+                                <span className="mx-0.5 text-gray-400">-</span>
+                                <span>{formatTime12h(hours.close, language)}</span>
+                              </span>
+                            )}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
                 {/* Location Map */}

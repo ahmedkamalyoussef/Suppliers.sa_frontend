@@ -17,13 +17,13 @@ export interface BusinessHoursConfigProps {
 }
 
 const DAY_NAMES: Record<string, { ar: string; en: string }> = {
+  sunday: { ar: "الأحد", en: "Sunday" },
   monday: { ar: "الإثنين", en: "Monday" },
   tuesday: { ar: "الثلاثاء", en: "Tuesday" },
   wednesday: { ar: "الأربعاء", en: "Wednesday" },
   thursday: { ar: "الخميس", en: "Thursday" },
   friday: { ar: "الجمعة", en: "Friday" },
   saturday: { ar: "السبت", en: "Saturday" },
-  sunday: { ar: "الأحد", en: "Sunday" },
 };
 
 export default function BusinessHoursConfig({
@@ -35,13 +35,13 @@ export default function BusinessHoursConfig({
   const isArabic = language === "ar";
 
   const dayKeys = [
+    "sunday",
     "monday",
     "tuesday",
     "wednesday",
     "thursday",
     "friday",
     "saturday",
-    "sunday",
   ];
 
   // Helper to update a specific day field
@@ -54,12 +54,12 @@ export default function BusinessHoursConfig({
     });
   };
 
-  // Quick Action: Copy Monday to all days
-  const copyMondayToAll = () => {
-    const mondayVal = workingHours.monday || { closed: false, open: "09:00", close: "17:00" };
+  // Quick Action: Copy Sunday to all days
+  const copySundayToAll = () => {
+    const sundayVal = workingHours.sunday || workingHours.monday || { closed: false, open: "09:00", close: "17:00" };
     const next: Record<string, WorkingHourDay> = {};
     dayKeys.forEach((k) => {
-      next[k] = { ...mondayVal };
+      next[k] = { ...sundayVal };
     });
     onChange(next);
   };
@@ -93,11 +93,11 @@ export default function BusinessHoursConfig({
         <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-1.5">
           <button
             type="button"
-            onClick={copyMondayToAll}
+            onClick={copySundayToAll}
             className="px-2.5 py-1.5 rounded-xl bg-white text-amber-900 border border-amber-300/80 hover:bg-amber-100 text-xs font-semibold transition-all cursor-pointer shadow-xs flex items-center justify-center gap-1"
           >
             <i className="ri-file-copy-line text-amber-600"></i>
-            <span>{isArabic ? "نسخ مواعيد الاثنين للكل" : "Copy Monday to All"}</span>
+            <span>{isArabic ? "نسخ مواعيد الأحد للكل" : "Copy Sunday to All"}</span>
           </button>
 
           <button

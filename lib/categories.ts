@@ -487,17 +487,50 @@ export const categories: Category[] = [
     },
     icon: "ri-store-2-line",
     color: "from-rose-400 to-rose-600"
+  },
+  {
+    id: "Other",
+    name: {
+      en: "Other",
+      ar: "أخرى"
+    },
+    icon: "ri-more-fill",
+    color: "from-gray-400 to-gray-600"
+  },
+  {
+    id: "General",
+    name: {
+      en: "General",
+      ar: "عام"
+    },
+    icon: "ri-building-line",
+    color: "from-gray-400 to-gray-600"
   }
 ];
 
 // Helper functions
 export const getCategoryById = (id: string): Category | undefined => {
-  return categories.find(cat => cat.id === id);
+  if (!id) return undefined;
+  const trimmed = id.trim().toLowerCase();
+  return categories.find(cat =>
+    cat.id.toLowerCase() === trimmed ||
+    cat.name.en.toLowerCase() === trimmed ||
+    cat.name.ar.toLowerCase() === trimmed
+  );
 };
 
 export const getCategoryName = (id: string, language: 'en' | 'ar' = 'en'): string => {
+  if (!id || id === 'null' || id === 'undefined') {
+    return language === 'ar' ? 'أخرى' : 'Other';
+  }
   const category = getCategoryById(id);
-  return category ? category.name[language] : id;
+  if (category) {
+    return category.name[language];
+  }
+  const trimmed = id.trim().toLowerCase();
+  if (trimmed === 'other') return language === 'ar' ? 'أخرى' : 'Other';
+  if (trimmed === 'general') return language === 'ar' ? 'عام' : 'General';
+  return id;
 };
 
 export const getCategoryIcon = (id: string): string => {

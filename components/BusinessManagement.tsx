@@ -23,7 +23,7 @@ import BusinessHoursConfig from "./BusinessHoursConfig";
 import PhoneInput from "./PhoneInput";
 import AdditionalPhoneNumbers from "./AdditionalPhoneNumbers";
 import { CONTACT_TYPES } from "../lib/contactTypes";
-import { formatOfferedService } from "../lib/distanceUtils";
+import { formatOfferedService, formatCityName } from "../lib/distanceUtils";
 
 const BusinessLocationMap = dynamic(() => import("./BusinessLocationMap"), {
   ssr: false,
@@ -193,13 +193,13 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
     ],
     location: { lat: 24.7136, lng: 46.6753 },
     workingHours: {
+      sunday: { open: "10:00", close: "16:00", closed: false },
       monday: { open: "08:00", close: "18:00", closed: false },
       tuesday: { open: "08:00", close: "18:00", closed: false },
       wednesday: { open: "08:00", close: "18:00", closed: false },
       thursday: { open: "08:00", close: "18:00", closed: false },
       friday: { open: "08:00", close: "18:00", closed: true },
       saturday: { open: "09:00", close: "17:00", closed: false },
-      sunday: { open: "10:00", close: "16:00", closed: false },
     },
   });
 
@@ -926,13 +926,13 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
     }
 
     const defaultWorkingHours = {
+      sunday: { open: "10:00", close: "16:00", closed: true },
       monday: { open: "09:00", close: "17:00", closed: false },
       tuesday: { open: "09:00", close: "17:00", closed: false },
       wednesday: { open: "09:00", close: "17:00", closed: false },
       thursday: { open: "09:00", close: "17:00", closed: false },
       friday: { open: "09:00", close: "17:00", closed: true },
       saturday: { open: "10:00", close: "16:00", closed: true },
-      sunday: { open: "10:00", close: "16:00", closed: true },
     };
 
     const apiWorkingHours =
@@ -1123,13 +1123,13 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
     sourceDay: keyof typeof businessData.workingHours,
   ) => {
     const dayOrder: Array<keyof typeof businessData.workingHours> = [
+      "sunday",
       "monday",
       "tuesday",
       "wednesday",
       "thursday",
       "friday",
       "saturday",
-      "sunday",
     ];
     setBusinessData((prev) => {
       const source = prev.workingHours[sourceDay];
@@ -1911,7 +1911,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                   </p>
                   <p className="text-xs text-gray-500">
                     {t("businessManagement.labels.address")}:{" "}
-                    {businessData.address}
+                    {formatCityName(businessData.address, language)}
                   </p>
                 </div>
               </div>
@@ -1960,7 +1960,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                           {branch.address && (
                             <p className="text-xs text-gray-500 mt-1 truncate max-w-xs">
                               <i className="ri-map-pin-line me-1 text-gray-400"></i>
-                              {branch.address}
+                              {formatCityName(branch.address, language)}
                             </p>
                           )}
                         </div>

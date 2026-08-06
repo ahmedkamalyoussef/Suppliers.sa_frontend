@@ -82,13 +82,24 @@ const offeredServicesMap: Record<string, { en: string; ar: string }> = {
   "wholesale": { en: "Wholesale", ar: "جملة" },
   "retail": { en: "Retail", ar: "تجزئة" },
   "repair services": { en: "Repair Services", ar: "خدمات الإصلاح" },
+  "repair service": { en: "Repair Services", ar: "خدمات الإصلاح" },
+  "repair parts": { en: "Repair Parts", ar: "قطع الغيار للإصلاح" },
   "custom orders": { en: "Custom Orders", ar: "طلبات خاصة" },
+  "custom order": { en: "Custom Orders", ar: "طلبات خاصة" },
   "bulk orders": { en: "Bulk Orders", ar: "طلبات بالجملة" },
-  "emergency service": { en: "Emergency Service", ar: "خدمة الطوارئ" },
+  "bulk order": { en: "Bulk Orders", ar: "طلبات بالجملة" },
+  "emergency service": { en: "Emergency Service", ar: "خدمات الطوارئ" },
+  "emergency services": { en: "Emergency Services", ar: "خدمات الطوارئ" },
   "installation": { en: "Installation", ar: "التركيب والصيانة" },
   "maintenance": { en: "Maintenance", ar: "الصيانة" },
   "delivery": { en: "Delivery", ar: "التوصيل" },
+  "delivery services": { en: "Delivery Services", ar: "خدمات التوصيل" },
+  "delivery service": { en: "Delivery Service", ar: "خدمة التوصيل" },
   "consulting": { en: "Consulting", ar: "الاستشارات" },
+  "consulting services": { en: "Consulting Services", ar: "الاستشارات" },
+  "wholesale electronics": { en: "Wholesale Electronics", ar: "إلكترونيات بالجملة" },
+  "components supply": { en: "Components Supply", ar: "توريد المكونات" },
+  "technical support": { en: "Technical Support", ar: "الدعم الفني" },
 };
 
 /**
@@ -100,6 +111,25 @@ export function formatOfferedService(service: string, language: string = "en"): 
   if (offeredServicesMap[key]) {
     return language === "ar" ? offeredServicesMap[key].ar : offeredServicesMap[key].en;
   }
+
+  // Check singular/plural variations (e.g., stripping or adding 's')
+  const keyNoS = key.endsWith("s") ? key.slice(0, -1) : key;
+  if (offeredServicesMap[keyNoS]) {
+    return language === "ar" ? offeredServicesMap[keyNoS].ar : offeredServicesMap[keyNoS].en;
+  }
+
+  const keyWithS = key + "s";
+  if (offeredServicesMap[keyWithS]) {
+    return language === "ar" ? offeredServicesMap[keyWithS].ar : offeredServicesMap[keyWithS].en;
+  }
+
+  // Check substring matches
+  for (const mapKey of Object.keys(offeredServicesMap)) {
+    if (mapKey.length > 3 && (key.includes(mapKey) || mapKey.includes(key))) {
+      return language === "ar" ? offeredServicesMap[mapKey].ar : offeredServicesMap[mapKey].en;
+    }
+  }
+
   return service;
 }
 
@@ -330,10 +360,11 @@ export function formatResponseTime(
 
 const cityTranslationsMap: Record<string, { en: string; ar: string }> = {
   riyadh: { en: "Riyadh", ar: "الرياض" },
+  "al riyadh": { en: "Riyadh", ar: "الرياض" },
   jeddah: { en: "Jeddah", ar: "جدة" },
-  mecca: { en: "Mecca", ar: "مكة المكرمة" },
+  mecca: { en: "Makkah", ar: "مكة المكرمة" },
   makkah: { en: "Makkah", ar: "مكة المكرمة" },
-  medina: { en: "Medina", ar: "المدينة المنورة" },
+  medina: { en: "Madinah", ar: "المدينة المنورة" },
   madinah: { en: "Madinah", ar: "المدينة المنورة" },
   dammam: { en: "Dammam", ar: "الدمام" },
   khobar: { en: "Al Khobar", ar: "الخبر" },
@@ -357,28 +388,115 @@ const cityTranslationsMap: Record<string, { en: string; ar: string }> = {
   qassim: { en: "Al Qassim", ar: "القصيم" },
   "al qassim": { en: "Al Qassim", ar: "القصيم" },
   yanbu: { en: "Yanbu", ar: "ينبع" },
+  "saudi arabia": { en: "Saudi Arabia", ar: "المملكة العربية السعودية" },
+  "ksa": { en: "KSA", ar: "المملكة العربية السعودية" },
 };
 
 /**
- * Translates city names to Arabic when language is 'ar'
+ * Translates city names and addresses bi-directionally (En <-> Ar) based on selected language.
+ * Handles missing address fallbacks ("Address not available" / "العنوان غير متوفر").
  */
 export function formatCityName(
   cityName: string | undefined | null,
   language: string = "en"
 ): string {
-  if (!cityName) return "";
+  const isAr = language === "ar";
+  const missingText = isAr ? "العنوان غير متوفر" : "Address not available";
+
+  if (!cityName) return missingText;
   const trimmed = cityName.trim();
-  if (!trimmed) return "";
+  if (!trimmed) return missingText;
 
-  const key = trimmed.toLowerCase();
-  if (cityTranslationsMap[key]) {
-    return language === "ar" ? cityTranslationsMap[key].ar : cityTranslationsMap[key].en;
+  const lower = trimmed.toLowerCase();
+
+  // Check if it represents a missing/empty address indicator
+  if (
+    lower === "address not available" ||
+    lower === "address not specified" ||
+    lower === "no address provided" ||
+    lower === "undefined" ||
+    lower === "null" ||
+    lower === "العنوان غير متوفر" ||
+    lower === "العنوان غير محدد" ||
+    lower === "غير متوفر"
+  ) {
+    return missingText;
   }
 
-  // If already contains Arabic characters and language is ar, return as is
-  if (language === "ar" && /[\u0600-\u06FF]/.test(trimmed)) {
-    return trimmed;
+  // 1. Check exact key match (English key)
+  if (cityTranslationsMap[lower]) {
+    return isAr ? cityTranslationsMap[lower].ar : cityTranslationsMap[lower].en;
   }
 
-  return trimmed;
+  // 2. Check reverse match (Arabic value match)
+  for (const entry of Object.values(cityTranslationsMap)) {
+    if (entry.ar.trim() === trimmed || entry.ar.toLowerCase() === lower) {
+      return isAr ? entry.ar : entry.en;
+    }
+  }
+
+  // 3. Substring replacement for compound address strings
+  let translated = trimmed;
+  if (isAr) {
+    translated = translated
+      .replace(/address not available/gi, "العنوان غير متوفر")
+      .replace(/saudi arabia/gi, "المملكة العربية السعودية")
+      .replace(/ksa/gi, "المملكة العربية السعودية")
+      .replace(/\bal khobar\b/gi, "الخبر")
+      .replace(/\bkhobar\b/gi, "الخبر")
+      .replace(/\bal jubail\b/gi, "الجبيل")
+      .replace(/\bjubail\b/gi, "الجبيل")
+      .replace(/\bal ahsa\b/gi, "الأحساء")
+      .replace(/\bahsa\b/gi, "الأحساء")
+      .replace(/\bal kharj\b/gi, "الخرج")
+      .replace(/\bkharj\b/gi, "الخرج")
+      .replace(/\bal qassim\b/gi, "القصيم")
+      .replace(/\bqassim\b/gi, "القصيم")
+      .replace(/\bkhamis mushait\b/gi, "خميس مشيط")
+      .replace(/\briyadh\b/gi, "الرياض")
+      .replace(/\bjeddah\b/gi, "جدة")
+      .replace(/\bmakkah\b/gi, "مكة المكرمة")
+      .replace(/\bmecca\b/gi, "مكة المكرمة")
+      .replace(/\bmadinah\b/gi, "المدينة المنورة")
+      .replace(/\bmedina\b/gi, "المدينة المنورة")
+      .replace(/\bdammam\b/gi, "الدمام")
+      .replace(/\bdhahran\b/gi, "الظهران")
+      .replace(/\btabuk\b/gi, "تبوك")
+      .replace(/\babha\b/gi, "أبها")
+      .replace(/\bburaidah\b/gi, "بريدة")
+      .replace(/\bhail\b/gi, "حائل")
+      .replace(/\bnajran\b/gi, "نجران")
+      .replace(/\bjazan\b/gi, "جازان")
+      .replace(/\btaif\b/gi, "الطائف")
+      .replace(/\bhofuf\b/gi, "الهفوف")
+      .replace(/\byanbu\b/gi, "ينبع");
+  } else {
+    translated = translated
+      .replace(/العنوان غير متوفر/g, "Address not available")
+      .replace(/العنوان غير محدد/g, "Address not specified")
+      .replace(/المملكة العربية السعودية/g, "Saudi Arabia")
+      .replace(/الرياض/g, "Riyadh")
+      .replace(/جدة/g, "Jeddah")
+      .replace(/مكة المكرمة/g, "Makkah")
+      .replace(/المدينة المنورة/g, "Madinah")
+      .replace(/الدمام/g, "Dammam")
+      .replace(/الخبر/g, "Al Khobar")
+      .replace(/الظهران/g, "Dhahran")
+      .replace(/تبوك/g, "Tabuk")
+      .replace(/أبها/g, "Abha")
+      .replace(/بريدة/g, "Buraidah")
+      .replace(/خميس مشيط/g, "Khamis Mushait")
+      .replace(/حائل/g, "Hail")
+      .replace(/نجران/g, "Najran")
+      .replace(/جازان/g, "Jazan")
+      .replace(/الطائف/g, "Taif")
+      .replace(/الجبيل/g, "Al Jubail")
+      .replace(/الأحساء/g, "Al Ahsa")
+      .replace(/الهفوف/g, "Hofuf")
+      .replace(/الخرج/g, "Al Kharj")
+      .replace(/القصيم/g, "Al Qassim")
+      .replace(/ينبع/g, "Yanbu");
+  }
+
+  return translated;
 }

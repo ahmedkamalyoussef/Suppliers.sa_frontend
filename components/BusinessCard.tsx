@@ -10,7 +10,7 @@ import companyImg from "../lib/assets/company.png";
 import { getApiUrl } from "../lib/config";
 import { getCategoryIcon, getCategoryColor, getCategoryName } from "../lib/categories";
 import { LtrValue, CodeText } from "./BidiText";
-import { formatServiceDistance, formatOfferedService } from "../lib/distanceUtils";
+import { formatServiceDistance, formatOfferedService, formatCityName } from "../lib/distanceUtils";
 
 interface Business {
   id: number;
@@ -306,7 +306,7 @@ export default function BusinessCard({
                     {business.location && (
                       <div className="flex items-center text-xs text-gray-600">
                         <i className="ri-map-pin-line w-4 h-4 flex items-center justify-center me-2"></i>
-                        <span>{business.location}</span>
+                        <span>{formatCityName(business.location, language)}</span>
                       </div>
                     )}
                     {Array.isArray(business.services) && business.services.length > 0 && (
@@ -451,7 +451,7 @@ export default function BusinessCard({
             </p>
           </div>
           {business.location && (
-            <p className="text-gray-500 text-xs">{business.location}</p>
+            <p className="text-gray-500 text-xs">{formatCityName(business.location, language)}</p>
           )}
         </div>
 

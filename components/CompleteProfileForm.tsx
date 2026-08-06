@@ -819,13 +819,13 @@ export default function CompleteProfileForm({
     sourceDay: keyof typeof formData.workingHours,
   ) => {
     const dayOrder: Array<keyof typeof formData.workingHours> = [
+      "sunday",
       "monday",
       "tuesday",
       "wednesday",
       "thursday",
       "friday",
       "saturday",
-      "sunday",
     ];
     setFormData((prev) => {
       const source = prev.workingHours[sourceDay];
@@ -1133,6 +1133,11 @@ export default function CompleteProfileForm({
         description: formData.description,
         // Always send workingHours with proper structure
         workingHours: {
+          sunday: {
+            open: formData.workingHours.sunday.open || "09:00",
+            close: formData.workingHours.sunday.close || "17:00",
+            closed: formData.workingHours.sunday.closed,
+          },
           monday: {
             open: formData.workingHours.monday.open || "09:00",
             close: formData.workingHours.monday.close || "17:00",
@@ -1162,11 +1167,6 @@ export default function CompleteProfileForm({
             open: formData.workingHours.saturday.open || "09:00",
             close: formData.workingHours.saturday.close || "17:00",
             closed: formData.workingHours.saturday.closed,
-          },
-          sunday: {
-            open: formData.workingHours.sunday.open || "09:00",
-            close: formData.workingHours.sunday.close || "17:00",
-            closed: formData.workingHours.sunday.closed,
           },
         },
         hasBranches: branches && branches.length > 0,
