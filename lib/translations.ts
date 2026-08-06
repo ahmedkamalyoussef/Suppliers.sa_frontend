@@ -252,7 +252,7 @@ export const translations = {
     "businessProfile": {
       "noIdProvided": "No business ID provided",
       "loadError": "Failed to load business profile. Please try again later.",
-      "name": "Business Name",
+      "name": "Account Name",
       "ratingReviewsSuffix": "reviews",
       "openNow": "Open Now",
       "closed": "Closed",
@@ -438,7 +438,8 @@ export const translations = {
         "address": "Address"
       },
       "form": {
-        "businessName": "Business Name",
+        "accountName": "Account Name",
+        "businessName": "Account Name",
         "phone": "Phone",
         "email": "Email",
         "website": "Website",
@@ -1020,8 +1021,10 @@ export const translations = {
         "step1": {
           "title": "Create Your Account",
           "subtitle": "Start by providing your basic business information",
-          "businessNameLabel": "Business Name *",
-          "businessNamePlaceholder": "Enter your business name",
+          "accountNameLabel": "Account Name *",
+          "businessNameLabel": "Account Name *",
+          "accountNamePlaceholder": "Enter your account name",
+          "businessNamePlaceholder": "Enter your account name",
           "phoneLabel": "Phone Number *",
           "phonePlaceholder": "50 123 4567",
           "emailLabel": "Email Address *",
@@ -1078,7 +1081,8 @@ export const translations = {
         "codeIncomplete": "Please enter all 4 digits",
         "userNotFound": "User not found. Please check your email or create a new account.",
         "loginFailed": "Login failed. Please check your credentials.",
-        "businessNameRequired": "Business name is required",
+        "accountNameRequired": "Account name is required",
+        "businessNameRequired": "Account name is required",
         "emailRequired": "Email address is required",
         "passwordMinLength": "Password must be at least 6 characters",
         "registrationFailed": "Registration failed. Please try again.",
@@ -1162,7 +1166,8 @@ export const translations = {
       },
       "profile": {
         "fullName": "Full Name",
-        "businessName": "Business Name",
+        "accountName": "Account Name",
+        "businessName": "Account Name",
         "email": "Email Address",
         "phone": "Phone Number",
         "language": "Language",
@@ -1544,8 +1549,10 @@ export const translations = {
       "step1": {
         "title": "Register Your Business",
         "subtitle": "Start by providing your basic business information",
-        "businessNameLabel": "Business Name *",
-        "businessNamePlaceholder": "Enter your business name",
+        "accountNameLabel": "Account Name *",
+        "businessNameLabel": "Account Name *",
+        "accountNamePlaceholder": "Enter your account name",
+        "businessNamePlaceholder": "Enter your account name",
         "phoneLabel": "Phone Number *",
         "phonePlaceholder": "50 123 4567",
         "emailLabel": "Email Address *",
@@ -1652,7 +1659,8 @@ export const translations = {
       "form": {
         "createAccountTitle": "Create Your Account",
         "enterInfoSubtitle": "Enter your basic information to get started",
-        "businessNameLabel": "Business Name *",
+        "accountNameLabel": "Account Name *",
+        "businessNameLabel": "Account Name *",
         "phoneLabel": "Phone Number *",
         "phonePlaceholder": "Enter phone number",
         "emailLabel": "Email Address *",
@@ -1697,7 +1705,8 @@ export const translations = {
         "policiesLink": "Policies and Terms"
       },
       "errors": {
-        "businessNameRequired": "Business name is required",
+        "accountNameRequired": "Account name is required",
+        "businessNameRequired": "Account name is required",
         "phoneRequired": "Phone number is required",
         "phoneInvalid": "Please enter a valid phone number",
         "emailRequired": "Email address is required",
@@ -2207,7 +2216,8 @@ export const translations = {
       "email": "Email",
       "validation": {
         "required": "This field is required",
-        "businessNameRequired": "Business name is required",
+        "accountNameRequired": "Account name is required",
+        "businessNameRequired": "Account name is required",
         "businessTypeRequired": "Business type is required",
         "descriptionRequired": "Business description is required",
         "categoryRequired": "At least one category is required",
@@ -2486,7 +2496,8 @@ export const translations = {
       "save": "Save",
       "name": "Name",
       "email": "Email",
-      "businessName": "Business Name",
+      "accountName": "Account Name",
+      "businessName": "Account Name",
       "avatarUrl": "Avatar URL",
       "showingUsers": "Showing {count} of {total} users",
       "previous": "Previous",
@@ -3177,7 +3188,7 @@ export const translations = {
     "businessProfile": {
       "noIdProvided": "لم يتم توفير معرف النشاط التجاري",
       "loadError": "فشل في تحميل ملف النشاط التجاري. يرجى المحاولة لاحقاً.",
-      "name": "اسم النشاط",
+      "name": "اسم الحساب",
       "ratingReviewsSuffix": "تقييم",
       "openNow": "مفتوح الآن",
       "closed": "مغلق",
@@ -3363,7 +3374,8 @@ export const translations = {
         "address": "العنوان"
       },
       "form": {
-        "businessName": "اسم النشاط",
+        "accountName": "اسم الحساب",
+        "businessName": "اسم الحساب",
         "phone": "الهاتف",
         "email": "البريد الإلكتروني",
         "website": "الموقع الإلكتروني",
@@ -3468,7 +3480,7 @@ export const translations = {
       "save": "حفظ",
       "name": "الاسم",
       "email": "البريد الإلكتروني",
-      "businessName": "اسم العمل",
+      "businessName": "اسم الحساب",
       "avatarUrl": "رابط الصورة",
       "showingUsers": "عرض {count} من أصل {total} مستخدم",
       "previous": "السابق",
@@ -4129,8 +4141,10 @@ export const translations = {
         "step1": {
           "title": "أنشئ حسابك",
           "subtitle": "ابدأ بتقديم معلومات نشاطك التجاري الأساسية",
-          "businessNameLabel": "اسم النشاط التجاري *",
-          "businessNamePlaceholder": "أدخل اسم نشاطك التجاري",
+          "accountNameLabel": "اسم الحساب *",
+          "businessNameLabel": "اسم الحساب *",
+          "accountNamePlaceholder": "أدخل اسم الحساب",
+          "businessNamePlaceholder": "أدخل اسم الحساب",
           "phoneLabel": "رقم الجوال *",
           "phonePlaceholder": "50 123 4567",
           "emailLabel": "البريد الإلكتروني *",
@@ -4187,7 +4201,8 @@ export const translations = {
         "codeIncomplete": "يرجى إدخال الأرقام الأربعة بالكامل",
         "userNotFound": "المستخدم غير موجود. يرجى التحقق من بريدك الإلكتروني أو إنشاء حساب جديد.",
         "loginFailed": "فشل تسجيل الدخول. يرجى التحقق من بياناتك.",
-        "businessNameRequired": "اسم النشاط التجاري مطلوب",
+        "accountNameRequired": "اسم الحساب مطلوب",
+        "businessNameRequired": "اسم الحساب مطلوب",
         "emailRequired": "البريد الإلكتروني مطلوب",
         "passwordMinLength": "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
         "registrationFailed": "فشل التسجيل. يرجى المحاولة مرة أخرى.",
@@ -4271,7 +4286,8 @@ export const translations = {
       },
       "profile": {
         "fullName": "الاسم الكامل",
-        "businessName": "اسم النشاط التجاري",
+        "accountName": "اسم الحساب",
+        "businessName": "اسم الحساب",
         "email": "البريد الإلكتروني",
         "phone": "رقم الهاتف",
         "language": "اللغة",
@@ -4539,7 +4555,10 @@ export const translations = {
       "step1": {
         "title": "سجل نشاطك التجاري",
         "subtitle": "ابدأ بتقديم معلومات نشاطك التجاري الأساسية",
-        "businessNameLabel": "اسم النشاط التجاري *",
+        "accountNameLabel": "اسم الحساب *",
+        "businessNameLabel": "اسم الحساب *",
+        "accountNamePlaceholder": "أدخل اسم الحساب",
+        "businessNamePlaceholder": "أدخل اسم الحساب",
         "phoneLabel": "رقم الهاتف *",
         "phonePlaceholder": "50 123 4567",
         "emailLabel": "البريد الإلكتروني *",
@@ -4580,8 +4599,6 @@ export const translations = {
           "ابنِ الثقة بمعلومات نشاط مفصلة",
           "تلقّ استفسارات وطلبات تواصل مباشرة"
         ],
-        "businessNamePlaceholder": "أدخل اسم نشاطك التجاري",
-        "emailPlaceholder": "business@example.com",
         "button": "تسجيل",
         "haveAccount": "هل لديك حساب بالفعل؟",
         "signinLink": "سجل الدخول هنا"
@@ -4638,7 +4655,8 @@ export const translations = {
       "form": {
         "createAccountTitle": "أنشئ حسابك",
         "enterInfoSubtitle": "أدخل معلوماتك الأساسية للبدء",
-        "businessNameLabel": "اسم النشاط التجاري *",
+        "accountNameLabel": "اسم الحساب *",
+        "businessNameLabel": "اسم الحساب *",
         "phoneLabel": "رقم الهاتف *",
         "phonePlaceholder": "أدخل رقم الجوال",
         "emailLabel": "البريد الإلكتروني *",
@@ -4684,7 +4702,8 @@ export const translations = {
         "completeProfileSubtitle": "أكمل ملف نشاطك التجاري للبدء في جذب العملاء"
       },
       "errors": {
-        "businessNameRequired": "اسم النشاط التجاري مطلوب",
+        "accountNameRequired": "اسم الحساب مطلوب",
+        "businessNameRequired": "اسم الحساب مطلوب",
         "phoneRequired": "رقم الهاتف مطلوب",
         "phoneInvalid": "يرجى إدخال رقم هاتف صالح",
         "emailRequired": "البريد الإلكتروني مطلوب",
@@ -5125,7 +5144,8 @@ export const translations = {
       "email": "البريد الإلكتروني",
       "validation": {
         "required": "هذا الحقل مطلوب",
-        "businessNameRequired": "اسم النشاط التجاري مطلوب",
+        "accountNameRequired": "اسم الحساب مطلوب",
+        "businessNameRequired": "اسم الحساب مطلوب",
         "businessTypeRequired": "نوع النشاط التجاري مطلوب",
         "descriptionRequired": "وصف النشاط التجاري مطلوب",
         "categoryRequired": "مطلوب اختيار فئة واحدة على الأقل",

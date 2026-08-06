@@ -39,6 +39,7 @@ export default function RegisterPage() {
 
   const [step, setStep] = useState<number>(1);
   const [formData, setFormData] = useState<{
+    accountName: string;
     businessName: string;
     phone: string;
     email: string;
@@ -46,6 +47,7 @@ export default function RegisterPage() {
     confirmPassword: string;
     acceptPolicies: boolean;
   }>({
+    accountName: "",
     businessName: "",
     phone: "",
     email: "",
@@ -79,8 +81,9 @@ export default function RegisterPage() {
   const validateStep1 = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.businessName.trim()) {
-      newErrors.businessName = t("business.errors.businessNameRequired");
+    const nameValue = formData.accountName || formData.businessName;
+    if (!nameValue.trim()) {
+      newErrors.accountName = t("auth.signup.step1.accountNameRequired") || t("business.errors.businessNameRequired");
     }
     if (!formData.phone.trim()) {
       newErrors.phone = t("business.errors.phoneRequired");
@@ -138,8 +141,11 @@ export default function RegisterPage() {
       setErrors({});
 
       try {
+        const nameValue = formData.accountName || formData.businessName;
         const apiData: RegistrationData = {
-          businessName: formData.businessName,
+          accountName: nameValue,
+          businessName: nameValue,
+          name: nameValue,
           email: formData.email,
           phone: formatE164PhoneNumber(formData.phone, "+966"),
           password: formData.password,
@@ -269,26 +275,29 @@ export default function RegisterPage() {
       <form onSubmit={handleStep1Submit} className="space-y-6">
         <div>
           <label
-            htmlFor="businessName"
+            htmlFor="accountName"
             className="block text-sm font-medium text-gray-700 mb-2 ltr:text-left rtl:text-right"
           >
-            {t("register.step1.businessNameLabel")}
+            {t("register.step1.accountNameLabel") || t("register.step1.businessNameLabel")}
           </label>
           <div className="relative">
             <i className="ri-user-3-line absolute top-1/2 -translate-y-1/2 ltr:left-3 rtl:right-3 text-gray-400 text-base pointer-events-none"></i>
             <input
               type="text"
-              id="businessName"
-              value={formData.businessName}
-              onChange={(e) => handleInputChange("businessName", e.target.value)}
+              id="accountName"
+              value={formData.accountName || formData.businessName}
+              onChange={(e) => {
+                handleInputChange("accountName", e.target.value);
+                handleInputChange("businessName", e.target.value);
+              }}
               className={`w-full ltr:pl-10 ltr:pr-4 rtl:pr-10 rtl:pl-4 py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ltr:text-left rtl:text-right ${
-                errors.businessName ? "border-red-300" : "border-gray-300"
+                (errors.accountName || errors.businessName) ? "border-red-300" : "border-gray-300"
               }`}
-              placeholder={t("register.step1.businessNamePlaceholder")}
+              placeholder={t("register.step1.accountNamePlaceholder") || t("register.step1.businessNamePlaceholder")}
             />
           </div>
-          {errors.businessName && (
-            <p className="text-red-500 text-xs mt-1 ltr:text-left rtl:text-right">{errors.businessName}</p>
+          {(errors.accountName || errors.businessName) && (
+            <p className="text-red-500 text-xs mt-1 ltr:text-left rtl:text-right">{errors.accountName || errors.businessName}</p>
           )}
         </div>
 

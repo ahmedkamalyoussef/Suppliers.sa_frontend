@@ -16,6 +16,7 @@ import { useLanguage } from "../../lib/LanguageContext";
 import { getAvatarUrl } from "../../lib/avatarHelper";
 import DashboardSettings from "../../components/DashboardSettings";
 import { apiService } from "../../lib/api";
+import { getAccountName } from "../../lib/UserContext";
 
 interface User {
   name: string;
@@ -123,12 +124,14 @@ function DashboardContent() {
             }
           : { lat: 24.7136, lng: 46.6753 };
 
+      const accountNameVal = getAccountName(profileData) || getAccountName(parsedUser) || "User";
+
       setUser({
         id: profileData.id?.toString() || parsedUser.id?.toString() || "",
-        name: profileData.businessName || parsedUser.name || "User",
+        name: accountNameVal,
         email: parsedUser.email || profileData.contactEmail || "",
         phone: profileData.contactPhone || parsedUser.phone || "",
-        businessName: profileData.businessName || parsedUser.name || "Business",
+        businessName: accountNameVal,
         businessId:
           profileData.slug ||
           parsedUser.slug ||
@@ -148,6 +151,7 @@ function DashboardContent() {
         const userData = localStorage.getItem("supplier_user");
         if (userData) {
           const parsedUser = JSON.parse(userData);
+          const accountNameVal = getAccountName(parsedUser) || "User";
 
           // Fetch the latest profile picture
           let profileImage =
@@ -165,11 +169,10 @@ function DashboardContent() {
 
           setUser({
             id: parsedUser.id?.toString() || "",
-            name: parsedUser.name || "User",
+            name: accountNameVal,
             email: parsedUser.email || "",
             phone: parsedUser.phone || "",
-            businessName:
-              parsedUser.profile?.businessName || parsedUser.name || "Business",
+            businessName: accountNameVal,
             businessId: parsedUser.slug || parsedUser.id?.toString() || "",
             memberSince: parsedUser.emailVerifiedAt
               ? new Date(parsedUser.emailVerifiedAt).toLocaleDateString()

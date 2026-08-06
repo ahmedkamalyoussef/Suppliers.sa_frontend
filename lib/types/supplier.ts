@@ -37,6 +37,8 @@ export interface SupplierProfileData {
 export interface SupplierProfile {
   id: number;
   name: string;
+  accountName?: string;
+  business_name?: string;
   status: string;
   profile: SupplierProfileData;
   profile_image: string;

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "../lib/LanguageContext";
 import { useAuth } from "../hooks/useAuth";
+import { getAccountName } from "../lib/UserContext";
 import { apiService } from "../lib/api";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ContactModal from "./ContactModal";
@@ -27,7 +28,7 @@ export default function Header() {
   const unreadCount = inboxData ? inboxData.unread_count : 0;
 
   // Get user data from auth context
-  const userName = user?.name || "";
+  const userName = getAccountName(user);
   const userInitials = userName
     ? userName
         .split(" ")

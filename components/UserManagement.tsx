@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "../lib/LanguageContext";
 import { useAuth } from "../hooks/useAuth";
+import { getAccountName } from "../lib/UserContext";
 import { apiService } from "../lib/api";
 import { toast } from "react-toastify";
 import {
@@ -230,10 +231,11 @@ export default function UserManagement() {
   };
 
   const saveUser = async () => {
+    const accountNameVal = userForm.accountName || userForm.businessName || userForm.name || "";
     if (
       !userForm.name.trim() ||
       !userForm.email.trim() ||
-      !userForm.businessName.trim() ||
+      !accountNameVal.trim() ||
       (!editingUser && !userForm.password?.trim())
     )
       return;
@@ -242,9 +244,10 @@ export default function UserManagement() {
       if (editingUser) {
         // Update existing supplier
         const updateData: UpdateSupplierRequest = {
-          name: userForm.name,
+          name: accountNameVal,
+          accountName: accountNameVal,
           email: userForm.email,
-          businessName: userForm.businessName,
+          businessName: accountNameVal,
           plan: userForm.plan,
           status: userForm.status,
         };
@@ -254,9 +257,10 @@ export default function UserManagement() {
       } else {
         // Create new supplier
         const createData: CreateSupplierRequest = {
-          name: userForm.name,
+          name: accountNameVal,
+          accountName: accountNameVal,
           email: userForm.email,
-          businessName: userForm.businessName,
+          businessName: accountNameVal,
           plan: userForm.plan,
           status: userForm.status,
           password: userForm.password!,
@@ -294,7 +298,7 @@ export default function UserManagement() {
     const matchesSearch =
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.businessName.toLowerCase().includes(searchTerm.toLowerCase());
+      (user.accountName || user.businessName || "").toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus =
       filterStatus === "all" || user.status === filterStatus;
     const matchesPlan = filterPlan === "all" || user.plan === filterPlan;
@@ -889,10 +893,10 @@ export default function UserManagement() {
                   />
                 </th>
                 <th className="text-start py-3 px-4 sm:px-6 text-sm font-medium text-gray-700">
-                  {language === "ar" ? "المستخدم" : "User"}
+                  {language === "ar" ? "اسم الحساب" : "Account Name"}
                 </th>
                 <th className="text-start py-3 px-4 sm:px-6 text-sm font-medium text-gray-700">
-                  {language === "ar" ? "العمل التجاري" : "Business"}
+                  {language === "ar" ? "اكتمال الملف" : "Profile Completion"}
                 </th>
                 <th className="text-left py-3 px-4 sm:px-6 text-sm font-medium text-gray-700">
                   {language === "ar" ? "الخطة" : "Plan"}
@@ -911,8 +915,10 @@ export default function UserManagement() {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
-              {filteredUsers.map((user) => (
+            <tbody className="divide-y divide-gray-200">
+              {filteredUsers.map((user: any) => {
+                const accountNameVal = getAccountName(user);
+                return (
                 <tr key={user.id} className="hover:bg-gray-50">
                   <td className="py-4 px-4 sm:px-6">
                     <input
@@ -934,8 +940,8 @@ export default function UserManagement() {
                     <div className="flex items-center gap-3">
                       <div className="relative flex-shrink-0">
                         <img
-                          src={getAvatarUrl(user.avatar, user.name)}
-                          alt={user.name}
+                          src={getAvatarUrl(user.avatar, accountNameVal)}
+                          alt={accountNameVal}
                           className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-gray-200"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
@@ -946,7 +952,7 @@ export default function UserManagement() {
                       </div>
                       <div className="min-w-0">
                         <p className="font-medium text-gray-800 text-sm sm:text-base truncate">
-                          {user.name}
+                          {accountNameVal}
                         </p>
                         <p className="text-xs sm:text-sm text-gray-600 truncate">
                           {user.email}
@@ -955,10 +961,7 @@ export default function UserManagement() {
                     </div>
                   </td>
                   <td className="py-4 px-4 sm:px-6">
-                    <p className="text-gray-800 text-sm sm:text-base">
-                      {user.businessName}
-                    </p>
-                    <div className="flex items-center mt-1">
+                    <div className="flex items-center">
                       <div className="w-16 sm:w-20 bg-gray-200 rounded-full h-1.5 mr-2">
                         <div
                           className="bg-blue-500 h-1.5 rounded-full"
@@ -1026,7 +1029,8 @@ export default function UserManagement() {
                     </div>
                   </td>
                 </tr>
-              ))}
+              );
+              })}
             </tbody>
           </table>
         </div>
@@ -1212,16 +1216,22 @@ export default function UserManagement() {
             <div className="p-4 sm:p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {language === "ar" ? "الاسم" : "Name"}
+                  {language === "ar" ? "اسم الحساب" : "Account Name"}
                 </label>
                 <input
                   type="text"
-                  value={userForm.name}
-                  onChange={(e) =>
-                    setUserForm({ ...userForm, name: e.target.value })
-                  }
+                  value={userForm.accountName || userForm.name || userForm.businessName || ""}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setUserForm({
+                      ...userForm,
+                      accountName: val,
+                      name: val,
+                      businessName: val,
+                    });
+                  }}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
-                  placeholder={language === "ar" ? "الاسم" : "Name"}
+                  placeholder={language === "ar" ? "أدخل اسم الحساب" : "Enter Account Name"}
                 />
               </div>
               <div>
@@ -1237,22 +1247,6 @@ export default function UserManagement() {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
                   placeholder={
                     language === "ar" ? "البريد الإلكتروني" : "Email"
-                  }
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {language === "ar" ? "اسم العمل التجاري" : "Business Name"}
-                </label>
-                <input
-                  type="text"
-                  value={userForm.businessName}
-                  onChange={(e) =>
-                    setUserForm({ ...userForm, businessName: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-400 focus:border-transparent text-sm"
-                  placeholder={
-                    language === "ar" ? "اسم العمل التجاري" : "Business Name"
                   }
                 />
               </div>
@@ -1340,13 +1334,13 @@ export default function UserManagement() {
                 disabled={
                   !userForm.name.trim() ||
                   !userForm.email.trim() ||
-                  !userForm.businessName.trim() ||
+                  !(userForm.accountName || userForm.businessName || "").trim() ||
                   (!editingUser && !userForm.password?.trim())
                 }
                 className={`px-6 py-2 rounded-lg font-medium text-sm whitespace-nowrap cursor-pointer transition-all order-1 sm:order-2 ${
                   userForm.name.trim() &&
                   userForm.email.trim() &&
-                  userForm.businessName.trim() &&
+                  (userForm.accountName || userForm.businessName || "").trim() &&
                   (editingUser || userForm.password?.trim())
                     ? "bg-red-500 text-white hover:bg-red-600"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"

@@ -12,7 +12,8 @@ import PhoneInput from "./PhoneInput";
 import { formatE164PhoneNumber } from "../lib/phoneUtils";
 
 interface LocalRegistrationData {
-  businessName: string;
+  accountName: string;
+  businessName?: string;
   phone: string;
   email: string;
   password: string;
@@ -34,6 +35,7 @@ export default function BusinessRegistrationForm() {
   const [showPoliciesModal, setShowPoliciesModal] = useState(false);
   const [registrationData, setRegistrationData] =
     useState<LocalRegistrationData>({
+      accountName: "",
       businessName: "",
       phone: "",
       email: "",
@@ -75,8 +77,9 @@ export default function BusinessRegistrationForm() {
 
   const validateRegistration = (): boolean => {
     const newErrors: Errors = {};
-    if (!registrationData.businessName.trim()) {
-      newErrors.businessName = t("business.errors.businessNameRequired");
+    const nameVal = registrationData.accountName || registrationData.businessName || "";
+    if (!nameVal.trim()) {
+      newErrors.accountName = t("business.errors.accountNameRequired") || t("business.errors.businessNameRequired");
     }
     if (!registrationData.phone.trim()) {
       newErrors.phone = t("business.errors.phoneRequired");
@@ -158,8 +161,11 @@ export default function BusinessRegistrationForm() {
     setErrors({});
 
     try {
+      const nameVal = registrationData.accountName || registrationData.businessName || "";
       const apiData: RegistrationData = {
-        businessName: registrationData.businessName,
+        accountName: nameVal,
+        businessName: nameVal,
+        name: nameVal,
         email: registrationData.email,
         phone: formatE164PhoneNumber(registrationData.phone, "+966"),
         password: registrationData.password,
@@ -173,7 +179,7 @@ export default function BusinessRegistrationForm() {
       let notificationMessage = "";
       if (registrationData.referralCode.trim()) {
         const result = referralSystem.registerUserWithReferral(
-          registrationData.businessName,
+          nameVal,
           registrationData.phone,
           registrationData.email,
           registrationData.referralCode.trim() || undefined,
@@ -307,22 +313,25 @@ export default function BusinessRegistrationForm() {
           >
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t("auth.signup.step1.businessNameLabel")}
+                {t("auth.signup.step1.accountNameLabel") || t("auth.signup.step1.businessNameLabel")}
               </label>
               <input
                 type="text"
-                value={registrationData.businessName}
-                onChange={(e) =>
-                  handleInputChange("businessName", e.target.value)
-                }
+                name="accountName"
+                value={registrationData.accountName || registrationData.businessName || ""}
+                onChange={(e) => {
+                  handleInputChange("accountName", e.target.value);
+                  handleInputChange("businessName", e.target.value);
+                }}
                 className={`w-full px-3 md:px-4 py-2 md:py-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm ${
-                  errors.businessName ? "border-red-300" : "border-gray-300"
+                  (errors.accountName || errors.businessName) ? "border-red-300" : "border-gray-300"
                 }`}
+                placeholder={t("auth.signup.step1.accountNamePlaceholder") || t("auth.signup.step1.businessNamePlaceholder")}
                 required
               />
-              {errors.businessName && (
+              {(errors.accountName || errors.businessName) && (
                 <p className="text-red-500 text-xs mt-1">
-                  {errors.businessName}
+                  {errors.accountName || errors.businessName}
                 </p>
               )}
             </div>

@@ -80,21 +80,30 @@ export default function CompleteProfilePage() {
       if (verificationData) {
         const parsedData = JSON.parse(verificationData);
 
-        setFormData((prev) => ({
-          ...prev,
-          businessName:
+        setFormData((prev) => {
+          const accountNameVal =
+            parsedData.supplier?.account_name ||
+            parsedData.supplier?.accountName ||
             parsedData.supplier?.name ||
             parsedData.supplier?.profile?.businessName ||
-            prev.businessName,
-          contactEmail:
-            parsedData.supplier?.email ||
-            parsedData.supplier?.profile?.contactEmail ||
-            prev.contactEmail,
-          contactPhone:
-            parsedData.supplier?.phone ||
-            parsedData.supplier?.profile?.mainPhone ||
-            prev.contactPhone,
-        }));
+            prev.accountName ||
+            prev.businessName ||
+            "";
+
+          return {
+            ...prev,
+            accountName: accountNameVal,
+            businessName: accountNameVal,
+            contactEmail:
+              parsedData.supplier?.email ||
+              parsedData.supplier?.profile?.contactEmail ||
+              prev.contactEmail,
+            contactPhone:
+              parsedData.supplier?.phone ||
+              parsedData.supplier?.profile?.mainPhone ||
+              prev.contactPhone,
+          };
+        });
 
         return; // Exit early if we have data
       }

@@ -77,6 +77,8 @@ export interface User {
   emailVerifiedAt: string;
   status: string;
   verified?: boolean;
+  accountName?: string;
+  businessName?: string;
   plan: string;
   profileCompletion: number;
   profile?: any;
@@ -96,6 +98,9 @@ export interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+import { getAccountName } from "./accountName";
+export { getAccountName };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -117,7 +122,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (savedUser) {
         try {
           const userData = JSON.parse(savedUser);
-          setUser(userData);
+          const accountNameVal = getAccountName(userData);
+          const normalized: User = {
+            ...userData,
+            name: accountNameVal,
+            accountName: accountNameVal,
+            businessName: accountNameVal,
+          };
+          setUser(normalized);
         } catch (error) {
           console.error("Failed to parse saved user data:", error);
         }
@@ -134,14 +146,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     accessToken: string,
     accessTokenType: string
   ) => {
-    setUser(userData);
+    const accountNameVal = getAccountName(userData);
+    const normalized: User = {
+      ...userData,
+      name: accountNameVal,
+      accountName: accountNameVal,
+      businessName: accountNameVal,
+    };
+
+    setUser(normalized);
     setToken(accessToken);
     setTokenType(accessTokenType);
 
     // Save to localStorage
     localStorage.setItem("supplier_token", accessToken);
     localStorage.setItem("token_type", accessTokenType || "Bearer");
-    localStorage.setItem("supplier_user", JSON.stringify(userData));
+    localStorage.setItem("supplier_user", JSON.stringify(normalized));
   };
 
   const logout = async () => {
@@ -166,7 +186,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const updateUser = (userData: Partial<User>) => {
     if (user) {
-      const updated = { ...user, ...userData };
+      const merged = { ...user, ...userData };
+      const accountNameVal = getAccountName(merged);
+      const updated = {
+        ...merged,
+        name: accountNameVal,
+        accountName: accountNameVal,
+        businessName: accountNameVal,
+      };
       setUser(updated);
       localStorage.setItem("supplier_user", JSON.stringify(updated));
     }
@@ -177,10 +204,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const response = await apiService.getProfile();
       if (response && response.data) {
+        const accountNameVal = getAccountName(response.data);
         const updatedUser: User = {
           id: response.data.id,
           slug: response.data.slug || "",
-          name: response.data.name,
+          name: accountNameVal,
+          accountName: accountNameVal,
+          businessName: accountNameVal,
           email: response.data.email,
           phone: response.data.phone || "",
           profileImage: response.data.profile_image || "",

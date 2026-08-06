@@ -1066,8 +1066,9 @@ export default function CompleteProfileForm({
       }
 
       // Client-side validation for required fields
-      if (!formData.businessName || formData.businessName.trim() === "") {
-        setSubmitStatus("Business name is required");
+      const accountNameVal = formData.accountName || formData.businessName;
+      if (!accountNameVal || accountNameVal.trim() === "") {
+        setSubmitStatus("Account name is required");
         setIsSubmitting(false);
         return;
       }
@@ -1112,7 +1113,8 @@ export default function CompleteProfileForm({
 
       // Prepare profile data (document already uploaded)
       const profileData: ProfileUpdateData = {
-        businessName: formData.businessName,
+        accountName: accountNameVal,
+        businessName: accountNameVal,
         businessType: formData.businessType.toLowerCase(), // Convert to lowercase
         category: formData.category, // Add the selected category
         categories: formData.categories,

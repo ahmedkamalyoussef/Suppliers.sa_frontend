@@ -1,4 +1,5 @@
 export interface ProfileUpdateData {
+  accountName?: string;
   businessName?: string;
   businessType?: string;
   categories?: string[];

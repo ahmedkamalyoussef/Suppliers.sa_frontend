@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { apiService } from "@/lib/api";
+import { getAccountName } from "@/lib/accountName";
 
 export interface AdminUser {
   id: number;
@@ -132,7 +133,12 @@ export const useAuth = (): UseAuthReturn => {
         const supplierUserStr = localStorage.getItem("supplier_user");
         if (supplierUserStr) {
           try {
-            const supplierUser: SupplierUser = JSON.parse(supplierUserStr);
+            const parsed = JSON.parse(supplierUserStr);
+            const accountNameVal = getAccountName(parsed);
+            const supplierUser: SupplierUser = {
+              ...parsed,
+              name: accountNameVal,
+            };
             setAuthState({
               isAuthenticated: true,
               userType: "supplier",
@@ -264,7 +270,7 @@ export const useAuth = (): UseAuthReturn => {
 
     // Redirect to login
     router.push("/login");
-    
+
     // Refresh the page to clear all cached data
     window.location.reload();
   };
@@ -289,8 +295,12 @@ export const useAuth = (): UseAuthReturn => {
         const currentUserStr = localStorage.getItem("supplier_user");
         if (currentUserStr) {
           const currentUser = JSON.parse(currentUserStr);
+          const accountNameVal = getAccountName(userData) || getAccountName(currentUser);
           const updatedUser = {
             ...currentUser,
+            name: accountNameVal,
+            accountName: accountNameVal,
+            businessName: accountNameVal,
             plan: userData.plan || currentUser.plan,
             status: userData.status || currentUser.status,
             profileCompletion: userData.profileCompletion || currentUser.profileCompletion,
@@ -357,6 +367,14 @@ export const useAuth = (): UseAuthReturn => {
     checkAuth();
     // Fetch fresh user data to update plan status after subscription
     fetchAndUpdateUser();
+  }, []);
+
+  // Re-read localStorage when profile data is updated elsewhere (e.g. settings page)
+  useEffect(() => {
+    const handleSupplierUserUpdated = () => checkAuth();
+    window.addEventListener("supplierUserUpdated", handleSupplierUserUpdated);
+    return () =>
+      window.removeEventListener("supplierUserUpdated", handleSupplierUserUpdated);
   }, []);
 
   // Client-side admin access restriction

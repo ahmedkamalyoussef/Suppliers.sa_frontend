@@ -8,7 +8,7 @@ import Footer from "../../../components/Footer";
 import Link from "next/link";
 import { useLanguage } from "@/lib/LanguageContext";
 import { SupplierProfile, apiService } from "@/lib/api";
-import { useAuth } from "@/lib/UserContext";
+import { useAuth, getAccountName } from "@/lib/UserContext";
 import companyLogo from "@/lib/assets/company.png";
 import { PhoneNumber, EmailText, UrlText, CodeText, LtrValue } from "@/components/BidiText";
 import PhoneInput from "@/components/PhoneInput";
@@ -188,7 +188,7 @@ export default function PublicBusinessProfile({
   // Map API data to business object
   const business: Business = {
     id: supplier?.id?.toString() || businessId || "1",
-    name: supplier?.name || "",
+    name: getAccountName(supplier),
     logo: supplier?.profile_image || companyLogo.src,
     category: supplier?.profile?.category || "",
     business_image:

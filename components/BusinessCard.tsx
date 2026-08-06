@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useLanguage } from "../lib/LanguageContext";
+import { getAccountName } from "../lib/UserContext";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import MessageModal from "./MessageModal";
@@ -49,6 +50,7 @@ export default function BusinessCard({
   viewMode = "grid",
 }: BusinessCardProps) {
   const { t, language } = useLanguage();
+  const displayName = getAccountName(business);
 
   const getFormattedBusinessType = (type?: string) => {
     if (!type || type === "undefined" || type === "null") {
@@ -208,7 +210,7 @@ export default function BusinessCard({
                 src={getBusinessAvatarUrl(
                   business.profileImage || business.image,
                 )}
-                alt={business.name}
+                alt={displayName}
                 className="w-full h-full object-cover object-top"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
@@ -248,7 +250,7 @@ export default function BusinessCard({
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <h3 className="text-xl font-bold text-gray-800">
-                      {business.name}
+                      {displayName}
                     </h3>
                     <div
                       className={`${getBusinessTypeColor(
@@ -377,7 +379,7 @@ export default function BusinessCard({
       <div className="relative h-36 overflow-hidden">
         <img
           src={getBusinessAvatarUrl(business.image)}
-          alt={business.name}
+          alt={displayName}
           className="w-full h-full object-cover object-top"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
@@ -437,7 +439,7 @@ export default function BusinessCard({
       <div className="p-4 flex-1 flex flex-col">
         <div className="mb-2">
           <h3 className="text-base font-bold text-gray-800 mb-1">
-            {business.name}
+            {displayName}
           </h3>
           <div className="flex items-center gap-2 mb-1">
             <div className={`bg-gradient-to-r ${getCategoryColor(business.category)} w-4 h-4 rounded-lg flex items-center justify-center`}>
@@ -546,7 +548,7 @@ export default function BusinessCard({
         isOpen={showMessageModal}
         onClose={() => setShowMessageModal(false)}
         businessId={business.id}
-        businessName={business.name}
+        businessName={displayName}
       />
     </>
   );

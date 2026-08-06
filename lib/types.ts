@@ -37,7 +37,8 @@ export type Branch = {
 };
 
 export interface ProfileFormData {
-  businessName: string;
+  accountName: string;
+  businessName?: string;
   category: string;
   categories: string[];
   description: string;
@@ -171,8 +172,9 @@ export type SupplierPlan = "Basic" | "Premium" | "Enterprise";
 export interface Supplier {
   id: number;
   name: string;
+  accountName?: string;
   email: string;
-  businessName: string;
+  businessName?: string;
   plan: SupplierPlan;
   status: SupplierStatus;
   joinDate: string;
@@ -198,6 +200,7 @@ export interface UpdateSupplierRequest {
   plan?: SupplierPlan;
   status?: SupplierStatus;
   name?: string;
+  accountName?: string;
   email?: string;
   businessName?: string;
 }
@@ -215,9 +218,10 @@ export interface GetSuppliersParams {
 }
 
 export interface CreateSupplierRequest {
-  name: string;
+  name?: string;
+  accountName: string;
   email: string;
-  businessName: string;
+  businessName?: string;
   plan: SupplierPlan;
   status: SupplierStatus;
   password: string;

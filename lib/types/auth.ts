@@ -1,5 +1,7 @@
 export interface RegistrationData {
-  businessName: string;
+  accountName: string;
+  businessName?: string;
+  name?: string;
   email: string;
   phone: string;
   password: string;

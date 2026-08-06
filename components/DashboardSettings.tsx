@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import PhoneInput from "./PhoneInput";
 
 interface User {
+  accountName?: string;
   name: string;
   email: string;
   phone: string;
@@ -25,10 +26,11 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
   const [activeSection, setActiveSection] = useState("profile");
   const [settings, setSettings] = useState({
     profile: {
-      name: user.name,
+      accountName: user.accountName || user.businessName || user.name || "",
+      name: user.accountName || user.name || user.businessName || "",
       email: user.email,
       phone: user.phone,
-      businessName: user.businessName,
+      businessName: user.accountName || user.businessName || user.name || "",
       language: "en",
       timezone: "Asia/Riyadh",
     },
@@ -234,6 +236,26 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
       // Call the updatePreferences API
       const response = await apiService.updatePreferences(preferencesData);
 
+      // Persist updated profile data so navbar/user menus reflect changes immediately
+      try {
+        const savedUser = localStorage.getItem("supplier_user");
+        if (savedUser) {
+          const parsedUser = JSON.parse(savedUser);
+          const updatedUser = {
+            ...parsedUser,
+            name: settings.profile.name,
+            accountName: settings.profile.name,
+            businessName: settings.profile.businessName,
+            email: settings.profile.email,
+            phone: settings.profile.phone,
+          };
+          localStorage.setItem("supplier_user", JSON.stringify(updatedUser));
+          window.dispatchEvent(new Event("supplierUserUpdated"));
+        }
+      } catch (e) {
+        console.error("Failed to update cached user data:", e);
+      }
+
       // Show success message
       const isArabic = document.documentElement.dir === "rtl";
       toast.success(
@@ -404,32 +426,17 @@ export default function DashboardSettings({ user }: DashboardSettingsProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("settings.profile.fullName")}
+                    {t("settings.profile.accountName") || t("settings.profile.businessName") || "Account Name"}
                   </label>
                   <input
                     type="text"
-                    value={settings.profile.name}
-                    onChange={(e) =>
-                      handleSettingChange("profile", "name", e.target.value)
-                    }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t("settings.profile.businessName")}
-                  </label>
-                  <input
-                    type="text"
-                    value={settings.profile.businessName}
-                    onChange={(e) =>
-                      handleSettingChange(
-                        "profile",
-                        "businessName",
-                        e.target.value
-                      )
-                    }
+                    value={settings.profile.accountName || settings.profile.name || settings.profile.businessName || ""}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      handleSettingChange("profile", "accountName", val);
+                      handleSettingChange("profile", "name", val);
+                      handleSettingChange("profile", "businessName", val);
+                    }}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent text-sm"
                   />
                 </div>

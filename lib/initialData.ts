@@ -15,6 +15,7 @@ interface WorkingHoursDay {
 }
 
 export const initialFormData: ProfileFormData = {
+  accountName: "",
   businessName: "",
   category: "",
   description: "",
