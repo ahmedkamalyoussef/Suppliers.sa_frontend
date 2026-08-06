@@ -565,24 +565,7 @@ export default function BusinessRegistrationForm() {
             </p>
           </div>
 
-          <div className="bg-yellow-50 p-4 md:p-6 rounded-lg md:rounded-xl mb-6 md:mb-8">
-            <h3 className="text-base md:text-lg font-semibold text-gray-800 mb-3 md:mb-4">
-              <i className="ri-clipboard-line me-2 text-yellow-600"></i>
-              {t("business.form.completeProfileTitle")}
-            </h3>
-            <p className="text-gray-700 text-sm md:text-base mb-3 md:mb-4">
-              {t("business.form.completeProfileSubtitle")}
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-4 text-xs md:text-sm">
-              {checklistArray.map((item, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <i className="ri-check-line text-green-500 text-xs md:text-sm"></i>
-                  <span className="text-gray-700">{String(item)}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          
 
           <div className="space-y-3 md:space-y-4">
             <Link

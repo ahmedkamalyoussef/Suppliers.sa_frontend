@@ -637,7 +637,7 @@ export default function ContentManagement() {
 
       toast.success(
         actionMessages[action as keyof typeof actionMessages] ||
-          t("contentManagement.notifications.reviewActionCompleted"),
+        t("contentManagement.notifications.reviewActionCompleted"),
       );
     } catch (error) {
       console.error(`Failed to ${action} review:`, error);
@@ -717,7 +717,7 @@ export default function ContentManagement() {
 
       toast.success(
         actionMessages[action as keyof typeof actionMessages] ||
-          t("contentManagement.notifications.documentActionCompleted"),
+        t("contentManagement.notifications.documentActionCompleted"),
       );
     } catch (error) {
       console.error(`Failed to ${action} document:`, error);
@@ -883,11 +883,10 @@ export default function ContentManagement() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-3 sm:py-4 px-2 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap cursor-pointer transition-all ${
-                  activeTab === tab.id
+                className={`py-3 sm:py-4 px-2 border-b-2 font-medium text-xs sm:text-sm whitespace-nowrap cursor-pointer transition-all ${activeTab === tab.id
                     ? "border-red-500 text-red-600"
                     : "border-transparent text-gray-500 hover:text-gray-700"
-                }`}
+                  }`}
               >
                 <i className={`${tab.icon} mr-2`}></i>
                 {tab.name}
@@ -939,7 +938,7 @@ export default function ContentManagement() {
                           }}
                           checked={
                             selectedItems.length ===
-                              businessesWithInquiries.length &&
+                            businessesWithInquiries.length &&
                             businessesWithInquiries.length > 0
                           }
                         />
@@ -1164,7 +1163,7 @@ export default function ContentManagement() {
                                       </span>
                                     ) : null}
                                     {inquiry.sender_id &&
-                                    inquiry.sender_id !== 0 ? (
+                                      inquiry.sender_id !== 0 ? (
                                       <button
                                         className="text-blue-600 hover:text-blue-700 cursor-pointer"
                                         title="Reply to inquiry"
@@ -1209,11 +1208,10 @@ export default function ContentManagement() {
               {filteredReviews.map((review) => (
                 <div
                   key={review.id}
-                  className={`border rounded-lg p-4 sm:p-6 ${
-                    review.flagged
+                  className={`border rounded-lg p-4 sm:p-6 ${review.flagged
                       ? "border-red-200 bg-red-50"
                       : "border-gray-200 bg-white"
-                  }`}
+                    }`}
                 >
                   <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                     <div className="flex-1 min-w-0">
@@ -1258,11 +1256,10 @@ export default function ContentManagement() {
                               {[1, 2, 3, 4, 5].map((star) => (
                                 <i
                                   key={star}
-                                  className={`${
-                                    star <= review.rating
+                                  className={`${star <= review.rating
                                       ? "ri-star-fill"
                                       : "ri-star-line text-gray-300"
-                                  } text-sm`}
+                                    } text-sm`}
                                 ></i>
                               ))}
                             </div>
@@ -1278,8 +1275,8 @@ export default function ContentManagement() {
                           <p className="text-gray-600 text-sm">
                             {review.submissionDate
                               ? new Date(
-                                  review.submissionDate,
-                                ).toLocaleDateString()
+                                review.submissionDate,
+                              ).toLocaleDateString()
                               : "N/A"}
                           </p>
                         </div>
@@ -1554,11 +1551,10 @@ export default function ContentManagement() {
                         </td>
                         <td className="py-4 px-4 sm:px-6">
                           <span
-                            className={`px-2 py-1 rounded text-xs sm:text-sm ${
-                              inquiry.type === "inquiry"
+                            className={`px-2 py-1 rounded text-xs sm:text-sm ${inquiry.type === "inquiry"
                                 ? "bg-blue-100 text-blue-600"
                                 : "bg-green-100 text-green-600"
-                            }`}
+                              }`}
                           >
                             {t(
                               `contentManagement.inquiries.types.${inquiry.type}`,
@@ -1567,11 +1563,10 @@ export default function ContentManagement() {
                         </td>
                         <td className="py-4 px-4 sm:px-6">
                           <span
-                            className={`px-2 py-1 rounded text-xs sm:text-sm ${
-                              inquiry.from === "supplier"
+                            className={`px-2 py-1 rounded text-xs sm:text-sm ${inquiry.from === "supplier"
                                 ? "bg-purple-100 text-purple-600"
                                 : "bg-orange-100 text-orange-600"
-                            }`}
+                              }`}
                           >
                             {t(
                               `contentManagement.inquiries.fromTypes.${inquiry.from}`,
@@ -1580,15 +1575,13 @@ export default function ContentManagement() {
                         </td>
                         <td className="py-4 px-4 sm:px-6">
                           <span
-                            className={`px-2 py-1 rounded text-xs sm:text-sm ${
-                              inquiry.is_read
+                            className={`px-2 py-1 rounded text-xs sm:text-sm ${inquiry.is_read
                                 ? "bg-gray-100 text-gray-600"
                                 : "bg-yellow-100 text-yellow-600"
-                            }`}
+                              }`}
                           >
                             {t(
-                              `contentManagement.inquiries.statusTypes.${
-                                inquiry.is_read ? "read" : "unread"
+                              `contentManagement.inquiries.statusTypes.${inquiry.is_read ? "read" : "unread"
                               }`,
                             )}
                           </span>
@@ -1822,11 +1815,10 @@ export default function ContentManagement() {
                       {[1, 2, 3, 4, 5].map((star) => (
                         <i
                           key={star}
-                          className={`${
-                            star <= selectedReview.rating
+                          className={`${star <= selectedReview.rating
                               ? "ri-star-fill"
                               : "ri-star-line text-gray-300"
-                          } text-sm`}
+                            } text-sm`}
                         ></i>
                       ))}
                     </div>
@@ -1842,8 +1834,8 @@ export default function ContentManagement() {
                   <p className="text-gray-800 text-sm sm:text-base">
                     {selectedReview?.submissionDate
                       ? new Date(
-                          selectedReview.submissionDate,
-                        ).toLocaleDateString()
+                        selectedReview.submissionDate,
+                      ).toLocaleDateString()
                       : "N/A"}
                   </p>
                 </div>
@@ -2179,11 +2171,10 @@ export default function ContentManagement() {
                         {t("contentManagement.inquiries.type")}
                       </p>
                       <span
-                        className={`px-2 py-1 rounded text-xs font-medium ${
-                          selectedInquiry.type === "inquiry"
+                        className={`px-2 py-1 rounded text-xs font-medium ${selectedInquiry.type === "inquiry"
                             ? "bg-blue-100 text-blue-600"
                             : "bg-green-100 text-green-600"
-                        }`}
+                          }`}
                       >
                         {t(
                           `contentManagement.inquiries.types.${selectedInquiry.type}`,
@@ -2195,11 +2186,10 @@ export default function ContentManagement() {
                         {t("contentManagement.inquiries.from")}
                       </p>
                       <span
-                        className={`px-2 py-1 rounded text-xs font-medium ${
-                          selectedInquiry.from === "supplier"
+                        className={`px-2 py-1 rounded text-xs font-medium ${selectedInquiry.from === "supplier"
                             ? "bg-purple-100 text-purple-600"
                             : "bg-orange-100 text-orange-600"
-                        }`}
+                          }`}
                       >
                         {t(
                           `contentManagement.inquiries.fromTypes.${selectedInquiry.from}`,
@@ -2211,15 +2201,13 @@ export default function ContentManagement() {
                         {t("contentManagement.inquiries.status")}
                       </p>
                       <span
-                        className={`px-2 py-1 rounded text-xs font-medium ${
-                          selectedInquiry.is_read
+                        className={`px-2 py-1 rounded text-xs font-medium ${selectedInquiry.is_read
                             ? "bg-gray-100 text-gray-600"
                             : "bg-yellow-100 text-yellow-600"
-                        }`}
+                          }`}
                       >
                         {t(
-                          `contentManagement.inquiries.statusTypes.${
-                            selectedInquiry.is_read ? "read" : "unread"
+                          `contentManagement.inquiries.statusTypes.${selectedInquiry.is_read ? "read" : "unread"
                           }`,
                         )}
                       </span>

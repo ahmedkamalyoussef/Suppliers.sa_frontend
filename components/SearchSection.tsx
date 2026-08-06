@@ -9,6 +9,7 @@ import FeaturedBusinesses from "./FeaturedBusinesses";
 import InteractiveMapGoogle from "./InteractiveMap.google";
 import { apiService } from "../lib/api";
 import { transformBusinessesToMapItems } from "../lib/mapUtils";
+import { categories, getCategoryName } from "../lib/categories";
 export default function SearchSection() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -50,7 +51,7 @@ export default function SearchSection() {
 
         setBusinessLocations(locations);
         setBusinesses(response.data);
-      } catch (error) {}
+      } catch (error) { }
     };
 
     fetchBusinesses();
@@ -63,276 +64,26 @@ export default function SearchSection() {
   const getFilteredBusinesses = () => {
     const filtered = enhancedBusinessLocations.filter((business) => {
       if (selectedCategory === "all") return true;
-      
+
       // Check both the category and categories array if it exists
       return (
         business.category === selectedCategory ||
         (business.categories && business.categories.includes(selectedCategory))
       );
     });
-    
+
     // If no businesses match the selected category, show all businesses as fallback
     if (filtered.length === 0 && selectedCategory !== "all") {
       return enhancedBusinessLocations;
     }
-    
+
     return filtered;
   };
 
   // Get filtered businesses
   const filteredBusinesses = getFilteredBusinesses();
-  
 
-  const categories = [
-    {
-      id: "all",
-      name: t("filters.allCategories") || "All Categories",
-      icon: "ri-apps-2-line",
-      color: "from-purple-400 to-purple-600",
-    },
-    {
-      id: "Agriculture",
-      name: t("cat.agriculture") || "Agriculture",
-      icon: "ri-leaf-line",
-      color: "from-green-400 to-green-600",
-    },
-    {
-      id: "Apparel & Fashion",
-      name: t("cat.apparelFashion") || "Apparel & Fashion",
-      icon: "ri-t-shirt-line",
-      color: "from-blue-400 to-blue-600",
-    },
-    {
-      id: "Automobile",
-      name: t("cat.automobile") || "Automobile",
-      icon: "ri-car-line",
-      color: "from-red-400 to-red-600",
-    },
-    {
-      id: "Brass Hardware & Components",
-      name: t("cat.brassHardware") || "Brass Hardware & Components",
-      icon: "ri-tools-line",
-      color: "from-yellow-400 to-yellow-600",
-    },
-    {
-      id: "Business Services",
-      name: t("cat.businessServices") || "Business Services",
-      icon: "ri-briefcase-line",
-      color: "from-purple-500 to-purple-700",
-    },
-    {
-      id: "Chemicals",
-      name: t("cat.chemicals") || "Chemicals",
-      icon: "ri-flask-line",
-      color: "from-blue-300 to-blue-500",
-    },
-    {
-      id: "Computer Hardware & Software",
-      name: t("cat.computerHardwareSoftware") || "Computer Hardware & Software",
-      icon: "ri-computer-line",
-      color: "from-indigo-400 to-indigo-600",
-    },
-    // {
-    //   id: "Construction & Real Estate",
-    //   name: t("cat.constructionRealEstate") || "Construction & Real Estate",
-    //   icon: "ri-building-line",
-    //   color: "from-orange-400 to-orange-600",
-    // },
-    {
-      id: "Consumer Electronics",
-      name: t("cat.consumerElectronics") || "Consumer Electronics",
-      icon: "ri-smartphone-line",
-      color: "from-blue-400 to-blue-600",
-    },
-    {
-      id: "Electronics & Electrical Supplies",
-      name:
-        t("cat.electronicsElectrical") || "Electronics & Electrical Supplies",
-      icon: "ri-plug-line",
-      color: "from-yellow-400 to-yellow-600",
-    },
-    {
-      id: "Energy & Power",
-      name: t("cat.energyPower") || "Energy & Power",
-      icon: "ri-flashlight-line",
-      color: "from-yellow-400 to-yellow-600",
-    },
-    {
-      id: "Environment & Pollution",
-      name: t("cat.environmentPollution") || "Environment & Pollution",
-      icon: "ri-leaf-line",
-      color: "from-green-500 to-green-700",
-    },
-    {
-      id: "Food & Beverage",
-      name: t("cat.foodBeverage") || "Food & Beverage",
-      icon: "ri-restaurant-line",
-      color: "from-orange-400 to-red-500",
-    },
-    {
-      id: "Furniture",
-      name: t("cat.furniture") || "Furniture",
-      icon: "ri-sofa-line",
-      color: "from-amber-400 to-orange-500",
-    },
-    {
-      id: "Gifts & Crafts",
-      name: t("cat.giftsCrafts") || "Gifts & Crafts",
-      icon: "ri-gift-line",
-      color: "from-pink-400 to-rose-500",
-    },
-    {
-      id: "Health & Beauty",
-      name: t("cat.healthBeauty") || "Health & Beauty",
-      icon: "ri-scissors-line",
-      color: "from-fuchsia-400 to-pink-500",
-    },
-    {
-      id: "Home Supplies",
-      name: t("cat.homeSupplies") || "Home Supplies",
-      icon: "ri-home-line",
-      color: "from-amber-300 to-amber-500",
-    },
-    {
-      id: "Home Textiles & Furnishings",
-      name: t("cat.homeTextiles") || "Home Textiles & Furnishings",
-      icon: "ri-store-line",
-      color: "from-emerald-300 to-emerald-500",
-    },
-    {
-      id: "Hospital & Medical Supplies",
-      name: t("cat.hospitalMedical") || "Hospital & Medical Supplies",
-      icon: "ri-hospital-line",
-      color: "from-red-300 to-red-500",
-    },
-    {
-      id: "Hotel Supplies & Equipment",
-      name: t("cat.hotelSupplies") || "Hotel Supplies & Equipment",
-      icon: "ri-hotel-line",
-      color: "from-blue-300 to-blue-500",
-    },
-    {
-      id: "Industrial Supplies",
-      name: t("cat.industrialSupplies") || "Industrial Supplies",
-      icon: "ri-tools-line",
-      color: "from-gray-400 to-gray-600",
-    },
-    {
-      id: "Jewelry & Gemstones",
-      name: t("cat.jewelryGemstones") || "Jewelry & Gemstones",
-      icon: "ri-vip-diamond-line",
-      color: "from-yellow-300 to-yellow-500",
-    },
-    {
-      id: "Leather & Leather Products",
-      name: t("cat.leatherProducts") || "Leather & Leather Products",
-      icon: "ri-suitcase-line",
-      color: "from-amber-600 to-amber-800",
-    },
-    {
-      id: "Machinery",
-      name: t("cat.machinery") || "Machinery",
-      icon: "ri-tools-fill",
-      color: "from-gray-500 to-gray-700",
-    },
-    {
-      id: "Mineral & Metals",
-      name: t("cat.mineralMetals") || "Mineral & Metals",
-      icon: "ri-copper-diamond-line",
-      color: "from-gray-400 to-gray-600",
-    },
-    {
-      id: "Office & School Supplies",
-      name: t("cat.officeSchool") || "Office & School Supplies",
-      icon: "ri-book-line",
-      color: "from-blue-300 to-blue-500",
-    },
-    {
-      id: "Oil and Gas",
-      name: t("cat.oilGas") || "Oil and Gas",
-      icon: "ri-oil-line",
-      color: "from-gray-700 to-gray-900",
-    },
-    {
-      id: "Packaging & Paper",
-      name: t("cat.packagingPaper") || "Packaging & Paper",
-      icon: "ri-boxing-line",
-      color: "from-amber-300 to-amber-500",
-    },
-    {
-      id: "Pharmaceuticals",
-      name: t("cat.pharmaceuticals") || "Pharmaceuticals",
-      icon: "ri-medicine-bottle-line",
-      color: "from-blue-400 to-blue-600",
-    },
-    {
-      id: "Pipes, Tubes & Fittings",
-      name: t("cat.pipesTubes") || "Pipes, Tubes & Fittings",
-      icon: "ri-settings-3-line",
-      color: "from-gray-500 to-gray-700",
-    },
-    {
-      id: "Plastics & Products",
-      name: t("cat.plasticsProducts") || "Plastics & Products",
-      icon: "ri-bubble-chart-line",
-      color: "from-blue-300 to-blue-500",
-    },
-    {
-      id: "Printing & Publishing",
-      name: t("cat.printingPublishing") || "Printing & Publishing",
-      icon: "ri-printer-line",
-      color: "from-purple-400 to-purple-600",
-    },
-    // {
-    //   id: "Real Estate",
-    //   name: t("cat.realEstate") || "Real Estate",
-    //   icon: "ri-building-2-line",
-    //   color: "from-orange-400 to-orange-600",
-    // },
-    {
-      id: "Scientific & Laboratory Instruments",
-      name:
-        t("cat.scientificLaboratory") || "Scientific & Laboratory Instruments",
-      icon: "ri-microscope-line",
-      color: "from-blue-400 to-blue-600",
-    },
-    {
-      id: "Security & Protection",
-      name: t("cat.securityProtection") || "Security & Protection",
-      icon: "ri-shield-line",
-      color: "from-red-500 to-red-700",
-    },
-    {
-      id: "Sports & Entertainment",
-      name: t("cat.sportsEntertainment") || "Sports & Entertainment",
-      icon: "ri-football-line",
-      color: "from-green-500 to-green-700",
-    },
-    {
-      id: "Telecommunications",
-      name: t("cat.telecommunications") || "Telecommunications",
-      icon: "ri-phone-line",
-      color: "from-blue-400 to-blue-600",
-    },
-    {
-      id: "Textiles & Fabrics",
-      name: t("cat.textilesFabrics") || "Textiles & Fabrics",
-      icon: "ri-scissors-line",
-      color: "from-pink-400 to-pink-600",
-    },
-    {
-      id: "Toys",
-      name: t("cat.toys") || "Toys",
-      icon: "ri-gamepad-line",
-      color: "from-red-400 to-red-600",
-    },
-    {
-      id: "Transportation",
-      name: t("cat.transportation") || "Transportation",
-      icon: "ri-truck-line",
-      color: "from-indigo-400 to-indigo-600",
-    },
-  ];
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -598,33 +349,28 @@ export default function SearchSection() {
                       <button
                         key={category.id}
                         onClick={() => setSelectedCategory(category.id)}
-                        className={`w-full flex items-center gap-1.5 sm:gap-2 md:gap-3 p-1.5 sm:p-2 md:p-3 rounded-xl transition-all cursor-pointer ${
-                          selectedCategory === category.id
-                            ? "bg-yellow-400 text-white shadow-md"
-                            : "hover:bg-gray-50 text-gray-700"
-                        } ${
-                          isRTL ? "text-right" : "text-left"
-                        }`}
+                        className={`w-full flex items-center gap-1.5 sm:gap-2 md:gap-3 p-1.5 sm:p-2 md:p-3 rounded-xl transition-all cursor-pointer ${selectedCategory === category.id
+                          ? "bg-yellow-400 text-white shadow-md"
+                          : "hover:bg-gray-50 text-gray-700"
+                          } ${isRTL ? "text-right" : "text-left"
+                          }`}
                       >
                         <div
-                          className={`w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-lg flex items-center justify-center ${
-                            selectedCategory === category.id
-                              ? "bg-white/20"
-                              : `bg-gradient-to-r ${category.color}`
-                          }`}
+                          className={`w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 rounded-lg flex items-center justify-center ${selectedCategory === category.id
+                            ? "bg-white/20"
+                            : `bg-gradient-to-r ${category.color}`
+                            }`}
                         >
                           <i
-                            className={`${
-                              category.icon
-                            } text-xs sm:text-sm md:text-base ${
-                              selectedCategory === category.id
+                            className={`${category.icon
+                              } text-xs sm:text-sm md:text-base ${selectedCategory === category.id
                                 ? "text-white"
                                 : "text-white"
-                            }`}
+                              }`}
                           ></i>
                         </div>
                         <span className="font-medium text-xs sm:text-xs md:text-sm">
-                          {category.name}
+                          {getCategoryName(category.id, isRTL ? "ar" : "en")}
                         </span>
                       </button>
                     ))}
@@ -637,9 +383,8 @@ export default function SearchSection() {
                 {/* Search Form */}
                 <div className="bg-white rounded-2xl shadow-xl p-3 sm:p-4 md:p-6 mb-3 sm:mb-4 md:mb-6">
                   <div
-                    className={`mb-3 sm:mb-4 ${
-                      isRTL ? "text-right" : "text-left"
-                    }`}
+                    className={`mb-3 sm:mb-4 ${isRTL ? "text-right" : "text-left"
+                      }`}
                   >
                     <p className="text-xs sm:text-sm md:text-base font-bold text-gray-700 flex items-center gap-2">
                       <i className="ri-lightbulb-line text-yellow-500"></i>
@@ -657,16 +402,14 @@ export default function SearchSection() {
                           placeholder={t("searchPlaceholder")}
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          className={`w-full py-2.5 sm:py-3 md:py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:outline-none text-xs sm:text-sm ${
-                            isRTL
-                              ? "pr-8 sm:pr-10 md:pr-12 pl-3 sm:pl-4 text-right"
-                              : "pl-8 sm:pl-10 md:pl-12 pr-3 sm:pr-4"
-                          }`}
+                          className={`w-full py-2.5 sm:py-3 md:py-4 border-2 border-gray-200 rounded-xl focus:border-yellow-400 focus:outline-none text-xs sm:text-sm ${isRTL
+                            ? "pr-8 sm:pr-10 md:pr-12 pl-3 sm:pl-4 text-right"
+                            : "pl-8 sm:pl-10 md:pl-12 pr-3 sm:pr-4"
+                            }`}
                         />
                         <i
-                          className={`ri-search-line absolute top-1/2 transform -translate-y-1/2 text-gray-400 text-xs sm:text-sm ${
-                            isRTL ? "right-3 sm:right-4" : "left-3 sm:left-4"
-                          }`}
+                          className={`ri-search-line absolute top-1/2 transform -translate-y-1/2 text-gray-400 text-xs sm:text-sm ${isRTL ? "right-3 sm:right-4" : "left-3 sm:left-4"
+                            }`}
                         ></i>
                       </div>
 
@@ -701,29 +444,22 @@ export default function SearchSection() {
                   {/* Category Filter Info */}
                   {selectedCategory !== "all" && (
                     <div
-                      className={`absolute top-2 sm:top-4 ${
-                        isRTL ? "right-2 sm:right-4" : "left-2 sm:left-4"
-                      } bg-white rounded-lg shadow-lg p-1.5 sm:p-2 md:p-3 z-10 ${
-                        isRTL ? "text-right" : "text-left"
-                      }`}
+                      className={`absolute top-2 sm:top-4 ${isRTL ? "right-2 sm:right-4" : "left-2 sm:left-4"
+                        } bg-white rounded-lg shadow-lg p-1.5 sm:p-2 md:p-3 z-10 ${isRTL ? "text-right" : "text-left"
+                        }`}
                     >
                       <div className="flex items-center gap-1 sm:gap-2">
                         <div
-                          className={`w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-3 md:h-3 ${
-                            categories
-                              .find((cat) => cat.id === selectedCategory)
-                              ?.color.includes("yellow")
-                              ? "bg-yellow-500"
-                              : "bg-blue-500"
-                          } rounded-full`}
+                          className={`w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-3 md:h-3 ${categories
+                            .find((cat) => cat.id === selectedCategory)
+                            ?.color.includes("yellow")
+                            ? "bg-yellow-500"
+                            : "bg-blue-500"
+                            } rounded-full`}
                         ></div>
                         <span className="text-xs sm:text-xs md:text-sm font-medium text-gray-700">
                           {t("showing") || "Showing"}:{" "}
-                          {
-                            categories.find(
-                              (cat) => cat.id === selectedCategory,
-                            )?.name
-                          }
+                          {getCategoryName(selectedCategory, isRTL ? "ar" : "en")}
                         </span>
                         <span className="text-xs text-gray-500">
                           ({getFilteredBusinesses().length}{" "}
@@ -733,7 +469,7 @@ export default function SearchSection() {
                     </div>
                   )}
 
-                  </div>
+                </div>
 
                 {/* Removed bottom details panel; details now shown in map tooltip */}
               </div>
@@ -808,116 +544,13 @@ export default function SearchSection() {
                         <option value="">
                           {t("searchRequest.industryPlaceholder")}
                         </option>
-                        <option value="agriculture">
-                          {t("cat.agriculture")}
-                        </option>
-                        <option value="apparel-fashion">
-                          {t("cat.apparelFashion")}
-                        </option>
-                        <option value="automobile">
-                          {t("cat.automobile")}
-                        </option>
-                        <option value="brass-hardware">
-                          {t("cat.brassHardware")}
-                        </option>
-                        <option value="business-services">
-                          {t("cat.businessServices")}
-                        </option>
-                        <option value="chemicals">{t("cat.chemicals")}</option>
-                        <option value="computer-hardware-software">
-                          {t("cat.computerHardwareSoftware")}
-                        </option>
-                        <option value="construction-real-estate">
-                          {t("cat.constructionRealEstate")}
-                        </option>
-                        <option value="consumer-electronics">
-                          {t("cat.consumerElectronics")}
-                        </option>
-                        <option value="electronics-electrical">
-                          {t("cat.electronicsElectrical")}
-                        </option>
-                        <option value="energy-power">
-                          {t("cat.energyPower")}
-                        </option>
-                        <option value="environment-pollution">
-                          {t("cat.environmentPollution")}
-                        </option>
-                        <option value="food-beverage">
-                          {t("cat.foodBeverage")}
-                        </option>
-                        <option value="furniture">{t("cat.furniture")}</option>
-                        <option value="gifts-crafts">
-                          {t("cat.giftsCrafts")}
-                        </option>
-                        <option value="health-beauty">
-                          {t("cat.healthBeauty")}
-                        </option>
-                        <option value="home-supplies">
-                          {t("cat.homeSupplies")}
-                        </option>
-                        <option value="home-textiles">
-                          {t("cat.homeTextiles")}
-                        </option>
-                        <option value="hospital-medical">
-                          {t("cat.hospitalMedical")}
-                        </option>
-                        <option value="hotel-supplies">
-                          {t("cat.hotelSupplies")}
-                        </option>
-                        <option value="industrial-supplies">
-                          {t("cat.industrialSupplies")}
-                        </option>
-                        <option value="jewelry-gemstones">
-                          {t("cat.jewelryGemstones")}
-                        </option>
-                        <option value="leather-products">
-                          {t("cat.leatherProducts")}
-                        </option>
-                        <option value="machinery">{t("cat.machinery")}</option>
-                        <option value="mineral-metals">
-                          {t("cat.mineralMetals")}
-                        </option>
-                        <option value="office-school">
-                          {t("cat.officeSchool")}
-                        </option>
-                        <option value="oil-gas">{t("cat.oilGas")}</option>
-                        <option value="packaging-paper">
-                          {t("cat.packagingPaper")}
-                        </option>
-                        <option value="pharmaceuticals">
-                          {t("cat.pharmaceuticals")}
-                        </option>
-                        <option value="pipes-tubes">
-                          {t("cat.pipesTubes")}
-                        </option>
-                        <option value="plastics-products">
-                          {t("cat.plasticsProducts")}
-                        </option>
-                        <option value="printing-publishing">
-                          {t("cat.printingPublishing")}
-                        </option>
-                        <option value="real-estate">
-                          {t("cat.realEstate")}
-                        </option>
-                        <option value="scientific-laboratory">
-                          {t("cat.scientificLaboratory")}
-                        </option>
-                        <option value="security-protection">
-                          {t("cat.securityProtection")}
-                        </option>
-                        <option value="sports-entertainment">
-                          {t("cat.sportsEntertainment")}
-                        </option>
-                        <option value="telecommunications">
-                          {t("cat.telecommunications")}
-                        </option>
-                        <option value="textiles-fabrics">
-                          {t("cat.textilesFabrics")}
-                        </option>
-                        <option value="toys">{t("cat.toys")}</option>
-                        <option value="transportation">
-                          {t("cat.transportation")}
-                        </option>
+                        {categories
+                          .filter((cat) => cat.id !== "all")
+                          .map((cat) => (
+                            <option key={cat.id} value={cat.id}>
+                              {getCategoryName(cat.id, isRTL ? "ar" : "en")}
+                            </option>
+                          ))}
                       </select>
                     </div>
 
@@ -974,9 +607,8 @@ export default function SearchSection() {
                       />
                       <div className="absolute bottom-3 right-4 flex items-center gap-4 text-xs">
                         <span
-                          className={`${
-                            sentenceCount > 2 ? "text-red-500" : "text-gray-500"
-                          }`}
+                          className={`${sentenceCount > 2 ? "text-red-500" : "text-gray-500"
+                            }`}
                         >
                           {t("searchRequest.sentencesCounter").replace(
                             "{{count}}",
@@ -984,11 +616,10 @@ export default function SearchSection() {
                           )}
                         </span>
                         <span
-                          className={`${
-                            description.length > 180
-                              ? "text-orange-500"
-                              : "text-gray-500"
-                          }`}
+                          className={`${description.length > 180
+                            ? "text-orange-500"
+                            : "text-gray-500"
+                            }`}
                         >
                           {t("searchRequest.charsCounter").replace(
                             "{{count}}",
@@ -1032,19 +663,17 @@ export default function SearchSection() {
 
                   {submitStatus && (
                     <div
-                      className={`p-4 rounded-xl text-sm font-medium ${
-                        submitStatus.includes("success")
-                          ? "bg-green-50 text-green-700 border border-green-200"
-                          : "bg-red-50 text-red-700 border border-red-200"
-                      }`}
+                      className={`p-4 rounded-xl text-sm font-medium ${submitStatus.includes("success")
+                        ? "bg-green-50 text-green-700 border border-green-200"
+                        : "bg-red-50 text-red-700 border border-red-200"
+                        }`}
                     >
                       <div className="flex items-center">
                         <i
-                          className={`${
-                            submitStatus.includes("success")
-                              ? "ri-check-line"
-                              : "ri-error-warning-line"
-                          } mr-2`}
+                          className={`${submitStatus.includes("success")
+                            ? "ri-check-line"
+                            : "ri-error-warning-line"
+                            } mr-2`}
                         ></i>
                         {submitStatus}
                       </div>

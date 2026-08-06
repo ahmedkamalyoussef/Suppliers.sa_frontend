@@ -3,13 +3,14 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "../lib/LanguageContext";
 import { apiService } from "../lib/api";
+import { formatActivityText, formatRelativeTime } from "../lib/distanceUtils";
 
 interface DashboardStatsProps {
   onTabChange?: (tab: string, section?: string) => void;
 }
 
 export default function DashboardStats({ onTabChange }: DashboardStatsProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [timeRange, setTimeRange] = useState("30");
   const [showAllActivity, setShowAllActivity] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -312,13 +313,13 @@ export default function DashboardStats({ onTabChange }: DashboardStatsProps) {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h4 className="font-medium text-gray-800 mb-1 text-sm sm:text-base">
-                        {activity.title}
+                        {formatActivityText(activity.title, language)}
                       </h4>
                       <p className="text-gray-600 text-xs sm:text-sm mb-2">
-                        {activity.message}
+                        {formatActivityText(activity.message, language)}
                       </p>
                       <span className="text-gray-400 text-xs">
-                        {activity.time}
+                        {formatRelativeTime(activity.time, language)}
                       </span>
                     </div>
                     <button className="text-gray-400 hover:text-gray-600 cursor-pointer flex-shrink-0">
@@ -375,13 +376,13 @@ export default function DashboardStats({ onTabChange }: DashboardStatsProps) {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h4 className="font-medium text-gray-800 mb-1 text-sm sm:text-base">
-                        {activity.title}
+                        {formatActivityText(activity.title, language)}
                       </h4>
                       <p className="text-gray-600 text-xs sm:text-sm mb-1">
-                        {activity.message}
+                        {formatActivityText(activity.message, language)}
                       </p>
                       <span className="text-gray-400 text-xs">
-                        {activity.time}
+                        {formatRelativeTime(activity.time, language)}
                       </span>
                     </div>
                   </div>

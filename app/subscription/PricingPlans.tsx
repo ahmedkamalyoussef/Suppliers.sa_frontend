@@ -25,6 +25,9 @@ export default function PricingPlans() {
   }, []);
 
   const fetchUserPlanFromAPI = async () => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("supplier_token") : null;
+    if (!token) return;
+
     try {
       // Fetch fresh profile data from API like dashboard does
       const profileData = await apiService.getProfile();
@@ -43,13 +46,6 @@ export default function PricingPlans() {
       }
     } catch (error) {
       console.error("Error fetching profile:", error);
-      // Fallback to localStorage if API fails
-      const userData = localStorage.getItem("supplier_user");
-      if (userData) {
-        const parsedUser = JSON.parse(userData);
-        setUserPlan(parsedUser.plan || null);
-        setHasUsedTrial(parsedUser.has_used_free_trial || false);
-      }
     }
   };
 
@@ -63,9 +59,9 @@ export default function PricingPlans() {
 
   const fetchPlans = async () => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.supplier.sa"}/api/subscription/plans`,
-      );
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.supplier.sa";
+      const apiUrl = baseUrl.endsWith("/api") ? `${baseUrl}/subscription/plans` : `${baseUrl}/api/subscription/plans`;
+      const response = await fetch(apiUrl);
       const data = await response.json();
       if (data.success) {
         setPlans(data.data);

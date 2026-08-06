@@ -30,7 +30,7 @@ interface User {
 }
 
 function DashboardContent() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState("overview");
   const [activeSection, setActiveSection] = useState<string | undefined>(undefined);
@@ -335,23 +335,23 @@ function DashboardContent() {
                   </div>
                   <div className="flex flex-col">
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-1 sm:mb-2">
-                      {user ? `Welcome back, ${user.name}` : "Loading..."}
+                      {user ? `${language === "ar" ? "مرحباً بعودتك" : "Welcome back"}, ${user.name}` : (language === "ar" ? "جاري التحميل..." : "Loading...")}
                     </h1>
 
                     <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
                       <span className="flex items-center">
                         <i className="ri-calendar-line me-1"></i>
                         {user
-                          ? `Member since ${user.memberSince}`
-                          : "Loading..."}
+                          ? `${language === "ar" ? "عضو منذ" : "Member since"} ${user.memberSince}`
+                          : (language === "ar" ? "جاري التحميل..." : "Loading...")}
                       </span>
                       <span className="flex items-center">
                         <i className="ri-vip-crown-line me-1 text-yellow-500"></i>
                         {user 
-                          ? (user.plan === 'premium_monthly' || user.plan === 'premium_yearly' 
-                            ? (document.documentElement.dir === 'rtl' ? 'Premium' : 'مميزة')
-                            : user.plan)
-                          : "Loading..."}
+                          ? (user.plan && (user.plan.toLowerCase().includes('premium') || user.plan.toLowerCase().includes('pro'))
+                            ? (language === 'ar' ? 'مميزة' : 'Premium')
+                            : (language === 'ar' ? 'أساسية' : 'Basic'))
+                          : (language === "ar" ? "جاري التحميل..." : "Loading...")}
                       </span>
                     </div>
                   </div>
@@ -364,7 +364,7 @@ function DashboardContent() {
                     }`}
                   >
                     <i className="ri-eye-line me-2"></i>
-                    View Public Profile
+                    {language === "ar" ? "عرض الملف الشخصي العام" : "View Public Profile"}
                   </Link>
                 </div>
               </div>

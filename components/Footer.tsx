@@ -43,6 +43,7 @@ export default function Footer() {
               <Link
               href="/"
               className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity"
+              dir="ltr"
             >
               <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center">
                 <svg

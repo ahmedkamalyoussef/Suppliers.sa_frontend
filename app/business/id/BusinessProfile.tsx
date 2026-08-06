@@ -11,6 +11,7 @@ import { getCategoryName } from "@/lib/categories";
 import { BusinessProfile as BusinessProfileType } from "../../../lib/api";
 import { useAuth } from "@/lib/UserContext";
 import companyLogo from "@/lib/assets/company.png";
+import { formatServiceDistance, formatTargetCustomer, formatDayName, formatTime12h } from "@/lib/distanceUtils";
 
 type BusinessProfileProps = {};
 
@@ -713,7 +714,9 @@ export default function BusinessProfile() {
                     {t("businessProfile.targetCustomers")}
                   </p>
                   <p className="text-xs md:text-sm text-gray-600">
-                    {business.targetCustomers.join(", ")}
+                    {business.targetCustomers
+                      .map((c: string) => formatTargetCustomer(c, language))
+                      .join(", ")}
                   </p>
                 </div>
               </div>
@@ -728,7 +731,7 @@ export default function BusinessProfile() {
                   <p className="text-xs md:text-sm text-gray-600">
                     {t("businessProfile.upToDistance").replace(
                       "{{distance}}",
-                      business.serviceDistance
+                      formatServiceDistance(business.serviceDistance, language)
                     )}
                   </p>
                 </div>
@@ -963,7 +966,7 @@ export default function BusinessProfile() {
                             ))}
                           </div>
                           <div className="text-xs md:text-sm text-gray-600 mt-1">
-                            Overall Rating
+                            {language === "ar" ? "التقييم العام" : "Overall Rating"}
                           </div>
                         </div>
                         <div className="h-12 md:h-16 w-px bg-yellow-300 hidden md:block"></div>
@@ -972,13 +975,13 @@ export default function BusinessProfile() {
                             {business.reviewCount}
                           </div>
                           <div className="text-xs md:text-sm text-gray-600">
-                            Total Reviews
+                            {language === "ar" ? "إجمالي المراجعات" : "Total Reviews"}
                           </div>
                         </div>
                       </div>
                       <div className="text-center md:text-right">
                         <div className="text-xs md:text-sm text-gray-600 mb-2">
-                          Recent Reviews
+                          {language === "ar" ? "المراجعات الأخيرة" : "Recent Reviews"}
                         </div>
                         <div className="flex flex-col space-y-1 max-w-xs mx-auto md:mx-0">
                           {[5, 4, 3, 2, 1].map((star) => {
@@ -1176,16 +1179,22 @@ export default function BusinessProfile() {
                           className="flex justify-between items-center"
                         >
                           <span className="text-gray-700 font-medium text-sm md:text-base capitalize">
-                            {day}
+                            {formatDayName(day, language)}
                           </span>
                           <span
                             className={`text-xs md:text-sm ${
                               hours.closed ? "text-red-600" : "text-gray-600"
                             }`}
                           >
-                            {hours.closed
-                              ? t("businessProfile.closedLabel")
-                              : <bdi dir="ltr" style={{ direction: "ltr", unicodeBidi: "isolate" }}>{hours.open} - {hours.close}</bdi>}
+                            {hours.closed ? (
+                              t("businessProfile.closedLabel")
+                            ) : (
+                              <span dir={language === "ar" ? "rtl" : "ltr"} className="inline-flex items-center gap-1 font-medium">
+                                <span>{formatTime12h(hours.open, language)}</span>
+                                <span className="mx-0.5 text-gray-400">-</span>
+                                <span>{formatTime12h(hours.close, language)}</span>
+                              </span>
+                            )}
                           </span>
                         </div>
                       )

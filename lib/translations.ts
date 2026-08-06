@@ -2619,12 +2619,13 @@ export const translations = {
       "newThisWeek": "New This Week",
       "distanceTitle": "Distance",
       "allDistances": "All Distances",
-      "within2km": "Within 2 km",
-      "within5km": "Within 5 km",
-      "within10km": "Within 10 km",
-      "within15km": "Within 15 km",
-      "within20km": "Within 20 km",
-      "within50km": "Within 50 km"
+      "within2km": "2 km",
+      "within5km": "5 km",
+      "within10km": "10 km",
+      "within15km": "15 km",
+      "within20km": "20 km",
+      "within50km": "50 km",
+      "within100km": "100 km"
     },
     "subscriptionFAQ": {
       "title": "Frequently Asked Questions",
@@ -5464,12 +5465,13 @@ export const translations = {
       "newThisWeek": "جديد هذا الأسبوع",
       "distanceTitle": "المسافة",
       "allDistances": "جميع المسافات",
-      "within2km": "أقل من ٢ كم",
-      "within5km": "أقل من ٥ كم",
-      "within10km": "أقل من ١٠ كم",
-      "within15km": "أقل من ١٥ كم",
-      "within20km": "أقل من ٢٠ كم",
-      "within50km": "أقل من ٥٠ كم"
+      "within2km": "2 كم",
+      "within5km": "5 كم",
+      "within10km": "10 كم",
+      "within15km": "15 كم",
+      "within20km": "20 كم",
+      "within50km": "50 كم",
+      "within100km": "100 كم"
     },
     "businessGuides": {
       "title": "دليل الأعمال",

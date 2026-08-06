@@ -25,7 +25,7 @@ export default function LanguageSwitcher() {
             : "text-gray-600 hover:text-gray-900"
         }`}
       >
-        <span>AR</span>
+        <span>ع</span>
       </button>
     </div>
   );

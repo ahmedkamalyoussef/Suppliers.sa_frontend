@@ -10,6 +10,7 @@ import companyImg from "../lib/assets/company.png";
 import { getApiUrl } from "../lib/config";
 import { getCategoryIcon, getCategoryColor, getCategoryName } from "../lib/categories";
 import { LtrValue, CodeText } from "./BidiText";
+import { formatServiceDistance, formatOfferedService } from "../lib/distanceUtils";
 
 interface Business {
   id: number;
@@ -313,7 +314,7 @@ export default function BusinessCard({
                         <i className="ri-group-line w-4 h-4 flex items-center justify-center me-2"></i>
                         <span>
                           {t("businessCard.serves")}:{" "}
-                          {business.services.join(", ")}
+                          {business.services.map((s) => formatOfferedService(s, language)).join(", ")}
                         </span>
                       </div>
                     )}
@@ -322,7 +323,7 @@ export default function BusinessCard({
                         <i className="ri-map-pin-range-line w-4 h-4 flex items-center justify-center me-2"></i>
                         <span>
                           {t("businessCard.serviceArea")}:{" "}
-                          {business.serviceDistance}
+                          {formatServiceDistance(business.serviceDistance, language)}
                         </span>
                       </div>
                     )}
@@ -335,7 +336,7 @@ export default function BusinessCard({
                           key={index}
                           className="bg-yellow-50 text-yellow-700 px-3 py-1 rounded-full text-xs font-medium"
                         >
-                          {service}
+                          {formatOfferedService(service, language)}
                         </span>
                       ))}
                       {business.services.length > 3 && (
@@ -478,7 +479,7 @@ export default function BusinessCard({
               <div className="flex items-center text-xs text-gray-600">
                 <i className="ri-group-line w-3 h-3 flex items-center justify-center me-2"></i>
                 <span>
-                  {t("businessCard.serves")}: {business.services.slice(0, 2).join(", ")}
+                  {t("businessCard.serves")}: {business.services.slice(0, 2).map((s) => formatOfferedService(s, language)).join(", ")}
                 </span>
               </div>
             )}
@@ -486,7 +487,7 @@ export default function BusinessCard({
               <div className="flex items-center text-xs text-gray-600">
                 <i className="ri-map-pin-range-line w-3 h-3 flex items-center justify-center me-2"></i>
                 <span>
-                  {t("businessCard.serviceArea")}: {business.serviceDistance}
+                  {t("businessCard.serviceArea")}: {formatServiceDistance(business.serviceDistance, language)}
                 </span>
               </div>
             )}
@@ -501,7 +502,7 @@ export default function BusinessCard({
                   key={index}
                   className="bg-yellow-50 text-yellow-700 px-2 py-1 rounded-full text-xs font-medium"
                 >
-                  {service}
+                  {formatOfferedService(service, language)}
                 </span>
               ))}
               {business.services.length > 2 && (

@@ -3,6 +3,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "../lib/LanguageContext";
+import { formatServiceDistance } from "../lib/distanceUtils";
 
 // Reuse the same loader from BusinessLocationMap to avoid duplicate script loads
 const GOOGLE_MAPS_SCRIPT_ID = "google-maps-js";
@@ -415,6 +416,11 @@ const InteractiveMapGoogle = ({
               <span style="color:#F59E0B;flex-shrink:0;">📍</span>
               <span style="font-weight:500;">${business.address}</span>
             </div>
+            ${business.serviceDistance ? `
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;color:#374151;font-size:12px;background:#F0FDF4;padding:6px 10px;border-radius:8px;border:1px solid #DCFCE7;">
+                <span>🎯 ${isRtl ? "منطقة الخدمة" : "Service Area"}: ${formatServiceDistance(business.serviceDistance, language)}</span>
+              </div>
+            ` : ''}
 
             <div style="display:flex;gap:12px;margin-bottom:12px;${
               isRtl ? "flex-direction:row-reverse;" : ""

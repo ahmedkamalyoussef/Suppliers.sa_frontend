@@ -13,6 +13,7 @@ import companyLogo from "@/lib/assets/company.png";
 import { PhoneNumber, EmailText, UrlText, CodeText, LtrValue } from "@/components/BidiText";
 import PhoneInput from "@/components/PhoneInput";
 import { getContactTypeLabel } from "@/lib/contactTypes";
+import { formatServiceDistance, formatTargetCustomer, formatTime12h, formatOfferedService, formatCityName } from "@/lib/distanceUtils";
 
 type WorkingDay = {
   open: string;
@@ -293,16 +294,16 @@ export default function PublicBusinessProfile({
     const todayHours = business.workingHours[currentDay];
 
     if (todayHours.closed)
-      return { status: "Closed Today", color: "text-red-600" };
+      return { status: language === "ar" ? "مغلق اليوم" : "Closed Today", color: "text-red-600" };
 
     const openTime = parseInt(todayHours.open.replace(":", ""));
     const closeTime = parseInt(todayHours.close.replace(":", ""));
 
     if (currentTime >= openTime && currentTime <= closeTime) {
-      return { status: "Open Now", color: "text-green-600" };
+      return { status: language === "ar" ? "مفتوح الآن" : "Open Now", color: "text-green-600" };
     }
 
-    return { status: "Closed", color: "text-red-600" };
+    return { status: language === "ar" ? "مغلق" : "Closed", color: "text-red-600" };
   };
 
   const getBusinessTypeIcon = (type: Business["businessType"]) => {
@@ -539,8 +540,8 @@ export default function PublicBusinessProfile({
                       <div className="flex items-center gap-1 sm:gap-2 min-w-0">
                         <i className="ri-map-pin-line flex-shrink-0"></i>
                         <span className="text-gray-600 truncate">
-                          {supplier?.profile?.business_address?.trim() ||
-                            t("publicProfile.contact.defaultAddress")}
+                          {formatCityName(supplier?.profile?.business_address?.trim() ||
+                            t("publicProfile.contact.defaultAddress"), language)}
                         </span>
                       </div>
                     </div>
@@ -593,7 +594,7 @@ export default function PublicBusinessProfile({
                         (customer: string, index: number) => (
                           <div key={index} className="flex items-center gap-2">
                             <i className="ri-check-line text-yellow-600"></i>
-                            <span className="text-gray-700">{customer}</span>
+                            <span className="text-gray-700">{formatTargetCustomer(customer, language)}</span>
                           </div>
                         )
                       )}
@@ -607,17 +608,46 @@ export default function PublicBusinessProfile({
                     <div className="flex items-center gap-2 mb-2">
                       <i className="ri-map-pin-range-line text-blue-600"></i>
                       <span className="text-gray-700">
-                        {supplier?.profile?.service_distance ||
-                          business.serviceDistance}
+                        {formatServiceDistance(
+                          supplier?.profile?.service_distance ||
+                            business.serviceDistance,
+                          language
+                        )}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 mb-2">
                       <i className="ri-map-pin-line text-blue-600"></i>
                       <span className="text-gray-700">
-                        {supplier?.profile?.business_address?.trim() ||
-                          t("publicProfile.contact.defaultAddress")}
+                        {formatCityName(supplier?.profile?.business_address?.trim() ||
+                          t("publicProfile.contact.defaultAddress"), language)}
                       </span>
                     </div>
+                    {/* Display Services Offered */}
+                    {(business.services && business.services.length > 0) || (business.specialties && business.specialties.length > 0) ? (
+                      <div className="mt-4 pt-4 border-t border-blue-100">
+                        <h4 className="font-bold text-gray-800 mb-2">
+                          {t("businessProfile.servicesOffered") || (language === "ar" ? "الخدمات المقدمة" : "Services Offered")}
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          {business.services && business.services.map((service, index) => (
+                            <span 
+                              key={index}
+                              className="bg-white text-blue-700 px-3 py-1 rounded-full text-sm border border-blue-200"
+                            >
+                              {formatOfferedService(service, language)}
+                            </span>
+                          ))}
+                          {business.specialties && business.specialties.map((specialty, index) => (
+                            <span 
+                              key={`spec-${index}`}
+                              className="bg-white text-blue-700 px-3 py-1 rounded-full text-sm border border-blue-200"
+                            >
+                              {formatOfferedService(specialty, language)}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               </div>
@@ -765,7 +795,7 @@ export default function PublicBusinessProfile({
                           {t("publicProfile.contact.address")}
                         </p>
                         <p className="text-gray-800 font-medium">
-                          {business.address}
+                          {formatCityName(business.address, language)}
                         </p>
                       </div>
                     </div>
@@ -812,9 +842,15 @@ export default function PublicBusinessProfile({
                             hours.closed ? "text-red-600" : "text-green-600"
                           }`}
                         >
-                          {hours.closed
-                            ? t("publicProfile.workingHours.closed")
-                            : <bdi dir="ltr" style={{ direction: "ltr", unicodeBidi: "isolate" }}>{hours.open} - {hours.close}</bdi>}
+                          {hours.closed ? (
+                            t("publicProfile.workingHours.closed")
+                          ) : (
+                            <span dir={language === "ar" ? "rtl" : "ltr"} className="inline-flex items-center gap-1 font-medium">
+                              <span>{formatTime12h(hours.open, language)}</span>
+                              <span className="mx-0.5 text-gray-400">-</span>
+                              <span>{formatTime12h(hours.close, language)}</span>
+                            </span>
+                          )}
                         </span>
                       </div>
                     ))}
@@ -905,7 +941,7 @@ export default function PublicBusinessProfile({
                         <i className="ri-check-line text-yellow-600 text-lg"></i>
                       </div>
                       <h3 className="font-semibold text-gray-800 mb-1">
-                        {service}
+                        {formatOfferedService(service, language)}
                       </h3>
                     </div>
                   ))}
@@ -916,7 +952,7 @@ export default function PublicBusinessProfile({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-800 mb-6">
-                    {t("publicProfile.specialties.title")}
+                    {t("businessProfile.servicesOffered") || (language === "ar" ? "الخدمات المقدمة" : "Our Services")}
                   </h2>
                   <div className="space-y-3">
                     {business.specialties.map(
@@ -927,7 +963,7 @@ export default function PublicBusinessProfile({
                         >
                           <i className="ri-star-line text-blue-600"></i>
                           <span className="font-medium text-gray-800">
-                            {specialty}
+                            {formatOfferedService(specialty, language)}
                           </span>
                         </div>
                       )

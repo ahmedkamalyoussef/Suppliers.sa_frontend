@@ -12,6 +12,7 @@ import { BusinessProfile as BusinessProfileType } from "../../../lib/api";
 import { useAuth } from "@/lib/UserContext";
 import companyLogo from "@/lib/assets/company.png";
 import PhoneInput from "@/components/PhoneInput";
+import { formatServiceDistance, formatTargetCustomer, formatDayName, formatTime12h } from "@/lib/distanceUtils";
 
 type BusinessProfileProps = {};
 
@@ -714,7 +715,9 @@ export default function BusinessProfile() {
                     {t("businessProfile.targetCustomers")}
                   </p>
                   <p className="text-xs md:text-sm text-gray-600">
-                    {business.targetCustomers.join(", ")}
+                    {business.targetCustomers
+                      .map((c: string) => formatTargetCustomer(c, language))
+                      .join(", ")}
                   </p>
                 </div>
               </div>
@@ -729,7 +732,7 @@ export default function BusinessProfile() {
                   <p className="text-xs md:text-sm text-gray-600">
                     {t("businessProfile.upToDistance").replace(
                       "{{distance}}",
-                      business.serviceDistance
+                      formatServiceDistance(business.serviceDistance, language)
                     )}
                   </p>
                 </div>
@@ -788,12 +791,6 @@ export default function BusinessProfile() {
                     <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800">
                       {t("businessProfile.keywords")}
                     </h2>
-                    <span className="bg-blue-100 text-blue-800 px-2 py-1 md:px-3 md:py-1 rounded-full text-xs md:text-sm font-medium w-fit">
-                      {t("businessProfile.itemsCount").replace(
-                        "{{count}}",
-                        String(businessProfile?.profile?.keywords?.length || 0)
-                      )}
-                    </span>
                   </div>
 
                   <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
@@ -804,9 +801,7 @@ export default function BusinessProfile() {
                           {t("businessProfile.catalogTitle")}
                         </h3>
                       </div>
-                      <p className="text-xs md:text-sm text-gray-600 mt-1">
-                        {t("businessProfile.catalogSubtitle")}
-                      </p>
+                      
                     </div>
 
                     {/* Keywords Grid */}
@@ -842,22 +837,6 @@ export default function BusinessProfile() {
                       </div>
                     </div>
 
-                    <div className="bg-blue-50 px-3 py-2 md:px-4 md:py-3 border-t border-blue-200">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                        <div className="flex items-center gap-1 md:gap-2 text-xs md:text-sm text-blue-700">
-                          <i className="ri-search-line"></i>
-                          <span>{t("businessProfile.customersCanSearch")}</span>
-                        </div>
-                        <div className="text-xs md:text-sm text-blue-600 font-medium">
-                          {t("businessProfile.totalKeywords").replace(
-                            "{{count}}",
-                            String(
-                              businessProfile?.profile?.keywords?.length || 0
-                            )
-                          )}
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
 
@@ -895,15 +874,7 @@ export default function BusinessProfile() {
                       </div>
                     ))}
                   </div>
-                  <div className="mt-4 md:mt-6 text-center">
-                    <p className="text-gray-600 text-xs md:text-sm">
-                      <i className="ri-camera-line me-1 md:mr-2"></i>
-                      {t("businessProfile.showcasingPhotos").replace(
-                        "{{count}}",
-                        String(business.galleryImages.length)
-                      )}
-                    </p>
-                  </div>
+                  
                 </div>
 
                 {/* Reviews Section */}
@@ -964,7 +935,7 @@ export default function BusinessProfile() {
                             ))}
                           </div>
                           <div className="text-xs md:text-sm text-gray-600 mt-1">
-                            Overall Rating
+                            {language === "ar" ? "التقييم العام" : "Overall Rating"}
                           </div>
                         </div>
                         <div className="h-12 md:h-16 w-px bg-yellow-300 hidden md:block"></div>
@@ -973,13 +944,13 @@ export default function BusinessProfile() {
                             {business.reviewCount}
                           </div>
                           <div className="text-xs md:text-sm text-gray-600">
-                            Total Reviews
+                            {language === "ar" ? "إجمالي المراجعات" : "Total Reviews"}
                           </div>
                         </div>
                       </div>
                       <div className="text-center md:text-right">
                         <div className="text-xs md:text-sm text-gray-600 mb-2">
-                          Recent Reviews
+                          {language === "ar" ? "المراجعات الأخيرة" : "Recent Reviews"}
                         </div>
                         <div className="flex flex-col space-y-1 max-w-xs mx-auto md:mx-0">
                           {[5, 4, 3, 2, 1].map((star) => {
@@ -1177,16 +1148,22 @@ export default function BusinessProfile() {
                           className="flex justify-between items-center"
                         >
                           <span className="text-gray-700 font-medium text-sm md:text-base capitalize">
-                            {day}
+                            {formatDayName(day, language)}
                           </span>
                           <span
                             className={`text-xs md:text-sm ${
                               hours.closed ? "text-red-600" : "text-gray-600"
                             }`}
                           >
-                            {hours.closed
-                              ? t("businessProfile.closedLabel")
-                              : <bdi dir="ltr" style={{ direction: "ltr", unicodeBidi: "isolate" }}>{hours.open} - {hours.close}</bdi>}
+                            {hours.closed ? (
+                              t("businessProfile.closedLabel")
+                            ) : (
+                              <span dir={language === "ar" ? "rtl" : "ltr"} className="inline-flex items-center gap-1 font-medium">
+                                <span>{formatTime12h(hours.open, language)}</span>
+                                <span className="mx-0.5 text-gray-400">-</span>
+                                <span>{formatTime12h(hours.close, language)}</span>
+                              </span>
+                            )}
                           </span>
                         </div>
                       )
@@ -1234,14 +1211,9 @@ export default function BusinessProfile() {
         </section>
 
         {/* Back to Map CTA */}
-        <section className="py-8 md:py-12 bg-yellow-50">
+        <section className="py-8 md:py-12">
           <div className="w-full px-4 md:px-6 text-center">
-            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 mb-3 md:mb-4">
-              {t("businessProfile.exploreMore")}
-            </h2>
-            <p className="text-gray-600 mb-6 md:mb-8 max-w-2xl mx-auto text-sm md:text-base">
-              {t("businessProfile.discoverOthers")}
-            </p>
+            
             <div className="flex flex-wrap justify-center gap-3 md:gap-4">
               <Link
                 href="/"

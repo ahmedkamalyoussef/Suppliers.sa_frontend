@@ -202,7 +202,7 @@ export default function EnhancedSearch({ onSearch }: EnhancedSearchProps) {
       <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
         <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
           <i className="ri-mic-line text-yellow-500"></i>
-          <span>Voice Search (AR/EN)</span>
+          <span>Voice Search (ع/EN)</span>
         </div>
         <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
           <i className="ri-translate-2 text-yellow-500"></i>

@@ -1661,7 +1661,7 @@ export default function CompleteProfileForm({
                   </label>
                 ))}
               </div>
-              
+
             </div>
           </div>
         )}
@@ -1818,10 +1818,10 @@ export default function CompleteProfileForm({
               )}
               <div
                 className={`border-2 border-dashed rounded-2xl p-6 md:p-8 text-center transition-all duration-200 ${errors.crFile || errors.document
-                    ? "border-red-300 bg-red-50/60"
-                    : crFile
-                      ? "border-emerald-400 bg-emerald-50/40"
-                      : "border-amber-200 bg-amber-50/20 hover:border-amber-400 hover:bg-amber-50/60 hover:shadow-sm cursor-pointer group"
+                  ? "border-red-300 bg-red-50/60"
+                  : crFile
+                    ? "border-emerald-400 bg-emerald-50/40"
+                    : "border-amber-200 bg-amber-50/20 hover:border-amber-400 hover:bg-amber-50/60 hover:shadow-sm cursor-pointer group"
                   }`}
               >
                 <input

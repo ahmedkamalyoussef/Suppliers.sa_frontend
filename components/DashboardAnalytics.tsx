@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/lib/LanguageContext";
 import { apiService } from "@/lib/api";
+import { formatRecommendationText } from "@/lib/distanceUtils";
 
 type ChartKey = "views" | "contacts" | "inquiries";
 
@@ -637,7 +638,7 @@ export default function DashboardAnalytics() {
                     <div className="flex-shrink-0 mt-1">
                       <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
                     </div>
-                    <p className="text-gray-600 text-sm">{item}</p>
+                    <p className="text-gray-600 text-sm">{formatRecommendationText(item, language)}</p>
                   </li>
                 ))}
               </ul>

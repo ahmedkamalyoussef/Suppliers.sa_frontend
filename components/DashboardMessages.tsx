@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "../lib/LanguageContext";
 import { apiService } from "../lib/api";
+import { formatResponseTime } from "../lib/distanceUtils";
 
 type InboxMessage = {
   id: number;
@@ -38,7 +39,7 @@ type DashboardMessagesProps = {
 export default function DashboardMessages({
   selectedMessageId,
 }: DashboardMessagesProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [activeTab, setActiveTab] = useState<"inbox" | "sent">("inbox");
   const [selectedMessage, setSelectedMessage] = useState<AnyMessage | null>(
     null
@@ -614,7 +615,7 @@ export default function DashboardMessages({
             </div>
             <div>
               <h3 className="text-2xl font-bold text-gray-800">
-                {inboxData ? inboxData.avg_response_time : '0h'}
+                {formatResponseTime(inboxData ? inboxData.avg_response_time : '0s', language)}
               </h3>
               <p className="text-gray-600 text-sm">
                 {t("messagesPage.avgResponseTime")}

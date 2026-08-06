@@ -155,7 +155,7 @@ function BusinessesContent() {
   ]);
 
   // Log when selectedCategory changes
-  useEffect(() => {}, [selectedCategory]);
+  useEffect(() => { }, [selectedCategory]);
 
   // Fetch businesses from API
   useEffect(() => {
@@ -308,13 +308,13 @@ function BusinessesContent() {
         }));
 
         setBusinessLocations(locations);
-      } catch (error) {}
+      } catch (error) { }
     };
 
     fetchBusinesses();
 
     // Cleanup function
-    return () => {};
+    return () => { };
   }, [
     currentPage,
     showAllBusinesses,
@@ -527,7 +527,7 @@ function BusinessesContent() {
         (business: Business) =>
           business.businessType &&
           business.businessType.toLowerCase() ===
-            selectedBusinessType.toLowerCase(),
+          selectedBusinessType.toLowerCase(),
       );
     }
 
@@ -645,21 +645,19 @@ function BusinessesContent() {
                   <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
                     <button
                       onClick={() => setViewMode("grid")}
-                      className={`p-2 rounded-md cursor-pointer ${
-                        viewMode === "grid"
-                          ? "bg-white shadow-sm text-yellow-600"
-                          : "text-gray-600"
-                      }`}
+                      className={`p-2 rounded-md cursor-pointer ${viewMode === "grid"
+                        ? "bg-white shadow-sm text-yellow-600"
+                        : "text-gray-600"
+                        }`}
                     >
                       <i className="ri-grid-line"></i>
                     </button>
                     <button
                       onClick={() => setViewMode("list")}
-                      className={`p-2 rounded-md cursor-pointer ${
-                        viewMode === "list"
-                          ? "bg-white shadow-sm text-yellow-600"
-                          : "text-gray-600"
-                      }`}
+                      className={`p-2 rounded-md cursor-pointer ${viewMode === "list"
+                        ? "bg-white shadow-sm text-yellow-600"
+                        : "text-gray-600"
+                        }`}
                     >
                       <i className="ri-list-unordered"></i>
                     </button>
@@ -670,10 +668,10 @@ function BusinessesContent() {
                     onChange={(e) =>
                       setSortBy(
                         e.target.value as
-                          | "rating"
-                          | "distance"
-                          | "reviews"
-                          | "name",
+                        | "rating"
+                        | "distance"
+                        | "reviews"
+                        | "name",
                       )
                     }
                     className="border border-gray-300 rounded-lg px-4 py-2 bg-white focus:border-yellow-400 focus:outline-none pr-8"
@@ -728,7 +726,7 @@ function BusinessesContent() {
                   {/* Map Section - Only show when there are filtered results */}
                   {sortedBusinesses.length > 0 && (
                     <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
-                      <div className="p-4 bg-yellow-50 border-b border-yellow-100">
+                      {/* <div className="p-4 bg-yellow-50 border-b border-yellow-100">
                         <div className="flex items-center justify-between">
                           <h3 className="text-lg font-semibold text-gray-800">
                             {t("businessesPage.mapTitle")}
@@ -740,9 +738,9 @@ function BusinessesContent() {
                             )}
                           </span>
                         </div>
-                      </div>
+                      </div> */}
 
-                      <div className="h-[500px] w-full rounded-lg overflow-hidden">
+                      <div className="h-[450px] w-full rounded-lg overflow-hidden">
                         <InteractiveMapGoogle
                           businesses={mapBusinesses}
                           onBusinessClick={handleBusinessClick}
@@ -754,11 +752,10 @@ function BusinessesContent() {
                   {/* Business Cards Grid */}
                   {sortedBusinesses.length > 0 ? (
                     <div
-                      className={`grid gap-6 ${
-                        viewMode === "grid"
-                          ? "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
-                          : "grid-cols-1"
-                      }`}
+                      className={`grid gap-6 ${viewMode === "grid"
+                        ? "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
+                        : "grid-cols-1"
+                        }`}
                     >
                       {sortedBusinesses.map((business) => (
                         <BusinessCard

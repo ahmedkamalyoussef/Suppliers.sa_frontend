@@ -754,7 +754,7 @@ class ApiService {
         if (error instanceof Error) {
           throw new Error(
             error.message ||
-              "حدث خطأ أثناء رفع الصورة. يرجى المحاولة مرة أخرى.",
+            "حدث خطأ أثناء رفع الصورة. يرجى المحاولة مرة أخرى.",
           );
         }
       }
@@ -802,7 +802,7 @@ class ApiService {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
           errorData.message ||
-            `Failed to fetch business profile (${response.status})`,
+          `Failed to fetch business profile (${response.status})`,
         );
       }
 
@@ -1481,10 +1481,10 @@ class ApiService {
 
   async markAsRead(data: {
     type:
-      | "supplier_inquiry"
-      | "supplier_to_supplier_inquiry"
-      | "message"
-      | "supplier_rating";
+    | "supplier_inquiry"
+    | "supplier_to_supplier_inquiry"
+    | "message"
+    | "supplier_rating";
     id: number;
   }): Promise<{ message: string }> {
     return this.request(
@@ -1523,11 +1523,11 @@ class ApiService {
 
   async replyToInboxItem(data: {
     type:
-      | "message"
-      | "supplier_to_supplier_inquiry"
-      | "supplier_inquiry"
-      | "supplier_rating"
-      | "message";
+    | "message"
+    | "supplier_to_supplier_inquiry"
+    | "supplier_inquiry"
+    | "supplier_rating"
+    | "message";
     id: number;
     reply: string;
   }): Promise<{ message: string }> {
@@ -1702,8 +1702,7 @@ class ApiService {
     if (!token) throw new Error("No auth token found");
 
     const response = await fetch(
-      `${
-        this.baseURL
+      `${this.baseURL
       }/api/admin/dashboard/analytics/export?${queryParams.toString()}`,
       {
         method: "GET",
@@ -1948,9 +1947,8 @@ class ApiService {
     }
 
     const queryString = params.toString();
-    const url = `/api/admin/inquiries/list${
-      queryString ? "?" + queryString : ""
-    }`;
+    const url = `/api/admin/inquiries/list${queryString ? "?" + queryString : ""
+      }`;
 
     return this.request<AdminInquiryListResponse>(
       url,

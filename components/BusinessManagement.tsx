@@ -23,6 +23,7 @@ import BusinessHoursConfig from "./BusinessHoursConfig";
 import PhoneInput from "./PhoneInput";
 import AdditionalPhoneNumbers from "./AdditionalPhoneNumbers";
 import { CONTACT_TYPES } from "../lib/contactTypes";
+import { formatOfferedService } from "../lib/distanceUtils";
 
 const BusinessLocationMap = dynamic(() => import("./BusinessLocationMap"), {
   ssr: false,
@@ -159,6 +160,8 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
   const { t, isRTL, language } = useLanguage();
   const [activeSection, setActiveSection] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [showBranchModal, setShowBranchModal] = useState(false);
 
   // File upload state
   const [verificationFile, setVerificationFile] = useState<File | null>(null);
@@ -687,12 +690,12 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
 
   const addSuggestedKeyword = (keyword: string) => {
     if (!isEditing) return;
-    
+
     const currentKeywords = businessData.productKeywords
       .split(",")
       .map((k) => k.trim())
       .filter(Boolean);
-      
+
     if (!currentKeywords.includes(keyword)) {
       const newKeywords = [...currentKeywords, keyword];
       setProductKeywords(newKeywords);
@@ -869,23 +872,32 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
     lat: 24.7136,
     lng: 46.6753,
   });
-  // Load location from API
+  // Load location and branches from API
   useEffect(() => {
-    const loadLocation = async () => {
+    const loadLocationAndBranches = async () => {
       try {
-        const locationData = await apiService.getSupplierLocation();
-        if (locationData.latitude && locationData.longitude) {
+        const locationRes = await apiService.getSupplierLocation();
+        if (locationRes.latitude && locationRes.longitude) {
           setLocationData({
-            lat: locationData.latitude,
-            lng: locationData.longitude,
+            lat: locationRes.latitude,
+            lng: locationRes.longitude,
           });
         }
       } catch (error) {
         console.error("Error loading location:", error);
       }
+
+      try {
+        const branchesRes = await apiService.getBranches();
+        if (branchesRes && branchesRes.branches) {
+          setBranches(branchesRes.branches);
+        }
+      } catch (error) {
+        console.error("Error loading branches:", error);
+      }
     };
 
-    loadLocation();
+    loadLocationAndBranches();
   }, []); // Run only once on mount
 
   // Load product images from API
@@ -894,7 +906,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
       try {
         const images = await apiService.getProductImages();
         setBusinessImages(images);
-      } catch (error) {}
+      } catch (error) { }
     };
 
     loadProductImages();
@@ -1299,7 +1311,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
         try {
           const images = await apiService.getProductImages();
           setBusinessImages(images);
-        } catch (error) {}
+        } catch (error) { }
       }
 
       setIsEditing(false);
@@ -1432,23 +1444,11 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
         </h2>
         <div className="flex gap-3">
           <button
-            onClick={() => {
-              if (typeof window !== "undefined") {
-                window.location.href = "/manage-businesses/";
-              }
-            }}
-            className="px-4 py-3 rounded-lg font-medium whitespace-nowrap cursor-pointer transition-all bg-blue-500 text-white hover:bg-blue-600"
-          >
-            <i className="ri-branch-line me-2"></i>
-            {t("businessManagement.manageBranches")}
-          </button>
-          <button
             onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
-            className={`px-6 py-3 rounded-lg font-medium whitespace-nowrap cursor-pointer transition-all ${
-              isEditing
+            className={`px-6 py-3 rounded-lg font-medium whitespace-nowrap cursor-pointer transition-all ${isEditing
                 ? "bg-green-500 text-white hover:bg-green-600"
                 : "bg-yellow-400 text-white hover:bg-yellow-500"
-            }`}
+              }`}
           >
             <i
               className={`${isEditing ? "ri-save-line" : "ri-edit-line"} mr-2`}
@@ -1467,11 +1467,10 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
               <button
                 key={section.id}
                 onClick={() => setActiveSection(section.id)}
-                className={`py-4 px-2 border-b-2 font-medium text-sm whitespace-nowrap cursor-pointer transition-all ${
-                  activeSection === section.id
+                className={`py-4 px-2 border-b-2 font-medium text-sm whitespace-nowrap cursor-pointer transition-all ${activeSection === section.id
                     ? "border-yellow-400 text-yellow-600"
                     : "border-transparent text-gray-500 hover:text-gray-700"
-                }`}
+                  }`}
               >
                 <i className={`${section.icon} mr-2`}></i>
                 {section.name}
@@ -1496,11 +1495,10 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                     onChange={(e) =>
                       setBusinessData({ ...businessData, name: e.target.value })
                     }
-                    className={`w-full px-4 py-3 border rounded-lg text-sm ${
-                      isEditing
+                    className={`w-full px-4 py-3 border rounded-lg text-sm ${isEditing
                         ? "border-gray-300 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
                         : "border-gray-200 bg-gray-50"
-                    }`}
+                      }`}
                   />
                 </div>
 
@@ -1532,11 +1530,10 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                         email: e.target.value,
                       })
                     }
-                    className={`w-full px-4 py-3 border rounded-lg text-sm ${
-                      isEditing
+                    className={`w-full px-4 py-3 border rounded-lg text-sm ${isEditing
                         ? "border-gray-300 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
                         : "border-gray-200 bg-gray-50"
-                    }`}
+                      }`}
                   />
                 </div>
 
@@ -1554,11 +1551,10 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                         website: e.target.value,
                       })
                     }
-                    className={`w-full px-4 py-3 border rounded-lg text-sm ${
-                      isEditing
+                    className={`w-full px-4 py-3 border rounded-lg text-sm ${isEditing
                         ? "border-gray-300 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
                         : "border-gray-200 bg-gray-50"
-                    }`}
+                      }`}
                   />
                 </div>
 
@@ -1575,11 +1571,10 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                         serviceDistance: e.target.value,
                       })
                     }
-                    className={`w-full px-4 py-3 border rounded-lg text-sm ${
-                      isEditing
+                    className={`w-full px-4 py-3 border rounded-lg text-sm ${isEditing
                         ? "border-gray-300 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
                         : "border-gray-200 bg-gray-50"
-                    }`}
+                      }`}
                   >
                     <option value="">Select distance</option>
                     {serviceDistanceOptions.map((distance) => (
@@ -1604,11 +1599,10 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                     return (
                       <label
                         key={customer.en}
-                        className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${
-                          isSelected
+                        className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${isSelected
                             ? "border-yellow-400 bg-yellow-50"
                             : "border-gray-200 hover:border-gray-300"
-                        }`}
+                          }`}
                       >
                         <input
                           type="checkbox"
@@ -1646,11 +1640,10 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                   }
                   rows={4}
                   maxLength={500}
-                  className={`w-full px-4 py-3 border rounded-lg text-sm resize-none ${
-                    isEditing
+                  className={`w-full px-4 py-3 border rounded-lg text-sm resize-none ${isEditing
                       ? "border-gray-300 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
                       : "border-gray-200 bg-gray-50"
-                  }`}
+                    }`}
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   {businessData.description.length}/500{" "}
@@ -1686,11 +1679,10 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                   {businessTypes.map((type) => (
                     <label
                       key={type.value}
-                      className={`flex items-center gap-2 md:gap-3 p-3 md:p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        businessData.businessType === type.value
+                      className={`flex items-center gap-2 md:gap-3 p-3 md:p-4 border-2 rounded-lg cursor-pointer transition-all ${businessData.businessType === type.value
                           ? "border-yellow-400 bg-yellow-50"
                           : "border-gray-200 hover:border-gray-300"
-                      }`}
+                        }`}
                     >
                       <input
                         type="radio"
@@ -1854,7 +1846,7 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                         }}
                         className="w-4 h-4 text-yellow-400 border-gray-300 rounded focus:ring-yellow-400"
                       />
-                      <span className="text-sm text-gray-700">{service}</span>
+                      <span className="text-sm text-gray-700">{formatOfferedService(service, language)}</span>
                     </label>
                   ))}
                 </div>
@@ -1870,9 +1862,8 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                   {t("businessManagement.labels.businessLocation")}
                 </label>
                 <div
-                  className={`rounded-lg overflow-hidden border ${
-                    isEditing ? "border-gray-300" : "border-gray-200"
-                  }`}
+                  className={`rounded-lg overflow-hidden border ${isEditing ? "border-gray-300" : "border-gray-200"
+                    }`}
                 >
                   <BusinessLocationMap
                     selectedLocation={locationData}
@@ -1923,6 +1914,76 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                     {businessData.address}
                   </p>
                 </div>
+              </div>
+
+              {/* Branch Management Section inside Location Tab */}
+              <div className="pt-6 border-t border-gray-200">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                      <i className="ri-git-branch-line text-yellow-500"></i>
+                      {t("completeProfile.step4.manageBranches") || (language === "ar" ? "إدارة الفروع" : "Manage Branches")}
+                    </h3>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {language === "ar"
+                        ? "أضف ودر فروع منشأتك ومواقعها التفاعلية على الخريطة"
+                        : "Add and manage your business branches and interactive map locations"}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowBranchModal(true)}
+                    className="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-white rounded-lg text-sm font-medium flex items-center gap-2 cursor-pointer transition-colors shadow-sm self-start sm:self-auto"
+                  >
+                    <i className="ri-git-branch-line"></i>
+                    <span>{t("completeProfile.step4.manageBranches") || (language === "ar" ? "إدارة الفروع" : "Manage Branches")}</span>
+                    {branches.length > 0 && (
+                      <span className="bg-white/30 text-white px-2 py-0.5 rounded-full text-xs font-bold">
+                        {branches.length}
+                      </span>
+                    )}
+                  </button>
+                </div>
+
+                {/* Summary List of Existing Branches */}
+                {branches.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {branches.map((branch, index) => (
+                      <div
+                        key={branch.id || index}
+                        className="p-3.5 border border-gray-200 rounded-xl bg-gray-50 flex justify-between items-center shadow-xs"
+                      >
+                        <div>
+                          <h4 className="font-semibold text-gray-800 text-sm">
+                            {branch.name || `${language === "ar" ? "فرع" : "Branch"} ${index + 1}`}
+                          </h4>
+                          {branch.address && (
+                            <p className="text-xs text-gray-500 mt-1 truncate max-w-xs">
+                              <i className="ri-map-pin-line me-1 text-gray-400"></i>
+                              {branch.address}
+                            </p>
+                          )}
+                        </div>
+                        <span
+                          className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+                            branch.status !== "inactive"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-gray-200 text-gray-600"
+                          }`}
+                        >
+                          {branch.status !== "inactive"
+                            ? (language === "ar" ? "نشط" : "Active")
+                            : (language === "ar" ? "غير نشط" : "Inactive")}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-5 border border-dashed border-gray-300 rounded-xl bg-gray-50 text-center text-gray-500 text-sm">
+                    <i className="ri-store-2-line text-3xl text-gray-400 block mb-1"></i>
+                    {language === "ar" ? "لم يتم إضافة فروع إضافية بعد" : "No additional branches added yet"}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -2132,8 +2193,8 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
                       >
                         {verificationFile
                           ? t(
-                              "businessManagement.verification.selected",
-                            ).replace("{{fileName}}", verificationFile.name)
+                            "businessManagement.verification.selected",
+                          ).replace("{{fileName}}", verificationFile.name)
                           : t("businessManagement.verification.chooseFile")}
                       </button>
                       <button
@@ -2194,6 +2255,46 @@ export default function BusinessManagement({ initialSection }: BusinessManagemen
               >
                 <i className="ri-save-line me-2"></i>
                 {t("businessManagement.saveChanges")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Branch Management Modal */}
+      {showBranchModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6 shadow-2xl">
+            <div className="flex justify-between items-center pb-4 mb-4 border-b border-gray-100">
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-xl bg-yellow-100 flex items-center justify-center text-yellow-600 font-bold">
+                  <i className="ri-git-branch-line text-lg"></i>
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-800">
+                  {t("completeProfile.step4.manageBranches") || (language === "ar" ? "إدارة الفروع" : "Manage Branches")}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowBranchModal(false)}
+                className="w-8 h-8 rounded-full bg-gray-100 text-gray-500 hover:text-gray-700 hover:bg-gray-200 flex items-center justify-center cursor-pointer transition-colors"
+              >
+                <i className="ri-close-line text-xl"></i>
+              </button>
+            </div>
+
+            <BranchManagement
+              branches={branches}
+              setBranches={setBranches}
+            />
+
+            <div className="mt-6 pt-4 border-t border-gray-100 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowBranchModal(false)}
+                className="px-6 py-2.5 bg-yellow-400 text-white rounded-lg font-medium hover:bg-yellow-500 transition-colors cursor-pointer"
+              >
+                {language === "ar" ? "إغلاق" : "Close"}
               </button>
             </div>
           </div>

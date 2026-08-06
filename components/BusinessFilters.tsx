@@ -79,7 +79,7 @@ export default function BusinessFilters({
             try {
               const user = JSON.parse(userData);
               location = user.profile?.address || "Unknown";
-            } catch (error) {}
+            } catch (error) { }
           }
 
           await apiService.trackSearch({
@@ -89,7 +89,7 @@ export default function BusinessFilters({
           });
 
           setLastTrackedSearch(value);
-        } catch (error) {}
+        } catch (error) { }
       }, 2000); // 2 seconds delay
 
       setSearchTimeout(timeout);
@@ -101,7 +101,7 @@ export default function BusinessFilters({
       try {
         const stats = await apiService.getStats();
         setStats(stats);
-      } catch (error) {}
+      } catch (error) { }
     };
 
     fetchStats();
@@ -155,6 +155,7 @@ export default function BusinessFilters({
     { value: "15", label: t("filters.within15km") },
     { value: "20", label: t("filters.within20km") },
     { value: "50", label: t("filters.within50km") },
+    { value: "100", label: t("filters.within100km") },
   ];
 
   const clearAllFilters = (): void => {
@@ -195,9 +196,8 @@ export default function BusinessFilters({
           </label>
           <div className="relative rounded-md">
             <div
-              className={`absolute inset-y-0 ${
-                isRTL ? "right-0 pr-3" : "left-0 pl-3"
-              } flex items-center pointer-events-none`}
+              className={`absolute inset-y-0 ${isRTL ? "right-0 pr-3" : "left-0 pl-3"
+                } flex items-center pointer-events-none`}
             >
               <i className="ri-search-line text-gray-500"></i>
             </div>
@@ -206,9 +206,8 @@ export default function BusinessFilters({
               value={searchQuery}
               onChange={handleSearchChange}
               placeholder={t("filters.searchPlaceholder")}
-              className={`block w-full ${
-                isRTL ? "pr-10" : "pl-10"
-              } py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all duration-200`}
+              className={`block w-full ${isRTL ? "pr-10" : "pl-10"
+                } py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all duration-200`}
               dir={isRTL ? "rtl" : "ltr"}
             />
           </div>
@@ -250,11 +249,10 @@ export default function BusinessFilters({
           <button
             key="all"
             onClick={() => setSelectedCategory("all")}
-            className={`w-full flex items-start gap-3 p-3 rounded-xl transition-all cursor-pointer ${
-              selectedCategory === "all"
+            className={`w-full flex items-start gap-3 p-3 rounded-xl transition-all cursor-pointer ${selectedCategory === "all"
                 ? "bg-yellow-400 text-white shadow-md"
                 : "hover:bg-gray-50 text-gray-700"
-            }`}
+              }`}
           >
             <i className="ri-apps-2-line text-sm"></i>
             <span className="font-medium text-sm">{t("filters.allCategories")}</span>
@@ -263,11 +261,10 @@ export default function BusinessFilters({
             <button
               key={category.id}
               onClick={() => setSelectedCategory(category.id)}
-              className={`w-full flex items-start gap-3 p-3 rounded-xl transition-all cursor-pointer ${
-                selectedCategory === category.id
+              className={`w-full flex items-start gap-3 p-3 rounded-xl transition-all cursor-pointer ${selectedCategory === category.id
                   ? "bg-yellow-400 text-white shadow-md"
                   : "hover:bg-gray-50 text-gray-700"
-              }`}
+                }`}
             >
               <i className={`${category.icon} text-sm`}></i>
               <span className="font-medium text-start text-sm">{category.name}</span>
@@ -286,11 +283,10 @@ export default function BusinessFilters({
             <button
               key={type.id}
               onClick={() => setSelectedBusinessType(type.id)}
-              className={`w-full flex items-start gap-3 p-3 rounded-xl transition-all cursor-pointer ${
-                selectedBusinessType === type.id
+              className={`w-full flex items-start gap-3 p-3 rounded-xl transition-all cursor-pointer ${selectedBusinessType === type.id
                   ? "bg-yellow-400 text-white shadow-md"
                   : "hover:bg-gray-50 text-gray-700"
-              }`}
+                }`}
             >
               <i className={`${type.icon} text-sm`}></i>
               <span className="font-medium text-start text-sm">{type.name}</span>
