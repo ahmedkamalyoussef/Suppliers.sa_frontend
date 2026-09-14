@@ -488,24 +488,6 @@ export const categories: Category[] = [
     icon: "ri-store-2-line",
     color: "from-rose-400 to-rose-600"
   },
-  {
-    id: "Other",
-    name: {
-      en: "Other",
-      ar: "أخرى"
-    },
-    icon: "ri-more-fill",
-    color: "from-gray-400 to-gray-600"
-  },
-  {
-    id: "General",
-    name: {
-      en: "General",
-      ar: "عام"
-    },
-    icon: "ri-building-line",
-    color: "from-gray-400 to-gray-600"
-  }
 ];
 
 // Helper functions
